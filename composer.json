@@ -1,0 +1,15 @@
+{
+    "name": "phabel/phabel",
+    "description": "Write and deploy modern PHP 8 code, today.",
+    "type": "project",
+    "require": {
+        "nikic/php-parser": "^4.7"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Daniil Gentili",
+            "email": "daniil@daniil.it"
+        }
+    ]
+}
