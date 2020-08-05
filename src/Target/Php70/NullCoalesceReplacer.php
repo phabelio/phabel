@@ -10,10 +10,10 @@ use PhpParser\Node\Expr\StaticCall;
 class NullCoalesceReplacer extends Plugin
 {
     /**
-     * Replace null coalesce
+     * Replace null coalesce.
      *
      * @param Coalesce $node Coalesce
-     * 
+     *
      * @return StaticCall
      */
     public function enter(Coalesce $node): StaticCall
@@ -33,6 +33,6 @@ class NullCoalesceReplacer extends Plugin
      */
     public static function coalesce($ifNotNull, $then)
     {
-        return isset($ifNotNull) ?: $then;
+        return isset($ifNotNull) ? $ifNotNull : $then;
     }
 }

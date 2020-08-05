@@ -110,8 +110,8 @@ class ListKey extends Plugin
     /**
      * {@inheritDoc}
      */
-    public function needs(): string
+    public static function needs(): array
     {
-        return ArrayList::class;
+        return [ArrayList::class];
     }
 }

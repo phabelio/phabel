@@ -26,13 +26,12 @@ class TypeHintStripper extends Plugin
         if (!$type || $type instanceof UnionType) {
             return;
         }
-        if ($type instanceof NullableType && $this->getConfig('nullable')) {
+        if ($type instanceof NullableType && $this->getConfig('nullable', false)) {
             $type = null;
             return;
         }
         $throwableType = $type instanceof NullableType ? $type->type : $type;
-        // Make this less ugly when we implement a namespace context
-        if (\in_array($throwableType->toString(), $this->getConfig('types'))) {
+        if (\in_array($throwableType->toString(), $this->getConfig('types', []))) {
             $type = null;
         }
     }

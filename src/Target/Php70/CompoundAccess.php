@@ -7,6 +7,7 @@ use PhpParser\Node;
 use PhpParser\Node\Expr\ArrayDimFetch;
 use PhpParser\Node\Expr\ClassConstFetch;
 use PhpParser\Node\Expr\Isset_;
+use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\Yield_;
 
 /**
@@ -37,7 +38,7 @@ class CompoundAccess extends Plugin
      * Fix yield array access.
      *
      * @param ArrayDimFetch $node Node
-     * 
+     *
      * @return void
      */
     public function enterArrayYield(ArrayDimFetch $node): void
@@ -48,10 +49,10 @@ class CompoundAccess extends Plugin
         $node->var = self::callPoly('returnMe', $node->var);
     }
     /**
-     * Fix yield array access
+     * Fix yield array access.
      *
      * @param Yield_ $node Yield
-     * 
+     *
      * @return void
      */
     public function enterYield(Yield_ $node): void
@@ -61,10 +62,28 @@ class CompoundAccess extends Plugin
             return;
         }
         if ($value instanceof Node\Expr\FuncCall ||
-                $value instanceof Node\Expr\MethodCall ||
-                $value instanceof Node\Expr\StaticCall ||
-                $value instanceof Node\Scalar
-            ) {
+            $value instanceof Node\Expr\MethodCall ||
+            $value instanceof Node\Expr\StaticCall ||
+            $value instanceof Node\Scalar
+        ) {
+            return;
+        }
+        $value = self::callPoly('returnMe', $value);
+    }
+    /**
+     * Replace method call on yielded|cloned|closure object.
+     *
+     * @param MethodCall $node Method call
+     *
+     * @return void
+     */
+    public function enterMethodCall(MethodCall $node): void
+    {
+        $value = &$node->var;
+        if (!$value instanceof Node\Expr\Clone_ &&
+            !$value instanceof Node\Expr\Yield_ &&
+            !$value instanceof Node\Expr\Closure
+        ) {
             return;
         }
         $value = self::callPoly('returnMe', $value);

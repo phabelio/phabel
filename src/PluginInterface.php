@@ -2,8 +2,6 @@
 
 namespace Phabel;
 
-use PhpParser\NodeVisitor;
-
 interface PluginInterface
 {
     /**
@@ -14,40 +12,67 @@ interface PluginInterface
      *
      * When possible, use the extends method to reduce complexity.
      *
-     * @return array|string Plugin name(s)
+     * @return array Plugin name(s)
      *
-     * @psalm-return array<class-string<Plugin|NodeVisitor>>|class-string<Plugin|NodeVisitor>
+     * @psalm-return class-string<PluginInterface>[]|array<class-string<PluginInterface>, array>
      */
-    public function needs();
+    public static function needs(): array;
     /**
-     * Specify which plugins does this plugin extends.
+     * Specify which plugins does this plugin extend.
      *
      * At each depth level, the traverser will first execute the enter|leave methods of the specified plugins, then immediately execute the enter|leave methods of the current plugin.
      *
      * This is preferred, and allows only a single traversal of the AST.
      *
-     * @return array|string Plugin name(s)
+     * @return array Plugin name(s)
      *
-     * @psalm-return array<class-string<Plugin|NodeVisitor>>|class-string<Plugin|NodeVisitor>
+     * @psalm-return class-string<PluginInterface>[]|array<class-string<PluginInterface>, array>
      */
-    public function extends();
+    public static function extends(): array;
 
     /**
-     * Get configuration key
+     * Specify a list of composer dependencies.
      *
-     * @param string $key Key
-     * 
+     * @return array
+     */
+    public static function composerRequires(): array;
+    /**
+     * Get configuration key.
+     *
+     * @param string $key     Key
+     * @param mixed  $default Default value, if key is not present
+     *
      * @return mixed
      */
-    public function getConfig(string $key);
+    public function getConfig(string $key, $default);
 
     /**
-     * Set configuration key
+     * Set configuration key.
      *
      * @param string $key   Key
      * @param mixed  $value Value
-     * 
+     *
      * @return void
      */
     public function setConfig(string $key, $value): void;
+
+    /**
+     * Merge multiple configurations into one (or more).
+     *
+     * @param array ...$configs Configurations
+     *
+     * @return array[]
+     */
+    public static function mergeConfigs(array ...$configs): array;
+    /**
+     * Split configuration.
+     * 
+     * For example, if you have a configuration that enables feature A, B and C, return three configuration arrays each enabling ONLY A, only B and only C.
+     * This is used for optimizing the AST traversing process during resolution of the plugin graph.
+     *
+     * @param array $config Configuration
+     *
+     * @return array[]
+     */
+    public static function splitConfig(array $config): array;
 }

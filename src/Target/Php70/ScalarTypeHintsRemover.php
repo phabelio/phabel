@@ -12,7 +12,7 @@ class ScalarTypeHintsRemover extends Plugin
      *
      * @return array
      */
-    public function needs(): array
+    public static function needs(): array
     {
         return [
             TypeHintStripper::class => [

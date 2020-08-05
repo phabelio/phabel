@@ -78,7 +78,7 @@ class ThrowableReplacer extends Plugin
      *
      * @return array
      */
-    public function extends(): array
+    public static function extends(): array
     {
         return [
             TypeHintStripper::class => [

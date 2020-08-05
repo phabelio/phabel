@@ -42,8 +42,8 @@ class MultipleCatchReplacer extends Plugin
      * 
      * @psalm-return class-string
      */
-    public function extends(): string
+    public static function extends(): string
     {
-        return ThrowableReplacer::class;
+        return [ThrowableReplacer::class];
     }
 }

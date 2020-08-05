@@ -113,9 +113,9 @@ abstract class Plugin implements PluginInterface
     /**
      * {@inheritDoc}
      */
-    public function getConfig(string $key)
+    public function getConfig(string $key, $default)
     {
-        return $this->config[$key];
+        return $this->config[$key] ?? $default;
     }
     /**
      * {@inheritDoc}
@@ -127,14 +127,28 @@ abstract class Plugin implements PluginInterface
     /**
      * {@inheritDoc}
      */
-    public function needs()
+    public static function mergeConfigs(array ...$configs): array
+    {
+        return $configs;
+    }
+    /**
+     * {@inheritDoc}
+     */
+    public static function composerRequires(): array
     {
         return [];
     }
     /**
      * {@inheritDoc}
      */
-    public function extends()
+    public static function needs(): array
+    {
+        return [];
+    }
+    /**
+     * {@inheritDoc}
+     */
+    public static function extends(): array
     {
         return [];
     }
