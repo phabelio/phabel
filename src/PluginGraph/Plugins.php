@@ -53,12 +53,13 @@ class Plugins
      *
      * @return void
      */
-    public function enqueue(SplQueue $queue): void
+    public function enqueue(SplQueue $queue, PackageContext $ctx): void
     {
         foreach ($this->plugins as $plugin => $configs) {
             foreach ($plugin::mergeConfigs(...$configs) as $config) {
                 $pluginObj = new $plugin;
                 $pluginObj->setConfigArray($config);
+                $pluginObj->setPackageContext($ctx);
                 $queue->enqueue($pluginObj);
             }
         }

@@ -27,11 +27,11 @@ class Node
     private string $name;
 
     /**
-     * Associated package contexts.
+     * Associated package context.
      *
-     * @var SplObjectStorage<PackageContext, void>
+     * @var PackageContext
      */
-    private SplObjectStorage $packageContexts;
+    private PackageContext $packageContext;
     /**
      * Nodes that this node requires.
      *
@@ -80,10 +80,10 @@ class Node
      *
      * @param GraphInternal  $graph  Graph instance
      */
-    public function __construct(GraphInternal $graph)
+    public function __construct(GraphInternal $graph, PackageContext $ctx)
     {
+        $this->packageContext = $ctx;
         $this->graph = $graph;
-        $this->packageContexts = new SplObjectStorage;
         $this->requiredBy = new SplObjectStorage;
         $this->extendedBy = new SplObjectStorage;
         $this->requires = new SplObjectStorage;
@@ -100,30 +100,29 @@ class Node
      *
      * @return self
      */
-    public function init(string $plugin, array $config, PackageContext $ctx): self
+    public function init(string $plugin, array $config): self
     {
         $this->name = $plugin;
         $this->plugin = new Plugins($plugin, $config);
-        $this->packageContexts->attach($ctx);
 
         $this->canBeRequired = PluginCache::canBeRequired($plugin);
         foreach (PluginCache::runAfter($plugin) as $class => $config) {
-            foreach ($this->graph->addPlugin($class, $config, $ctx) as $node) {
+            foreach ($this->graph->addPlugin($class, $config, $this->packageContext) as $node) {
                 $this->require($node);
             }
         }
         foreach (PluginCache::runBefore($plugin) as $class => $config) {
-            foreach ($this->graph->addPlugin($class, $config, $ctx) as $node) {
+            foreach ($this->graph->addPlugin($class, $config, $this->packageContext) as $node) {
                 $node->require($this);
             }
         }
         foreach (PluginCache::runWithAfter($plugin) as $class => $config) {
-            foreach ($this->graph->addPlugin($class, $config, $ctx) as $node) {
+            foreach ($this->graph->addPlugin($class, $config, $this->packageContext) as $node) {
                 $this->extend($node);
             }
         }
         foreach (PluginCache::runWithBefore($plugin) as $class => $config) {
-            foreach ($this->graph->addPlugin($class, $config, $ctx) as $node) {
+            foreach ($this->graph->addPlugin($class, $config, $this->packageContext) as $node) {
                 $node->extend($this);
             }
         }
@@ -172,28 +171,6 @@ class Node
     }
 
     /**
-     * Add package context.
-     *
-     * @param PackageContext $ctx Context
-     *
-     * @return self
-     */
-    public function addPackageContext(PackageContext $ctx): self
-    {
-        if ($this->packageContexts->contains($ctx)) {
-            return $this;
-        }
-        $this->packageContexts->attach($ctx);
-        foreach ($this->requires as $node) {
-            $node->addPackageContext($ctx);
-        }
-        foreach ($this->extends as $node) {
-            $node->addPackageContext($ctx);
-        }
-        return $this;
-    }
-
-    /**
      * Merge node with another node.
      *
      * @param self $other Other node
@@ -202,6 +179,7 @@ class Node
      */
     public function merge(self $other): Node
     {
+        $this->packageContext->merge($other->packageContext);
         $this->plugin->merge($other->plugin);
         foreach ($other->requiredBy as $node) {
             $node->require($this);
@@ -234,7 +212,7 @@ class Node
         return $queue;
     }
     /**
-     * Look for circular references.
+     * Look for circular references, while merging package contexts.
      *
      * @return self
      */
@@ -253,10 +231,10 @@ class Node
         $this->visitedCircular = true;
 
         foreach ($this->requiredBy as $node) {
-            $node->circular();
+            $this->packageContext->merge($node->circular()->packageContext);
         }
         foreach ($this->extendedBy as $node) {
-            $node->circular();
+            $this->packageContext->merge($node->circular()->packageContext);
         }
 
         $this->visitedCircular = false;
@@ -273,7 +251,7 @@ class Node
     private function flattenInternal(SplQueue $splQueue): void
     {
         $queue = $splQueue->top();
-        $this->plugin->enqueue($queue);
+        $this->plugin->enqueue($queue, $this->packageContext);
 
         /** @var SplQueue<Node> */
         $extendedBy = new SplQueue;
@@ -309,6 +287,8 @@ class Node
             $requiredBy->enqueue($prevNode);
         }
 
+
+        
         foreach ($extendedBy as $node) {
             $node->extends->detach($this);
             if (\count($node->extends) + \count($node->requires) === 0) {

@@ -38,6 +38,18 @@ class PackageContext
     }
 
     /**
+     * Check if a package is present in the package context
+     *
+     * @param string $package Package
+     * 
+     * @return boolean
+     */
+    public function has(string $package): bool
+    {
+        return isset($this->packages[$package]);
+    }
+
+    /**
      * Get package list.
      *
      * @return array

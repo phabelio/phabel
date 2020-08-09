@@ -2,6 +2,7 @@
 
 namespace Phabel;
 
+use Phabel\PluginGraph\PackageContext;
 use PhpParser\Node;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr;
@@ -21,6 +22,10 @@ abstract class Plugin implements PluginInterface
      */
     private array $config = [];
     /**
+     * Package context
+     */
+    private PackageContext $ctx;
+    /**
      * Set configuration array.
      *
      * @param array $config
@@ -29,6 +34,48 @@ abstract class Plugin implements PluginInterface
     public function setConfigArray(array $config)
     {
         $this->config = $config;
+    }
+    /**
+     * Set package context
+     *
+     * @param PackageContext $ctx Ctx
+     * 
+     * @return void
+     */
+    public function setPackageContext(PackageContext $ctx): void
+    {
+        $this->ctx = $ctx;
+    }
+    /**
+     * Get package context
+     *
+     * @return PackageContext
+     */
+    public function getPackageContext(): PackageContext
+    {
+        return $this->ctx;
+    }
+    /**
+     * Check if plugin should run
+     *
+     * @param string $package Package name
+     * 
+     * @return boolean
+     */
+    public function shouldRun(string $package): bool
+    {
+        return $this->ctx->has($package);
+    }
+    /**
+     * Check if plugin should run
+     *
+     * @param string $file File name
+     * 
+     * @return boolean
+     */
+    public function shouldRunFile(string $file): bool
+    {
+        return true;
     }
     /**
      * Replace node of one type with another.

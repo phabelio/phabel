@@ -122,7 +122,7 @@ class Memoization
     public function leaveFunctionLike(FunctionLike $fun): void
     {
         $this->cache->pop();
-        \array_unshift($fun->stmts, $this->stmts->pop());
+        $fun->stmts = \array_merge($this->stmts->pop(), $fun->stmts);
     }
 
     /**

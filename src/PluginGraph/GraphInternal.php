@@ -59,12 +59,6 @@ class GraphInternal
      */
     public function addPlugin(string $plugin, array $config, PackageContext $ctx): array
     {
-        if ($config === ['*']) {
-            if (isset($this->plugins[$plugin])) {
-                return \array_map(fn (Node $node) => $node->addPackageContext($ctx), $this->plugins[$plugin]);
-            }
-            $config = [];
-        }
         $configs = $plugin::splitConfig($config);
         $nodes = [];
         foreach ($configs as $config) {
@@ -87,11 +81,11 @@ class GraphInternal
     {
         $configStr = \var_export($config, true);
         if (isset($this->plugins[$plugin][$configStr])) {
-            return $this->plugins[$plugin][$configStr]->addPackageContext($ctx);
+            return $this->plugins[$plugin][$configStr];
         }
-        $this->plugins[$plugin][$configStr] = $node = new Node($this);
+        $this->plugins[$plugin][$configStr] = $node = new Node($this, $ctx);
         $this->unlinkedNodes->attach($node);
-        return $node->init($plugin, $config, $ctx);
+        return $node->init($plugin, $config);
     }
 
     /**
@@ -115,6 +109,7 @@ class GraphInternal
     public function flatten(): \SplQueue
     {
         if (!$this->plugins) {
+            /** @var SplQueue<SplQueue<Plugin>> */
             return new \SplQueue;
         }
         if ($this->unlinkedNodes->count()) {
