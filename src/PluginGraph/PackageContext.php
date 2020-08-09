@@ -25,10 +25,10 @@ class PackageContext
         $this->packages[$package] = null;
     }
     /**
-     * Merge two contexts
+     * Merge two contexts.
      *
      * @param self $other Other context
-     * 
+     *
      * @return self New context
      */
     public function merge(self $other): self
@@ -38,12 +38,12 @@ class PackageContext
     }
 
     /**
-     * Get package list
+     * Get package list.
      *
      * @return array
      */
     public function getPackages(): array
     {
-        return array_values($this->packages);
+        return \array_values($this->packages);
     }
 }

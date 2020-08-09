@@ -6,5 +6,4 @@ use Phabel\Plugin;
 
 class UniqueId extends Plugin
 {
-    
 }

@@ -12,7 +12,7 @@ class MultipleCatchReplacer extends Plugin
 {
     /**
      * Replace compound catches.
-     * 
+     *
      * Do this while leaving to avoid re-iterating uselessly on duplicated code.
      *
      * @param TryCatch $node Catch stmt
@@ -36,13 +36,13 @@ class MultipleCatchReplacer extends Plugin
         $node->catches = $catches;
     }
     /**
-     * Extends throwable replacer
+     * Extends throwable replacer.
      *
      * @return string
-     * 
+     *
      * @psalm-return class-string
      */
-    public static function extends(): string
+    public static function runWithBefore(): string
     {
         return [ThrowableReplacer::class];
     }

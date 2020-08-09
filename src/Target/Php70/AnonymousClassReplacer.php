@@ -53,7 +53,7 @@ class AnonymousClassReplacer extends NodeVisitorAbstract
      */
     public function afterTraverse(array $nodes)
     {
-        if (count($this->anonymousClassNodes) === 0) {
+        if (\count($this->anonymousClassNodes) === 0) {
             return $nodes;
         }
 
@@ -101,15 +101,15 @@ class AnonymousClassReplacer extends NodeVisitorAbstract
      * @param array $nodes
      * @param $hookIndex
      * @param $anonymousClassStatements
-     * 
+     *
      * @return array
      */
     protected function moveAnonymousClassesToHook(array $nodes, $hookIndex, $anonymousClassStatements)
     {
-        $preStatements = array_slice($nodes, 0, $hookIndex);
-        $postStatements = array_slice($nodes, $hookIndex);
+        $preStatements = \array_slice($nodes, 0, $hookIndex);
+        $postStatements = \array_slice($nodes, $hookIndex);
 
-        return array_merge($preStatements, $anonymousClassStatements, $postStatements);
+        return \array_merge($preStatements, $anonymousClassStatements, $postStatements);
     }
 
     /**

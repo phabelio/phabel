@@ -2,24 +2,22 @@
 
 namespace Phabel\PluginGraph;
 
-use Phabel\PluginInterface;
-
+/**
+ * Graph API wrapper.
+ */
 class Graph
 {
     /**
-     * Plugin nodes, indexed by plugin name+config.
-     *
-     * @var array<class-string<PluginInterface>, array<string, Node>>
+     * Graph instance.
      */
-    private array $plugins = [];
-
+    private GraphInternal $graph;
     /**
-     * Package contexts.
-     *
-     * @var PackageContext[]
+     * Constructr.
      */
-    private array $packageContexts = [];
-
+    public function __construct()
+    {
+        $this->graph = new GraphInternal;
+    }
     /**
      * Get new package context.
      *
@@ -27,9 +25,7 @@ class Graph
      */
     public function getPackageContext(): PackageContext
     {
-        $packageContext = new PackageContext;
-        $this->packageContexts []= $packageContext;
-        return $packageContext;
+        return $this->graph->getPackageContext();
     }
 
     /**
@@ -45,31 +41,15 @@ class Graph
      */
     public function addPlugin(string $plugin, array $config, PackageContext $ctx): array
     {
-        $configs = $plugin::splitConfig($config);
-        $nodes = [];
-        foreach ($configs as $config) {
-            $nodes []= $this->addPluginInternal($plugin, $config, $ctx);
-        }
-        return $nodes;
+        return $this->graph->addPlugin($plugin, $config, $ctx);
     }
     /**
-     * Add plugin.
+     * Flatten graph.
      *
-     * @param string         $plugin Plugin to add
-     * @param array          $config Plugin configuration
-     * @param PackageContext $ctx    Package context
-     *
-     * @psalm-param class-string<PluginInterface> $plugin Plugin name
-     *
-     * @return Node
+     * @return SplQueue<SplQueue<Plugin>>
      */
-    private function addPluginInternal(string $plugin, array $config, PackageContext $ctx): Node
+    public function flatten(): \SplQueue
     {
-        $configStr = \var_export($config, true);
-        if (isset($this->plugins[$plugin][$configStr])) {
-            return $this->plugins[$plugin][$configStr]->addPackageContext($ctx);
-        }
-        $this->plugins[$plugin][$configStr] = $node = new Node;
-        return $node->init($this, $plugin, $config, $ctx);
+        return $this->graph->flatten();
     }
 }

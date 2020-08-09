@@ -8,11 +8,11 @@ use Phabel\Plugin\TypeHintStripper;
 class NullableTypeRemover extends Plugin
 {
     /**
-     * Remove nullable typehint
+     * Remove nullable typehint.
      *
      * @return array
      */
-    public static function needs(): array
+    public static function runAfter(): array
     {
         return [
             TypeHintStripper::class => [

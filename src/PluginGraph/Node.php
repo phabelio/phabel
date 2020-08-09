@@ -2,8 +2,10 @@
 
 namespace Phabel\PluginGraph;
 
+use Phabel\PluginCache;
 use Phabel\PluginInterface;
 use SplObjectStorage;
+use SplQueue;
 
 /**
  * Represents a plugin with a certain configuration.
@@ -11,66 +13,85 @@ use SplObjectStorage;
 class Node
 {
     /**
-     * Plugin name.
+     * Plugins and configs.
+     *
+     * @var Plugin
      */
-    private string $plugin = '';
+    private Plugin $plugin;
+
     /**
-     * Plugin configuration.
+     * Original plugin name.
+     *
+     * @var class-string<PluginInterface>
      */
-    private array $config = [];
+    private string $name;
 
     /**
      * Associated package contexts.
+     *
+     * @var SplObjectStorage<PackageContext, void>
      */
     private SplObjectStorage $packageContexts;
     /**
      * Nodes that this node requires.
      *
-     * @var Node[]
+     * @var SplObjectStorage<Node, void>
      */
-    private array $requires = [];
+    private SplObjectStorage $requires;
 
     /**
      * Nodes that this node extends.
      *
-     * @var Node[]
+     * @var SplObjectStorage<Node, void>
      */
-    private array $extends = [];
+    private SplObjectStorage $extends;
 
     /**
      * Nodes that require this node.
      *
-     * @var Node[]
+     * @var SplObjectStorage<Node, void>
      */
-    private array $requiredBy = [];
+    private SplObjectStorage $requiredBy;
 
     /**
      * Nodes that extend this node.
      *
-     * @var Node[]
+     * @var SplObjectStorage<Node, void>
      */
-    private array $extendedBy = [];
+    private SplObjectStorage $extendedBy;
 
     /**
-     * Whether this node was visited when looking for circular requirement references.
+     * Graph instance.
      */
-    private bool $visitedRequires = false;
+    private GraphInternal $graph;
+
     /**
-     * Whether this node was visited when looking for circular requirement references.
+     * Whether this node was visited when looking for circular requirements.
      */
-    private bool $visitedExtends = false;
+    private bool $visitedCircular = false;
+
+    /**
+     * Whether this node can be required, or only extended.
+     */
+    private bool $canBeRequired = true;
 
     /**
      * Constructor.
+     *
+     * @param GraphInternal  $graph  Graph instance
      */
-    public function __construct()
+    public function __construct(GraphInternal $graph)
     {
+        $this->graph = $graph;
         $this->packageContexts = new SplObjectStorage;
+        $this->requiredBy = new SplObjectStorage;
+        $this->extendedBy = new SplObjectStorage;
+        $this->requires = new SplObjectStorage;
+        $this->extends = new SplObjectStorage;
     }
     /**
      * Initialization function.
      *
-     * @param Graph          $graph  Graph instance
      * @param string         $plugin Plugin name
      * @param array          $config Plugin configuration
      * @param PackageContext $ctx    Context
@@ -79,25 +100,31 @@ class Node
      *
      * @return self
      */
-    public function init(Graph $graph, string $plugin, array $config, PackageContext $ctx): self
+    public function init(string $plugin, array $config, PackageContext $ctx): self
     {
-        $this->plugin = $plugin;
-        $this->config = $config;
+        $this->name = $plugin;
+        $this->plugin = new Plugin($plugin, $config);
         $this->packageContexts->attach($ctx);
 
-        $requirements = self::simplify($plugin::needs());
-        $extends = self::simplify($plugin::extends());
-
-        foreach ($requirements as $class => $config) {
-            foreach ($graph->addPlugin($class, $config, $ctx) as $node) {
-                $this->requires []= $node;
-                $node->requiredBy []= $this;
+        $this->canBeRequired = PluginCache::canBeRequired($plugin);
+        foreach (PluginCache::runAfter($plugin) as $class => $config) {
+            foreach ($this->graph->addPlugin($class, $config, $ctx) as $node) {
+                $this->require($node);
             }
         }
-        foreach ($extends as $class => $config) {
-            foreach ($graph->addPlugin($class, $config, $ctx) as $node) {
-                $this->extends []= $node;
-                $node->extendedBy []= $this;
+        foreach (PluginCache::runBefore($plugin) as $class => $config) {
+            foreach ($this->graph->addPlugin($class, $config, $ctx) as $node) {
+                $node->require($this);
+            }
+        }
+        foreach (PluginCache::runWithAfter($plugin) as $class => $config) {
+            foreach ($this->graph->addPlugin($class, $config, $ctx) as $node) {
+                $this->extend($node);
+            }
+        }
+        foreach (PluginCache::runWithBefore($plugin) as $class => $config) {
+            foreach ($this->graph->addPlugin($class, $config, $ctx) as $node) {
+                $node->extend($this);
             }
         }
 
@@ -105,15 +132,43 @@ class Node
     }
 
     /**
-     * Simplify requirements.
+     * Make node require another node.
      *
-     * @param (array<class-string<PluginInterface>, array>|class-string<PluginInterface>[]) $requirements Requirements
+     * @param self $node Node
      *
-     * @return array<class-string<PluginInterface>, array>
+     * @return void
      */
-    private static function simplify(array $requirements): array
+    private function require(self $node): void
     {
-        return isset($requirements[0]) ? \array_fill_keys($requirements, []) : $requirements;
+        if (!$node->canBeRequired) {
+            $this->extend($node);
+            return;
+        }
+        if ($this->extends->contains($node) || $node->extendedBy->contains($this)) {
+            $this->extends->detach($node);
+            $node->extendedBy->detach($this);
+        }
+        $this->requires->attach($node);
+        $node->requiredBy->attach($this);
+
+        $this->graph->linkNode($this);
+    }
+    /**
+     * Make node extend another node.
+     *
+     * @param self $node Node
+     *
+     * @return void
+     */
+    private function extend(self $node): void
+    {
+        if ($this->requires->contains($node) || $node->requiredBy->contains($this)) {
+            return;
+        }
+        $this->extends->attach($node);
+        $node->extendedBy->attach($this);
+
+        $this->graph->linkNode($this);
     }
 
     /**
@@ -139,21 +194,133 @@ class Node
     }
 
     /**
-     * Check if this node requires only one other node.
+     * Merge node with another node.
      *
-     * @return boolean
+     * @param self $other Other node
+     *
+     * @return Node
      */
-    private function oneRequire(): bool
+    public function merge(self $other): Node
     {
-        return \count($this->requires) === 1 && empty($this->extends);
+        $this->plugin->merge($other->plugin);
+        foreach ($other->requiredBy as $node) {
+            $node->require($this);
+            $node->requires->detach($other);
+        }
+        foreach ($other->extendedBy as $node) {
+            $node->extend($this);
+            $node->extends->detach($other);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Flatten tree.
+     *
+     * @return SplQueue<SplQueue<PluginInterface>>
+     */
+    public function flatten(): SplQueue
+    {
+        /** @var SplQueue<PluginInterface> */
+        $initQueue = new SplQueue;
+
+        /** @var SplQueue<SplQueue<PluginInterface>> */
+        $queue = new SplQueue;
+        $queue->enqueue($initQueue);
+
+        $this->flattenInternal($queue);
+
+        return $queue;
     }
     /**
-     * Check if this node extends only one other node.
+     * Look for circular references.
      *
-     * @return boolean
+     * @return self
      */
-    private function oneExtend(): bool
+    public function circular(): self
     {
-        return \count($this->extends) === 1;
+        if ($this->visitedCircular) {
+            $plugins = [$this->name];
+            foreach (\debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, DEBUG_BACKTRACE_PROVIDE_OBJECT) as $frame) {
+                $plugins []= $frame['object']->name;
+                if ($frame['object'] === $this) {
+                    break;
+                }
+            }
+            throw new CircularException($plugins);
+        }
+        $this->visitedCircular = true;
+
+        foreach ($this->requiredBy as $node) {
+            $node->circular();
+        }
+        foreach ($this->extendedBy as $node) {
+            $node->circular();
+        }
+
+        $this->visitedCircular = false;
+
+        return $this;
+    }
+    /**
+     * Internal flattening.
+     *
+     * @param SplQueue<SplQueue<PluginInterface>> $splQueue Queue
+     *
+     * @return void
+     */
+    private function flattenInternal(SplQueue $splQueue): void
+    {
+        $queue = $splQueue->top();
+        $this->plugin->enqueue($queue);
+
+        /** @var SplQueue<Node> */
+        $extendedBy = new SplQueue;
+        $prevNode = null;
+        foreach ($this->extendedBy as $node) {
+            if (\count($node->requires) + \count($node->extends) === 1) {
+                if ($prevNode instanceof self) {
+                    $node->merge($prevNode);
+                }
+                $prevNode = $node;
+            } else {
+                $extendedBy->enqueue($node);
+            }
+        }
+        if ($prevNode) {
+            $extendedBy->enqueue($prevNode);
+        }
+
+        /** @var SplQueue<Node> */
+        $requiredBy = new SplQueue;
+        $prevNode = null;
+        foreach ($this->requiredBy as $node) {
+            if (\count($node->requires) + \count($node->extends) === 1) {
+                if ($prevNode instanceof self) {
+                    $node->merge($prevNode);
+                }
+                $prevNode = $node;
+            } else {
+                $requiredBy->enqueue($node);
+            }
+        }
+        if ($prevNode) {
+            $requiredBy->enqueue($prevNode);
+        }
+
+        foreach ($extendedBy as $node) {
+            $node->extends->detach($this);
+            if (\count($node->extends) + \count($node->requires) === 0) {
+                $node->flattenInternal($splQueue);
+            }
+        }
+        foreach ($requiredBy as $node) {
+            $node->requires->detach($this);
+            if (\count($node->extends) + \count($node->requires) === 0) {
+                $splQueue->enqueue(new SplQueue);
+                $node->flattenInternal($splQueue);
+            }
+        }
     }
 }

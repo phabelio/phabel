@@ -19,6 +19,16 @@ abstract class Plugin implements PluginInterface
      */
     private array $config = [];
     /**
+     * Set configuration array.
+     *
+     * @param array $config
+     * @return void
+     */
+    public function setConfigArray(array $config)
+    {
+        $this->config = $config;
+    }
+    /**
      * Replace node of one type with another.
      *
      * @param Node   $node        Original node
@@ -141,14 +151,28 @@ abstract class Plugin implements PluginInterface
     /**
      * {@inheritDoc}
      */
-    public static function needs(): array
+    public static function runAfter(): array
     {
         return [];
     }
     /**
      * {@inheritDoc}
      */
-    public static function extends(): array
+    public static function runBefore(): array
+    {
+        return [];
+    }
+    /**
+     * {@inheritDoc}
+     */
+    public static function runWithBefore(): array
+    {
+        return [];
+    }
+    /**
+     * {@inheritDoc}
+     */
+    public static function runWithAfter(): array
     {
         return [];
     }

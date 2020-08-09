@@ -5,11 +5,22 @@
     "require": {
         "nikic/php-parser": "^4.7"
     },
+    "require-dev": {
+        "phpunit/phpunit": "^7 | ^8 | ^9",
+        "amphp/php-cs-fixer-config": "dev-master"
+    },
     "license": "MIT",
-    "authors": [
-        {
-            "name": "Daniil Gentili",
-            "email": "daniil@daniil.it"
-        }
-    ]
+    "authors": [{
+        "name": "Daniil Gentili",
+        "email": "daniil@daniil.it"
+    }],
+    "scripts": {
+        "check": [
+            "@cs",
+            "@test"
+        ],
+        "cs": "php-cs-fixer fix -v --diff --dry-run",
+        "cs-fix": "php-cs-fixer fix -v --diff",
+        "test": "@php -dzend.assertions=1 -dassert.exception=1 ./vendor/bin/phpunit --coverage-text"
+    }
 }

@@ -11,10 +11,10 @@ use PhpParser\Node\Stmt\UseUse;
 class GroupUseReplacer extends Plugin
 {
     /**
-     * Replace group use with multiple use statements
+     * Replace group use with multiple use statements.
      *
      * @param GroupUse $node Group use statement
-     * 
+     *
      * @return Use_[]
      */
     public function leave(GroupUse $node): array

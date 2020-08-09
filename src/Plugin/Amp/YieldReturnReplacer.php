@@ -24,7 +24,7 @@ class YieldReturnReplacer extends NodeVisitorAbstract
     public function leaveNode(Node $node)
     {
         if ($node instanceof Node\FunctionLike) {
-            array_pop($this->functions);
+            \array_pop($this->functions);
             return;
         }
         if (!$node instanceof Node\Stmt\Return_) {
@@ -34,7 +34,7 @@ class YieldReturnReplacer extends NodeVisitorAbstract
             return new Node\Stmt\Return_();
         }
 
-        if (!(end($this->functions)->hasYield ?? false)) {
+        if (!(\end($this->functions)->hasYield ?? false)) {
             return;
         }
 

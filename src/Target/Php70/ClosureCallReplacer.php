@@ -12,10 +12,10 @@ use PhpParser\Node\Name;
 class ClosureCallReplacer extends Plugin
 {
     /**
-     * Replace composite function calls
+     * Replace composite function calls.
      *
      * @param FuncCall $node Function call
-     * 
+     *
      * @return StaticCall|null
      */
     public function enter(FuncCall $node): ?StaticCall

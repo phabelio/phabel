@@ -4,7 +4,6 @@ namespace Spatie\Php7to5\NodeVisitors;
 
 use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
-use PhpParser\ParserFactory;
 
 class YieldFromReplacer extends NodeVisitorAbstract
 {

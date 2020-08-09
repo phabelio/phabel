@@ -4,7 +4,6 @@ namespace Phabel\Target\Php71;
 
 use Phabel\Plugin;
 use PhpParser\Node\Expr\Array_;
-use PhpParser\Node\Expr\ArrayItem;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\List_;
 use PhpParser\Node\Stmt\Foreach_;
@@ -110,7 +109,7 @@ class ListKey extends Plugin
     /**
      * {@inheritDoc}
      */
-    public static function needs(): array
+    public static function runAfter(): array
     {
         return [ArrayList::class];
     }

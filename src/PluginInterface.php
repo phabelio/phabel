@@ -16,7 +16,15 @@ interface PluginInterface
      *
      * @psalm-return class-string<PluginInterface>[]|array<class-string<PluginInterface>, array>
      */
-    public static function needs(): array;
+    public static function runAfter(): array;
+    /**
+     * Specify which plugins should run before this plugin.
+     *
+     * @return array Plugin name(s)
+     *
+     * @psalm-return class-string<PluginInterface>[]|array<class-string<PluginInterface>, array>
+     */
+    public static function runBefore(): array;
     /**
      * Specify which plugins does this plugin extend.
      *
@@ -28,7 +36,14 @@ interface PluginInterface
      *
      * @psalm-return class-string<PluginInterface>[]|array<class-string<PluginInterface>, array>
      */
-    public static function extends(): array;
+    public static function runWithBefore(): array;
+    /**
+     *
+     * @return array Plugin name(s)
+     *
+     * @psalm-return class-string<PluginInterface>[]|array<class-string<PluginInterface>, array>
+     */
+    public static function runWithAfter(): array;
 
     /**
      * Specify a list of composer dependencies.
@@ -36,6 +51,14 @@ interface PluginInterface
      * @return array
      */
     public static function composerRequires(): array;
+    /**
+     * Set configuration array.
+     *
+     * @param array $config
+     *
+     * @return void
+     */
+    public function setConfigArray(array $config): void;
     /**
      * Get configuration key.
      *
@@ -66,7 +89,7 @@ interface PluginInterface
     public static function mergeConfigs(array ...$configs): array;
     /**
      * Split configuration.
-     * 
+     *
      * For example, if you have a configuration that enables feature A, B and C, return three configuration arrays each enabling ONLY A, only B and only C.
      * This is used for optimizing the AST traversing process during resolution of the plugin graph.
      *

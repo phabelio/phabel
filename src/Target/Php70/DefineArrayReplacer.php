@@ -14,10 +14,10 @@ use PhpParser\Node\Stmt\Const_;
 class DefineArrayReplacer extends Plugin
 {
     /**
-     * Convert define() arrays into const arrays
+     * Convert define() arrays into const arrays.
      *
      * @param FuncCall $node Node
-     * 
+     *
      * @return Const_|null
      */
     public function enter(FuncCall $node): ?Const_

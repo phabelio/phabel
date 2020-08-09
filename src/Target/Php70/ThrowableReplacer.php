@@ -56,18 +56,18 @@ class ThrowableReplacer extends Plugin
     {
         foreach ($node->catches as $catch) {
             $alreadyHasError = false;
-            $needs = false;
+            $runAfter = false;
             foreach ($catch->types as &$type) {
                 if ($type instanceof FullyQualified &&
                     $type->getLast() === "Error") {
                     $alreadyHasError = true;
                 }
                 if ($this->isThrowable($type)) {
-                    $needs = true;
+                    $runAfter = true;
                     $type = new FullyQualified('Exception');
                 }
             }
-            if ($needs && !$alreadyHasError) {
+            if ($runAfter && !$alreadyHasError) {
                 $catch->types[] = new FullyQualified('Error');
             }
         }
@@ -78,7 +78,7 @@ class ThrowableReplacer extends Plugin
      *
      * @return array
      */
-    public static function extends(): array
+    public static function runWithBefore(): array
     {
         return [
             TypeHintStripper::class => [
