@@ -8,7 +8,7 @@ use SplQueue;
 /**
  * Representation of multiple plugins+configs.
  */
-class Plugin
+class Plugins
 {
     /**
      * Plugin configs, indexed by plugin name.

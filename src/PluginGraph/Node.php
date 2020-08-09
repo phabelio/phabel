@@ -15,9 +15,9 @@ class Node
     /**
      * Plugins and configs.
      *
-     * @var Plugin
+     * @var Plugins
      */
-    private Plugin $plugin;
+    private Plugins $plugin;
 
     /**
      * Original plugin name.
@@ -103,7 +103,7 @@ class Node
     public function init(string $plugin, array $config, PackageContext $ctx): self
     {
         $this->name = $plugin;
-        $this->plugin = new Plugin($plugin, $config);
+        $this->plugin = new Plugins($plugin, $config);
         $this->packageContexts->attach($ctx);
 
         $this->canBeRequired = PluginCache::canBeRequired($plugin);

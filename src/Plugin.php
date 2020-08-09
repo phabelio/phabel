@@ -5,8 +5,10 @@ namespace Phabel;
 use PhpParser\Node;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr;
+use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\StaticCall;
+use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\Expression;
 use PhpParser\ParserFactory;
@@ -73,6 +75,23 @@ abstract class Plugin implements PluginInterface
     public static function replaceTypeInPlace(Node &$node, string $class, array $propertyMap = []): void
     {
         $node = self::replaceType($node, $class, $propertyMap);
+    }
+    /**
+     * Create variable assignment
+     *
+     * @param Variable $name       Variable
+     * @param Expr     $expression Expression
+     * 
+     * @return Expression
+     */
+    public static function assign(Variable $name, Expr $expression): Expression
+    {
+        return new Expression(
+            new Assign(
+                $name,
+                $expression
+            )
+        );
     }
     /**
      * Call function.
