@@ -25,7 +25,7 @@ abstract class Plugin implements PluginInterface
      */
     private array $config = [];
     /**
-     * Package context
+     * Package context.
      */
     private PackageContext $ctx;
     /**
@@ -39,10 +39,10 @@ abstract class Plugin implements PluginInterface
         $this->config = $config;
     }
     /**
-     * Set package context
+     * Set package context.
      *
      * @param PackageContext $ctx Ctx
-     * 
+     *
      * @return void
      */
     public function setPackageContext(PackageContext $ctx): void
@@ -50,7 +50,7 @@ abstract class Plugin implements PluginInterface
         $this->ctx = $ctx;
     }
     /**
-     * Get package context
+     * Get package context.
      *
      * @return PackageContext
      */
@@ -59,10 +59,10 @@ abstract class Plugin implements PluginInterface
         return $this->ctx;
     }
     /**
-     * Check if plugin should run
+     * Check if plugin should run.
      *
      * @param string $package Package name
-     * 
+     *
      * @return boolean
      */
     public function shouldRun(string $package): bool
@@ -70,10 +70,10 @@ abstract class Plugin implements PluginInterface
         return $this->ctx->has($package);
     }
     /**
-     * Check if plugin should run
+     * Check if plugin should run.
      *
      * @param string $file File name
-     * 
+     *
      * @return boolean
      */
     public function shouldRunFile(string $file): bool
@@ -127,11 +127,11 @@ abstract class Plugin implements PluginInterface
         $node = self::replaceType($node, $class, $propertyMap);
     }
     /**
-     * Create variable assignment
+     * Create variable assignment.
      *
      * @param Variable $name       Variable
      * @param Expr     $expression Expression
-     * 
+     *
      * @return Expression
      */
     public static function assign(Variable $name, Expr $expression): Expression

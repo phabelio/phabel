@@ -4,7 +4,7 @@ namespace Phabel\PluginGraph;
 
 /**
  * List of packages associated with plugin.
- * 
+ *
  * @author Daniil Gentili <daniil@daniil.it>
  */
 class PackageContext
@@ -40,10 +40,10 @@ class PackageContext
     }
 
     /**
-     * Check if a package is present in the package context
+     * Check if a package is present in the package context.
      *
      * @param string $package Package
-     * 
+     *
      * @return boolean
      */
     public function has(string $package): bool

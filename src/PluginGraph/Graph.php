@@ -4,7 +4,7 @@ namespace Phabel\PluginGraph;
 
 /**
  * Graph API wrapper.
- * 
+ *
  * @author Daniil Gentili <daniil@daniil.it>
  */
 class Graph

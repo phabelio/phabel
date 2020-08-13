@@ -7,6 +7,10 @@ use Composer\Package\PackageInterface;
 use Composer\Repository\ComposerRepository;
 use Composer\Semver\Constraint\ConstraintInterface;
 
+/**
+ * @author Daniil Gentili <daniil@daniil.it>
+ * @license MIT
+ */
 class Repository extends ComposerRepository
 {
     /**
@@ -25,6 +29,7 @@ class Repository extends ComposerRepository
     public function __construct(ComposerRepository $repository)
     {
         $this->repository = $repository;
+        $this->packages = [];
     }
 
     /**

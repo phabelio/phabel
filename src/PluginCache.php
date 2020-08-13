@@ -2,9 +2,11 @@
 
 namespace Phabel;
 
+use ReflectionMethod;
+
 /**
  * Caches plugin information.
- * 
+ *
  * @author Daniil Gentili <daniil@daniil.it>
  */
 class PluginCache
@@ -36,9 +38,13 @@ class PluginCache
             self::$leaveMethods[$plugin] = [];
             foreach (\get_class_methods($plugin) as $method) {
                 if (\str_starts_with($method, 'enter')) {
-                    self::$enterMethods[$plugin] []= $method;
+                    $reflection = new ReflectionMethod($plugin, $method);
+                    $type = $reflection->getParameters()[0]->getType()->getName();
+                    self::$enterMethods[$plugin][$type] []= $method;
                 } elseif (\str_starts_with($method, 'leave')) {
-                    self::$leaveMethods[$plugin] []= $method;
+                    $reflection = new ReflectionMethod($plugin, $method);
+                    $type = $reflection->getParameters()[0]->getType()->getName();
+                    self::$leaveMethods[$plugin][$type] []= $method;
                 }
             }
         }
@@ -62,7 +68,7 @@ class PluginCache
      *
      * @param class-string<PluginInterface> $plugin Plugin name
      *
-     * @return string[]
+     * @return array<string, string[]>
      */
     public static function enterMethods(string $plugin): array
     {
@@ -74,7 +80,7 @@ class PluginCache
      *
      * @param class-string<PluginInterface> $plugin Plugin name
      *
-     * @return string[]
+     * @return array<string, string[]>
      */
     public static function leaveMethods(string $plugin): array
     {

@@ -7,7 +7,7 @@ use SplQueue;
 
 /**
  * Representation of multiple plugins+configs.
- * 
+ *
  * @author Daniil Gentili <daniil@daniil.it>
  */
 class Plugins

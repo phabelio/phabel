@@ -3,7 +3,6 @@
 namespace Phabel\Target;
 
 use Phabel\Plugin;
-use Phabel\PluginInterface;
 use Phabel\Target\Php70\AnonymousClassReplacer;
 use Phabel\Target\Php70\ClosureCallReplacer;
 use Phabel\Target\Php70\CompoundAccess;
@@ -17,10 +16,17 @@ use Phabel\Target\Php70\StrictTypesDeclareStatementRemover;
 use Phabel\Target\Php70\ThrowableReplacer;
 
 /**
+ * Makes changes necessary to polyfill PHP 7.0 and run on PHP 5.6 and below.
+ *
  * @author Daniil Gentili <daniil@daniil.it>
+ * @license MIT
  */
 class Php70 extends Plugin
 {
+    public static function composerRequires(): array
+    {
+        return ['symfony/polyfill-php70' => '*'];
+    }
     public static function runWithAfter(): array
     {
         return [

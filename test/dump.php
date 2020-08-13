@@ -11,4 +11,4 @@ if ($argc < 2) {
 
 $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
 
-var_dump($parser->parse(file_get_contents($argv[1])));
+\var_dump($parser->parse(\file_get_contents($argv[1])));

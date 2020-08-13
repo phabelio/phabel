@@ -9,7 +9,7 @@ use SplQueue;
 
 /**
  * Represents a plugin with a certain configuration.
- * 
+ *
  * @author Daniil Gentili <daniil@daniil.it>
  */
 class Node
@@ -290,7 +290,7 @@ class Node
         }
 
 
-        
+
         foreach ($extendedBy as $node) {
             $node->extends->detach($this);
             if (\count($node->extends) + \count($node->requires) === 0) {
@@ -304,5 +304,17 @@ class Node
                 $node->flattenInternal($splQueue);
             }
         }
+    }
+
+    /**
+     * Add packages from package context.
+     *
+     * @param PackageContext $ctx Package context
+     *
+     * @return void
+     */
+    public function addPackages(PackageContext $ctx): void
+    {
+        $this->packageContext->merge($ctx);
     }
 }

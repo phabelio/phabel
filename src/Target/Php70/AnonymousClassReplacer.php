@@ -4,11 +4,6 @@ namespace Phabel\Target\Php70;
 
 use Phabel\Plugin;
 use PhpParser\Node;
-use PhpParser\Node\Stmt\Declare_;
-use PhpParser\Node\Stmt\Namespace_;
-use PhpParser\Node\Stmt\Use_;
-use Spatie\Php7to5\Converter;
-use Spatie\Php7to5\Exceptions\InvalidPhpCode;
 
 class AnonymousClassReplacer extends Plugin
 {

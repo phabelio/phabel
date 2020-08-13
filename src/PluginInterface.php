@@ -65,32 +65,32 @@ interface PluginInterface
      */
     public function setConfigArray(array $config): void;
     /**
-     * Set package context
+     * Set package context.
      *
      * @param PackageContext $ctx Ctx
-     * 
+     *
      * @return void
      */
     public function setPackageContext(PackageContext $ctx): void;
     /**
-     * Get package context
+     * Get package context.
      *
      * @return PackageContext
      */
     public function getPackageContext(): PackageContext;
     /**
-     * Check if plugin should run
+     * Check if plugin should run.
      *
      * @param string $package Package name
-     * 
+     *
      * @return boolean
      */
     public function shouldRun(string $package): bool;
     /**
-     * Check if plugin should run
+     * Check if plugin should run.
      *
      * @param string $file File name
-     * 
+     *
      * @return boolean
      */
     public function shouldRunFile(string $file): bool;

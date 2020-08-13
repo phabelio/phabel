@@ -79,7 +79,7 @@ class GraphInternal
     {
         $configStr = \var_export($config, true);
         if (isset($this->plugins[$plugin][$configStr])) {
-            return $this->plugins[$plugin][$configStr];
+            return $this->plugins[$plugin][$configStr]->addPackages($ctx);
         }
         $this->plugins[$plugin][$configStr] = $node = new Node($this, $ctx);
         $this->unlinkedNodes->attach($node);
