@@ -4,6 +4,9 @@ namespace Phabel\PluginGraph;
 
 use Phabel\PluginInterface;
 
+/**
+ * @author Daniil Gentili <daniil@daniil.it>
+ */
 class CircularException extends \Exception
 {
     /**

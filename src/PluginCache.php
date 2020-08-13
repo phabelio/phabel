@@ -4,6 +4,8 @@ namespace Phabel;
 
 /**
  * Caches plugin information.
+ * 
+ * @author Daniil Gentili <daniil@daniil.it>
  */
 class PluginCache
 {

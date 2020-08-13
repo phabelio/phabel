@@ -11,6 +11,8 @@ use PhpParser\Node\UnionType;
 
 /**
  * Replace all usages of a certain type in typehints.
+ * 
+ * @author Daniil Gentili <daniil@daniil.it>
  */
 class TypeHintStripper extends Plugin
 {

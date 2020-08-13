@@ -6,6 +6,9 @@ use Phabel\PluginInterface;
 use SplObjectStorage;
 use SplQueue;
 
+/**
+ * @author Daniil Gentili <daniil@daniil.it>
+ */
 class GraphInternal
 {
     /**
@@ -59,12 +62,7 @@ class GraphInternal
      */
     public function addPlugin(string $plugin, array $config, PackageContext $ctx): array
     {
-        $configs = $plugin::splitConfig($config);
-        $nodes = [];
-        foreach ($configs as $config) {
-            $nodes []= $this->addPluginInternal($plugin, $config, $ctx);
-        }
-        return $nodes;
+        return \array_map(fn (array $config): Node => $this->addPluginInternal($plugin, $config, $ctx), $plugin::splitConfig($config));
     }
     /**
      * Add plugin.

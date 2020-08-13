@@ -15,6 +15,9 @@ use PhpParser\Node\Stmt\Expression;
 use PhpParser\ParserFactory;
 use ReflectionClass;
 
+/**
+ * @author Daniil Gentili <daniil@daniil.it>
+ */
 abstract class Plugin implements PluginInterface
 {
     /**
@@ -31,7 +34,7 @@ abstract class Plugin implements PluginInterface
      * @param array $config
      * @return void
      */
-    public function setConfigArray(array $config)
+    public function setConfigArray(array $config): void
     {
         $this->config = $config;
     }
@@ -206,6 +209,13 @@ abstract class Plugin implements PluginInterface
     public static function mergeConfigs(array ...$configs): array
     {
         return $configs;
+    }
+    /**
+     * {@inheritDoc}
+     */
+    public static function splitConfig(array $config): array
+    {
+        return [$config];
     }
     /**
      * {@inheritDoc}
