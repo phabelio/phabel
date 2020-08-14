@@ -53,17 +53,8 @@ class AnonymousClassReplacer extends Plugin
         $prevNode = $node;
         foreach ($ctx->parents as $node) {
             if ($node instanceof Namespace_ || $node instanceof RootNode) {
-                $foundIndex = -1;
-                foreach ($node->stmts as $index => $curNode) {
-                    if ($curNode === $prevNode) {
-                        $foundIndex = $index;
-                        break;
-                    }
-                }
-                if ($foundIndex >= 0) {
-                    \array_splice($node->stmts, $foundIndex, 0, [$classNode]);
-                    return;
-                }
+                $ctx->insertBefore($node, $classNode);
+                return;
             }
             $prevNode = $node;
         }

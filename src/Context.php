@@ -2,6 +2,7 @@
 
 namespace Phabel;
 
+use PhpParser\Node;
 use SplStack;
 
 /**
@@ -11,13 +12,40 @@ use SplStack;
 class Context
 {
     /**
-     * Parent nodes stack
-     * 
+     * Parent nodes stack.
+     *
      * @var SplStack<Node>
      */
     public SplStack $parents;
     public function __construct()
     {
         $this->parents = new SplStack;
+    }
+    /**
+     * Insert nodes before node.
+     *
+     * @param Node $node
+     * @param Node ...$nodes
+     * @return void
+     */
+    public function insertBefore(Node $node, Node ...$nodes): void
+    {
+        $subNode = $node->getAttribute('currentNode');
+        $subNodeIndex = $node->getAttribute('currentNodeIndex');
+        \array_splice($node->{$subNode}, $subNodeIndex, 0, $nodes);
+        $node->setAttribute('currentNodeIndex', $subNodeIndex+\count($nodes));
+    }
+    /**
+     * Insert nodes after node.
+     *
+     * @param Node $node
+     * @param Node ...$nodes
+     * @return void
+     */
+    public function insertAfter(Node $node, Node ...$nodes): void
+    {
+        $subNode = $node->getAttribute('currentNode');
+        $subNodeIndex = $node->getAttribute('currentNodeIndex');
+        \array_splice($node->{$subNode}, $subNodeIndex+1, 0, $nodes);
     }
 }

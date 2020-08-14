@@ -130,9 +130,12 @@ class Traverser
         }
         $context->parents->push($node);
         foreach ($node->getSubNodeNames() as $name) {
+            $node->setAttribute('currentNode', $name);
+
             $subNode = &$node->{$name};
             if (\is_array($subNode)) {
-                foreach ($subNode as &$subNodeNode) {
+                foreach ($subNode as $index => &$subNodeNode) {
+                    $node->setAttribute('currentNodeIndex', $index);
                     $this->traverseNode($subNodeNode, $plugins, $context);
                 }
             } else {

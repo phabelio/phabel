@@ -177,17 +177,24 @@ abstract class Plugin implements PluginInterface
      */
     public static function toLiteral($data): Node
     {
-        /** @var Node[] */
-        static $cache = [];
-        $data = \var_export($data, true);
-        if (isset($cache[$data])) {
-            return $cache[$data];
-        }
-        $res = (new ParserFactory)->create(ParserFactory::PREFER_PHP7)->parse('<?php '.$data);
+        return self::toNode(\var_export($data, true));
+    }
+    /**
+     * Convert code to node.
+     *
+     * @param string $code Code
+     *
+     * @memoize $code
+     *
+     * @return Node
+     */
+    public static function toNode(string $code): Node
+    {
+        $res = (new ParserFactory)->create(ParserFactory::PREFER_PHP7)->parse('<?php '.$code);
         if ($res === null || empty($res) || !$res[0] instanceof Expression || !isset($res[0]->expr)) {
-            throw new \RuntimeException('An invalid literal was provided!');
+            throw new \RuntimeException('Invalid code was provided!');
         }
-        return $cache[$data] = $res[0]->expr;
+        return $res[0]->expr;
     }
     /**
      * {@inheritDoc}
