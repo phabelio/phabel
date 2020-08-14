@@ -94,23 +94,10 @@ class Traverser
         } elseif (!$reducedQueue->count()) {
             return;
         }
-        $ast = $this->parser->parse(\file_get_contents($file));
+        $ast = new RootNode($this->parser->parse(\file_get_contents($file)));
+        $context = new Context;
         foreach ($reducedQueue as $queue) {
-            $this->traverseArray($ast, $queue);
-        }
-    }
-    /**
-     * Traverse array of nodes.
-     *
-     * @param Node[]           $nodes   Nodes
-     * @param SplQueue<Plugin> $plugins Plugins
-     *
-     * @return void
-     */
-    public function traverseArray(array &$nodes, SplQueue $plugins): void
-    {
-        foreach ($nodes as &$node) {
-            $this->traverseNode($node, $plugins);
+            $this->traverseNode($ast, $queue, $context);
         }
     }
     /**
@@ -118,9 +105,11 @@ class Traverser
      *
      * @param Node             &$node   Node
      * @param SplQueue<Plugin> $plugins Plugins
+     * @param Context          $context Context
+     * 
      * @return void
      */
-    public function traverseNode(Node &$node, SplQueue $plugins): void
+    public function traverseNode(Node &$node, SplQueue $plugins, Context $context): void
     {
         foreach ($plugins as $plugin) {
             foreach (PluginCache::enterMethods(\get_class($plugin)) as $type => $methods) {
@@ -128,7 +117,7 @@ class Traverser
                     continue;
                 }
                 foreach ($methods as $method) {
-                    $result = $plugin->{$method}($node);
+                    $result = $plugin->{$method}($node, $context);
                     if ($result instanceof Node) {
                         if (!$result instanceof $node) {
                             $node = $result;
@@ -139,21 +128,25 @@ class Traverser
                 }
             }
         }
+        $context->parents->push($node);
         foreach ($node->getSubNodeNames() as $name) {
             $subNode = &$node->{$name};
             if (\is_array($subNode)) {
-                $this->traverseArray($subNode, $plugins);
+                foreach ($subNode as &$subNodeNode) {
+                    $this->traverseNode($subNodeNode, $plugins, $context);
+                }
             } else {
-                $this->traverseNode($subNode, $plugins);
+                $this->traverseNode($subNode, $plugins, $context);
             }
         }
+        $context->parents->pop();
         foreach ($plugins as $plugin) {
             foreach (PluginCache::leaveMethods(\get_class($plugin)) as $type => $methods) {
                 if (!$node instanceof $type) {
                     continue;
                 }
                 foreach ($methods as $method) {
-                    $result = $plugin->{$method}($node);
+                    $result = $plugin->{$method}($node, $context);
                     if ($result instanceof Node) {
                         if (!$result instanceof $node) {
                             $node = $result;
