@@ -75,6 +75,7 @@ class TypeHintStripper extends Plugin
                     case 'int':
                     case 'object':
                     case 'string':
+                    case 'resource':
                     case 'null':
                         $stringType = new String_($typeName === 'callable' ?
                             $typeName :
@@ -98,7 +99,11 @@ class TypeHintStripper extends Plugin
             } else {
                 $noOopTypes = false;
                 $stringType = new String_("an instance of ".$type->toString());
-                $type = new Instanceof_($var, $type);
+                if ($type->toString() === 'Stringable' || $type->toString() === \Stringable::class) {
+                    $type = Plugin::callPoly("is_stringable", $var);
+                } else {
+                    $type = new Instanceof_($var, $type);
+                }
             }
         }
         if (\count($typeNames) > 1) {
@@ -233,11 +238,15 @@ class TypeHintStripper extends Plugin
     {
         if (\is_object($object)) {
             $type = \get_class($object);
-            return str_starts_with($type, 'class@anonymous') ? 'instance of class@anonymous' : "instance of $type";
+            return \str_starts_with($type, 'class@anonymous') ? 'instance of class@anonymous' : "instance of $type";
         }
         return \gettype($object);
     }
 
+    public static function is_stringable($string): bool
+    {
+        return is_string($string) || (is_object($string) && method_exists($string, '__toString'));
+    }
     public static function runWithAfter(): array
     {
         return [StringConcatOptimizer::class];
