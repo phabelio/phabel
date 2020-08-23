@@ -35,15 +35,4 @@ class MultipleCatchReplacer extends Plugin
         }
         $node->catches = $catches;
     }
-    /**
-     * Extends throwable replacer.
-     *
-     * @return string
-     *
-     * @psalm-return class-string
-     */
-    public static function runWithBefore(): string
-    {
-        return [ThrowableReplacer::class];
-    }
 }

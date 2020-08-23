@@ -4,7 +4,10 @@ namespace Phabel\Plugin;
 
 use Phabel\Context;
 use Phabel\Plugin;
+use Phabel\Target\Php74\ArrowClosure;
 use PhpParser\Node;
+use PhpParser\Node\Arg;
+use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\ArrowFunction;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\AssignRef;
@@ -27,6 +30,7 @@ use PhpParser\Node\Scalar\LNumber;
 use PhpParser\Node\Scalar\MagicConst\Function_ as MagicConstFunction_;
 use PhpParser\Node\Scalar\MagicConst\Method;
 use PhpParser\Node\Scalar\String_;
+use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Foreach_;
 use PhpParser\Node\Stmt\If_;
@@ -42,27 +46,53 @@ use SplStack;
  */
 class TypeHintStripper extends Plugin
 {
+    private const IGNORE_RETURN = 0;
+    private const VOID_RETURN = 1;
+    private const TYPE_RETURN = 2;
+    /**
+     * Stack.
+     *
+     * @template T as array{0: self::IGNORE_RETURN|self::VOID_RETURN}|array{0: self::TYPE_RETURN, 1: Node, 2: bool, 3: bool, 4: Node, 5: BooleanNot}
+     *
+     * @var SplStack<T>
+     */
     private SplStack $stack;
+    /**
+     * Constructor.
+     */
     public function __construct()
     {
-        $this->stack = $stack;
+        $this->stack = new SplStack;
     }
+    /**
+     * Convert a function to a closure.
+     */
     private function toClosure(FunctionLike &$func): void
     {
         if ($func instanceof ArrowFunction) {
-            $nodes = [];
-            foreach ($func->getSubNodeNames() as $node) {
-                $nodes[$node] = $func->{$nodes};
-            }
-            $func = new Closure($nodes, $func->getAttributes());
+            $func = ArrowClosure::enterClosure($func);
         }
     }
+    /**
+     * Generate.
+     *
+     * @param Variable            $var          Variable to check
+     * @param (Name|Identifier)[] $types        Types to check
+     * @param boolean             $fromNullable Whether this type is nullable
+     *
+     * @return array{0: bool, 1: Node, 2: BooleanNot} Whether the polyfilled gettype should be used, the error message, the condition
+     */
     private function generateConditions(Variable $var, array $types, bool $fromNullable = false): array
     {
+        /** @var bool Whether no explicit classes were referenced */
         $noOopTypes = true;
+        /** @var string[] */
         $typeNames = [];
+        /** @var Expr[] */
+        $conditions = [];
+        /** @var string Last string type name */
         $stringType = '';
-        foreach ($types as &$type) {
+        foreach ($types as $type) {
             $typeNames []= $type->toString();
 
             if ($type instanceof Identifier) {
@@ -80,11 +110,11 @@ class TypeHintStripper extends Plugin
                         $stringType = new String_($typeName === 'callable' ?
                             $typeName :
                             ($typeName === 'object' ? 'an object' : "of type $typeName"));
-                        $type = Plugin::call("is_$typeName", $var);
+                        $conditions []= Plugin::call("is_$typeName", $var);
                         break;
                     case 'iterable':
                         $stringType = new String_('iterable');
-                        $type = new BooleanOr(
+                        $conditions []= new BooleanOr(
                             Plugin::call("is_array", $var),
                             new Instanceof_($var, new Name(\Traversable::class))
                         );
@@ -92,24 +122,29 @@ class TypeHintStripper extends Plugin
                     default:
                         $noOopTypes = false;
                         $stringType = $type->isSpecialClassName() ?
-                            new Concat(new String_("an instance of "), new ClassConstFetch($type, new Identifier('class'))) :
+                            new Concat(new String_("an instance of "), new ClassConstFetch(new Name($typeName), new Identifier('class'))) :
                             new String_("an instance of ".$type->toString());
-                        $type = new Instanceof_($var, $type);
+                        $conditions []= new Instanceof_($var, new Name($typeName));
                 }
             } else {
                 $noOopTypes = false;
                 $stringType = new String_("an instance of ".$type->toString());
-                if ($type->toString() === 'Stringable' || $type->toString() === \Stringable::class) {
-                    $type = Plugin::callPoly("is_stringable", $var);
-                } else {
-                    $type = new Instanceof_($var, $type);
-                }
+                $conditions []= new Instanceof_($var, $type);
             }
         }
         if (\count($typeNames) > 1) {
             $stringType = new String_(\implode("|", $typeNames));
         }
-        $condition = new BooleanNot(\count($types) === 1 ? $types[0] : \array_reduce($types, fn (Node $a, Node $b): BooleanOr => new BooleanOr($a, $b)));
+        if ($fromNullable) {
+            $stringType = new Concat($stringType, new String_(' or null'));
+            $conditions []= Plugin::call("is_null", $var);
+        }
+        $initial = \array_shift($conditions);
+        $condition = new BooleanNot(
+            empty($conditions)
+            ? $initial
+            : \array_reduce($conditions, fn (Expr $a, Expr $b): BooleanOr => new BooleanOr($a, $b), $initial)
+        );
         return [$noOopTypes, $stringType, $condition];
     }
     /**
@@ -118,12 +153,12 @@ class TypeHintStripper extends Plugin
      * @param Variable                                    $var  Variable
      * @param null|Identifier|Name|NullableType|UnionType $type Type
      *
-     * @return array{0: bool, 1: Node, 2: BooleanNot} Conditions for if
+     * @return null|array{0: bool, 1: Node, 2: BooleanNot} Whether the polyfilled gettype should be used, the error message, the condition
      */
-    private function strip(Variable $var, ?Node $type): array
+    private function strip(Variable $var, ?Node $type): ?array
     {
         if (!$type) {
-            return [];
+            return null;
         }
         if ($type instanceof UnionType && $this->getConfig('union', false)) {
             return $this->generateConditions($var, $type->types);
@@ -142,9 +177,9 @@ class TypeHintStripper extends Plugin
      *
      * @param FunctionLike $func Function
      *
-     * @return void
+     * @return ?FunctionLike
      */
-    public function enterFunction(FunctionLike $func, Context $ctx): void
+    public function enterFunction(FunctionLike $func, Context $ctx): ?FunctionLike
     {
         $functionName = new Method();
         if ($func instanceof ClassMethod) {
@@ -169,9 +204,9 @@ class TypeHintStripper extends Plugin
             $start = new Concat($start, new String_(", "));
             $start = new Concat($start, $noOop ? self::call('gettype', $param->var) : self::callPoly('gettype', $param->var));
             $start = new Concat($start, new String_(" given, called in "));
-            $start = new Concat($start, self::callPoly('trace', 0));
+            $start = new Concat($start, self::callPoly('trace', new LNumber(0)));
 
-            $if = new If_($condition, [new Throw_(new New_(new FullyQualified(\TypeError::class), [$start]))]);
+            $if = new If_($condition, [new Throw_(new New_(new FullyQualified(\TypeError::class), [new Arg($start)]))]);
             if ($param->variadic) {
                 $stmts []= new Foreach_($param->var, new Variable('phabelVariadic'), ['keyVar' => new Variable('phabelVariadicIndex'), 'stmts' => [$if]]);
             } else {
@@ -180,34 +215,34 @@ class TypeHintStripper extends Plugin
         }
         if ($stmts) {
             $this->toClosure($func);
-            $func->stmts = \array_merge($stmts, $func->getStmts());
+            $func->stmts = \array_merge($stmts, $func->getStmts() ?? []);
         }
 
         if ($this->getConfig('void', false) && $func->getReturnType() instanceof Identifier && $func->getReturnType()->toLowerString() === 'void') {
             $this->toClosure($func);
-            $this->stack->push([true]);
+            $this->stack->push([self::VOID_RETURN]);
         }
         $var = new Variable('phabelReturn');
-        if (!$condition = $this->strip($var, $func->getReturnType(), false)) {
-            $this->stack->push([null]);
-            return;
+        if (!$condition = $this->strip($var, $func->getReturnType())) {
+            $this->stack->push([self::IGNORE_RETURN]);
+            return null;
         }
         $this->toClosure($func);
-        $this->stack->push([false, $functionName, $func->returnsByRef(), ...$condition]);
+        $this->stack->push([self::TYPE_RETURN, $functionName, $func->returnsByRef(), ...$condition]);
         return $func;
     }
     public function enterReturn(Return_ $return, Context $ctx): ?Node
     {
         $current = $this->stack->top();
-        if ($current[0] === null) {
-            return;
+        if ($current[0] === self::IGNORE_RETURN) {
+            return null;
         }
-        if ($current[0] === true) {
+        if ($current[0] === self::VOID_RETURN) {
             if ($return->expr !== null) {
                 // This should be a transpilation error, wait for better stack traces before throwing here
                 return new Throw_(new New_(new FullyQualified(\ParseError::class), [new String_("A void function must not return a value")]));
             }
-            return;
+            return null;
         }
         [, $functionName, $byRef, $noOop, $string, $condition] = $current;
 
@@ -223,17 +258,31 @@ class TypeHintStripper extends Plugin
         $start = new Concat($start, new String_(" returned in "));
         $start = new Concat($start, self::callPoly('trace', 0));
 
-        $if = new If_($condition, [new Throw_(new New_(new FullyQualified(\TypeError::class), [$start]))]);
+        $if = new If_($condition, [new Throw_(new New_(new FullyQualified(\TypeError::class), [new Arg($start)]))]);
 
         $return->expr = $var;
 
         $ctx->insertBefore($ctx->parents->top(), $assign, $if);
     }
-    public static function trace($index): string
+    /**
+     * Get trace string for errors.
+     *
+     * @param int $index Index
+     *
+     * @return string
+     */
+    public static function trace($index)
     {
         $trace = \debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[$index];
         return ($trace['file'] ?? '').' on line '.($trace['line'] ?? '');
     }
+    /**
+     * Get type string or object.
+     *
+     * @param mixed $object Object
+     *
+     * @return string
+     */
     public static function gettype($object)
     {
         if (\is_object($object)) {
@@ -243,10 +292,11 @@ class TypeHintStripper extends Plugin
         return \gettype($object);
     }
 
-    public static function is_stringable($string): bool
-    {
-        return is_string($string) || (is_object($string) && method_exists($string, '__toString'));
-    }
+    /**
+     * Runwithafter.
+     *
+     * @return array
+     */
     public static function runWithAfter(): array
     {
         return [StringConcatOptimizer::class];

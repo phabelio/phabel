@@ -5,7 +5,7 @@ namespace Spatie\Php7to5\NodeVisitors;
 use Phabel\Plugin;
 use Phabel\Plugin\TypeHintStripper;
 
-class NullableTypeRemover extends Plugin
+class NullableType extends Plugin
 {
     /**
      * Remove nullable typehint.
@@ -16,7 +16,7 @@ class NullableTypeRemover extends Plugin
     {
         return [
             TypeHintStripper::class => [
-                'nulable' => true
+                'nullable' => true
             ]
         ];
     }

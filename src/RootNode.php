@@ -6,12 +6,12 @@ use PhpParser\Node;
 use PhpParser\NodeAbstract;
 
 /**
- * Root node
+ * Root node.
  */
 class RootNode extends NodeAbstract
 {
     /**
-     * Children
+     * Children.
      *
      * @var Node[]
      */

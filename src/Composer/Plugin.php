@@ -31,7 +31,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     {
         $repoManager = $composer->getRepositoryManager();
         $repos = $repoManager->getRepositories();
-        $repoManager->prependRepository()
+        $repoManager->prependRepository();
         $this->io = $io;
     }
 
@@ -48,15 +48,14 @@ class Plugin implements PluginInterface, EventSubscriberInterface
 
 
     /**
-     * Emitted before composer solves dependencies
+     * Emitted before composer solves dependencies.
      *
      * @param InstallerEvent $event Event
-     * 
+     *
      * @return void
      */
     public function onDependencySolve(InstallerEvent $event): void
     {
-        var_dump($event);
+        \var_dump($event);
     }
-
 }

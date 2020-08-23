@@ -8,6 +8,7 @@ use PhpParser\Node\Arg;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\FuncCall;
+use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Name;
@@ -146,8 +147,8 @@ abstract class Plugin implements PluginInterface
     /**
      * Call function.
      *
-     * @param class-string|array{0: class-string, 1: string} $name          Function name
-     * @param Expr|Arg                                       ...$parameters Parameters
+     * @param class-string|array{0: class-string, 1: string}|callable-string $name          Function name
+     * @param Expr|Arg                                                       ...$parameters Parameters
      *
      * @return FuncCall|StaticCall
      */
@@ -167,6 +168,20 @@ abstract class Plugin implements PluginInterface
     protected static function callPoly(string $name, ...$parameters): StaticCall
     {
         return self::call([static::class, $name], ...$parameters);
+    }
+    /**
+     * Call method of object.
+     *
+     * @param Expr     $name          Object name
+     * @param string   $method        Method
+     * @param Expr|Arg ...$parameters Parameters
+     *
+     * @return MethodCall
+     */
+    public static function callMethod(Expr $name, string $method, ...$parameters): MethodCall
+    {
+        $parameters = \array_map(fn ($data) => $data instanceof Arg ? $data : new Arg($data), $parameters);
+        return new MethodCall($name, $method, $parameters);
     }
     /**
      * Convert array, int or other literal to node.

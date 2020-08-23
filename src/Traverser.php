@@ -96,6 +96,7 @@ class Traverser
         }
         $ast = new RootNode($this->parser->parse(\file_get_contents($file)));
         $context = new Context;
+        $context->parents->push($ast);
         foreach ($reducedQueue as $queue) {
             $this->traverseNode($ast, $queue, $context);
         }
@@ -106,7 +107,7 @@ class Traverser
      * @param Node             &$node   Node
      * @param SplQueue<Plugin> $plugins Plugins
      * @param Context          $context Context
-     * 
+     *
      * @return void
      */
     public function traverseNode(Node &$node, SplQueue $plugins, Context $context): void
@@ -134,10 +135,15 @@ class Traverser
 
             $subNode = &$node->{$name};
             if (\is_array($subNode)) {
-                foreach ($subNode as $index => &$subNodeNode) {
+                for ($index = 0; $index < \count($subNode);) {
                     $node->setAttribute('currentNodeIndex', $index);
                     $this->traverseNode($subNodeNode, $plugins, $context);
+                    $index = $node->getAttribute('currentNodeIndex');
+                    do {
+                        $index++;
+                    } while (\in_array($index, $node->getAttribute('skipNodes', [])));
                 }
+                $node->setAttribute('skipNodes', []);
             } else {
                 $this->traverseNode($subNode, $plugins, $context);
             }

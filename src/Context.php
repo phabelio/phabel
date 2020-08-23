@@ -30,10 +30,16 @@ class Context
      */
     public function insertBefore(Node $node, Node ...$nodes): void
     {
+        if (empty($nodes)) {
+            return;
+        }
         $subNode = $node->getAttribute('currentNode');
         $subNodeIndex = $node->getAttribute('currentNodeIndex');
         \array_splice($node->{$subNode}, $subNodeIndex, 0, $nodes);
-        $node->setAttribute('currentNodeIndex', $subNodeIndex+\count($nodes));
+        $skips = $node->getAttribute('skipNodes', []);
+        $skips []= $subNodeIndex+\count($nodes);
+        $node->setAttribute('skipNodes', $skips);
+        $node->setAttribute('currentNodeIndex', $subNodeIndex - 1);
     }
     /**
      * Insert nodes after node.

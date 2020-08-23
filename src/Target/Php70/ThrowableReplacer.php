@@ -4,6 +4,7 @@ namespace Phabel\Target\Php70;
 
 use Phabel\Plugin;
 use Phabel\Plugin\TypeHintStripper;
+use Phabel\Target\Php71\MultipleCatchReplacer;
 use PhpParser\Node;
 use PhpParser\Node\Expr\BinaryOp\BooleanOr;
 use PhpParser\Node\Expr\Instanceof_;
@@ -25,7 +26,6 @@ class ThrowableReplacer extends Plugin
      */
     private function isThrowable(string $type): bool
     {
-        // Make this less ugly when we implement a namespace context
         return $type === \Throwable::class || $type === 'Throwable';
     }
     /**
@@ -86,7 +86,8 @@ class ThrowableReplacer extends Plugin
                     \Throwable::class,
                     'Throwable'
                 ]
-            ]
+            ],
+            MultipleCatchReplacer::class => []
         ];
     }
 }
