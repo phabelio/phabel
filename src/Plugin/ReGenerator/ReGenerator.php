@@ -1,6 +1,6 @@
 <?php
 
-namespace Phabel\Target\Php70\ReGenerator;
+namespace Phabel\Plugin\ReGenerator;
 
 /**
  * Regenerator class.
@@ -65,7 +65,7 @@ class ReGenerator implements \Iterator
     /**
      * Yielded from (re)generator.
      *
-     * @var \Generator|self
+     * @var \Generator|self|null
      */
     private $yieldedFrom;
 
@@ -82,7 +82,7 @@ class ReGenerator implements \Iterator
     /**
      * Get return value.
      *
-     * @return void
+     * @return mixed
      */
     public function getReturn()
     {
@@ -97,7 +97,7 @@ class ReGenerator implements \Iterator
     private function start(): void
     {
         if (!$this->started) {
-            ($this->generator)($this->state, $this->variables, $this->yieldKey, $this->yieldValue, $this->sentValue, $this->sentException, $this->returnValue, $this->returned);
+            ($this->generator)($this->state, $this->variables, $this->yieldKey, $this->yieldValue, $this->sentValue, $this->sentException, $this->returnValue, $this->returned, $this->yieldedFrom);
             $this->started = true;
         }
     }
@@ -112,9 +112,9 @@ class ReGenerator implements \Iterator
                 $e = $exception;
             }
             if (!$this->yieldedFrom->valid()) { // Returned from yield from
-                $returnValue = $this->yieldedFrom->getReturn();
+                $returnValue = \method_exists($this->yieldedFrom, 'getReturn') ? $this->yieldedFrom->getReturn() : null;
                 $this->yieldedFrom = null;
-                if ($e) {
+                if (isset($e)) {
                     return $this->throw($e);
                 }
                 return $this->send($returnValue);
@@ -125,7 +125,7 @@ class ReGenerator implements \Iterator
         if (!$this->returned) {
             $this->sentValue = $value;
             try {
-                ($this->generator)($this->state, $this->variables, $this->yieldKey, $this->yieldValue, $this->sentValue, $this->sentException, $this->returnValue, $this->returned);
+                ($this->generator)($this->state, $this->variables, $this->yieldKey, $this->yieldValue, $this->sentValue, $this->sentException, $this->returnValue, $this->returned, $this->yieldedFrom);
             } catch (\Throwable $e) {
                 $this->returned = true;
                 throw $e;
@@ -145,9 +145,9 @@ class ReGenerator implements \Iterator
                 $e = $exception;
             }
             if (!$this->yieldedFrom->valid()) { // Returned from yield from
-                $returnValue = $this->yieldedFrom->getReturn();
+                $returnValue = \method_exists($this->yieldedFrom, 'getReturn') ? $this->yieldedFrom->getReturn() : null;
                 $this->yieldedFrom = null;
-                if ($e) {
+                if (isset($e)) {
                     return $this->throw($e);
                 }
                 return $this->send($returnValue);
@@ -158,7 +158,7 @@ class ReGenerator implements \Iterator
         if (!$this->returned) {
             $this->sentException = $value;
             try {
-                ($this->generator)($this->variables, $this->yieldKey, $this->yieldValue, $this->sentValue, $this->sentException, $this->returnValue, $this->returned);
+                ($this->generator)($this->variables, $this->yieldKey, $this->yieldValue, $this->sentValue, $this->sentException, $this->returnValue, $this->returned, $this->yieldedFrom);
             } catch (\Throwable $e) {
                 $this->returned = true;
                 throw $e;
@@ -171,18 +171,18 @@ class ReGenerator implements \Iterator
 
     public function current()
     {
-        $this->start();
         if ($this->yieldedFrom) {
             return $this->yieldedFrom->current();
         }
+        $this->start();
         return $this->yieldValue;
     }
     public function key()
     {
-        $this->start();
         if ($this->yieldedFrom) {
             return $this->yieldedFrom->key();
         }
+        $this->start();
         return $this->yieldKey;
     }
     public function next(): void
