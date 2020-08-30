@@ -1,5 +1,9 @@
 <?php
 
+// This file generates an array containing all possible expression nodes, generated using default parameters.
+// Then, for each expression that accepts another expression as subnode, it tries to use all the expressions generated in the previous step,
+//  for each subnode, to test compatibility with various versions of the PHP lexer.
+
 use HaydenPierce\ClassFinder\ClassFinder;
 use PhpParser\Builder\Class_;
 use PhpParser\Builder\Method;
@@ -30,7 +34,7 @@ function format(Node $code): string
             ->addStmt($code)
             ->getNode()
     )->getNode();
-    $prettyPrinter = new PhpParser\PrettyPrinter\Standard;
+    $prettyPrinter = new PhpParser\PrettyPrinter\Standard(['shortArraySyntax' => true]);
     return $prettyPrinter->prettyPrintFile([$code]);
 }
 function readUntilPrompt($resource): string
@@ -63,11 +67,10 @@ function checkSyntaxVersion(int $version, string $code): bool
     \fputs($pipes[$version][0], $code);
     if ($hasPrompt) {
         $result = \str_replace(['{', '}'], '', \substr(\preg_replace('#\\x1b[[][^A-Za-z]*[A-Za-z]#', '', readUntilPrompt($pipes[$version][1])), \strlen($code)));
-    //var_dump($code, "REsult for $version is: " .trim($result));
     } else {
         $result = readUntilPrompt($pipes[$version][1]);
-        //var_dump($code, trim($result));
     }
+    //var_dump($code, "Result for $version is: " .trim($result));
     $result = \trim($result);
     return \strlen($result) === 0;
 }
@@ -150,11 +153,11 @@ foreach ($expressions as $expr) {
                 $argTypes[$key] = [false, [Expr::class]];
                 $arguments[] = new Variable("test");
                 break;
-            case Name::class:
-                $arguments[] = new Name('self');
-                break;
             case Variable::class:
                 $arguments[] = new Variable("test");
+                break;
+            case Name::class:
+                $arguments[] = new Name('self');
                 break;
             case 'array':
                 if (\in_array('Expr[]', $types[$param->getName()] ?? [])) {
@@ -209,7 +212,7 @@ foreach ($instanceArgTypes as $class => $argTypes) {
         foreach ($types as $type) {
             switch ($type) {
                 case Expr::class:
-                    $possibleValues = array_merge($possibleValues, $exprInstances);
+                    $possibleValues = \array_merge($possibleValues, $exprInstances);
                     break;
                 case Name::class:
                     $possibleValues[] = new Name('self');
@@ -217,7 +220,10 @@ foreach ($instanceArgTypes as $class => $argTypes) {
                 case Variable::class:
                     $possibleValues[] = new Variable("test");
                     break;
-                case Identifier::class;
+                case Identifier::class:
+                    $possibleValues[] = new Identifier('test');
+                    break;
+                case VarLikeIdentifier::class:
                     $possibleValues[] = new Identifier('test');
                     break;
                 case StmtClass_::class:
@@ -227,12 +233,15 @@ foreach ($instanceArgTypes as $class => $argTypes) {
                 case 'string':
                     $possibleValues[] = 'test';
                     break;
+                case 'null':
+                    $possibleValues[] = null;
+                    break;
                 default:
                     throw new Exception($type);
             }
         }
         foreach ($possibleValues as $arg) {
-            $subVersion = \max(is_object($arg) ? $versionMap[\get_class($arg)] : 0, $versionMap[$class]);
+            $subVersion = \max($versionMap[\get_debug_type($arg)] ?? 0, $versionMap[$class]);
 
             $arguments = $baseArgs;
             $arguments[$key] = $isArray ? [$arg] : $arg;
@@ -240,46 +249,27 @@ foreach ($instanceArgTypes as $class => $argTypes) {
             $code = format($prev = new $class(...$arguments));
             $curVersion = checkSyntax($code, $subVersion);
             if ($curVersion && $curVersion !== $subVersion) {
-                $result['main'][$curVersion][$class][$name][$arg] = true;
+                $result['main'][$curVersion][$class][$name][\get_debug_type($arg)] = true;
                 echo "Min $curVersion for $code\n";
             }
 
             $code = format(new Isset_([$prev]));
             $curVersion = checkSyntax($code, $subVersion);
             if ($curVersion && $curVersion !== $subVersion) {
-                $result['isset'][$curVersion][$class][$name][\get_class($expr)] = true;
+                $result['isset'][$curVersion][$class][$name][\get_debug_type($arg)] = true;
                 echo "Min $curVersion for $code\n";
             }
         }
     }
 }
-foreach ($instanceArgs as $class => $argumentsOld) {
-    foreach ($argumentsOld as $key => $argument) {
-        $name = $instanceArgNames[$class][$key];
-        if ($argument instanceof Expr || (\is_array($argument) && \count($argument))) {
-            foreach ($exprInstances as $expr) {
-                $subVersion = \max($versionMap[\get_class($expr)], $versionMap[$class]);
-                $arguments = $argumentsOld;
-                $arguments[$key] = \is_array($argument) ? [$expr] : $expr;
 
-                $code = format($prev = new $class(...$arguments));
-                $curVersion = checkSyntax($code, $subVersion);
-                if ($curVersion && $curVersion !== $subVersion) {
-                    $result['main'][$curVersion][$class][$name][\get_class($expr)] = true;
-                    echo "Min $curVersion for $code\n";
-                }
-
-                $code = format(new Isset_([$prev]));
-                $curVersion = checkSyntax($code, $subVersion);
-                if ($curVersion && $curVersion !== $subVersion) {
-                    $result['isset'][$curVersion][$class][$name][\get_class($expr)] = true;
-                    echo "Min $curVersion for $code\n";
-                }
-            }
-        }
+$keys = [];
+    foreach ($result['isset'] as $version) {
+        $keys = array_merge_recursive($keys, $version);
     }
+foreach ($keys as &$values) {
+    $values = array_keys($values);
 }
-
-$allClassesKeys = \array_fill_keys($allClasses, true);
+var_dump($keys);
 
 \file_put_contents('result.php', '<?php $result = '.\var_export($result, true).";");

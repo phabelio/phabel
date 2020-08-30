@@ -125,7 +125,7 @@ class Traverser
     public function traverseAst(Node &$node, SplQueue $pluginQueue = null): void
     {
         $context = new Context;
-        $context->parents->push($node);
+        $context->push($node);
         foreach ($pluginQueue ?? $this->packageQueue ?? $this->queue as $queue) {
             $this->traverseNode($ast, $queue, $context);
         }
@@ -158,7 +158,7 @@ class Traverser
                 }
             }
         }
-        $context->parents->push($node);
+        $context->push($node);
         foreach ($node->getSubNodeNames() as $name) {
             $node->setAttribute('currentNode', $name);
 
@@ -177,7 +177,7 @@ class Traverser
                 $this->traverseNode($subNode, $plugins, $context);
             }
         }
-        $context->parents->pop();
+        $context->pop();
         foreach ($plugins as $plugin) {
             foreach (PluginCache::leaveMethods(\get_class($plugin)) as $type => $methods) {
                 if (!$node instanceof $type) {

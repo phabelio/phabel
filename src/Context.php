@@ -3,6 +3,7 @@
 namespace Phabel;
 
 use PhpParser\Node;
+use PhpParser\Node\Expr\Isset_;
 use SplStack;
 
 /**
@@ -17,9 +18,41 @@ class Context
      * @var SplStack<Node>
      */
     public SplStack $parents;
+    /**
+     * Whether we're inside an isset expression
+     */
+    public bool $insideIsset = false;
+    /**
+     * Constructor
+     */
     public function __construct()
     {
         $this->parents = new SplStack;
+    }
+    /**
+     * Push node
+     *
+     * @param Node $node Node
+     * 
+     * @return void
+     */
+    public function push(Node $node): void
+    {
+        $this->parents->push($node);
+        if ($node instanceof Isset_) {
+            $this->insideIsset = true;
+        }
+    }
+    /**
+     * Pop node
+     *
+     * @return void
+     */
+    public function pop(): void
+    {
+        if ($this->parents->pop() instanceof Isset_) {
+            $this->insideIsset = false;
+        }
     }
     /**
      * Insert nodes before node.
