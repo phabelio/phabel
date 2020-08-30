@@ -57,12 +57,14 @@ class TypeHintStripper extends Plugin
      * @var SplStack<T>
      */
     private SplStack $stack;
+    private ArrowClosure $converter;
     /**
      * Constructor.
      */
     public function __construct()
     {
         $this->stack = new SplStack;
+        $this->converter = new ArrowClosure;
     }
     /**
      * Convert a function to a closure.
@@ -70,7 +72,7 @@ class TypeHintStripper extends Plugin
     private function toClosure(FunctionLike &$func): void
     {
         if ($func instanceof ArrowFunction) {
-            $func = ArrowClosure::enterClosure($func);
+            $func = $this->converter->enterClosure($func);
         }
     }
     /**

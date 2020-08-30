@@ -4,10 +4,13 @@ namespace Phabel\Target\Php70;
 
 use Phabel\Plugin;
 use PhpParser\Node;
+use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\ArrayDimFetch;
 use PhpParser\Node\Expr\ClassConstFetch;
+use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\Isset_;
 use PhpParser\Node\Expr\MethodCall;
+use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Expr\Yield_;
 
 /**
@@ -25,13 +28,11 @@ class CompoundAccess extends Plugin
     public function enterIsset(Isset_ $node): void
     {
         foreach ($node->vars as &$var) {
-            if (!$var instanceof ArrayDimFetch) {
-                continue;
+            if ($var instanceof ArrayDimFetch 
+                && $var->var instanceof Expr
+                && !($var->var instanceof Variable || $var->var instanceof FuncCall) {
+                $var->var = self::callPoly('returnMe', $var->var);
             }
-            if (!$var->var instanceof ClassConstFetch) {
-                continue;
-            }
-            $var->var = self::callPoly('returnMe', $var->var);
         }
     }
     /**

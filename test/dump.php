@@ -1,6 +1,7 @@
 <?php
 
 use PhpParser\ParserFactory;
+use PhpParser\PrettyPrinter\Standard;
 
 require 'vendor/autoload.php';
 
@@ -10,5 +11,7 @@ if ($argc < 2) {
 }
 
 $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
+//$parser = (new ParserFactory)->create(ParserFactory::ONLY_PHP5);
 
-\var_dump($parser->parse(\file_get_contents($argv[1])));
+\var_dump($a = $parser->parse(\file_get_contents($argv[1])));
+var_dumP((new Standard())->prettyPrint($a));

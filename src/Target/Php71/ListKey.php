@@ -3,6 +3,7 @@
 namespace Phabel\Target\Php71;
 
 use Phabel\Plugin;
+use PhpParser\BuilderHelpers;
 use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\List_;
@@ -81,7 +82,7 @@ class ListKey extends Plugin
             }
         }
         /** @var Array_ */
-        $keys = self::toLiteral($keys);
+        $keys = BuilderHelpers::normalizeValue($keys);
         return [new List_($newList), $keys];
     }
     /**

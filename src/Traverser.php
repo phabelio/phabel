@@ -29,6 +29,23 @@ class Traverser
      */
     private SplQueue $packageQueue;
     /**
+     * Generate traverser from basic plugin instances.
+     *
+     * @param Plugin ...$plugin Plugins
+     *
+     * @return self
+     */
+    public static function fromPlugin(Plugin ...$plugin): self
+    {
+        $queue = new SplQueue;
+        foreach ($plugin as $p) {
+            $queue->enqueue($p);
+        }
+        $final = new SplQueue;
+        $final->enqueue($queue);
+        return new self($final);
+    }
+    /**
      * AST traverser.
      *
      * @return SplQueue<SplQueue<Plugin>> $queue Plugin queue
@@ -68,7 +85,7 @@ class Traverser
     /**
      * Traverse AST of file.
      *
-     * @param string $file    File
+     * @param string $file File
      *
      * @return void
      */
@@ -95,9 +112,21 @@ class Traverser
             return;
         }
         $ast = new RootNode($this->parser->parse(\file_get_contents($file)));
+        $this->traverseAst($ast, $reducedQueue);
+    }
+    /**
+     * Traverse AST.
+     *
+     * @param Node     $node        Initial node
+     * @param SplQueue $pluginQueue Plugin queue (optional)
+     *
+     * @return void
+     */
+    public function traverseAst(Node &$node, SplQueue $pluginQueue = null): void
+    {
         $context = new Context;
-        $context->parents->push($ast);
-        foreach ($reducedQueue as $queue) {
+        $context->parents->push($node);
+        foreach ($pluginQueue ?? $this->packageQueue ?? $this->queue as $queue) {
             $this->traverseNode($ast, $queue, $context);
         }
     }

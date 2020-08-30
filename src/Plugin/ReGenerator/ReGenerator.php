@@ -12,62 +12,55 @@ class ReGenerator implements \Iterator
      *
      * @var array
      */
-    private $variables = [];
+    public $variables = [];
     /**
      * Return value.
      *
      * @var mixed
      */
-    private $returnValue;
+    public $returnValue;
     /**
      * Yield key.
      *
      * @var mixed
      */
-    private $yieldKey;
+    public $yieldKey;
     /**
      * Yield value.
      *
      * @var mixed
      */
-    private $yieldValue;
+    public $yieldValue;
 
     /**
      * Value sent from the outside.
      *
      * @var mixed
      */
-    private $sentValue;
+    public $sentValue;
     /**
      * Exception sent from the outside.
      */
-    private ?\Throwable $sentException = null;
+    public ?\Throwable $sentException = null;
 
     /**
      * Current state of state machine.
      */
-    private int $state = 0;
+    public int $state = 0;
 
     /**
      * Whether the generator has returned.
      */
-    private bool $returned = false;
+    public bool $returned = false;
     /**
      * Whether the generator was started.
      */
-    private bool $started = false;
+    public bool $started = false;
 
     /**
      * Actual generator function.
      */
-    private \Closure $generator;
-
-    /**
-     * Yielded from (re)generator.
-     *
-     * @var \Generator|self|null
-     */
-    private $yieldedFrom;
+    public \Closure $generator;
 
     /**
      * Construct regenerator.
@@ -97,35 +90,26 @@ class ReGenerator implements \Iterator
     private function start(): void
     {
         if (!$this->started) {
-            ($this->generator)($this->state, $this->variables, $this->yieldKey, $this->yieldValue, $this->sentValue, $this->sentException, $this->returnValue, $this->returned, $this->yieldedFrom);
+            ($this->generator)($this->state, $this->variables, $this->yieldKey, $this->yieldValue, $this->sentValue, $this->sentException, $this->returnValue, $this->returned);
             $this->started = true;
         }
     }
 
+    /**
+     * Send value into generator
+     *
+     * @param mixed $value Value
+     * 
+     * @return mixed
+     */
     public function send($value)
     {
         $this->start();
-        if ($this->yieldedFrom) {
-            try {
-                $result = $this->yieldedFrom->send($value);
-            } catch (\Throwable $exception) {
-                $e = $exception;
-            }
-            if (!$this->yieldedFrom->valid()) { // Returned from yield from
-                $returnValue = \method_exists($this->yieldedFrom, 'getReturn') ? $this->yieldedFrom->getReturn() : null;
-                $this->yieldedFrom = null;
-                if (isset($e)) {
-                    return $this->throw($e);
-                }
-                return $this->send($returnValue);
-            }
-            return $result;
-        }
         $value = $this->yieldValue;
         if (!$this->returned) {
             $this->sentValue = $value;
             try {
-                ($this->generator)($this->state, $this->variables, $this->yieldKey, $this->yieldValue, $this->sentValue, $this->sentException, $this->returnValue, $this->returned, $this->yieldedFrom);
+                ($this->generator)($this->state, $this->variables, $this->yieldKey, $this->yieldValue, $this->sentValue, $this->sentException, $this->returnValue, $this->returned);
             } catch (\Throwable $e) {
                 $this->returned = true;
                 throw $e;
@@ -135,30 +119,21 @@ class ReGenerator implements \Iterator
         }
         return $value;
     }
+    /**
+     * Throw value into generator
+     *
+     * @param \Throwable $throwable Excpeption
+     * 
+     * @return mixed
+     */
     public function throw(\Throwable $throwable)
     {
         $this->start();
-        if ($this->yieldedFrom) {
-            try {
-                $result = $this->yieldedFrom->throw($throwable);
-            } catch (\Throwable $exception) {
-                $e = $exception;
-            }
-            if (!$this->yieldedFrom->valid()) { // Returned from yield from
-                $returnValue = \method_exists($this->yieldedFrom, 'getReturn') ? $this->yieldedFrom->getReturn() : null;
-                $this->yieldedFrom = null;
-                if (isset($e)) {
-                    return $this->throw($e);
-                }
-                return $this->send($returnValue);
-            }
-            return $result;
-        }
         $value = $this->yieldValue;
         if (!$this->returned) {
             $this->sentException = $value;
             try {
-                ($this->generator)($this->variables, $this->yieldKey, $this->yieldValue, $this->sentValue, $this->sentException, $this->returnValue, $this->returned, $this->yieldedFrom);
+                ($this->generator)($this->state, $this->variables, $this->yieldKey, $this->yieldValue, $this->sentValue, $this->sentException, $this->returnValue, $this->returned);
             } catch (\Throwable $e) {
                 $this->returned = true;
                 throw $e;
@@ -169,31 +144,46 @@ class ReGenerator implements \Iterator
         return $value;
     }
 
+    /**
+     * Get current value
+     *
+     * @return mixed
+     */
     public function current()
     {
-        if ($this->yieldedFrom) {
-            return $this->yieldedFrom->current();
-        }
         $this->start();
         return $this->yieldValue;
     }
+    /**
+     * Get current key
+     *
+     * @return mixed
+     */
     public function key()
     {
-        if ($this->yieldedFrom) {
-            return $this->yieldedFrom->key();
-        }
         $this->start();
         return $this->yieldKey;
     }
+    /**
+     * Advance generator
+     *
+     * @return void
+     */
     public function next(): void
     {
         $this->send(null);
     }
+    /**
+     * Rewind generator
+     *
+     * @return void
+     */
     public function rewind(): void
     {
         if ($this->started && !$this->returned) {
             throw new \Exception('Cannot rewind a generator that was already run');
         }
+        $this->state = 0;
         $this->started = false;
         $this->returned = false;
         $this->returnValue = null;
@@ -201,10 +191,14 @@ class ReGenerator implements \Iterator
         $this->yieldValue = null;
         $this->sentValue = null;
         $this->sentException = null;
-        $this->yieldedFrom = null;
         $this->variables = [];
         $this->start();
     }
+    /**
+     * Check if generator is valid
+     *
+     * @return boolean
+     */
     public function valid(): bool
     {
         return !$this->returned;
