@@ -76,7 +76,7 @@ class IssetExpressionFixer extends Plugin
             if (!$needsFixing) {
                 continue;
             }
-            switch (\get_class($workVar)) {
+            switch ($class = \get_class($workVar)) {
                 case ArrayDimFetch::class:
                 case PropertyFetch::class:
                     $workVar->var = self::callPoly('returnMe', $workVar->var);
@@ -97,6 +97,8 @@ class IssetExpressionFixer extends Plugin
                         new LNumber(0)
                     ));
                     break;
+                default:
+                    throw new \RuntimeException("Trying to fix unknown isset expression $class");
             }
         }
     }

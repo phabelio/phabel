@@ -264,7 +264,7 @@ foreach ($instanceArgTypes as $class => $argTypes) {
 }
 
 $keys = [];
-    foreach ($result['isset'] as $version) {
+    foreach ($result['main'] as $version) {
         $keys = array_merge_recursive($keys, $version);
     }
 foreach ($keys as &$values) {
