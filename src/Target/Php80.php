@@ -3,6 +3,8 @@
 namespace Phabel\Target;
 
 use Phabel\Plugin;
+use Phabel\Target\Php80\IssetExpressionFixer;
+use Phabel\Target\Php80\NestedExpressionFixer;
 use Phabel\UnionTypeStripper;
 
 /**
@@ -21,6 +23,8 @@ class Php80 extends Plugin
     public static function runWithAfter(): array
     {
         return [
+            IssetExpressionFixer::class,
+            NestedExpressionFixer::class,
             UnionTypeStripper::class,
         ];
     }

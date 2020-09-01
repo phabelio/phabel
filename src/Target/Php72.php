@@ -3,6 +3,8 @@
 namespace Phabel\Target;
 
 use Phabel\Plugin;
+use Phabel\Target\Php72\IssetExpressionFixer;
+use Phabel\Target\Php72\NestedExpressionFixer;
 use Phabel\Target\Php72\ObjectTypeHintReplacer;
 
 /**
@@ -21,6 +23,8 @@ class Php72 extends Plugin
     public static function runWithAfter(): array
     {
         return [
+            IssetExpressionFixer::class,
+            NestedExpressionFixer::class,
             ObjectTypeHintReplacer::class
         ];
     }

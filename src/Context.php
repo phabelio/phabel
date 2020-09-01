@@ -93,7 +93,7 @@ class Context
                 } while ($argument instanceof ArrayDimFetch && $argument->var instanceof ArrayDimFetch);
                 if ($argument instanceof Variable && \is_string($argument->name)) {
                     $this->variables->top()->addVar($argument->name);
-                }    
+                }
             }
         }
     }

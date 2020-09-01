@@ -41,6 +41,5 @@ class ReGeneratorInternal extends Plugin
     }
     public function enterRoot(FunctionLike $func)
     {
-
     }
 }

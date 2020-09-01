@@ -5,6 +5,8 @@
 //  for each subnode, to test compatibility with various versions of the PHP lexer.
 
 use HaydenPierce\ClassFinder\ClassFinder;
+use Phabel\Plugin\IssetExpressionFixer;
+use Phabel\Plugin\NestedExpressionFixer;
 use PhpParser\Builder\Class_;
 use PhpParser\Builder\Method;
 use PhpParser\Internal\PrintableNewAnonClassNode;
@@ -265,20 +267,67 @@ foreach ($instanceArgTypes as $class => $argTypes) {
 
 $keys = [];
 foreach ($result['main'] as $version) {
-    $keys = array_merge_recursive($keys, $version);
+    $keys = \array_merge_recursive($keys, $version);
 }
 foreach ($keys as &$values) {
-    $values = array_keys($values);
+    $values = \array_keys($values);
 }
-var_dump($keys);
+foreach ([56, 70, 71, 72, 73, 74, 80] as $version) {
+    foreach (['NestedExpressionFixer', 'IssetExpressionFixer'] as $name) {
+        $code = <<< PHP
+        <?php
+
+        namespace Phabel\Target\Php$version;
+
+        use Phabel\Plugin;
+
+        class $name extends Plugin
+        {
+        }
+        PHP;
+        \file_put_contents("src/Target/Php$version/$name.php", $code);
+    }
+}
+\var_dump($keys);
+foreach ($result as $type => $results) {
+    $name = $type === 'main' ? 'NestedExpressionFixer' : 'IssetExpressionFixer';
+    $type = $type === 'main' ? NestedExpressionFixer::class : IssetExpressionFixer::class;
+    foreach ($results as $version => $config) {
+        $config = \var_export($config, true);
+        $code = <<< PHP
+        <?php
+
+        namespace Phabel\Target\Php$version;
+
+        use Phabel\Plugin;
+        use $type as fixer;
+
+        class $name extends Plugin
+        {
+            /**
+             * Expression fixer for PHP $version
+             *
+             * @return array
+             */
+            public static function runAfter(): array
+            {
+                return [
+                    fixer::class => $config
+                ];
+            }
+        }
+        PHP;
+        \file_put_contents("src/Target/Php$version/$name.php", $code);
+    }
+}
 \file_put_contents('result.php', '<?php $result = '.\var_export($result, true).";");
 
-$ckeys = array_fill_keys(array_map(fn ($a) => $a->getname(), $expressions), true);
+$ckeys = \array_fill_keys(\array_map(fn ($a) => $a->getname(), $expressions), true);
 foreach ($result as &$type) {
     foreach ($type as &$version) {
         foreach ($version as &$class) {
             foreach ($class as &$arguments) {
-                $arguments = array_diff_key($ckeys, $arguments);
+                $arguments = \array_diff_key($ckeys, $arguments);
             }
         }
     }

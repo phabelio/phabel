@@ -61,7 +61,7 @@ class IssetExpressionFixer extends Plugin
     {
         foreach ($isset->vars as $key => &$var) {
             /** @var array<string, array<class-string<Expr>, true>> */
-            $subNodes = $this->getConfig(\get_class($var), false)
+            $subNodes = $this->getConfig(\get_class($var), false);
             if (!$subNodes) {
                 continue;
             }

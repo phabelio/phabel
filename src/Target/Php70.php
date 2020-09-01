@@ -8,6 +8,8 @@ use Phabel\Target\Php70\ClosureCallReplacer;
 use Phabel\Target\Php70\CompoundAccess;
 use Phabel\Target\Php70\DefineArrayReplacer;
 use Phabel\Target\Php70\GroupUseReplacer;
+use Phabel\Target\Php70\IssetExpressionFixer;
+use Phabel\Target\Php70\NestedExpressionFixer;
 use Phabel\Target\Php70\NullCoalesceReplacer;
 use Phabel\Target\Php70\ReservedNameReplacer;
 use Phabel\Target\Php70\ScalarTypeHintsRemover;
@@ -30,6 +32,8 @@ class Php70 extends Plugin
     public static function runWithAfter(): array
     {
         return [
+            IssetExpressionFixer::class,
+            NestedExpressionFixer::class,
             AnonymousClassReplacer::class,
             ClosureCallReplacer::class,
             CompoundAccess::class,

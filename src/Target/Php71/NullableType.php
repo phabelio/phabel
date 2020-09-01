@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\Php7to5\NodeVisitors;
+namespace Phabel\Target\Php71;
 
 use Phabel\Plugin;
 use Phabel\Plugin\TypeHintStripper;

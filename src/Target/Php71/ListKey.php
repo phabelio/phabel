@@ -86,7 +86,7 @@ class ListKey extends Plugin
         return [new List_($newList), $keys];
     }
     /**
-     * Destructure array of arrays
+     * Destructure array of arrays.
      *
      * @param array $keys  Custom keys
      * @param array $array Array

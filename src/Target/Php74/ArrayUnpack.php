@@ -5,7 +5,6 @@ namespace Phabel\Target\Php74;
 use Phabel\Plugin;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr\Array_;
-use PhpParser\Node\Expr\ArrayItem;
 use PhpParser\Node\Expr\FuncCall;
 
 class ArrayUnpack extends Plugin

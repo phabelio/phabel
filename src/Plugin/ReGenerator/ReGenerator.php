@@ -96,10 +96,10 @@ class ReGenerator implements \Iterator
     }
 
     /**
-     * Send value into generator
+     * Send value into generator.
      *
      * @param mixed $value Value
-     * 
+     *
      * @return mixed
      */
     public function send($value)
@@ -120,10 +120,10 @@ class ReGenerator implements \Iterator
         return $value;
     }
     /**
-     * Throw value into generator
+     * Throw value into generator.
      *
      * @param \Throwable $throwable Excpeption
-     * 
+     *
      * @return mixed
      */
     public function throw(\Throwable $throwable)
@@ -145,7 +145,7 @@ class ReGenerator implements \Iterator
     }
 
     /**
-     * Get current value
+     * Get current value.
      *
      * @return mixed
      */
@@ -155,7 +155,7 @@ class ReGenerator implements \Iterator
         return $this->yieldValue;
     }
     /**
-     * Get current key
+     * Get current key.
      *
      * @return mixed
      */
@@ -165,7 +165,7 @@ class ReGenerator implements \Iterator
         return $this->yieldKey;
     }
     /**
-     * Advance generator
+     * Advance generator.
      *
      * @return void
      */
@@ -174,7 +174,7 @@ class ReGenerator implements \Iterator
         $this->send(null);
     }
     /**
-     * Rewind generator
+     * Rewind generator.
      *
      * @return void
      */
@@ -195,7 +195,7 @@ class ReGenerator implements \Iterator
         $this->start();
     }
     /**
-     * Check if generator is valid
+     * Check if generator is valid.
      *
      * @return boolean
      */

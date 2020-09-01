@@ -23,7 +23,7 @@ use PhpParser\Node\Scalar\LNumber;
 class NestedExpressionFixer extends Plugin
 {
     /**
-     * Recursively extract bottom ArrayDimFetch
+     * Recursively extract bottom ArrayDimFetch.
      *
      * @param Node $var
      * @return Node
@@ -100,11 +100,11 @@ class NestedExpressionFixer extends Plugin
     }
 
     /**
-     * Check if a is instance of b
+     * Check if a is instance of b.
      *
      * @param class-string|object $a
      * @param class-string|object $b
-     * 
+     *
      * @return boolean
      */
     public static function instanceOf($a, $b): bool
