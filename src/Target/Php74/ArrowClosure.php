@@ -2,7 +2,9 @@
 
 namespace Phabel\Target\Php74;
 
+use Phabel\Context;
 use Phabel\Plugin;
+use Phabel\Plugin\ArrowClosureVariableFinder;
 use Phabel\Traverser;
 use PhpParser\Node\Expr\ArrowFunction;
 use PhpParser\Node\Expr\Closure;
@@ -22,25 +24,13 @@ class ArrowClosure
     /**
      * Finder plugin.
      */
-    private Plugin $finderPlugin;
+    private ArrowClosureVariableFinder $finderPlugin;
     /**
      * Constructor.
      */
     public function __construct()
     {
-        $this->finderPlugin = new class extends Plugin {
-            private array $found = [];
-            public function enter(Variable $var)
-            {
-                $this->found[$var->name]= new ClosureUse($var, true);
-            }
-            public function getFound(): array
-            {
-                $found = $this->found;
-                $this->found = [];
-                return $found;
-            }
-        };
+        $this->finderPlugin = new ArrowClosureVariableFinder;
         $this->traverser = Traverser::fromPlugin($this->finderPlugin);
     }
     /**
@@ -50,7 +40,7 @@ class ArrowClosure
      *
      * @return Closure
      */
-    public function enterClosure(ArrowFunction $func): Closure
+    public function enter(ArrowFunction $func, Context $context): Closure
     {
         $nodes = [];
         foreach ($func->getSubNodeNames() as $node) {
@@ -60,13 +50,15 @@ class ArrowClosure
         foreach ($nodes['params'] ?? [] as $param) {
             $params[$param->var->name] = true;
         }
-        $this->traverser->traverseAst($func);
-        $nodes['uses'] = \array_merge(
-            \array_values(\array_diff_key(
-                $this->finderPlugin->getFound(),
-                $params
-            )),
-            $nodes['use'] ?? []
+        $this->traverser->traverseAst($func->expr);
+        $nodes['uses'] = \array_values(
+            \array_intersect_key(
+                \array_diff_key(
+                    $this->finderPlugin->getFound(),
+                    $params,
+                ),
+                $context->variables->top()->getVariables()
+            )
         );
         return new Closure($nodes, $func->getAttributes());
     }

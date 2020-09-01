@@ -71,12 +71,10 @@ class Context
                         $this->variables->top()->addVar($use->var->name);
                     }
                 }
+            } elseif ($node instanceof ArrowFunction) {
+                $variables += $this->variables->top()->getVars();
             }
-            if ($node instanceof ArrowFunction) {
-                $this->variables->top()->addVars($variables);
-            } else {
-                $this->variables->push(new VariableContext($variables));
-            }
+            $this->variables->push(new VariableContext($variables));
         } elseif ($node instanceof Assign || $node instanceof AssignOp || $node instanceof AssignRef) {
             do {
                 $node = $node->var;

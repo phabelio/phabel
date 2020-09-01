@@ -83,4 +83,13 @@ class VariableContext
         $this->variables[$var] = true;
         return $var;
     }
+    /**
+     * Get all variables currently defined
+     *
+     * @return array
+     */
+    public function getVars(): array
+    {
+        return $this->variables;
+    }
 }

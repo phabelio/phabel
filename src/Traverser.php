@@ -50,9 +50,9 @@ class Traverser
      *
      * @return SplQueue<SplQueue<Plugin>> $queue Plugin queue
      */
-    public function __construct(SplQueue $queue)
+    public function __construct(SplQueue $queue = null)
     {
-        $this->queue = $queue;
+        $this->queue = $queue ?? new SplQueue;
         $this->parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
     }
     /**
@@ -120,15 +120,16 @@ class Traverser
      * @param Node     $node        Initial node
      * @param SplQueue $pluginQueue Plugin queue (optional)
      *
-     * @return void
+     * @return Context
      */
-    public function traverseAst(Node &$node, SplQueue $pluginQueue = null): void
+    public function traverseAst(Node &$node, SplQueue $pluginQueue = null): Context
     {
         $context = new Context;
         $context->push($node);
         foreach ($pluginQueue ?? $this->packageQueue ?? $this->queue as $queue) {
             $this->traverseNode($ast, $queue, $context);
         }
+        return $context;
     }
     /**
      * Traverse node.

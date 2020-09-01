@@ -4,12 +4,16 @@ namespace Phabel\Plugin;
 
 use Phabel\Context;
 use Phabel\Plugin;
+use Phabel\Traverser;
 use PhpParser\Node;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\ArrayDimFetch;
+use PhpParser\Node\Expr\ArrowFunction;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\BinaryOp\BooleanOr;
 use PhpParser\Node\Expr\ClassConstFetch;
+use PhpParser\Node\Expr\Closure;
+use PhpParser\Node\Expr\ErrorSuppress;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\Instanceof_;
 use PhpParser\Node\Expr\MethodCall;
@@ -19,9 +23,27 @@ use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\StaticPropertyFetch;
 use PhpParser\Node\Expr\Ternary;
 use PhpParser\Node\Scalar\LNumber;
+use PhpParser\Node\Stmt\Return_;
 
 class NestedExpressionFixer extends Plugin
 {
+    /**
+     * Traverser.
+     */
+    private Traverser $traverser;
+    /**
+     * Finder plugin.
+     */
+    private ArrowClosureVariableFinder $finderPlugin;
+    /**
+     * Constructor.
+     */
+    public function __construct()
+    {
+        $this->finderPlugin = new ArrowClosureVariableFinder;
+        $this->finderPlugin->setConfig('byRef', true);
+        $this->traverser = Traverser::fromPlugin($this->finderPlugin);
+    }
     /**
      * Recursively extract bottom ArrayDimFetch.
      *
@@ -64,10 +86,6 @@ class NestedExpressionFixer extends Plugin
                     break;
                 case New_::class:
                 case ClassConstFetch::class:
-                // For all the following expressions, wrapping in a ternary breaks return-by-ref
-                case StaticCall::class:
-                case StaticPropertyFetch::class:
-                case FuncCall::class:
                     $valueCopy = $value;
                     return new Ternary(
                         new BooleanOr(
@@ -76,6 +94,29 @@ class NestedExpressionFixer extends Plugin
                         ),
                         $expr,
                         new LNumber(0)
+                    );
+                // For all the following expressions, wrapping in a ternary breaks return-by-ref,
+                //  so for now wrap in a hack and fix once the expression bubbler is ready
+                case StaticCall::class:
+                case StaticPropertyFetch::class:
+                case FuncCall::class:
+                    $this->traverser->traverseAst($expr);
+                    $valueCopy = $value;
+                    return new ErrorSuppress(
+                        new MethodCall(
+                            self::callPoly(
+                                "returnMe",
+                                new Closure([
+                                    'byRef' => true,
+                                    'uses' => $this->finderPlugin->getFound(),
+                                    'stmts' => [
+                                        new Assign($value = $context->getVariable(), $valueCopy),
+                                        new Return_($expr)
+                                    ]
+                                ])
+                            ),
+                            '__invoke'
+                        )
                     );
             }
         }
