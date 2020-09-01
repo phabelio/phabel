@@ -3,7 +3,18 @@
 namespace Phabel;
 
 use PhpParser\Node;
-use PhpParser\Node\Expr\Isset_;
+use PhpParser\Node\Expr\ArrayDimFetch;
+use PhpParser\Node\Expr\ArrowFunction;
+use PhpParser\Node\Expr\Assign;
+use PhpParser\Node\Expr\AssignOp;
+use PhpParser\Node\Expr\AssignRef;
+use PhpParser\Node\Expr\Closure;
+use PhpParser\Node\Expr\FuncCall;
+use PhpParser\Node\Expr\MethodCall;
+use PhpParser\Node\Expr\StaticCall;
+use PhpParser\Node\Expr\Variable;
+use PhpParser\Node\FunctionLike;
+use PhpParser\Node\Param;
 use SplStack;
 
 /**
@@ -19,40 +30,93 @@ class Context
      */
     public SplStack $parents;
     /**
-     * Whether we're inside an isset expression
+     * Declared variables stack.
+     *
+     * @var SplStack<VariableContext>
      */
-    public bool $insideIsset = false;
+    public SplStack $variables;
     /**
-     * Constructor
+     * Constructor.
      */
     public function __construct()
     {
         $this->parents = new SplStack;
+        $this->variables = new SplStack;
     }
     /**
-     * Push node
+     * Push node.
      *
      * @param Node $node Node
-     * 
+     *
      * @return void
      */
     public function push(Node $node): void
     {
         $this->parents->push($node);
-        if ($node instanceof Isset_) {
-            $this->insideIsset = true;
+        if ($node instanceof RootNode) {
+            $this->variables->push(new VariableContext);
+        }
+        if ($node instanceof FunctionLike) {
+            $variables = \array_fill_keys(
+                \array_map(
+                    fn (Param $param): string => $param->var->name,
+                    $node->getParams()
+                ),
+                true
+            );
+            if ($node instanceof Closure) {
+                foreach ($node->uses as $use) {
+                    $variables[$use->var->name] = true;
+                    if ($use->byRef) {
+                        $this->variables->top()->addVar($use->var->name);
+                    }
+                }
+            }
+            if ($node instanceof ArrowFunction) {
+                $this->variables->top()->addVars($variables);
+            } else {
+                $this->variables->push(new VariableContext($variables));
+            }
+        } elseif ($node instanceof Assign || $node instanceof AssignOp || $node instanceof AssignRef) {
+            do {
+                $node = $node->var;
+            } while ($node instanceof ArrayDimFetch && $node->var instanceof ArrayDimFetch);
+            if ($node instanceof Variable && \is_string($node->name)) {
+                $this->variables->top()->addVar($node->name);
+            }
+        } elseif ($node instanceof MethodCall || $node instanceof StaticCall || $node instanceof FuncCall) {
+            // Cover reference parameters
+            foreach ($node->args as $argument) {
+                $argument = $argument->value;
+                do {
+                    $argument = $argument->var;
+                } while ($argument instanceof ArrayDimFetch && $argument->var instanceof ArrayDimFetch);
+                if ($argument instanceof Variable && \is_string($argument->name)) {
+                    $this->variables->top()->addVar($argument->name);
+                }    
+            }
         }
     }
     /**
-     * Pop node
+     * Pop node.
      *
      * @return void
      */
     public function pop(): void
     {
-        if ($this->parents->pop() instanceof Isset_) {
-            $this->insideIsset = false;
+        $popped = $this->parents->pop();
+        if ($popped instanceof RootNode || ($popped instanceof FunctionLike && !$popped instanceof ArrowFunction)) {
+            $this->variables->pop();
         }
+    }
+    /**
+     * Return new unoccupied variable.
+     *
+     * @return Variable
+     */
+    public function getVariable(): Variable
+    {
+        return new Variable($this->parents->top()->getVar());
     }
     /**
      * Insert nodes before node.

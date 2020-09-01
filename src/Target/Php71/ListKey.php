@@ -27,7 +27,7 @@ class ListKey extends Plugin
             return;
         }
         [$node->valueVar, $array] = $this->splitList($node->valueVar);
-        $node->expr = self::callPoly('destructure', $array, $node->expr);
+        $node->expr = self::callPoly('destructureForeach', $array, $node->expr);
     }
     /**
      * Parse list assignment with custom keys.
@@ -56,23 +56,23 @@ class ListKey extends Plugin
         return isset($list->items[0]->key);
     }
     /**
-     * Split keyed list into new list assignment and array to pass to destructure function.
+     * Split keyed list into a new list assignment and array to pass to destructure function.
      *
      * @param List_ $list Keyed list
      *
      * @return array{0: List_, 1: Array_}
      */
-    private function splitList(List_ $list): array
+    private static function splitList(List_ $list): array
     {
         $newList = [];
         $keys = [];
-        $key = 0; // Technically list assignment does not support mixed keys, but we need this for nested assignments
+        $key = 0; // Technically a list assignment does not support mixed keys, but we need this for nested assignments
         foreach ($list->items as $item) {
             if ($item) {
                 $curKey = $item->key ?? $key++;
                 $item->key = null;
                 if ($item->value instanceof List_) {
-                    [$item->value, $keys[$curKey]] = $this->splitList($list);
+                    [$item->value, $keys[$curKey]] = self::splitList($list);
                 } else {
                     $keys[$curKey] = null;
                 }
@@ -84,6 +84,22 @@ class ListKey extends Plugin
         /** @var Array_ */
         $keys = BuilderHelpers::normalizeValue($keys);
         return [new List_($newList), $keys];
+    }
+    /**
+     * Destructure array of arrays
+     *
+     * @param array $keys  Custom keys
+     * @param array $array Array
+     *
+     * @psalm-param array<string, null|array> $keys Custom keys
+     *
+     * @return \Generator
+     */
+    public static function destructureForeach(array $keys, array $array): \Generator
+    {
+        foreach ($array as $value) {
+            yield self::destructure($keys, $value);
+        }
     }
     /**
      * Destructure array.
@@ -98,11 +114,11 @@ class ListKey extends Plugin
     public static function destructure(array $keys, array $array): array
     {
         $res = [];
-        foreach ($keys as $key => $type) {
-            if ($type === null) {
+        foreach ($keys as $key => $subKeys) {
+            if ($subKeys === null) {
                 $res[] = $array[$key];
             } else {
-                $res[] = self::destructure($type, $array[$key]);
+                $res[] = self::destructure($subKeys, $array[$key]);
             }
         }
         return $res;

@@ -14,7 +14,7 @@ use PhpParser\Node\Stmt\Foreach_;
 class ArrayList extends Plugin
 {
     /**
-     * Caled when entering Foreach_ node.
+     * Called when entering Foreach_ node.
      *
      * @param Foreach_ $node Node
      *
