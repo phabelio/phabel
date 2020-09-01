@@ -93,7 +93,7 @@ function checkSyntax(string $code, int $startFrom = 56): int
 
 /** @var ReflectionClass[] */
 $expressions = [];
-foreach ($allClasses = ClassFinder::getClassesInNamespace('PhpParser', ClassFinder::RECURSIVE_MODE) as $class) {
+foreach (ClassFinder::getClassesInNamespace('PhpParser', ClassFinder::RECURSIVE_MODE) as $class) {
     $class = new ReflectionClass($class);
     if ($class->isSubclassOf(Expr::class) && !$class->isAbstract()
         && $class->getName() !== PrintableNewAnonClassNode::class
@@ -264,12 +264,23 @@ foreach ($instanceArgTypes as $class => $argTypes) {
 }
 
 $keys = [];
-    foreach ($result['main'] as $version) {
-        $keys = array_merge_recursive($keys, $version);
-    }
+foreach ($result['main'] as $version) {
+    $keys = array_merge_recursive($keys, $version);
+}
 foreach ($keys as &$values) {
     $values = array_keys($values);
 }
 var_dump($keys);
-
 \file_put_contents('result.php', '<?php $result = '.\var_export($result, true).";");
+
+$ckeys = array_fill_keys(array_map(fn ($a) => $a->getname(), $expressions), true);
+foreach ($result as &$type) {
+    foreach ($type as &$version) {
+        foreach ($version as &$class) {
+            foreach ($class as &$arguments) {
+                $arguments = array_diff_key($ckeys, $arguments);
+            }
+        }
+    }
+}
+\file_put_contents('resultReverse.php', '<?php $result = '.\var_export($result, true).";");
