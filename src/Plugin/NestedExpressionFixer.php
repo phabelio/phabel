@@ -108,7 +108,7 @@ class NestedExpressionFixer extends Plugin
                                 "returnMe",
                                 new Closure([
                                     'byRef' => true,
-                                    'uses' => $this->finderPlugin->getFound(),
+                                    'uses' => array_keys($this->finderPlugin->getFound()),
                                     'stmts' => [
                                         new Assign($value = $context->getVariable(), $valueCopy),
                                         new Return_($expr)

@@ -51,7 +51,7 @@ class ArrowClosure
             $params[$param->var->name] = true;
         }
         $this->traverser->traverseAst($func->expr);
-        $nodes['uses'] = \array_values(
+        $nodes['uses'] = \array_keys(
             \array_intersect_key(
                 \array_diff_key(
                     $this->finderPlugin->getFound(),
