@@ -46,17 +46,13 @@ class AnonymousClassReplacer extends Plugin
 
         $classNode->name = 'PhabelAnonymousClass'.$this->fileName.($this->count++);
 
-        $node->class = new Node\Expr\ConstFetch(
-            new Node\Name($classNode->name)
-        );
+        $node->class = new Node\Name($classNode->name);
 
-        $prevNode = $node;
         foreach ($ctx->parents as $node) {
             if ($node instanceof Namespace_ || $node instanceof RootNode) {
-                $ctx->insertBefore($node, $classNode);
+                $ctx->insertAfter($node, $classNode);
                 return;
             }
-            $prevNode = $node;
         }
         throw new \RuntimeException('Could not find hook for inserting anonymous class!');
     }

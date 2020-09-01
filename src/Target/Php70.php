@@ -16,6 +16,7 @@ use Phabel\Target\Php70\ScalarTypeHintsRemover;
 use Phabel\Target\Php70\SpaceshipOperatorReplacer;
 use Phabel\Target\Php70\StrictTypesDeclareStatementRemover;
 use Phabel\Target\Php70\ThrowableReplacer;
+use Phabel\Target\Php70\YieldFromReturnDetector;
 
 /**
  * Makes changes necessary to polyfill PHP 7.0 and run on PHP 5.6 and below.
@@ -44,7 +45,8 @@ class Php70 extends Plugin
             ScalarTypeHintsRemover::class,
             SpaceshipOperatorReplacer::class,
             StrictTypesDeclareStatementRemover::class,
-            ThrowableReplacer::class
+            ThrowableReplacer::class,
+            YieldFromReturnDetector::class
         ];
     }
 }
