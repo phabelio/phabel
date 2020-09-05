@@ -7,7 +7,7 @@ This is a transpiler that will allow native usage of php8 features and especiall
 
 The transpiler will seamlessly hook into composer to transpile the package (and all dependencies down the current branch of the dependency tree!) on installation, on the user's machine, targeting the user's specific php version (or another one specified in the config).
 
-This project is mostly ready, but I would love some feedback on design and APIs.
+This project is mostly ready, and I would love some feedback on design and APIs.
 
 Created by [Daniil Gentili](https://daniil.it)
 
