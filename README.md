@@ -2,15 +2,14 @@
 
 **Write and deploy modern PHP 8 code, today.**
 
-Created by [Daniil Gentili](https://daniil.it)
-
-## WIP :)
 
 This is a transpiler that will allow native usage of php8 features and especially syntax in projects and libraries, while allowing maintainers to publish a version targeting 7.0 or even lower versions of php.
 
 The transpiler will seamlessly hook into composer to transpile the package (and all dependencies down the current branch of the dependency tree!) on installation, on the user's machine, targeting the user's specific php version (or another one specified in the config).
 
 This project is mostly ready, but I would love some feedback on design and APIs.
+
+Created by [Daniil Gentili](https://daniil.it)
 
 ## Design
 
@@ -38,7 +37,7 @@ A second, optional parameter can be provided, to allow the [Traverser](https://g
 
 #### 3.2 Plugin dependencies
 
-Plugins can also specify other plugins as "dependencies" or "reverse dependencies", with the `runBefore` , `runAfter` , `runWithBefore` , `runWithAfter` methods, to force some transforms to run before others.  
+Plugins can also specify other plugins as "dependencies" or "reverse dependencies", with the `runBefore`, `runAfter`, `runWithBefore`, `runWithAfter` methods, to force some transforms to run before others.  
 By using the `*with*` methods, additional plugin graph optimization is allowed by merging multiple transforms in a single AST traversal.  
 
 Each [phabel plugin](https://github.com/danog/phabel/blob/master/src/PluginInterface.php) can also accept a configuration: this a simple way to reuse code, by specifying a single plugin for a class of transforms, and then requiring it from other plugins, specifying a specific configuration to trigger only certain transforms.  
