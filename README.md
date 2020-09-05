@@ -24,7 +24,7 @@ All dependencies of a package with a phabel configuration are processed with pha
 All plugins specified in the configuration of each package are added to the [phabel plugin graph](https://github.com/phabelio/phabel/blob/master/src/PluginGraph/GraphInternal.php).  
 The [plugin graph](https://github.com/phabelio/phabel/blob/master/src/PluginGraph/GraphInternal.php) takes care of properly trickling configuration values and plugins down the dependency graph, as well as plugin graph optimization by merging multiple transforms (if allowed) in a single AST traversal.  
 
-It will also detect circular references in [plugin dependencies](#3-2-plugin-dependencies).
+It will also detect circular references in [plugin dependencies](#32-plugin-dependencies).
 
 ### 3. Plugins
 
