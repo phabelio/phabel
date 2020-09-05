@@ -11,6 +11,7 @@ use SplQueue;
  * Represents a plugin with a certain configuration.
  *
  * @author Daniil Gentili <daniil@daniil.it>
+ * @license MIT
  */
 class Node
 {

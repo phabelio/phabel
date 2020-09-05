@@ -6,6 +6,7 @@ namespace Phabel\PluginGraph;
  * List of packages associated with plugin.
  *
  * @author Daniil Gentili <daniil@daniil.it>
+ * @license MIT
  */
 class PackageContext
 {

@@ -9,6 +9,9 @@ use SplQueue;
 
 /**
  * Internal regenerator traversor.
+ *
+ * @author Daniil Gentili <daniil@daniil.it>
+ * @license MIT
  */
 class ReGeneratorInternal extends Plugin
 {

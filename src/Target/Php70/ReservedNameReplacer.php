@@ -5,6 +5,10 @@ namespace Phabel\Target\Php70;
 use Phabel\Plugin;
 use PhpParser\Node;
 
+/**
+ * @author Daniil Gentili <daniil@daniil.it>
+ * @license MIT
+ */
 class ReservedNameReplacer extends Plugin
 {
     /**

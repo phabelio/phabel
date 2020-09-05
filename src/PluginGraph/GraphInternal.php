@@ -7,7 +7,10 @@ use SplObjectStorage;
 use SplQueue;
 
 /**
+ * Internal graph class.
+ *
  * @author Daniil Gentili <daniil@daniil.it>
+ * @license MIT
  */
 class GraphInternal
 {

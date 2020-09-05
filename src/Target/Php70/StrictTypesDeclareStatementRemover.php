@@ -7,6 +7,10 @@ use PhpParser\Node\Stmt\DeclareDeclare;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitorAbstract;
 
+/**
+ * @author Daniil Gentili <daniil@daniil.it>
+ * @license MIT
+ */
 class StrictTypesDeclareStatementRemover extends NodeVisitorAbstract
 {
     /**

@@ -6,6 +6,10 @@ use Phabel\Plugin;
 use PhpParser\Node\Expr\ClosureUse;
 use PhpParser\Node\Expr\Variable;
 
+/**
+ * @author Daniil Gentili <daniil@daniil.it>
+ * @license MIT
+ */
 class ArrowClosureVariableFinder extends Plugin
 {
     private array $found = [];

@@ -5,9 +5,10 @@ namespace Phabel;
 use Phabel\PluginGraph\PackageContext;
 
 /**
- * Plugin interface
- * 
+ * Plugin interface.
+ *
  * @author Daniil Gentili <daniil@daniil.it>
+ * @license MIT
  */
 interface PluginInterface
 {

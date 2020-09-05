@@ -7,6 +7,10 @@ use PhpParser\Node\Arg;
 use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Expr\FuncCall;
 
+/**
+ * @author Daniil Gentili <daniil@daniil.it>
+ * @license MIT
+ */
 class ArrayUnpack extends Plugin
 {
     public function enter(Array_ $array): ?FuncCall

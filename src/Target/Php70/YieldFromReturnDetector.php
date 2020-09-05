@@ -10,6 +10,10 @@ use PhpParser\Node\Expr\YieldFrom;
 use PhpParser\Node\FunctionLike;
 use PhpParser\Node\Stmt\Return_;
 
+/**
+ * @author Daniil Gentili <daniil@daniil.it>
+ * @license MIT
+ */
 class YieldFromReturnDetector extends Plugin
 {
     public function enterYieldFrom(YieldFrom $node, Context $ctx): void
@@ -48,11 +52,11 @@ class YieldFromReturnDetector extends Plugin
             }
         }
     }
-    public function runBefore(): array
+    public static function runBefore(): array
     {
         return [ReGenerator::class];
     }
-    public function runAfter(): array
+    public static function runAfter(): array
     {
         return [ArrowClosure::class];
     }

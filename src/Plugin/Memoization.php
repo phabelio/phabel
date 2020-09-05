@@ -22,6 +22,7 @@ use SplStack;
  * Enable memoization of results based on a parameter.
  *
  * @author Daniil Gentili <daniil@daniil.it>
+ * @license MIT
  */
 class Memoization
 {

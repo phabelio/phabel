@@ -4,8 +4,9 @@ namespace Phabel;
 
 /**
  * Represent variables currently in scope.
- * 
+ *
  * @author Daniil Gentili <daniil@daniil.it>
+ * @license MIT
  */
 class VariableContext
 {
@@ -75,13 +76,13 @@ class VariableContext
     public function getVar(): string
     {
         do {
-            $var = 'phabel'.bin2hex(random_bytes(8));
+            $var = 'phabel'.\bin2hex(\random_bytes(8));
         } while (isset($this->variables[$var]));
         $this->variables[$var] = true;
         return $var;
     }
     /**
-     * Get all variables currently defined
+     * Get all variables currently defined.
      *
      * @return array
      */

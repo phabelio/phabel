@@ -7,6 +7,10 @@ use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\AssignOp\Coalesce;
 use PhpParser\Node\Expr\BinaryOp\Coalesce as BinaryOpCoalesce;
 
+/**
+ * @author Daniil Gentili <daniil@daniil.it>
+ * @license MIT
+ */
 class NullCoalesceAssignment extends Plugin
 {
     public function enter(Coalesce $coalesce): Assign

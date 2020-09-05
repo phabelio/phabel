@@ -26,8 +26,8 @@ use PhpParser\Node\Stmt\If_;
 use SplStack;
 
 /**
- * AST Context
- * 
+ * AST Context.
+ *
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT
  */
@@ -261,8 +261,7 @@ class Context
                     ]
                 );
                 $curNode = $result;
-            } else if ($subNode instanceof FuncCall) {
-                
+            } elseif ($subNode instanceof FuncCall) {
             }
             $this->insertBefore($parent, $nodes);
         }

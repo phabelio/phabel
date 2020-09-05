@@ -4,6 +4,9 @@ namespace Phabel\Plugin\ReGenerator;
 
 /**
  * Regenerator class.
+ *
+ * @author Daniil Gentili <daniil@daniil.it>
+ * @license MIT
  */
 class ReGenerator implements \Iterator
 {

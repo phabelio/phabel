@@ -43,6 +43,7 @@ use SplStack;
  * Replace all usages of a certain type in typehints.
  *
  * @author Daniil Gentili <daniil@daniil.it>
+ * @license MIT
  */
 class TypeHintStripper extends Plugin
 {

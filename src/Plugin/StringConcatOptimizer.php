@@ -11,6 +11,9 @@ use SplQueue;
 
 /**
  * Optimizes concatenation of multiple strings.
+ *
+ * @author Daniil Gentili <daniil@daniil.it>
+ * @license MIT
  */
 class StringConcatOptimizer extends Plugin
 {

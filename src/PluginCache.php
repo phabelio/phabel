@@ -8,6 +8,7 @@ use ReflectionMethod;
  * Caches plugin information.
  *
  * @author Daniil Gentili <daniil@daniil.it>
+ * @license MIT
  */
 class PluginCache
 {

@@ -8,8 +8,6 @@ use Phabel\Plugin\ArrowClosureVariableFinder;
 use Phabel\Traverser;
 use PhpParser\Node\Expr\ArrowFunction;
 use PhpParser\Node\Expr\Closure;
-use PhpParser\Node\Expr\ClosureUse;
-use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Param;
 
 /**

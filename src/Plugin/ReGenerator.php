@@ -6,6 +6,12 @@ use Phabel\Plugin;
 use Phabel\Traverser;
 use PhpParser\Builder\FunctionLike;
 
+/**
+ * Regenerator transformer.
+ *
+ * @author Daniil Gentili <daniil@daniil.it>
+ * @license MIT
+ */
 class ReGenerator extends Plugin
 {
     const SHOULD_ATTRIBUTE = 'shouldRegenerate';
@@ -25,7 +31,7 @@ class ReGenerator extends Plugin
         }
         $this->traverser->traverseAst($function);
     }
-    public function runAfter(): array
+    public static function runAfter(): array
     {
         return [ArrowClosure::class];
     }

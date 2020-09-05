@@ -10,6 +10,10 @@ use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Stmt\Namespace_;
 
+/**
+ * @author Daniil Gentili <daniil@daniil.it>
+ * @license MIT
+ */
 class AnonymousClassReplacer extends Plugin
 {
     /**

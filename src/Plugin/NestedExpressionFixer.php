@@ -8,7 +8,6 @@ use Phabel\Traverser;
 use PhpParser\Node;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\ArrayDimFetch;
-use PhpParser\Node\Expr\ArrowFunction;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\BinaryOp\BooleanOr;
 use PhpParser\Node\Expr\ClassConstFetch;
@@ -25,6 +24,12 @@ use PhpParser\Node\Expr\Ternary;
 use PhpParser\Node\Scalar\LNumber;
 use PhpParser\Node\Stmt\Return_;
 
+/**
+ * Fix nested expressions.
+ *
+ * @author Daniil Gentili <daniil@daniil.it>
+ * @license MIT
+ */
 class NestedExpressionFixer extends Plugin
 {
     /**
@@ -108,7 +113,7 @@ class NestedExpressionFixer extends Plugin
                                 "returnMe",
                                 new Closure([
                                     'byRef' => true,
-                                    'uses' => array_keys($this->finderPlugin->getFound()),
+                                    'uses' => \array_keys($this->finderPlugin->getFound()),
                                     'stmts' => [
                                         new Assign($value = $context->getVariable(), $valueCopy),
                                         new Return_($expr)

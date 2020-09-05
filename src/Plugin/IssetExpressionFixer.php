@@ -6,7 +6,6 @@ use Phabel\Plugin;
 use PhpParser\Node;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\ArrayDimFetch;
-use PhpParser\Node\Expr\BinaryOp\Concat;
 use PhpParser\Node\Expr\ClassConstFetch;
 use PhpParser\Node\Expr\Isset_;
 use PhpParser\Node\Expr\PropertyFetch;
@@ -18,12 +17,17 @@ use PhpParser\Node\VarLikeIdentifier;
 use ReflectionClass;
 use ReflectionClassConstant;
 use ReflectionException;
-use ReflectionProperty;
 
+/**
+ * Replace nested expressions in isset.
+ *
+ * @author Daniil Gentili <daniil@daniil.it>
+ * @license MIT
+ */
 class IssetExpressionFixer extends Plugin
 {
     /**
-     * Recursively extract bottom ArrayDimFetch
+     * Recursively extract bottom ArrayDimFetch.
      *
      * @param Node $var
      * @return Node
@@ -134,41 +138,41 @@ class IssetExpressionFixer extends Plugin
     }
 
     /**
-     * Check if static property is set
+     * Check if static property is set.
      *
      * @param class-string|object $class              Class
      * @param string              $property           Property name
      * @param boolean             $propertyOrConstant Whether to fetch the property or the constant
-     * 
+     *
      * @return boolean
      */
     public static function staticExists($class, string $property, bool $propertyOrConstant): bool
     {
         $reflectionClass = new ReflectionClass($class);
-        $class = new self::getClass($class);
+        $class = self::getClass($class);
         if ($propertyOrConstant) {
             try {
                 $reflection = $reflectionClass->getProperty($property);
             } catch (ReflectionException $e) {
                 return false;
             }
-        } else if (PHP_VERSION_ID >= 70100) {
+        } elseif (PHP_VERSION_ID >= 70100) {
             try {
                 $reflection = new ReflectionClassConstant($class, $property);
             } catch (ReflectionException $e) {
                 return false;
             }
         } else {
-            return isset($reflectionClass->getConstants()[$property];
+            return isset($reflectionClass->getConstants()[$property]);
         }
 
-        $classCaller = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['class'] ?? '';
+        $classCaller = \debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['class'] ?? '';
         $allowProtected = false;
         $allowPrivate = false;
         if ($classCaller) {
             if ($class === $classCaller) {
                 $allowProtected = $allowPrivate = true;
-            } else if ($reflectionClass->isSubclassOf($classCaller) || (new ReflectionClass($classCaller))->isSubclassOf($class)) {
+            } elseif ($reflectionClass->isSubclassOf($classCaller) || (new ReflectionClass($classCaller))->isSubclassOf($class)) {
                 $allowProtected = true;
             }
         }

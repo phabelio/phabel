@@ -5,6 +5,10 @@ namespace Phabel\Target\Php70;
 use Phabel\Plugin;
 use Phabel\Plugin\IssetExpressionFixer as fixer;
 
+/**
+ * @author Daniil Gentili <daniil@daniil.it>
+ * @license MIT
+ */
 class IssetExpressionFixer extends Plugin
 {
     /**

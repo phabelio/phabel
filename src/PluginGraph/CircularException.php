@@ -5,7 +5,10 @@ namespace Phabel\PluginGraph;
 use Phabel\PluginInterface;
 
 /**
+ * Circular reference in plugin graph.
+ *
  * @author Daniil Gentili <daniil@daniil.it>
+ * @license MIT
  */
 class CircularException extends \Exception
 {

@@ -8,8 +8,8 @@ use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\Const_;
 
-/*
- * Converts define() arrays into const arrays
+/**
+ * Converts define() arrays into const arrays.
  */
 class DefineArrayReplacer extends Plugin
 {

@@ -7,6 +7,10 @@ use PhpParser\Node;
 use PhpParser\Node\Expr\BinaryOp\Coalesce;
 use PhpParser\Node\Expr\StaticCall;
 
+/**
+ * @author Daniil Gentili <daniil@daniil.it>
+ * @license MIT
+ */
 class NullCoalesceReplacer extends Plugin
 {
     /**
