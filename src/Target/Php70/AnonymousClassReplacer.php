@@ -7,6 +7,7 @@ use Phabel\Plugin;
 use Phabel\RootNode;
 use PhpParser\Node;
 use PhpParser\Node\Expr\New_;
+use PhpParser\Node\Identifier;
 use PhpParser\Node\Stmt\Namespace_;
 
 class AnonymousClassReplacer extends Plugin
@@ -43,14 +44,13 @@ class AnonymousClassReplacer extends Plugin
         if (!$classNode instanceof Node\Stmt\Class_) {
             return;
         }
+        $classNode->name = new Identifier('PhabelAnonymousClass'.$this->fileName.($this->count++));
 
-        $classNode->name = 'PhabelAnonymousClass'.$this->fileName.($this->count++);
-
-        $node->class = new Node\Name($classNode->name);
+        $node->class = new Node\Name($classNode->name->name);
 
         foreach ($ctx->parents as $node) {
             if ($node instanceof Namespace_ || $node instanceof RootNode) {
-                $ctx->insertAfter($node, $classNode);
+                $ctx->insertBefore($ctx->getCurrentChild($node), $classNode);
                 return;
             }
         }

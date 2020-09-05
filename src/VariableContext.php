@@ -4,6 +4,8 @@ namespace Phabel;
 
 /**
  * Represent variables currently in scope.
+ * 
+ * @author Daniil Gentili <daniil@daniil.it>
  */
 class VariableContext
 {
@@ -13,10 +15,6 @@ class VariableContext
      * @var array<string, true>
      */
     private array $variables;
-    /**
-     * Custom variable counter.
-     */
-    private int $counter = 0;
     /**
      * Constructor.
      *
@@ -77,8 +75,7 @@ class VariableContext
     public function getVar(): string
     {
         do {
-            $var = 'phabel'.$this->counter;
-            $this->counter++;
+            $var = 'phabel'.bin2hex(random_bytes(8));
         } while (isset($this->variables[$var]));
         $this->variables[$var] = true;
         return $var;

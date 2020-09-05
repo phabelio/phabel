@@ -264,7 +264,7 @@ class TypeHintStripper extends Plugin
 
         $return->expr = $var;
 
-        $ctx->insertBefore($ctx->parents->top(), $assign, $if);
+        $ctx->insertBefore($return, $assign, $if);
     }
     /**
      * Get trace string for errors.

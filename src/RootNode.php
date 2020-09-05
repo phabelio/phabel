@@ -7,6 +7,8 @@ use PhpParser\NodeAbstract;
 
 /**
  * Root node.
+ * 
+ * @author Daniil Gentili <email@email.com>
  */
 class RootNode extends NodeAbstract
 {

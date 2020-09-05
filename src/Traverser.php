@@ -8,6 +8,8 @@ use PhpParser\ParserFactory;
 use SplQueue;
 
 /**
+ * AST traverser
+ * 
  * @author Daniil Gentili <daniil@daniil.it>
  */
 class Traverser

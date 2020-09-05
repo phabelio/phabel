@@ -1,4 +1,10 @@
 <?php
+/**
+ * Dump AST of file.
+ *
+ * @author Daniil Gentili <daniil@daniil.it>
+ * @license MIT
+ */
 
 use PhpParser\ParserFactory;
 use PhpParser\PrettyPrinter\Standard;

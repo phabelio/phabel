@@ -1,8 +1,12 @@
 <?php
-
-// This file generates an array containing all possible expression nodes, generated using default parameters.
-// Then, for each expression that accepts another expression as subnode, it tries to use all the expressions generated in the previous step,
-//  for each subnode, to test compatibility with various versions of the PHP lexer.
+/**
+ * This file generates an array containing all possible expression nodes, generated using default parameters.
+ * Then, for each expression that accepts another expression as subnode, it tries to use all the expressions generated in the previous step,
+ *  for each subnode, to test compatibility with various versions of the PHP lexer.
+ *
+ * @author Daniil Gentili <daniil@daniil.it>
+ * @license MIT
+ */
 
 use HaydenPierce\ClassFinder\ClassFinder;
 use Phabel\Plugin\IssetExpressionFixer;

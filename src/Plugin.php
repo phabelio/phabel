@@ -17,6 +17,8 @@ use PhpParser\ParserFactory;
 use ReflectionClass;
 
 /**
+ * Plugin
+ * 
  * @author Daniil Gentili <daniil@daniil.it>
  */
 abstract class Plugin implements PluginInterface
