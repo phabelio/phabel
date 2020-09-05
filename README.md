@@ -46,7 +46,7 @@ Each [phabel plugin](https://github.com/danog/phabel/blob/master/src/PluginInter
 #### 3.3 Plugin configuration
 
 Configuration arrays are coupled with plugins when resolving the plugin graph.  
-When possible, the plugin graph will try to merge a plugin with multiple configs into a single (or fewer) plugins using the [ `mergeConfigs` method](https://github.com/danog/phabel/blob/master/src/PluginInterface.php) of the plugin.  
+When possible, the plugin graph will try to merge a plugin with multiple configs into a single (or fewer) plugins using the [`mergeConfigs` method](https://github.com/danog/phabel/blob/master/src/PluginInterface.php) of the plugin.  
 
 This merge method will be called automatically during plugin graph flattening, if requirement links allow it.
 
