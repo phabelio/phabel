@@ -13,7 +13,7 @@ Created by [Daniil Gentili](https://daniil.it)
 
 ## Design
 
-After [hooking into composer](https://github.com/phabelio/phabel/tree/master/src/Composer) by specifying a custom repository, the transpilation process begins.  
+After hooking into composer, the transpilation process begins.  
 
 ### 1. Composer dependency graph
 
