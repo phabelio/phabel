@@ -107,11 +107,11 @@ class GraphInternal
      *
      * @return SplQueue<SplQueue<Plugin>>
      */
-    public function flatten(): \SplQueue
+    public function flatten(): SplQueue
     {
         if (!$this->plugins) {
             /** @var SplQueue<SplQueue<Plugin>> */
-            return new \SplQueue;
+            return new SplQueue;
         }
         if ($this->unlinkedNodes->count()) {
             foreach ($this->unlinkedNodes as $node) {

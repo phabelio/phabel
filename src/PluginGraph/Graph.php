@@ -4,6 +4,7 @@ namespace Phabel\PluginGraph;
 
 use Phabel\Plugin;
 use Phabel\PluginInterface;
+use SplQueue;
 
 /**
  * Graph API wrapper.
@@ -54,7 +55,7 @@ class Graph
      *
      * @return SplQueue<SplQueue<Plugin>>
      */
-    public function flatten(): \SplQueue
+    public function flatten(): SplQueue
     {
         return $this->graph->flatten();
     }

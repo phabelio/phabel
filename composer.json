@@ -10,7 +10,8 @@
         "phpunit/phpunit": "^7 | ^8 | ^9",
         "amphp/php-cs-fixer-config": "dev-master",
         "composer/composer": "^1|^2",
-        "haydenpierce/class-finder": "^0.4.2"
+        "haydenpierce/class-finder": "^0.4.2",
+        "vimeo/psalm": "dev-master"
     },
     "license": "MIT",
     "authors": [{

@@ -17,6 +17,7 @@ use PhpParser\Node\Expr\Cast\Bool_;
 use PhpParser\Node\Expr\Closure;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\MethodCall;
+use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\Ternary;
 use PhpParser\Node\Expr\Variable;
@@ -50,7 +51,9 @@ class Context
      */
     public function __construct()
     {
+        /** @var SplStack<Node> */
         $this->parents = new SplStack;
+        /** @var SplStack<VariableContext> */
         $this->variables = new SplStack;
     }
     /**
@@ -146,13 +149,13 @@ class Context
     /**
      * Insert nodes before node.
      *
-     * @param Node $node     Node before which to insert nodes
-     * @param Node ...$nodes Nodes to insert
+     * @param Node $node      Node before which to insert nodes
+     * @param Node ...$insert Nodes to insert
      * @return void
      */
-    public function insertBefore(Node $node, Node ...$nodes): void
+    public function insertBefore(Node $node, Node ...$insert): void
     {
-        if (empty($nodes)) {
+        if (empty($insert)) {
             return;
         }
         $found = false;
@@ -165,106 +168,105 @@ class Context
         if (!$found) {
             throw new \RuntimeException('Node is not a part of the current AST stack!');
         }
-        $this->insertBeforeParent($parent, $nodes);
-    }
-    /**
-     * Insert nodes before node.
-     *
-     * @param Node   $node  Node before which to insert nodes
-     * @param Node[] $nodes Nodes to insert
-     * @return void
-     */
-    private function insertBeforeParent(Node $parent, array $nodes): void
-    {
-        $subNode = $parent->getAttribute('currentNode');
-        if ($subNode === 'stmts') {
-            $subNodeIndex = $parent->getAttribute('currentNodeIndex');
-            \array_splice($parent->{$subNode}, $subNodeIndex, 0, $nodes);
+
+        /** @var string */
+        $nodeKey = $parent->getAttribute('currentNode');
+        if ($nodeKey === 'stmts') {
+            /** @var int */
+            $nodeKeyIndex = $parent->getAttribute('currentNodeIndex');
+            \array_splice($parent->{$nodeKey}, $nodeKeyIndex, 0, $insert);
             $skips = $parent->getAttribute('skipNodes', []);
-            $skips []= $subNodeIndex+\count($nodes);
+            $skips []= $nodeKeyIndex+\count($insert);
             $parent->setAttribute('skipNodes', $skips);
-            $parent->setAttribute('currentNodeIndex', $subNodeIndex - 1);
-        } else { // Cannot insert, is not in a statement
-            $curNode = &$parent->{$subNode};
-            if ($curNode instanceof BooleanOr && $subNode === 'right') {
-                $result = $this->getVariable();
-                $nodes = new If_(
-                    $curNode->left,
-                    [
-                        'stmts' => [
-                            new Assign($result, BuilderHelpers::normalizeValue(true))
-                        ],
-                        'else' => [
-                            ...$nodes,
-                            new Assign($result, new Bool_($curNode->right))
-                        ]
+            $parent->setAttribute('currentNodeIndex', $nodeKeyIndex - 1);
+            return; // Done, inserted!
+        }
+        
+        // Cannot insert, parent is not a statement
+        $node = &$parent->{$nodeKey};
+        // If we insert before a conditional branch of a conditional expression,
+        //   make sure the conditional branch has no side effects; 
+        //   if it does, turn the entire conditional expression into an if, and bubble it up
+        // 
+        // Unless we want to go crazy, do not consider side effect evaluation order for stuff like function call arguments, maths and so on.
+        //
+        if ($node instanceof BooleanOr && $nodeKey === 'right' && Tools::hasSideEffects($node->right)) {
+            $result = $this->getVariable();
+            $insert = new If_(
+                $node->left,
+                [
+                    'stmts' => [
+                        new Assign($result, BuilderHelpers::normalizeValue(true))
+                    ],
+                    'else' => [
+                        ...$insert,
+                        new Assign($result, new Bool_($node->right))
                     ]
-                );
-                $curNode = $result;
-            } elseif ($curNode instanceof BooleanAnd && $subNode === 'right') {
-                $result = $this->getVariable();
-                $nodes = new If_(
-                    $curNode->left,
-                    [
-                        'stmts' => [
-                            ...$nodes,
-                            new Assign($result, new Bool_($curNode->right))
-                        ],
-                        'else' => [
-                            new Assign($result, BuilderHelpers::normalizeValue(false))
-                        ]
+                ]
+            );
+            $node = $result;
+        } elseif ($node instanceof BooleanAnd && $nodeKey === 'right' && Tools::hasSideEffects($node->right)) {
+            $result = $this->getVariable();
+            $insert = new If_(
+                $node->left,
+                [
+                    'stmts' => [
+                        ...$insert,
+                        new Assign($result, new Bool_($node->right))
+                    ],
+                    'else' => [
+                        new Assign($result, BuilderHelpers::normalizeValue(false))
                     ]
-                );
-                $curNode = $result;
-            } elseif ($curNode instanceof Ternary && $subNode !== 'cond') {
-                $result = $this->getVariable();
-                if (!$curNode->if) { // ?:
-                    $nodes = new If_(
-                        new BooleanNot(
-                            new Assign($result, $curNode->cond)
-                        ),
-                        [
-                            'stmts' => [
-                                ...$nodes,
-                                new Assign($result, $curNode->else)
-                            ]
-                        ]
-                    );
-                } else {
-                    $nodes = new If_(
-                        $curNode->cond,
-                        [
-                            'stmts' => [
-                                ...$subNode === 'if' ? $nodes : [],
-                                new Assign($result, $curNode->if)
-                            ],
-                            'else' => [
-                                ...$subNode === 'else' ? $nodes : [],
-                                new Assign($result, $curNode->else)
-                            ]
-                        ]
-                    );
-                }
-                $curNode = $result;
-            } elseif ($subNode instanceof Coalesce && $subNode === 'right') {
-                $result = $this->getVariable();
-                $nodes = new If_(
-                    Plugin::call(
-                        'is_null',
-                        new Assign($result, $curNode->left)
+                ]
+            );
+            $node = $result;
+        } elseif ($node instanceof Ternary && $nodeKey !== 'cond' && (Tools::hasSideEffects($node->if) || Tools::hasSideEffects($node->else))) {
+            $result = $this->getVariable();
+            if (!$node->if) { // ?:
+                $insert = new If_(
+                    new BooleanNot(
+                        new Assign($result, $node->cond)
                     ),
                     [
                         'stmts' => [
-                            ...$nodes,
-                            new Assign($result, $curNode->right)
+                            ...$insert,
+                            new Assign($result, $node->else)
                         ]
                     ]
                 );
-                $curNode = $result;
-            } elseif ($subNode instanceof FuncCall) {
+            } else {
+                $insert = new If_(
+                    $node->cond,
+                    [
+                        'stmts' => [
+                            ...$nodeKey === 'if' ? $insert : [],
+                            new Assign($result, $node->if)
+                        ],
+                        'else' => [
+                            ...$nodeKey === 'else' ? $insert : [],
+                            new Assign($result, $node->else)
+                        ]
+                    ]
+                );
             }
-            $this->insertBefore($parent, $nodes);
+            $node = $result;
+        } elseif ($node instanceof Coalesce && $nodeKey === 'right' && Tools::hasSideEffects($node->right)) {
+            $result = $this->getVariable();
+            $insert = new If_(
+                Plugin::call(
+                    'is_null',
+                    new Assign($result, $node->left)
+                ),
+                [
+                    'stmts' => [
+                        ...$insert,
+                        new Assign($result, $node->right)
+                    ]
+                ]
+            );
+            $node = $result;
         }
+        $this->insertBefore($parent, $insert);
     }
     /**
      * Insert nodes after node.

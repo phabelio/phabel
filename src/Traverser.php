@@ -28,9 +28,9 @@ class Traverser
     /**
      * Plugin queue for specific package.
      *
-     * @return SplQueue<SplQueue<Plugin>>
+     * @return SplQueue<SplQueue<Plugin>>|null
      */
-    private SplQueue $packageQueue;
+    private ?SplQueue $packageQueue;
     /**
      * Generate traverser from basic plugin instances.
      *
@@ -114,7 +114,7 @@ class Traverser
         } elseif (!$reducedQueue->count()) {
             return;
         }
-        $ast = new RootNode($this->parser->parse(\file_get_contents($file)));
+        $ast = new RootNode($this->parser->parse(\file_get_contents($file)) ?? []);
         $this->traverseAst($ast, $reducedQueue);
     }
     /**
