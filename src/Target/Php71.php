@@ -6,6 +6,7 @@ use Phabel\Plugin;
 use Phabel\Target\Php71\ArrayList;
 use Phabel\Target\Php71\ClassConstantVisibilityModifiersRemover;
 use Phabel\Target\Php71\IssetExpressionFixer;
+use Phabel\Target\Php71\IterableHint;
 use Phabel\Target\Php71\ListKey;
 use Phabel\Target\Php71\MultipleCatchReplacer;
 use Phabel\Target\Php71\NestedExpressionFixer;
@@ -32,6 +33,7 @@ class Php71 extends Plugin
             ArrayList::class,
             ClassConstantVisibilityModifiersRemover::class,
             ListKey::class,
+            IterableHint::class,
             MultipleCatchReplacer::class,
             VoidReturnType::class,
             NullableType::class

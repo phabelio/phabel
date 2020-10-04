@@ -9,7 +9,7 @@ use Phabel\Plugin\TypeHintStripper;
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT
  */
-class ScalarTypeHintsRemover extends Plugin
+class ScalarTypeHints extends Plugin
 {
     /**
      * Alias.

@@ -12,7 +12,7 @@ use Phabel\Target\Php70\IssetExpressionFixer;
 use Phabel\Target\Php70\NestedExpressionFixer;
 use Phabel\Target\Php70\NullCoalesceReplacer;
 use Phabel\Target\Php70\ReservedNameReplacer;
-use Phabel\Target\Php70\ScalarTypeHintsRemover;
+use Phabel\Target\Php70\ScalarTypeHints;
 use Phabel\Target\Php70\SpaceshipOperatorReplacer;
 use Phabel\Target\Php70\StrictTypesDeclareStatementRemover;
 use Phabel\Target\Php70\ThrowableReplacer;
@@ -42,7 +42,7 @@ class Php70 extends Plugin
             GroupUseReplacer::class,
             NullCoalesceReplacer::class,
             ReservedNameReplacer::class,
-            ScalarTypeHintsRemover::class,
+            ScalarTypeHints::class,
             SpaceshipOperatorReplacer::class,
             StrictTypesDeclareStatementRemover::class,
             ThrowableReplacer::class,
