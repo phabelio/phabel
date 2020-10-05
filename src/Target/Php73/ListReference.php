@@ -6,6 +6,7 @@ use Phabel\Context;
 use Phabel\Plugin;
 use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Expr\ArrayDimFetch;
+use PhpParser\Node\Expr\ArrayItem;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\AssignRef;
 use PhpParser\Node\Expr\List_;
@@ -26,13 +27,13 @@ class ListReference extends Plugin
      */
     public function enterForeach(Foreach_ $node, Context $ctx): void
     {
-        if (!($node->valueVar instanceof List_ || $node->valueVar instanceof Array_) || !$this->shouldSplit($node->valueVar)) {
+        if (!($node->valueVar instanceof List_ || $node->valueVar instanceof Array_) || !$this->shouldSplit($node->valueVar, true)) {
             return;
         }
         $list = $node->valueVar;
         $var = $node->valueVar = $ctx->getVariable();
         $assignments = self::splitList($list, $var);
-        $node->stmts
+        $node->stmts = \array_merge($assignments, $node->stmts);
     }
     /**
      * Parse list assignment with custom keys.
@@ -46,8 +47,19 @@ class ListReference extends Plugin
         if (!($node->var instanceof List_ || $node->var instanceof Array_) || !$this->shouldSplit($node->var)) {
             return;
         }
-        [$node->var, $array] = $this->splitList($node->var, $ctx);
-        $node->expr = self::callPoly('destructure', $array, $node->expr);
+        $isStmt = $ctx->parents[0]->getAttribute('currentNode') === 'stmts';
+        $list = $node->var;
+        $var = $ctx->getVariable();
+        $assignments = self::splitList($list, $var);
+        if ($isStmt) {
+            $last = \array_pop($assignments);
+            $ctx->insertBefore($node, new Assign($node->var, $node->expr), ...$assignments);
+            return $last;
+        }
+
+        // On newer versions of php, list assignment returns the original array
+        $ctx->insertBefore($node, new Assign($var, $node->expr), ...$assignments);
+        return $var;
     }
     /**
      * Split referenced list into multiple assignments.
@@ -66,9 +78,7 @@ class ListReference extends Plugin
                 continue;
             }
             $curKey = $item->key ?? $key++;
-            if ($item->value instanceof List_ || $item->value instanceof Array_) {
-                // Do nothing, will re-split later if needed
-            } else if ($item->byRef) {
+            if ($item->byRef) {
                 $assignments []= new AssignRef($item->value, new ArrayDimFetch($var, $curKey));
             } else {
                 $assignments []= new Assign($item->value, new ArrayDimFetch($var, $curKey));
@@ -79,15 +89,21 @@ class ListReference extends Plugin
     /**
      * Whether this is a referenced list.
      *
-     * @param List_|Array_ $list List
+     * @param List_|Array_ $list    List
+     * @param bool         $recurse Whether to recurse while checking
      *
      * @return boolean
      */
-    private function shouldSplit($list): bool
+    private function shouldSplit($list, bool $recurse = false): bool
     {
+        /** @var ArrayItem $item */
         foreach ($list->items ?? [] as $item) {
             if ($item->byRef) {
                 return true;
+            } elseif ($recurse && ($item->value instanceof List_ || $item->value instanceof Array_)) {
+                if ($this->shouldSplit($item->value, $recurse)) {
+                    return true;
+                }
             }
         }
         return false;

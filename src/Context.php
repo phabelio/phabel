@@ -17,7 +17,6 @@ use PhpParser\Node\Expr\Cast\Bool_;
 use PhpParser\Node\Expr\Closure;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\MethodCall;
-use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\Ternary;
 use PhpParser\Node\Expr\Variable;
@@ -181,13 +180,13 @@ class Context
             $parent->setAttribute('currentNodeIndex', $nodeKeyIndex - 1);
             return; // Done, inserted!
         }
-        
+
         // Cannot insert, parent is not a statement
         $node = &$parent->{$nodeKey};
         // If we insert before a conditional branch of a conditional expression,
-        //   make sure the conditional branch has no side effects; 
+        //   make sure the conditional branch has no side effects;
         //   if it does, turn the entire conditional expression into an if, and bubble it up
-        // 
+        //
         // Unless we want to go crazy, do not consider side effect evaluation order for stuff like function call arguments, maths and so on.
         //
         if ($node instanceof BooleanOr && $nodeKey === 'right' && Tools::hasSideEffects($node->right)) {
