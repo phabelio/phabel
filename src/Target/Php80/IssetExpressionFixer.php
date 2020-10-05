@@ -5,10 +5,6 @@ namespace Phabel\Target\Php80;
 use Phabel\Plugin;
 use Phabel\Plugin\IssetExpressionFixer as fixer;
 
-/**
- * @author Daniil Gentili <daniil@daniil.it>
- * @license MIT
- */
 class IssetExpressionFixer extends Plugin
 {
     /**
@@ -20,11 +16,15 @@ class IssetExpressionFixer extends Plugin
     {
         return [
             fixer::class => [
-  'PhpParser\\Node\\Expr\\ClassConstFetch' =>
+  'PhpParser\\Node\\Expr\\ArrayDimFetch' =>
   [
-    'class' =>
+    'var' =>
     [
-      'PhpParser\\Node\\Scalar\\Encapsed' => true,
+      'PhpParser\\Node\\Expr\\Throw_' => true,
+    ],
+    'dim' =>
+    [
+      'PhpParser\\Node\\Expr\\Throw_' => true,
     ],
   ],
   'PhpParser\\Node\\Expr\\PropertyFetch' =>
@@ -32,6 +32,25 @@ class IssetExpressionFixer extends Plugin
     'var' =>
     [
       'PhpParser\\Node\\Expr\\ConstFetch' => true,
+      'PhpParser\\Node\\Expr\\Throw_' => true,
+    ],
+    'name' =>
+    [
+      'PhpParser\\Node\\Expr\\Throw_' => true,
+    ],
+  ],
+  'PhpParser\\Node\\Expr\\StaticPropertyFetch' =>
+  [
+    'name' =>
+    [
+      'PhpParser\\Node\\Expr\\Throw_' => true,
+    ],
+  ],
+  'PhpParser\\Node\\Expr\\Variable' =>
+  [
+    'name' =>
+    [
+      'PhpParser\\Node\\Expr\\Throw_' => true,
     ],
   ],
 ]

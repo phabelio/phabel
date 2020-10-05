@@ -5,10 +5,6 @@ namespace Phabel\Target\Php73;
 use Phabel\Plugin;
 use Phabel\Plugin\NestedExpressionFixer as fixer;
 
-/**
- * @author Daniil Gentili <daniil@daniil.it>
- * @license MIT
- */
 class NestedExpressionFixer extends Plugin
 {
     /**

@@ -57,7 +57,7 @@ class ListReference extends Plugin
             return $last;
         }
 
-        // On newer versions of php, list assignment returns the original array
+        // On newer versions of php, the list assignment expression returns the original array
         $ctx->insertBefore($node, new Assign($var, $node->expr), ...$assignments);
         return $var;
     }
@@ -69,7 +69,7 @@ class ListReference extends Plugin
      *
      * @return (Assign|AssignRef)[]
      */
-    private static function splitList($list, Variable $var): array
+    public static function splitList($list, Variable $var): array
     {
         $assignments = [];
         $key = 0; // Technically a list assignment does not support mixed keys, but we need this for nested assignments

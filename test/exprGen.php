@@ -86,7 +86,7 @@ function checkSyntax(string $code, int $startFrom = 56): int
         return $startFrom;
     }
 
-    foreach ([56, 70, 73, 74, 80] as $version) {
+    foreach ([56, 70, 71, 72, 73, 74, 80] as $version) {
         if ($version < $startFrom) {
             continue;
         }

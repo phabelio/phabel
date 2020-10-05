@@ -101,12 +101,14 @@ class NestedExpressionFixer extends Plugin
                         new LNumber(0)
                     );
                 // For all the following expressions, wrapping in a ternary breaks return-by-ref,
-                //  so for now wrap in a hack and fix once the expression bubbler is ready
+                //  so for now wrap in a hack and fix once the expression bubbler is ready (READY NOW, done)
                 case StaticCall::class:
                 case StaticPropertyFetch::class:
                 case FuncCall::class:
                     $this->traverser->traverseAst($expr);
                     $valueCopy = $value;
+                    $context->insertBefore($expr, new Assign($value = $context->getVariable(), $valueCopy));
+                    /*
                     return new ErrorSuppress(
                         new MethodCall(
                             self::callPoly(
@@ -122,7 +124,7 @@ class NestedExpressionFixer extends Plugin
                             ),
                             '__invoke'
                         )
-                    );
+                    );*/
             }
         }
     }
