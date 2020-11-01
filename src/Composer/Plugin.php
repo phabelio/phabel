@@ -6,6 +6,8 @@ use Composer\Composer;
 use Composer\EventDispatcher\EventSubscriberInterface;
 use Composer\Installer\InstallerEvent;
 use Composer\Installer\InstallerEvents;
+use Composer\Installer\PackageEvent;
+use Composer\Installer\PackageEvents;
 use Composer\IO\IOInterface;
 use Composer\Plugin\PluginInterface;
 
@@ -31,7 +33,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     {
         $repoManager = $composer->getRepositoryManager();
         $repos = $repoManager->getRepositories();
-        $repoManager->prependRepository();
+        $repoManager->prependRepository(new Repository($repos[0]));
         $this->io = $io;
     }
 
@@ -43,9 +45,15 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         return [
             InstallerEvents::PRE_DEPENDENCIES_SOLVING =>
                 ['onDependencySolve', 100000],
+            PackageEvents::POST_PACKAGE_INSTALL =>
+                ['onInstall', 100000],
         ];
     }
 
+    public function onInstall(PackageEvent $event): void
+    {
+        var_dumP($event);
+    }
 
     /**
      * Emitted before composer solves dependencies.

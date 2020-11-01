@@ -4,6 +4,7 @@ namespace Phabel\Target\Php71;
 
 use Phabel\Context;
 use Phabel\Plugin;
+use Phabel\Target\Php73\ListReference;
 use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\List_;

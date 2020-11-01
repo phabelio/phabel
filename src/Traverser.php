@@ -3,6 +3,7 @@
 namespace Phabel;
 
 use PhpParser\Node;
+use PhpParser\NodeTraverser;
 use PhpParser\Parser;
 use PhpParser\ParserFactory;
 use SplQueue;

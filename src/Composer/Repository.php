@@ -2,9 +2,11 @@
 
 namespace Phabel\Composer;
 
+use Composer\DependencyResolver\Pool;
 use Composer\Package\Link;
 use Composer\Package\PackageInterface;
 use Composer\Repository\ComposerRepository;
+use Composer\Semver\Constraint\Constraint;
 use Composer\Semver\Constraint\ConstraintInterface;
 
 /**
@@ -100,8 +102,6 @@ class Repository extends ComposerRepository
          */
         $myConfig = $package->getExtra()['phabel'] ?? [];
         $havePhabel = false;
-        $myConfig['target'] ??= '7.0';
-        /** @var array */
         foreach ($package->getRequires() as $link) {
             if ($link->getTarget() === 'phabel/phabel') {
                 $havePhabel = true;
@@ -120,7 +120,7 @@ class Repository extends ComposerRepository
         $links = [];
         foreach ($package->getRequires() as $link) {
             $version = self::CONFIG_PREFIX.\json_encode($config)."\n".($link->getConstraint() ?? '');
-            $links []= new Link($link->getSource(), $link->getTarget(), $version, $link->getDescription());
+            $links []= new Link($link->getSource(), $link->getTarget(), new Constraint('>=', $version), $link->getDescription());
         }
         $package->setRequires($links);
     }
@@ -213,12 +213,8 @@ class Repository extends ComposerRepository
                     continue;
                 }
                 $config = $version['extra']['phabel'] ?? [];
-                if (!isset($config['target'])) {
-                    if (isset($version['require']['php'])) {
-                        $config['target'] = $version['require']['php'];
-                    } else {
-                        $config['target'] = '7.0';
-                    }
+                if (!isset($config['target']) && isset($version['require']['php'])) {
+                    $config['target'] = $version['require']['php'];
                 }
                 foreach ($version['require'] as $package => &$version) {
                     $version = self::CONFIG_PREFIX.\json_encode($config)."\n".$version;

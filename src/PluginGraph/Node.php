@@ -38,28 +38,28 @@ class Node
     /**
      * Nodes that this node requires.
      *
-     * @var SplObjectStorage<Node, void>
+     * @var SplObjectStorage<Node>
      */
     private SplObjectStorage $requires;
 
     /**
      * Nodes that this node extends.
      *
-     * @var SplObjectStorage<Node, void>
+     * @var SplObjectStorage<Node>
      */
     private SplObjectStorage $extends;
 
     /**
      * Nodes that require this node.
      *
-     * @var SplObjectStorage<Node, void>
+     * @var SplObjectStorage<Node>
      */
     private SplObjectStorage $requiredBy;
 
     /**
      * Nodes that extend this node.
      *
-     * @var SplObjectStorage<Node, void>
+     * @var SplObjectStorage<Node>
      */
     private SplObjectStorage $extendedBy;
 
@@ -109,22 +109,22 @@ class Node
         $this->plugin = new Plugins($plugin, $config);
 
         $this->canBeRequired = PluginCache::canBeRequired($plugin);
-        foreach (PluginCache::runAfter($plugin) as $class => $config) {
+        foreach (PluginCache::runAfter($plugin, $config) as $class => $config) {
             foreach ($this->graph->addPlugin($class, $config, $this->packageContext) as $node) {
                 $this->require($node);
             }
         }
-        foreach (PluginCache::runBefore($plugin) as $class => $config) {
+        foreach (PluginCache::runBefore($plugin, $config) as $class => $config) {
             foreach ($this->graph->addPlugin($class, $config, $this->packageContext) as $node) {
                 $node->require($this);
             }
         }
-        foreach (PluginCache::runWithAfter($plugin) as $class => $config) {
+        foreach (PluginCache::runWithAfter($plugin, $config) as $class => $config) {
             foreach ($this->graph->addPlugin($class, $config, $this->packageContext) as $node) {
                 $this->extend($node);
             }
         }
-        foreach (PluginCache::runWithBefore($plugin) as $class => $config) {
+        foreach (PluginCache::runWithBefore($plugin, $config) as $class => $config) {
             foreach ($this->graph->addPlugin($class, $config, $this->packageContext) as $node) {
                 $node->extend($this);
             }

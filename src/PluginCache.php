@@ -92,72 +92,81 @@ class PluginCache
      * Get runBefore requirements.
      *
      * @param class-string<PluginInterface> $plugin Plugin
+     * @param array                         $config Config
      *
-     * @return array<class-string<PluginInterface>, array>
+     * @return array<string, array>
+     * @psalm-return array<class-string<PluginInterface>, array>
      */
-    public static function runBefore(string $plugin): array
+    public static function runBefore(string $plugin, array $config): array
     {
         /** @var array<class-string<PluginInterface>, array<class-string<PluginInterface>, array>> */
         static $cache = [];
         if (isset($cache[$plugin])) {
             return $cache[$plugin];
         }
-        return $cache[$plugin] = self::simplify($plugin::runBefore());
+        return $cache[$plugin] = self::simplify($plugin::runBefore($config));
     }
     /**
      * Get runAfter requirements.
      *
      * @param class-string<PluginInterface> $plugin Plugin
+     * @param array                         $config Config
      *
-     * @return array<class-string<PluginInterface>, array>
+     * @return array<string, array>
+     * @psalm-return array<class-string<PluginInterface>, array>
      */
-    public static function runAfter(string $plugin): array
+    public static function runAfter(string $plugin, array $config): array
     {
         /** @var array<class-string<PluginInterface>, array<class-string<PluginInterface>, array>> */
         static $cache = [];
         if (isset($cache[$plugin])) {
             return $cache[$plugin];
         }
-        return $cache[$plugin] = self::simplify($plugin::runAfter());
+        return $cache[$plugin] = self::simplify($plugin::runAfter($config));
     }
     /**
      * Get runWithBefore requirements.
      *
      * @param class-string<PluginInterface> $plugin Plugin
+     * @param array                         $config Config
      *
-     * @return array<class-string<PluginInterface>, array>
+     * @return array<string, array>
+     * @psalm-return array<class-string<PluginInterface>, array>
      */
-    public static function runWithBefore(string $plugin): array
+    public static function runWithBefore(string $plugin, array $config): array
     {
         /** @var array<class-string<PluginInterface>, array<class-string<PluginInterface>, array>> */
         static $cache = [];
         if (isset($cache[$plugin])) {
             return $cache[$plugin];
         }
-        return $cache[$plugin] = self::simplify($plugin::runWithBefore());
+        return $cache[$plugin] = self::simplify($plugin::runWithBefore($config));
     }
     /**
      * Get runWithAfter requirements.
      *
      * @param class-string<PluginInterface> $plugin Plugin
+     * @param array                         $config Config
      *
-     * @return array<class-string<PluginInterface>, array>
+     * @return array<string, array>
+     * @psalm-return array<class-string<PluginInterface>, array>
      */
-    public static function runWithAfter(string $plugin): array
+    public static function runWithAfter(string $plugin, array $config): array
     {
         /** @var array<class-string<PluginInterface>, array<class-string<PluginInterface>, array>> */
         static $cache = [];
         if (isset($cache[$plugin])) {
             return $cache[$plugin];
         }
-        return $cache[$plugin] = self::simplify($plugin::runWithAfter());
+        return $cache[$plugin] = self::simplify($plugin::runWithAfter($config));
     }
     /**
      * Simplify requirements.
      *
      * @param (array<class-string<PluginInterface>, array>|class-string<PluginInterface>[]) $requirements Requirements
      *
-     * @return array<class-string<PluginInterface>, array>
+     * @return array<string, array>
+     * @psalm-return array<class-string<PluginInterface>, array>
      */
     private static function simplify(array $requirements): array
     {

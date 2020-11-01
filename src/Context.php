@@ -3,6 +3,8 @@
 namespace Phabel;
 
 use PhpParser\BuilderHelpers;
+use PhpParser\ErrorHandler\Throwing;
+use PhpParser\NameContext;
 use PhpParser\Node;
 use PhpParser\Node\Expr\ArrayDimFetch;
 use PhpParser\Node\Expr\ArrowFunction;
@@ -23,6 +25,7 @@ use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\FunctionLike;
 use PhpParser\Node\Param;
 use PhpParser\Node\Stmt\If_;
+use PhpParser\NodeVisitor\NameResolver;
 use SplStack;
 
 /**
@@ -46,6 +49,12 @@ class Context
      */
     public SplStack $variables;
     /**
+     * Name resolver.
+     *
+     * @var NameResolver
+     */
+    public NameResolver $nameResolver;
+    /**
      * Constructor.
      */
     public function __construct()
@@ -54,6 +63,8 @@ class Context
         $this->parents = new SplStack;
         /** @var SplStack<VariableContext> */
         $this->variables = new SplStack;
+        $this->nameResolver = new NameResolver(new Throwing, ['replaceNodes' => false]);
+        $this->nameResolver->beforeTraverse([]);
     }
     /**
      * Push node.
@@ -67,6 +78,8 @@ class Context
         $this->parents->push($node);
         if ($node instanceof RootNode) {
             $this->variables->push(new VariableContext);
+        } else {
+            $this->nameResolver->enterNode($node);
         }
         if ($node instanceof FunctionLike) {
             $variables = \array_fill_keys(
@@ -292,5 +305,15 @@ class Context
         $subNode = $parent->getAttribute('currentNode');
         $subNodeIndex = $parent->getAttribute('currentNodeIndex');
         \array_splice($parent->{$subNode}, $subNodeIndex+1, 0, $nodes);
+    }
+
+    /**
+     * Gets name context
+     *
+     * @return NameContext
+     */
+    public function getNameContext(): NameContext
+    {
+        return $this->nameResolver->getNameContext();
     }
 }
