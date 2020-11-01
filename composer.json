@@ -4,7 +4,7 @@
     "type": "project",
     "require": {
         "nikic/php-parser": "^4.7",
-        "composer-plugin-api": "^1|^2"
+        "phabel/phabel-plugin": "*"
     },
     "require-dev": {
         "phpunit/phpunit": "^7 | ^8 | ^9",
@@ -18,6 +18,11 @@
         "name": "Daniil Gentili",
         "email": "daniil@daniil.it"
     }],
+    "autoload": {
+        "psr-4": {
+            "Phabel\\": "src"
+        }
+    },
     "scripts": {
         "check": [
             "@cs",
