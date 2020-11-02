@@ -1,10 +1,10 @@
 {
     "name": "phabel/phabel",
     "description": "Write and deploy modern PHP 8 code, today.",
-    "type": "project",
+    "type": "composer-plugin",
     "require": {
         "nikic/php-parser": "^4.7",
-        "phabel/phabel-plugin": "*"
+        "composer-plugin-api": "^1|^2"
     },
     "require-dev": {
         "phpunit/phpunit": "^7 | ^8 | ^9",
@@ -22,6 +22,9 @@
         "psr-4": {
             "Phabel\\": "src"
         }
+    },
+    "extra": {
+        "class": "Phabel\\Composer\\Plugin"
     },
     "scripts": {
         "check": [
