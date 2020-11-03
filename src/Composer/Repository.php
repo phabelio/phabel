@@ -2,59 +2,39 @@
 
 namespace Phabel\Composer;
 
-use Composer\DependencyResolver\Pool;
 use Composer\Package\Link;
+use Composer\Package\Package;
 use Composer\Package\PackageInterface;
-use Composer\Repository\ComposerRepository;
+use Composer\Repository\RepositoryInterface;
 use Composer\Semver\Constraint\Constraint;
 use Composer\Semver\Constraint\ConstraintInterface;
+use ReflectionObject;
 
 /**
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT
  */
-class Repository extends ComposerRepository
+trait Repository
 {
-    /**
-     * Configuration prefix.
-     */
-    private const CONFIG_PREFIX = 'phabel-config';
     /**
      * Previous repository .
      */
-    private ComposerRepository $repository;
+    protected RepositoryInterface $repository;
+    /**
+     * Reflection object
+     */
+    protected ReflectionObject $reflect;
     /**
      * Constructor.
      *
-     * @param RepositoryInterface[] $repositories Previous repositories
+     * @param RepositoryInterface $repository Previous repository
      */
-    public function __construct(ComposerRepository $repository)
+    public function __construct(RepositoryInterface $repository)
     {
+        $this->reflect = new ReflectionObject($repository);
         $this->repository = $repository;
         $this->packages = [];
     }
-
-    /**
-     * Get repository configuration.
-     *
-     * @return mixed
-     */
-    public function getRepoConfig()
-    {
-        return $this->repository->getRepoConfig();
-    }
-    /**
-     * Set root aliases.
-     *
-     * @param array $rootAliases Root aliases
-     *
-     * @return void
-     */
-    public function setRootAliases(array $rootAliases): void
-    {
-        $this->repository->setRootAliases($rootAliases);
-    }
-
     /**
      * Checks if specified package registered (installed).
      *
@@ -80,11 +60,11 @@ class Repository extends ComposerRepository
             return [];
         }
         $constraint = (string) $constraint;
-        if (!str_starts_with($constraint, self::CONFIG_PREFIX)) {
+        if (!str_starts_with($constraint, ComposerRepository::CONFIG_PREFIX)) {
             return [];
         }
         [$config, $constraint] = \explode("\n", $constraint, 2);
-        return \json_decode(\substr($config, 0, \strlen(self::CONFIG_PREFIX)), true) ?: [];
+        return \json_decode(\substr($config, 0, \strlen(ComposerRepository::CONFIG_PREFIX)), true) ?: [];
     }
     /**
      * Prepare package.
@@ -119,7 +99,7 @@ class Repository extends ComposerRepository
         // Config merging logic here...
         $links = [];
         foreach ($package->getRequires() as $link) {
-            $version = self::CONFIG_PREFIX.\json_encode($config)."\n".($link->getConstraint() ?? '');
+            $version = ComposerRepository::CONFIG_PREFIX.\json_encode($config)."\n".($link->getConstraint() ?? '');
             $links []= new Link($link->getSource(), $link->getTarget(), new Constraint('>=', $version), $link->getDescription());
         }
         $package->setRequires($links);
@@ -133,7 +113,7 @@ class Repository extends ComposerRepository
      *
      * @return PackageInterface|null
      */
-    public function findPackage(string $name, $constraint): ?PackageInterface
+    public function findPackage($name, $constraint)
     {
         $config = self::prepareConstraint($constraint);
         if (!$package = $this->repository->findPackage($name, $constraint)) {
@@ -179,48 +159,5 @@ class Repository extends ComposerRepository
     public function search($query, $mode = 0, $type = null)
     {
         return $this->repository->search($query, $mode, $type);
-    }
-
-    public function getProviderNames()
-    {
-        return $this->repository->getProviderNames();
-    }
-
-    public function hasProviders()
-    {
-        return $this->repository->hasProviders();
-    }
-    public function resetPackageIds()
-    {
-        return $this->repository->resetPackageIds();
-    }
-    public function addPackage(PackageInterface $package)
-    {
-        $this->repository->addPackage($package);
-    }
-    /**
-     * @param  Pool        $pool
-     * @param  string      $name          package name
-     * @param  bool        $bypassFilters If set to true, this bypasses the stability filtering, and forces a recompute without cache
-     * @return array|mixed
-     */
-    public function whatProvides(Pool $pool, $name, $bypassFilters = false)
-    {
-        $whatProvides = $this->repository->whatProvides($pool, $name, $bypassFilters);
-        foreach ($whatProvides as $package => &$versions) {
-            foreach ($versions as &$version) {
-                if (!isset($version['require']['phabel/phabel'])) {
-                    continue;
-                }
-                $config = $version['extra']['phabel'] ?? [];
-                if (!isset($config['target']) && isset($version['require']['php'])) {
-                    $config['target'] = $version['require']['php'];
-                }
-                foreach ($version['require'] as $package => &$version) {
-                    $version = self::CONFIG_PREFIX.\json_encode($config)."\n".$version;
-                }
-            }
-        }
-        return $whatProvides;
     }
 }
