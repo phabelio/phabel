@@ -63,10 +63,10 @@ abstract class Tools
             $nodeNew->setAttributes($node->getAttributes());
             return $nodeNew;
         }
-        return new $class(
+        return new $class(...[
             ...\array_map(fn (string $name) => $node->{$name}, $node->getSubNodeNames()),
             $node->getAttributes()
-        );
+        ]);
     }
     /**
      * Replace type in-place.
@@ -215,5 +215,117 @@ abstract class Tools
             }
         }
         return false;
+    }
+
+    /**
+     * Create a new object extended from this object, with the specified additional trait + interface
+     *
+     * @param object $obj
+     * @param string $trait
+     * @param string $interface
+     * 
+     * @return object
+     */
+    public static function cloneWithTrait(object $obj, string $trait, string $interface): object
+    {
+        $reflect = new ReflectionClass($obj);
+
+        
+        $r = $reflect;
+        while ($r && $r->isAnonymous()) {
+            $r = $r->getParentClass();
+        }
+
+        $extend = "extends \\".$r->getName();
+        $eval = "\$newObj = new class $extend implements \\$interface {
+            use \\$trait;
+
+            public function __construct() {}
+        };";
+        eval($eval);
+
+        $reflectNew = new ReflectionClass($newObj);
+
+        do {
+            if ($tmp = $reflectNew->getParentClass()) {
+                $reflectNew = $tmp;
+            }
+            foreach ($reflect->getProperties() as $prop) {
+                if ($reflectNew->hasProperty($prop->getName())) {
+                    $propNew = $reflectNew->getProperty($prop->getName());
+                    $propNew->setAccessible(true);
+                    $prop->setAccessible(true);
+                    $propNew->setValue($newObj, $prop->getValue($obj));
+                }
+            }
+        } while ($reflect = $reflect->getParentClass());
+        
+        return $newObj;
+    }
+
+    /**
+     * Checks private property exists in an object.
+     *
+     * @param object $obj Object
+     * @param string $var Attribute name
+     *
+     * @psalm-suppress InvalidScope
+     *
+     * @return bool
+     * @access public
+     */
+    public static function hasVar($obj, string $var): bool
+    {
+        return \Closure::bind(
+            function () use ($var) {
+                return isset($this->{$var});
+            },
+            $obj,
+            \get_class($obj)
+        )->__invoke();
+    }
+    /**
+     * Accesses a private variable from an object.
+     *
+     * @param object $obj Object
+     * @param string $var Attribute name
+     *
+     * @psalm-suppress InvalidScope
+     *
+     * @return mixed
+     * @access public
+     */
+    public static function &getVar($obj, string $var)
+    {
+        return \Closure::bind(
+            function & () use ($var) {
+                return $this->{$var};
+            },
+            $obj,
+            \get_class($obj)
+        )->__invoke();
+    }
+    /**
+     * Sets a private variable in an object.
+     *
+     * @param object $obj Object
+     * @param string $var Attribute name
+     * @param mixed  $val Attribute value
+     *
+     * @psalm-suppress InvalidScope
+     *
+     * @return void
+     *
+     * @access public
+     */
+    public static function setVar($obj, string $var, &$val): void
+    {
+        \Closure::bind(
+            function () use ($var, &$val) {
+                $this->{$var} =& $val;
+            },
+            $obj,
+            \get_class($obj)
+        )->__invoke();
     }
 }

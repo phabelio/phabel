@@ -68,4 +68,32 @@ class Php extends Plugin
         }
         return $classes;
     }
+
+    /**
+     * {@inheritDoc}
+     *
+    public static function mergeConfigs(array ...$configs): array
+    {
+        $configsByTarget = [];
+        foreach ($configs as $config) {
+            $configsByTarget[$config['target'] ?? PHP_MAJOR_VERSION.PHP_MINOR_VERSION] = [
+                $config
+            ];
+        }
+
+        return $configs;
+    }
+    /**
+     * {@inheritDoc}
+     *
+    public static function splitConfig(array $config): array
+    {
+        $target = $config['target'] = $config['target'] ?? PHP_MAJOR_VERSION.PHP_MINOR_VERSION;
+        unset($config['target']);
+        $chunks = array_chunk($target, 1, true);
+        foreach ($chunks as $k => $chunk) {
+            $chunks[$k]['target'] = $target;
+        }
+        return $chunks;
+    }*/
 }

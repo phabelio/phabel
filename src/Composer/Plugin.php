@@ -9,8 +9,8 @@ use Composer\Installer\PackageEvent;
 use Composer\Installer\PackageEvents;
 use Composer\IO\IOInterface;
 use Composer\Plugin\PluginInterface;
-use Phabel\Composer\Repository\Repository;
-use ReflectionClass;
+use Phabel\Composer\Traits\Repository;
+use Phabel\Tools;
 use ReflectionObject;
 
 /**
@@ -33,44 +33,19 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      */
     public function activate(Composer $composer, IOInterface $io): void
     {
+        $rootPackage = $composer->getPackage();
+        Repository::preparePackage($rootPackage, null);
+        var_dump($rootPackage->getRequires());
+
         $repoManager = $composer->getRepositoryManager();
         $repos = $repoManager->getRepositories();
         $reflect = (new ReflectionObject($repoManager))->getProperty('repositories');
         $reflect->setAccessible(true);
         $reflect->setValue($repoManager, []);
         foreach ($repos as $repo) {
-            $traits = [Repository::class];
-            $traitsStr = '';
-            foreach ($traits as $trait) {
-                $traitsStr .= "use \\$trait;\n";
-            }
-            $reflect = new ReflectionClass($repo);
-
-            $extend = "extends \\".\get_class($repo);
-            $eval = "\$newRepo = new class $extend {
-                    $traitsStr
-
-                    public function __construct() {}
-                };";
-            eval($eval);
-
-            $reflectNew = new ReflectionClass($newRepo);
-            $reflectNew = $reflectNew->getParentClass();
-
-            do {
-                foreach ($reflect->getProperties() as $prop) {
-                    $propNew = $reflectNew->getProperty($prop->getName());
-                    $propNew->setAccessible(true);
-                    $prop->setAccessible(true);
-                    $propNew->setValue($newRepo, $prop->getValue($repo));
-                }
-                $reflectNew = $reflectNew->getParentClass();
-            } while ($reflect = $reflect->getParentClass());
-            $repo = $newRepo;
-
-            $repoManager->prependRepository($repo);
+            $repoManager->prependRepository(Tools::cloneWithTrait($repo, Repository::class, PhabelRepositoryInterface::class));
         }
-        \var_dump(\array_map('get_class', $repoManager->getRepositories()));
+        //\var_dump(\array_map('get_class', $repoManager->getRepositories()));
         $this->io = $io;
     }
 
