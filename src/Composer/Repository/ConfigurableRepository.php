@@ -1,13 +1,13 @@
 <?php
 
-namespace Phabel\Composer;
+namespace Phabel\Composer\Repository;
 
 use Composer\Package\Link;
 use Composer\Package\Package;
 use Composer\Package\PackageInterface;
 use Composer\Repository\ComposerRepository;
 use Composer\Repository\RepositoryInterface;
-use Composer\Repository\ArrayRepository as ComposerArrayRepository;
+use Composer\Repository\ConfigurableRepositoryInterface;
 use Composer\Semver\Constraint\Constraint;
 use Composer\Semver\Constraint\ConstraintInterface;
 
@@ -15,13 +15,17 @@ use Composer\Semver\Constraint\ConstraintInterface;
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT
  *
- * @property ComposerArrayRepository $repository
+ * @property ConfigurableRepositoryInterface $repository
  */
-trait ArrayRepository
+trait ConfigurableRepository
 {
-
-    public function addPackage(PackageInterface $package)
+    /**
+     * Get repository configuration.
+     *
+     * @return mixed
+     */
+    public function getRepoConfig()
     {
-        $this->repository->addPackage($package);
+        return $this->repository->getRepoConfig();
     }
 }

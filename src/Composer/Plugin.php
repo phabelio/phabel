@@ -5,15 +5,17 @@ namespace Phabel\Composer;
 use Composer\Composer;
 use Composer\EventDispatcher\EventSubscriberInterface;
 use Composer\Installer\InstallerEvent;
-use Composer\Installer\InstallerEvents;
 use Composer\Installer\PackageEvent;
 use Composer\Installer\PackageEvents;
 use Composer\IO\IOInterface;
 use Composer\Plugin\PluginInterface;
 use Composer\Repository\ArrayRepository as ComposerArrayRepository;
-use Composer\Repository\ConfigurableRepository as ComposerConfigurableRepository;
 use Composer\Repository\ComposerRepository as ComposerComposerRepository;
-use Composer\Repository\RepositoryInterface;
+use Composer\Repository\ConfigurableRepository as ComposerConfigurableRepository;
+use Phabel\Composer\Repository\ArrayRepository;
+use Phabel\Composer\Repository\ComposerRepository;
+use Phabel\Composer\Repository\ConfigurableRepository;
+use Phabel\Composer\Repository\Repository;
 use ReflectionObject;
 
 /**
@@ -54,13 +56,13 @@ class Plugin implements PluginInterface, EventSubscriberInterface
                         $traits []= $trait;
                     }
                 }
-                sort($traits);
+                \sort($traits);
                 if ($traits === [ArrayRepository::class]) {
                     $repo = new class($repo) extends ComposerArrayRepository {
                         use Repository;
                         use ArrayRepository;
                     };
-                } else if ($traits === [ConfigurableRepository::class]) {
+                } elseif ($traits === [ConfigurableRepository::class]) {
                     $repo = new class($repo) extends ComposerRepository {
                         use Repository;
                         use ConfigurableRepository;
@@ -75,7 +77,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             }
             $repoManager->prependRepository($repo);
         }
-        var_dump(array_map('get_class', $repoManager->getRepositories()));
+        \var_dump(\array_map('get_class', $repoManager->getRepositories()));
         $this->io = $io;
     }
 

@@ -1,13 +1,18 @@
 <?php
 
-namespace Phabel\Composer;
+namespace Phabel\Composer\Repository;
 
+use Composer\Package\AliasPackage;
 use Composer\Package\Link;
 use Composer\Package\Package;
 use Composer\Package\PackageInterface;
+use Composer\Repository\PlatformRepository;
 use Composer\Repository\RepositoryInterface;
-use Composer\Semver\Constraint\Constraint;
+use Composer\Semver\Constraint\Constraint as ConstraintConstraint;
 use Composer\Semver\Constraint\ConstraintInterface;
+use Composer\Semver\Constraint\MultiConstraint as ConstraintMultiConstraint;
+use Phabel\Composer\Constraint\Constraint;
+use Phabel\Composer\Constraint\MultiConstraint;
 use ReflectionObject;
 
 /**
@@ -21,7 +26,7 @@ trait Repository
      */
     protected RepositoryInterface $repository;
     /**
-     * Reflection object
+     * Reflection object.
      */
     protected ReflectionObject $reflect;
     /**
@@ -56,6 +61,12 @@ trait Repository
      */
     private static function prepareConstraint(&$constraint): array
     {
+        if ($constraint instanceof Constraint || $constraint instanceof MultiConstraint) {
+            $config = $constraint->getConfig();
+            $constraint = $constraint->getPrevious();
+            return $config;
+        }
+        /*
         if (!$constraint instanceof ConstraintInterface && !\is_string($constraint)) {
             return [];
         }
@@ -63,8 +74,8 @@ trait Repository
         if (!str_starts_with($constraint, ComposerRepository::CONFIG_PREFIX)) {
             return [];
         }
-        [$config, $constraint] = \explode("\n", $constraint, 2);
-        return \json_decode(\substr($config, 0, \strlen(ComposerRepository::CONFIG_PREFIX)), true) ?: [];
+        [$config, $constraint] = \explode("\0", $constraint, 2);
+        return \json_decode(\substr($config, 0, \strlen(ComposerRepository::CONFIG_PREFIX)), true) ?: [];*/
     }
     /**
      * Prepare package.
@@ -94,15 +105,30 @@ trait Repository
             }
         }
         if (!$havePhabel) {
-            return;
+            //return;
         }
         // Config merging logic here...
         $links = [];
         foreach ($package->getRequires() as $link) {
-            $version = ComposerRepository::CONFIG_PREFIX.\json_encode($config)."\n".($link->getConstraint() ?? '');
-            $links []= new Link($link->getSource(), $link->getTarget(), new Constraint('>=', $version), $link->getDescription());
+            if (PlatformRepository::isPlatformPackage($link->getTarget())) {
+                continue;
+            }
+            //var_dumP($link->getTarget(), (string) $link->getConstraint());
+            //$version = ComposerRepository::CONFIG_PREFIX.\json_encode($config)."\0".($link->getConstraint() ?? '');
+            $constraint = $link->getConstraint();
+            if ($constraint instanceof ConstraintMultiConstraint) {
+                $constraint = new MultiConstraint($constraint, $config);
+            } else {
+                $constraint = new Constraint($constraint, $config);
+            }
+            $links []= new Link($link->getSource(), $link->getTarget(), $constraint, $link->getDescription());
         }
-        $package->setRequires($links);
+        if ($package instanceof Package) {
+            $package->setRequires($links);
+        } elseif ($package instanceof AliasPackage) {
+            while (($p = $package->getAliasOf()) instanceof AliasPackage);
+            $p->setRequires($links);
+        }
     }
 
     /**
@@ -159,5 +185,10 @@ trait Repository
     public function search($query, $mode = 0, $type = null)
     {
         return $this->repository->search($query, $mode, $type);
+    }
+
+    public function getRepoName()
+    {
+        return $this->repository->getRepoName();
     }
 }
