@@ -119,35 +119,35 @@ abstract class Plugin extends Tools implements PluginInterface
     /**
      * {@inheritDoc}
      */
-    public static function composerRequires(): array
+    public static function composerRequires(array $config): array
     {
         return [];
     }
     /**
      * {@inheritDoc}
      */
-    public static function runAfter(): array
+    public static function runAfter(array $config): array
     {
         return [];
     }
     /**
      * {@inheritDoc}
      */
-    public static function runBefore(): array
+    public static function runBefore(array $config): array
     {
         return [];
     }
     /**
      * {@inheritDoc}
      */
-    public static function runWithBefore(): array
+    public static function runWithBefore(array $config): array
     {
         return [];
     }
     /**
      * {@inheritDoc}
      */
-    public static function runWithAfter(): array
+    public static function runWithAfter(array $config): array
     {
         return [];
     }

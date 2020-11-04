@@ -5,12 +5,12 @@ namespace Phabel\Composer\Traits;
 trait Constraint
 {
     /**
-     * Config.
+     * Phabel config.
      */
     private array $config;
 
     /**
-     * Get config.
+     * Get phabel config.
      *
      * @return array
      */
@@ -20,15 +20,15 @@ trait Constraint
     }
 
     /**
-     * Set config.
+     * Set phabel config.
      *
-     * @param array $config Config.
+     * @param array $config Phabel config
      *
      * @return self
      */
-    public function setConfig(array $config): self
+    public function setConfig($config): self
     {
-        $this->config = $config;
+        $this->config = is_string($config) ? json_decode($config, true) : $config;
 
         return $this;
     }

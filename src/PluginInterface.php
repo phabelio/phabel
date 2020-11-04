@@ -24,7 +24,7 @@ interface PluginInterface
      *
      * @psalm-return class-string<PluginInterface>[]|array<class-string<PluginInterface>, array>
      */
-    public static function runAfter(): array;
+    public static function runAfter(array $config): array;
     /**
      * Specify which plugins should run before this plugin.
      *
@@ -32,7 +32,7 @@ interface PluginInterface
      *
      * @psalm-return class-string<PluginInterface>[]|array<class-string<PluginInterface>, array>
      */
-    public static function runBefore(): array;
+    public static function runBefore(array $config): array;
     /**
      * Specify which plugins does this plugin extend.
      *
@@ -44,21 +44,21 @@ interface PluginInterface
      *
      * @psalm-return class-string<PluginInterface>[]|array<class-string<PluginInterface>, array>
      */
-    public static function runWithBefore(): array;
+    public static function runWithBefore(array $config): array;
     /**
      *
      * @return array Plugin name(s)
      *
      * @psalm-return class-string<PluginInterface>[]|array<class-string<PluginInterface>, array>
      */
-    public static function runWithAfter(): array;
+    public static function runWithAfter(array $config): array;
 
     /**
      * Specify a list of composer dependencies.
      *
      * @return array
      */
-    public static function composerRequires(): array;
+    public static function composerRequires(array $config): array;
     /**
      * Set configuration array.
      *

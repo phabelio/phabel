@@ -11,6 +11,7 @@ use Composer\Semver\Constraint\Constraint as ComposerConstraint;
 use Composer\Semver\Constraint\ConstraintInterface;
 use Composer\Semver\Constraint\MultiConstraint;
 use Phabel\Composer\PhabelConstraintInterface;
+use Phabel\Target\Php;
 use Phabel\Tools;
 
 /**
@@ -44,47 +45,12 @@ trait Repository
         return $packages;
     }
 
-    /**
-     * Look for phabel configuration parameters in constraint.
-     *
-     * @param \Composer\Semver\Constraint\ConstraintInterface $constraint package version or version constraint to match against
-     *
-     * @return ?array
-     */
-    public static function extractConfig(&$constraint): ?array
-    {
-        $config = null;
-        if ($constraint instanceof PhabelConstraintInterface) {
-            $config = $constraint->getConfig();
-        } elseif ($constraint instanceof ComposerConstraint) {
-            $version = $constraint->getVersion();
-            if (str_starts_with($version, 'phabel')) {
-                [$version, $config] = \explode("\0", \substr($version, 6));
-                $config = \json_decode($config, true);
-                $constraint = new ComposerConstraint($constraint->getOperator(), $version);
-            }
-        } elseif ($constraint instanceof MultiConstraint) {
-            $constraints = $constraint->getConstraints() ;
-            foreach ($constraints as &$cur) {
-                $config = self::trickleMergeConfig($config, self::extractConfig($cur));
-            }
-            $constraint = new MultiConstraint($constraints, $constraint->isConjunctive());
-        }
-        return $config;
-        /*
-        if (!$constraint instanceof ConstraintInterface && !\is_string($constraint)) {
-            return [];
-        }
-        $constraint = (string) $constraint;
-        if (!str_starts_with($constraint, ComposerRepository::CONFIG_PREFIX)) {
-            return [];
-        }
-        [$config, $constraint] = \explode("\0", $constraint, 2);
-        return \json_decode(\substr($config, 0, \strlen(ComposerRepository::CONFIG_PREFIX)), true) ?: [];*/
-    }
     private static function trickleMergeConfig(?array $prev, ?array $new): ?array
     {
-        return $new;
+        if ($prev === null || empty($prev)) {
+            return $new;
+        }
+        return $prev;
     }
     /**
      * Prepare package.
@@ -107,7 +73,7 @@ trait Repository
                 $havePhabel = true;
             }
             if ($link->getTarget() === 'php') {
-                $myConfig['target'] = $link->getConstraint();
+                $myConfig['target'] = Php::normalizeVersion($link->getConstraint()->getLowerBound()->getVersion());
                 if ($havePhabel) {
                     break;
                 }
@@ -118,14 +84,11 @@ trait Repository
             return;
         }
         \var_dump("Applying ".$package->getName());
-        // Config merging logic here...
-        if ($config === null || empty($config)) {
-            $config = $myConfig;
-        }
-        self::processRequires($package, $config);
+        $config = self::trickleMergeConfig($config, $myConfig);
+        self::processRequires($package, \json_encode($config));
     }
 
-    private static function processRequires(PackageInterface $package, array $config)
+    private static function processRequires(PackageInterface $package, string $config)
     {
         $links = [];
         foreach ($package->getRequires() as $link) {
@@ -133,20 +96,10 @@ trait Repository
                 continue;
             }
             //var_dumP($link->getTarget(), (string) $link->getConstraint());
-            $constraint = $link->getConstraint();
-            if ($constraint instanceof ComposerConstraint) {
-                $version = $constraint-
-            }
-            if ($constraint instanceof PhabelConstraintInterface) {
-                $constraint = clone $constraint;
-            } else {
-                $constraint = Tools::cloneWithTrait($constraint, Constraint::class, PhabelConstraintInterface::class);
-            }
-            $constraint->setConfig($config);
             $links []= new Link(
                 $link->getSource(),
                 $link->getTarget(),
-                $constraint,
+                self::injectConfig($link->getConstraint(), $config),
                 $link->getDescription(),
                 $link->getPrettyConstraint()
             );
@@ -159,8 +112,59 @@ trait Repository
         }
     }
 
-    private static function injectConstraint
+    /**
+     * Inject config into constraint.
+     *
+     * @param ConstraintInterface $constraint
+     * @param string $config
+     * @return ConstraintInterface
+     */
+    private static function injectConfig(ConstraintInterface $constraint, string $config): ConstraintInterface
+    {
+        if ($constraint instanceof ComposerConstraint) {
+            $version = $constraint->getVersion();
+            $version = "phabel$version\0$config";
+            return new ComposerConstraint($constraint->getOperator(), $version);
+        } elseif ($constraint instanceof MultiConstraint) {
+            $constraints = $constraint->getConstraints();
+            foreach ($constraints as &$cur) {
+                $cur = self::injectConfig($cur, $config);
+            }
+            return new MultiConstraint($constraints, $constraint->isConjunctive());
+        }
+        return $constraint;
+    }
 
+    /**
+     * Look for phabel configuration parameters in constraint.
+     *
+     * @param \Composer\Semver\Constraint\ConstraintInterface $constraint package version or version constraint to match against
+     *
+     * @return ?array
+     */
+    public static function extractConfig(ConstraintInterface &$constraint): ?array
+    {
+        $config = null;
+        if ($constraint instanceof ComposerConstraint) {
+            $version = $constraint->getVersion();
+            if (str_starts_with($version, 'phabel')) {
+                [$version, $config] = \explode("\0", \substr($version, 6));
+                $config = \json_decode($config, true);
+                if ($config === false) {
+                    $config = null;
+                }
+                $constraint = new ComposerConstraint($constraint->getOperator(), $version);
+            }
+        } elseif ($constraint instanceof MultiConstraint) {
+            $constraints = $constraint->getConstraints() ;
+            foreach ($constraints as &$cur) {
+                $config = self::trickleMergeConfig($config, self::extractConfig($cur));
+            }
+            $constraint = new MultiConstraint($constraints, $constraint->isConjunctive());
+        }
+
+        return $config;
+    }
     /**
      * Searches for the first match of a package by name and version.
      *
