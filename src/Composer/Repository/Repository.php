@@ -7,13 +7,10 @@ use Composer\Package\Link;
 use Composer\Package\Package;
 use Composer\Package\PackageInterface;
 use Composer\Repository\PlatformRepository;
-use Composer\Repository\RepositoryInterface;
-use Composer\Semver\Constraint\Constraint as ConstraintConstraint;
 use Composer\Semver\Constraint\ConstraintInterface;
 use Composer\Semver\Constraint\MultiConstraint as ConstraintMultiConstraint;
 use Phabel\Composer\Constraint\Constraint;
 use Phabel\Composer\Constraint\MultiConstraint;
-use ReflectionObject;
 
 /**
  * @author Daniil Gentili <daniil@daniil.it>
@@ -22,34 +19,23 @@ use ReflectionObject;
 trait Repository
 {
     /**
-     * Previous repository .
-     */
-    protected RepositoryInterface $repository;
-    /**
-     * Reflection object.
-     */
-    protected ReflectionObject $reflect;
-    /**
-     * Constructor.
+     * TODO v3 should make this private once we can drop PHP 5.3 support.
      *
-     * @param RepositoryInterface $repository Previous repository
+     * @param string $name package name (must be lowercased already)
+     * @private
      */
-    public function __construct(RepositoryInterface $repository)
+    public function isVersionAcceptable($constraint, $name, $versionData, array $acceptableStabilities = null, array $stabilityFlags = null)
     {
-        $this->reflect = new ReflectionObject($repository);
-        $this->repository = $repository;
-        $this->packages = [];
+        self::prepareConstraint($constraint);
+        return parent::isVersionAcceptable($constraint, $name, $versionData, $acceptableStabilities, $stabilityFlags);
     }
-    /**
-     * Checks if specified package registered (installed).
-     *
-     * @param PackageInterface $package package instance
-     *
-     * @return bool
-     */
-    public function hasPackage(PackageInterface $package): bool
+    public function loadPackages(array $packageNameMap, array $acceptableStabilities, array $stabilityFlags, array $alreadyLoaded = [])
     {
-        return $this->repository->hasPackage($package);
+        $packages = parent::loadPackages($packageNameMap, $acceptableStabilities, $stabilityFlags, $alreadyLoaded);
+        foreach ($packages['packages'] as &$package) {
+            self::preparePackage($package, []);
+        }
+        return $packages;
     }
 
     /**
@@ -66,6 +52,7 @@ trait Repository
             $constraint = $constraint->getPrevious();
             return $config;
         }
+        return [];
         /*
         if (!$constraint instanceof ConstraintInterface && !\is_string($constraint)) {
             return [];
@@ -142,7 +129,7 @@ trait Repository
     public function findPackage($name, $constraint)
     {
         $config = self::prepareConstraint($constraint);
-        if (!$package = $this->repository->findPackage($name, $constraint)) {
+        if (!$package = parent::findPackage($name, $constraint)) {
             return null;
         }
         return self::preparePackage($package, $config);
@@ -159,7 +146,7 @@ trait Repository
     public function findPackages($name, $constraint = null)
     {
         $config = self::prepareConstraint($constraint);
-        foreach ($packages = $this->repository->findPackages($name, $constraint) as $package) {
+        foreach ($packages = parent::findPackages($name, $constraint) as $package) {
             self::preparePackage($package, $config);
         }
         return $packages;
@@ -172,23 +159,10 @@ trait Repository
      */
     public function getPackages()
     {
-        $packages = $this->repository->getPackages();
+        $packages = parent::getPackages();
         foreach ($packages as $package) {
             self::preparePackage($package, []);
         }
         return $packages;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function search($query, $mode = 0, $type = null)
-    {
-        return $this->repository->search($query, $mode, $type);
-    }
-
-    public function getRepoName()
-    {
-        return $this->repository->getRepoName();
     }
 }

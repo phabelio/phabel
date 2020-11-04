@@ -308,7 +308,7 @@ class Context
     }
 
     /**
-     * Gets name context
+     * Gets name context.
      *
      * @return NameContext
      */

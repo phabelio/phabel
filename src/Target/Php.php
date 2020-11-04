@@ -3,7 +3,6 @@
 namespace Phabel\Target;
 
 use Phabel\Plugin;
-use Phabel\Target\Php55\YieldDetector;
 
 /**
  * Makes changes necessary to polyfill syntaxes of various PHP versions.
@@ -39,10 +38,10 @@ class Php extends Plugin
     private static function getRange(array $config): array
     {
         $target = $config['target'] ?? PHP_MAJOR_VERSION.PHP_MINOR_VERSION;
-        if (preg_match(":^\D*(\d+\.\d+)\..*:", $config['target'], $matches)) {
+        if (\preg_match(":^\D*(\d+\.\d+)\..*:", $config['target'], $matches)) {
             $target = $matches[1];
         }
-        $key = \array_search(str_replace('.', '', $target), self::VERSIONS);
+        $key = \array_search(\str_replace('.', '', $target), self::VERSIONS);
         return \array_slice(
             self::VERSIONS,
             $key === false ? self::DEFAULT_TARGET : $key
@@ -59,9 +58,11 @@ class Php extends Plugin
     {
         $classes = [];
         foreach (self::getRange($config) as $version) {
-            foreach (scandir(__DIR__."/Php$version") as $file) {
-                if (substr($file, -4) !== '.php') continue;
-                $class = basename($version, '.php');
+            foreach (\scandir(__DIR__."/Php$version") as $file) {
+                if (\substr($file, -4) !== '.php') {
+                    continue;
+                }
+                $class = \basename($version, '.php');
                 $classes[$class] = $config[$class] ?? [];
             }
         }

@@ -9,13 +9,8 @@ use Composer\Installer\PackageEvent;
 use Composer\Installer\PackageEvents;
 use Composer\IO\IOInterface;
 use Composer\Plugin\PluginInterface;
-use Composer\Repository\ArrayRepository as ComposerArrayRepository;
-use Composer\Repository\ComposerRepository as ComposerComposerRepository;
-use Composer\Repository\ConfigurableRepository as ComposerConfigurableRepository;
-use Phabel\Composer\Repository\ArrayRepository;
-use Phabel\Composer\Repository\ComposerRepository;
-use Phabel\Composer\Repository\ConfigurableRepository;
 use Phabel\Composer\Repository\Repository;
+use ReflectionClass;
 use ReflectionObject;
 
 /**
@@ -44,37 +39,35 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         $reflect->setAccessible(true);
         $reflect->setValue($repoManager, []);
         foreach ($repos as $repo) {
-            if ($repo instanceof ComposerComposerRepository) {
-                $repo = new ComposerRepository($repo);
-            } else {
-                $traits = [];
-                foreach ([
-                    ComposerArrayRepository::class => ArrayRepository::class,
-                    ComposerConfigurableRepository::class => ConfigurableRepository::class,
-                ] as $class => $trait) {
-                    if ($repo instanceof $class) {
-                        $traits []= $trait;
-                    }
-                }
-                \sort($traits);
-                if ($traits === [ArrayRepository::class]) {
-                    $repo = new class($repo) extends ComposerArrayRepository {
-                        use Repository;
-                        use ArrayRepository;
-                    };
-                } elseif ($traits === [ConfigurableRepository::class]) {
-                    $repo = new class($repo) extends ComposerRepository {
-                        use Repository;
-                        use ConfigurableRepository;
-                    };
-                } else {
-                    $repo = new class($repo) extends ComposerArrayRepository {
-                        use Repository;
-                        use ArrayRepository;
-                        use ConfigurableRepository;
-                    };
-                }
+            $traits = [Repository::class];
+            $traitsStr = '';
+            foreach ($traits as $trait) {
+                $traitsStr .= "use \\$trait;\n";
             }
+            $reflect = new ReflectionClass($repo);
+
+            $extend = "extends \\".\get_class($repo);
+            $eval = "\$newRepo = new class $extend {
+                    $traitsStr
+
+                    public function __construct() {}
+                };";
+            eval($eval);
+
+            $reflectNew = new ReflectionClass($newRepo);
+            $reflectNew = $reflectNew->getParentClass();
+
+            do {
+                foreach ($reflect->getProperties() as $prop) {
+                    $propNew = $reflectNew->getProperty($prop->getName());
+                    $propNew->setAccessible(true);
+                    $prop->setAccessible(true);
+                    $propNew->setValue($newRepo, $prop->getValue($repo));
+                }
+                $reflectNew = $reflectNew->getParentClass();
+            } while ($reflect = $reflect->getParentClass());
+            $repo = $newRepo;
+
             $repoManager->prependRepository($repo);
         }
         \var_dump(\array_map('get_class', $repoManager->getRepositories()));

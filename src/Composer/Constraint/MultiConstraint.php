@@ -43,7 +43,7 @@ class MultiConstraint extends ComposerMultiConstraint
      * Tries to optimize the constraints as much as possible, meaning
      * reducing/collapsing congruent constraints etc.
      * Does not necessarily return a MultiConstraint instance if
-     * things can be reduced to a simple constraint
+     * things can be reduced to a simple constraint.
      *
      * @param ConstraintInterface[] $constraints A set of constraints
      * @param bool                  $conjunctive Whether the constraints should be treated as conjunctive or disjunctive
