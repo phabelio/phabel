@@ -15,10 +15,11 @@ use Serializable as GlobalSerializable;
  * Implement __serialize and __unserialize.
  */
 class Serializable extends Plugin
-{
+{/*
     public function enter(Class_ $class, Context $context): void
     {
         /** @var array<string, &ClassMethod> */
+        /*
         $methods = [];
         foreach ($class->stmts as $stmt) {
             if ($stmt instanceof ClassMethod) {
@@ -44,6 +45,5 @@ class Serializable extends Plugin
         }
 
         $class->implements []= new FullyQualified(GlobalSerializable::class);
-        $methods['serialize'] = new ClassM
-    }
+    }*/
 }

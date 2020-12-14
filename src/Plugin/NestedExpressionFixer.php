@@ -4,6 +4,7 @@ namespace Phabel\Plugin;
 
 use Phabel\Context;
 use Phabel\Plugin;
+use Phabel\Target\Php74\ArrowClosureVariableFinder;
 use Phabel\Traverser;
 use PhpParser\Node;
 use PhpParser\Node\Expr;
@@ -21,6 +22,7 @@ use PhpParser\Node\Expr\PropertyFetch;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\StaticPropertyFetch;
 use PhpParser\Node\Expr\Ternary;
+use PhpParser\Node\Expr\Throw_;
 use PhpParser\Node\Scalar\LNumber;
 use PhpParser\Node\Stmt\Return_;
 
@@ -73,11 +75,21 @@ class NestedExpressionFixer extends Plugin
         foreach ($subNodes as $key => $types) {
             /** @var Expr $value */
             $value = &$expr->{$key};
-            if (!isset($types[\get_class($value)])) {
+            if (!isset($types[IssetExpressionFixer::getClass($value)])) {
+                if (!$value instanceof Expr) {
+                    continue;
+                }
                 $workVar = $this->extractWorkVar($value);
                 if (!isset($types[\get_class($workVar)])) {
                     continue;
                 }
+            } else { 
+                $workVar = &$value;
+            }
+            switch (get_class($workVar)) {
+                case Throw_::class:
+                    $workVar = self::callPoly('throwMe', $workVar->expr);
+                    continue 2;
             }
             switch ($class) {
                 case ArrayDimFetch::class:
@@ -108,7 +120,7 @@ class NestedExpressionFixer extends Plugin
                     $this->traverser->traverseAst($expr);
                     $valueCopy = $value;
                     $context->insertBefore($expr, new Assign($value = $context->getVariable(), $valueCopy));
-                    /*
+                    
                     return new ErrorSuppress(
                         new MethodCall(
                             self::callPoly(
@@ -124,9 +136,10 @@ class NestedExpressionFixer extends Plugin
                             ),
                             '__invoke'
                         )
-                    );*/
+                    );
             }
         }
+        return null;
     }
 
     /**
@@ -145,6 +158,24 @@ class NestedExpressionFixer extends Plugin
     public static function returnMe($data)
     {
         return $data;
+    }
+
+    /**
+     * Throws the exception provided.
+     *
+     * @param \Throwable $throwable
+     *
+     * @return void
+     *
+     * @template T
+     *
+     * @psalm-param T $data data
+     *
+     * @psalm-throws T
+     */
+    public static function throwMe(\Throwable $throwable)
+    {
+        throw $throwable;
     }
 
     /**

@@ -40,17 +40,17 @@ class GraphInternal
      */
     public function __construct()
     {
-        $this->unlinkedNodes = new SplObjectStorage;
+        $this->unlinkedNodes = new SplObjectStorage();
     }
+
     /**
      * Get new package context.
-     *
-     * @return PackageContext
      */
     public function getPackageContext(): PackageContext
     {
-        $packageContext = new PackageContext;
-        $this->packageContexts []= $packageContext;
+        $packageContext = new PackageContext();
+        $this->packageContexts[] = $packageContext;
+
         return $packageContext;
     }
 
@@ -69,6 +69,7 @@ class GraphInternal
     {
         return \array_map(fn (array $config): Node => $this->addPluginInternal($plugin, $config, $ctx), $plugin::splitConfig($config));
     }
+
     /**
      * Add plugin.
      *
@@ -77,8 +78,6 @@ class GraphInternal
      * @param PackageContext $ctx    Package context
      *
      * @psalm-param class-string<PluginInterface> $plugin Plugin name
-     *
-     * @return Node
      */
     private function addPluginInternal(string $plugin, array $config, PackageContext $ctx): Node
     {
@@ -88,21 +87,19 @@ class GraphInternal
         }
         $this->plugins[$plugin][$configStr] = $node = new Node($this, $ctx);
         $this->unlinkedNodes->attach($node);
+
         return $node->init($plugin, $config);
     }
 
     /**
      * Set unlinked node as linked.
-     *
-     * @param Node $node
-     *
-     * @return void
      */
     public function linkNode(Node $node): void
     {
-        $this->unlinkedNodes->detach($node);
+        if ($this->unlinkedNodes->contains($node)) {
+            $this->unlinkedNodes->detach($node);
+        }
     }
-
 
     /**
      * Flatten graph.
@@ -112,8 +109,8 @@ class GraphInternal
     public function flatten(): SplQueue
     {
         if (!$this->plugins) {
-            /** @var SplQueue<SplQueue<Plugin>> */
-            return new SplQueue;
+            /** @psalm-var SplQueue<SplQueue<Plugin>> */
+            return new SplQueue();
         }
         if ($this->unlinkedNodes->count()) {
             foreach ($this->unlinkedNodes as $node) {
@@ -123,8 +120,12 @@ class GraphInternal
                 /** @var Node */
                 $initNode = $node;
             }
+            var_dump('a');
+
             return $initNode->circular()->flatten();
         }
+        var_dump('a');
+
         return \array_values(\array_values($this->plugins)[0])[0]->circular()->flatten();
     }
 }

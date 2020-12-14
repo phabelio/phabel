@@ -3,6 +3,7 @@
 namespace Phabel\Plugin;
 
 use Phabel\Plugin;
+use Phabel\Tools;
 use PhpParser\Node;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\ArrayDimFetch;
@@ -71,8 +72,9 @@ class IssetExpressionFixer extends Plugin
             }
             $workVar = $this->extractWorkVar($var);
             $needsFixing = false;
+
             foreach ($subNodes as $key => $types) {
-                if (isset($types[\get_class($workVar->{$key})])) {
+                if (isset($types[self::getClass($workVar->{$key})])) {
                     $needsFixing = true;
                     break;
                 }

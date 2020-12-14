@@ -46,7 +46,7 @@ class Php extends Plugin
     private static function getRange(array $config): array
     {
         $target = $config['target'] ?? PHP_MAJOR_VERSION.PHP_MINOR_VERSION;
-        if (\preg_match(":^\D*(\d+\.\d+)\..*:", $config['target'], $matches)) {
+        if (\preg_match(":^\D*(\d+\.\d+)\..*:", $target, $matches)) {
             $target = $matches[1];
         }
         $key = \array_search(\str_replace('.', '', $target), self::VERSIONS);
@@ -70,7 +70,7 @@ class Php extends Plugin
                 if (\substr($file, -4) !== '.php') {
                     continue;
                 }
-                $class = \basename($version, '.php');
+                $class = \Phabel\Target\Php::class.$version.'\\'.\basename($file, '.php');
                 $classes[$class] = $config[$class] ?? [];
             }
         }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Phabel\Plugin;
+namespace Phabel\Target\Php74;
 
 use Phabel\Plugin;
 use PhpParser\Node\Expr\ClosureUse;

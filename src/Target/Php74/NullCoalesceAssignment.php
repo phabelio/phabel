@@ -18,7 +18,7 @@ class NullCoalesceAssignment extends Plugin
     {
         return new Assign($coalesce->var, new BinaryOpCoalesce($coalesce->var, $coalesce->expr), $coalesce->getAttributes());
     }
-    public static function runWithBefore(): array
+    public static function runWithBefore(array $config): array
     {
         return [NullCoalesceReplacer::class];
     }

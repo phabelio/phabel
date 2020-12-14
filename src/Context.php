@@ -111,9 +111,9 @@ class Context
             // Cover reference parameters
             foreach ($node->args as $argument) {
                 $argument = $argument->value;
-                do {
+                while ($argument instanceof ArrayDimFetch && $argument->var instanceof ArrayDimFetch) {
                     $argument = $argument->var;
-                } while ($argument instanceof ArrayDimFetch && $argument->var instanceof ArrayDimFetch);
+                }
                 if ($argument instanceof Variable && \is_string($argument->name)) {
                     $this->variables->top()->addVar($argument->name);
                 }
@@ -139,7 +139,7 @@ class Context
      */
     public function getVariable(): Variable
     {
-        return new Variable($this->parents->top()->getVar());
+        return new Variable($this->variables->top()->getVar());
     }
     /**
      * Get child currently being iterated on.

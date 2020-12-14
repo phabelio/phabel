@@ -3,8 +3,11 @@
 namespace Phabel;
 
 use PhpParser\Node;
+use PhpParser\Node\Name\FullyQualified;
+use PhpParser\Node\Scalar\String_;
 use PhpParser\Parser;
 use PhpParser\ParserFactory;
+use PhpParser\PrettyPrinter\Standard;
 use SplQueue;
 
 /**
@@ -116,6 +119,8 @@ class Traverser
         }
         $ast = new RootNode($this->parser->parse(\file_get_contents($file)) ?? []);
         $this->traverseAst($ast, $reducedQueue);
+        $printer = new Standard();
+        file_put_contents($file, $printer->prettyPrintFile($ast->stmts));
     }
     /**
      * Traverse AST.
@@ -130,7 +135,7 @@ class Traverser
         $context = new Context;
         $context->push($node);
         foreach ($pluginQueue ?? $this->packageQueue ?? $this->queue as $queue) {
-            $this->traverseNode($ast, $queue, $context);
+            $this->traverseNode($node, $queue, $context);
         }
         return $context;
     }
@@ -170,14 +175,16 @@ class Traverser
             if (\is_array($subNode)) {
                 for ($index = 0; $index < \count($subNode);) {
                     $node->setAttribute('currentNodeIndex', $index);
-                    $this->traverseNode($subNodeNode, $plugins, $context);
+                    if ($subNode[$index] instanceof Node) {
+                        $this->traverseNode($subNode[$index], $plugins, $context);
+                    }
                     $index = $node->getAttribute('currentNodeIndex');
                     do {
                         $index++;
                     } while (\in_array($index, $node->getAttribute('skipNodes', [])));
                 }
                 $node->setAttribute('skipNodes', []);
-            } else {
+            } elseif ($subNode instanceof Node) {
                 $this->traverseNode($subNode, $plugins, $context);
             }
         }

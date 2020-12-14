@@ -312,10 +312,11 @@ class Node
      *
      * @param PackageContext $ctx Package context
      *
-     * @return void
+     * @return self
      */
-    public function addPackages(PackageContext $ctx): void
+    public function addPackages(PackageContext $ctx): self
     {
         $this->packageContext->merge($ctx);
+        return $this;
     }
 }

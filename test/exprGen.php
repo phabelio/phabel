@@ -311,9 +311,11 @@ foreach ($result as $type => $results) {
             /**
              * Expression fixer for PHP $version
              *
+             * @param array $config
+             *
              * @return array
              */
-            public static function runAfter(): array
+            public static function runAfter(array $config): array
             {
                 return [
                     fixer::class => $config

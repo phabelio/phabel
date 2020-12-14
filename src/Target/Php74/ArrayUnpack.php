@@ -23,7 +23,7 @@ class ArrayUnpack extends Plugin
             }
         }
         if (!$hasUnpack) {
-            return;
+            return null;
         }
         $args = [];
         $array = new Array_();

@@ -64,7 +64,7 @@ class NullCoalesceReplacer extends Plugin
     {
         return isset($ifNotNull) ? $ifNotNull : $then();
     }
-    public static function runBefore(): array
+    public static function runBefore(array $config): array
     {
         return [ArrowClosure::class];
     }

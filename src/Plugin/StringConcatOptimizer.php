@@ -33,7 +33,7 @@ class StringConcatOptimizer extends Plugin
     public function enter(Concat $concat, Context $ctx): ?Node
     {
         if ($ctx->parents->top() instanceof Concat) {
-            return;
+            return null;
         }
         $concatQueue = new SplQueue;
         $this->enqueue($concat, $concatQueue);

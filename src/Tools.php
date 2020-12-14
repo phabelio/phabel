@@ -199,7 +199,7 @@ abstract class Tools
             $node->setAttribute('hasSideEffects', true);
             return true;
         }
-        foreach ($node->getAttributes() as $name) {
+        foreach ($node->getSubNodeNames() as $name) {
             if ($node->{$name} instanceof Expr) {
                 if (self::hasSideEffects($node->{$name})) {
                     $node->setAttribute('hasSideEffects', true);

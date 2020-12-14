@@ -300,7 +300,7 @@ class TypeHintStripper extends Plugin
      *
      * @return array
      */
-    public static function runWithAfter(): array
+    public static function runWithAfter(array $config): array
     {
         return [StringConcatOptimizer::class];
     }

@@ -1,7 +1,8 @@
 <?php
 
-namespace Phabel;
+namespace Phabel\Target\Php80;
 
+use Phabel\Plugin;
 use Phabel\Plugin\TypeHintStripper;
 
 /**
@@ -14,7 +15,7 @@ class UnionTypeStripper extends Plugin
      *
      * @return array
      */
-    public static function runWithAfter(): array
+    public static function runWithAfter(array $config): array
     {
         return [
             TypeHintStripper::class => [
