@@ -7,8 +7,6 @@ use Phabel\Plugin;
 use Phabel\Traverser;
 use PhpParser\Node\Expr\ArrowFunction;
 use PhpParser\Node\Expr\Closure;
-use PhpParser\Node\Expr\ClosureUse;
-use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Param;
 use PhpParser\Node\Stmt\Return_;
 
@@ -52,17 +50,12 @@ class ArrowClosure extends Plugin
             $params[$param->var->name] = true;
         }
         $this->traverser->traverseAst($func->expr);
-        $nodes['uses'] = \array_map(
-            fn (string $k) => new ClosureUse(new Variable($k), false),
-            \array_keys(
-                \array_intersect_key(
-                    \array_diff_key(
-                        $this->finderPlugin->getFound(),
-                        $params,
-                    ),
-                    $context->variables->top()->getVars()
-                )
-            )
+        $nodes['uses'] = \array_intersect_key(
+            \array_diff_key(
+                $this->finderPlugin->getFound(),
+                $params,
+            ),
+            $context->variables->top()->getVars()
         );
         return new Closure($nodes, $func->getAttributes());
     }

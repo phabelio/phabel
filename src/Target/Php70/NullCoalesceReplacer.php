@@ -2,14 +2,18 @@
 
 namespace Phabel\Target\Php70;
 
+use Phabel\Context;
 use Phabel\Plugin;
-use Phabel\Target\Php74\ArrowClosure;
 use Phabel\Tools;
 use PhpParser\Node;
 use PhpParser\Node\Expr;
-use PhpParser\Node\Expr\ArrowFunction;
+use PhpParser\Node\Expr\ArrayDimFetch;
+use PhpParser\Node\Expr\Assign;
+use PhpParser\Node\Expr\BinaryOp\BooleanAnd;
 use PhpParser\Node\Expr\BinaryOp\Coalesce;
+use PhpParser\Node\Expr\BinaryOp\NotIdentical;
 use PhpParser\Node\Expr\Isset_;
+use PhpParser\Node\Expr\PropertyFetch;
 use PhpParser\Node\Expr\Ternary;
 
 /**
@@ -19,53 +23,44 @@ use PhpParser\Node\Expr\Ternary;
 class NullCoalesceReplacer extends Plugin
 {
     /**
+     * Recursively extract bottom ArrayDimFetch.
+     *
+     * @param Node $var
+     * @return Node
+     */
+    private static function &extractWorkVar(Expr &$var): Expr
+    {
+        if ($var instanceof ArrayDimFetch) {
+            return self::extractWorkVar($var->var);
+        }
+        if ($var instanceof PropertyFetch) {
+            return self::extractWorkVar($var->var);
+        }
+        return $var;
+    }
+    /**
      * Replace null coalesce.
      *
      * @param Coalesce $node Coalesce
      *
-     * @return Expr
+     * @return Ternary
      */
-    public function enter(Coalesce $node): Expr
+    public function enter(Coalesce $node, Context $ctx): Ternary
     {
-        if (!Tools::hasSideEffects($node->left)) {
+        if (!Tools::hasSideEffects($workVar = self::extractWorkVar($node->left))) {
             return new Ternary(new Isset_([$node->left]), $node->left, $node->right);
         }
-        $method = 'coalesce';
-        if (Tools::hasSideEffects($node->right)) {
-            $method = 'coalesceSide';
-            $node->right = new ArrowFunction(['expr' => $node->right]);
-        }
-        if (!($node->left instanceof Node\Expr\ErrorSuppress)) {
-            $node->left = new Node\Expr\ErrorSuppress($node->left);
-        }
-        return self::callPoly($method, $node->left, $node->right);
-    }
-    /**
-     * Coalesce.
-     *
-     * @param null|mixed $ifNotNull If not null, return this
-     * @param mixed      $then      Else this
-     *
-     * @return mixed
-     */
-    public static function coalesce($ifNotNull, $then)
-    {
-        return isset($ifNotNull) ? $ifNotNull : $then;
-    }
-    /**
-     * Coalesce (with side effects on the right).
-     *
-     * @param null|mixed      $ifNotNull If not null, return this
-     * @param callable<mixed> $then      Else this
-     *
-     * @return mixed
-     */
-    public static function coalesceSide($ifNotNull, callable $then)
-    {
-        return isset($ifNotNull) ? $ifNotNull : $then();
-    }
-    public static function runBefore(array $config): array
-    {
-        return [ArrowClosure::class];
+        $valueCopy = $workVar;
+        return new Ternary(
+            new BooleanAnd(
+                new NotIdentical(
+                    Tools::toLiteral(null),
+                    new Assign($workVar = $ctx->getVariable(), $valueCopy)
+                ),
+                new Isset_([$node->left])
+            ),
+            $node->left,
+            $node->right
+        );
     }
 }
