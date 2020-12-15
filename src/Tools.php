@@ -29,6 +29,7 @@ use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Expr\Yield_;
 use PhpParser\Node\Expr\YieldFrom;
 use PhpParser\Node\Name;
+use PhpParser\Node\Name\FullyQualified;
 use PhpParser\Node\Stmt\Expression;
 use PhpParser\ParserFactory;
 use ReflectionClass;
@@ -115,8 +116,8 @@ abstract class Tools
     {
         $parameters = \array_map(fn ($data) => $data instanceof Arg ? $data : new Arg($data), $parameters);
         return \is_array($name)
-            ? new StaticCall(new Name($name[0]), $name[1], $parameters)
-            : new FuncCall(new Name($name), $parameters);
+            ? new StaticCall(new FullyQualified($name[0]), $name[1], $parameters)
+            : new FuncCall(new FullyQualified($name), $parameters);
     }
     /**
      * Call method of object.
