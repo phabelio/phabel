@@ -3,8 +3,6 @@
 namespace Phabel;
 
 use PhpParser\Node;
-use PhpParser\Node\Name\FullyQualified;
-use PhpParser\Node\Scalar\String_;
 use PhpParser\Parser;
 use PhpParser\ParserFactory;
 use PhpParser\PrettyPrinter\Standard;
@@ -118,11 +116,11 @@ class Traverser
         } elseif (!$reducedQueue->count()) {
             return;
         }
-        
+
         $ast = new RootNode($this->parser->parse(\file_get_contents($file)) ?? []);
         $this->traverseAstInternal($ast, $reducedQueue);
         $printer = new Standard();
-        file_put_contents($output, $printer->prettyPrintFile($ast->stmts));
+        \file_put_contents($output, $printer->prettyPrintFile($ast->stmts));
     }
     /**
      * Traverse AST.
@@ -140,16 +138,16 @@ class Traverser
     /**
      * Traverse AST.
      *
-     * @param Node     $node        Initial node
+     * @param RootNode &$node        Initial node
      * @param SplQueue $pluginQueue Plugin queue (optional)
      *
      * @return Context
      */
-    private function traverseAstInternal(Node &$node, SplQueue $pluginQueue = null): Context
+    private function traverseAstInternal(RootNode &$node, SplQueue $pluginQueue = null): Context
     {
-        $context = new Context;
-        $context->push($node);
         foreach ($pluginQueue ?? $this->packageQueue ?? $this->queue as $queue) {
+            $context = new Context;
+            $context->push($node);
             $this->traverseNode($node, $queue, $context);
         }
         return $context;

@@ -28,7 +28,7 @@ trait Constraint
      */
     public function setConfig($config): self
     {
-        $this->config = is_string($config) ? json_decode($config, true) : $config;
+        $this->config = \is_string($config) ? \json_decode($config, true) : $config;
 
         return $this;
     }

@@ -35,7 +35,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     {
         $rootPackage = $composer->getPackage();
         Repository::preparePackage($rootPackage, null);
-        var_dump($rootPackage->getRequires());
+        \var_dump($rootPackage->getRequires());
 
         $repoManager = $composer->getRepositoryManager();
         $repos = $repoManager->getRepositories();

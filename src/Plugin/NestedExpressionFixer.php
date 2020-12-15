@@ -86,7 +86,7 @@ class NestedExpressionFixer extends Plugin
             } else {
                 $workVar = &$value;
             }
-            switch (get_class($workVar)) {
+            switch (\get_class($workVar)) {
                 case Throw_::class:
                     $workVar = self::callPoly('throwMe', $workVar->expr);
                     continue 2;
@@ -120,7 +120,7 @@ class NestedExpressionFixer extends Plugin
                     $this->traverser->traverseAst($expr);
                     $valueCopy = $value;
                     $context->insertBefore($expr, new Assign($value = $context->getVariable(), $valueCopy));
-                    
+
                     return new ErrorSuppress(
                         new MethodCall(
                             self::callPoly(

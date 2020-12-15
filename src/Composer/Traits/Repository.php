@@ -10,7 +10,6 @@ use Composer\Repository\PlatformRepository;
 use Composer\Semver\Constraint\Constraint as ComposerConstraint;
 use Composer\Semver\Constraint\ConstraintInterface;
 use Composer\Semver\Constraint\MultiConstraint;
-use Phabel\Composer\PhabelConstraintInterface;
 use Phabel\Target\Php;
 use Phabel\Tools;
 

@@ -26,9 +26,8 @@ class TypedProperty extends Plugin
             return;
         }
 
-        
-        foreach ($typed as $property) {
 
+        foreach ($typed as $property) {
         }
     }
 }

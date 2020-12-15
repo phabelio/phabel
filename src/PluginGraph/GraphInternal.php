@@ -120,11 +120,11 @@ class GraphInternal
                 /** @var Node */
                 $initNode = $node;
             }
-            var_dump('a');
+            \var_dump('a');
 
             return $initNode->circular()->flatten();
         }
-        var_dump('a');
+        \var_dump('a');
 
         return \array_values(\array_values($this->plugins)[0])[0]->circular()->flatten();
     }

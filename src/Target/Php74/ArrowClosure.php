@@ -4,13 +4,13 @@ namespace Phabel\Target\Php74;
 
 use Phabel\Context;
 use Phabel\Plugin;
-use Phabel\RootNode;
 use Phabel\Traverser;
 use PhpParser\Node\Expr\ArrowFunction;
 use PhpParser\Node\Expr\Closure;
 use PhpParser\Node\Expr\ClosureUse;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Param;
+use PhpParser\Node\Stmt\Return_;
 
 /**
  * Turn an arrow function into a closure.
@@ -46,14 +46,14 @@ class ArrowClosure extends Plugin
         foreach ($func->getSubNodeNames() as $node) {
             $nodes[$node] = $func->{$node};
         }
-        $nodes['stmts'] = [$func->expr];
+        $nodes['stmts'] = [new Return_($func->expr)];
         $params = [];
         foreach ($nodes['params'] ?? [] as $param) {
             $params[$param->var->name] = true;
         }
         $this->traverser->traverseAst($func->expr);
-        $nodes['uses'] = array_map(
-            fn (string $k) => new ClosureUse(new Variable($k), true),
+        $nodes['uses'] = \array_map(
+            fn (string $k) => new ClosureUse(new Variable($k), false),
             \array_keys(
                 \array_intersect_key(
                     \array_diff_key(

@@ -35,7 +35,7 @@ class Php extends Plugin
             $target = $matches[1];
         }
         $target = \str_replace('.', '', $target);
-        return in_array($target, self::VERSIONS) ? $target : self::DEFAULT_TARGET;
+        return \in_array($target, self::VERSIONS) ? $target : self::DEFAULT_TARGET;
     }
     /**
      * Get PHP version range to target.

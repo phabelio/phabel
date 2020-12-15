@@ -3,7 +3,6 @@
 namespace Phabel\Plugin;
 
 use Phabel\Plugin;
-use Phabel\Tools;
 use PhpParser\Node;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\ArrayDimFetch;

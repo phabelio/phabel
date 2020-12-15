@@ -4,7 +4,6 @@ namespace Phabel\Target\Php74;
 
 use Phabel\Context;
 use Phabel\Plugin;
-use Phabel\Tools;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Name\FullyQualified;
 use PhpParser\Node\Stmt\Class_;

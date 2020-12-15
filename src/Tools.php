@@ -184,6 +184,7 @@ abstract class Tools
             || $node instanceof FuncCall
             || $node instanceof Include_
             || $node instanceof List_         // offsetGet/offsetSet
+            || $node instanceof MethodCall
             || $node instanceof New_
             || $node instanceof NullsafeMethodCall
             || $node instanceof NullsafePropertyFetch
@@ -218,19 +219,19 @@ abstract class Tools
     }
 
     /**
-     * Create a new object extended from this object, with the specified additional trait + interface
+     * Create a new object extended from this object, with the specified additional trait + interface.
      *
      * @param object $obj
      * @param string $trait
      * @param string $interface
-     * 
+     *
      * @return object
      */
     public static function cloneWithTrait(object $obj, string $trait, string $interface): object
     {
         $reflect = new ReflectionClass($obj);
 
-        
+
         $r = $reflect;
         while ($r && $r->isAnonymous()) {
             $r = $r->getParentClass();
@@ -259,7 +260,7 @@ abstract class Tools
                 }
             }
         } while ($reflect = $reflect->getParentClass());
-        
+
         return $newObj;
     }
 
