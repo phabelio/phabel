@@ -17,6 +17,9 @@ class ArrayUnpack extends Plugin
     {
         $hasUnpack = false;
         foreach ($array->items as $item) {
+            if (!$item) { // Empty item, only present in array expansions
+                return null;
+            }
             if ($item->unpack) {
                 $hasUnpack = true;
                 break;
@@ -28,7 +31,7 @@ class ArrayUnpack extends Plugin
         $args = [];
         $array = new Array_();
         foreach ($array->items as $item) {
-            if ($item->unpack) {
+            if ($item && $item->unpack) {
                 if ($array->items) {
                     $args []= new Arg($array);
                     $array = new Array_();

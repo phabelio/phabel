@@ -75,7 +75,7 @@ class NestedExpressionFixer extends Plugin
         foreach ($subNodes as $key => $types) {
             /** @var Expr $value */
             $value = &$expr->{$key};
-            if (!isset($types[IssetExpressionFixer::getClass($value)])) {
+            if (!isset($types[IssetExpressionFixer::getClass($value ?? '')])) {
                 if (!$value instanceof Expr) {
                     continue;
                 }
@@ -83,7 +83,7 @@ class NestedExpressionFixer extends Plugin
                 if (!isset($types[\get_class($workVar)])) {
                     continue;
                 }
-            } else { 
+            } else {
                 $workVar = &$value;
             }
             switch (get_class($workVar)) {

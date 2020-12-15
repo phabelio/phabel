@@ -31,7 +31,7 @@ class ReGenerator extends Plugin
         }
         $this->traverser->traverseAst($function);
     }
-    public static function runAfter(): array
+    public static function runAfter(array $config): array
     {
         return [ArrowClosure::class];
     }

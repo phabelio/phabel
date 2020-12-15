@@ -92,10 +92,11 @@ class Traverser
      * Traverse AST of file.
      *
      * @param string $file File
+     * @param string $output Output file
      *
      * @return void
      */
-    public function traverse(string $file): void
+    public function traverse(string $file, string $output): void
     {
         /** @var SplQueue<SplQueue<Plugin>> */
         $reducedQueue = new SplQueue;
@@ -117,10 +118,11 @@ class Traverser
         } elseif (!$reducedQueue->count()) {
             return;
         }
+        
         $ast = new RootNode($this->parser->parse(\file_get_contents($file)) ?? []);
-        $this->traverseAst($ast, $reducedQueue);
+        $this->traverseAstInternal($ast, $reducedQueue);
         $printer = new Standard();
-        file_put_contents($file, $printer->prettyPrintFile($ast->stmts));
+        file_put_contents($output, $printer->prettyPrintFile($ast->stmts));
     }
     /**
      * Traverse AST.
@@ -131,6 +133,19 @@ class Traverser
      * @return Context
      */
     public function traverseAst(Node &$node, SplQueue $pluginQueue = null): Context
+    {
+        $n = new RootNode([&$node]);
+        return $this->traverseAstInternal($n, $pluginQueue);
+    }
+    /**
+     * Traverse AST.
+     *
+     * @param Node     $node        Initial node
+     * @param SplQueue $pluginQueue Plugin queue (optional)
+     *
+     * @return Context
+     */
+    private function traverseAstInternal(Node &$node, SplQueue $pluginQueue = null): Context
     {
         $context = new Context;
         $context->push($node);

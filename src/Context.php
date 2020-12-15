@@ -128,8 +128,11 @@ class Context
     public function pop(): void
     {
         $popped = $this->parents->pop();
-        if ($popped instanceof RootNode || ($popped instanceof FunctionLike && !$popped instanceof ArrowFunction)) {
-            $this->variables->pop();
+        if ($popped instanceof RootNode || $popped instanceof FunctionLike) {
+            $poppedVars = $this->variables->pop();
+            if ($popped instanceof ArrowFunction) {
+                $this->variables->top()->addVars($poppedVars->getVars());
+            }
         }
     }
     /**

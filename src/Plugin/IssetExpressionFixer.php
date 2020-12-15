@@ -74,7 +74,7 @@ class IssetExpressionFixer extends Plugin
             $needsFixing = false;
 
             foreach ($subNodes as $key => $types) {
-                if (isset($types[self::getClass($workVar->{$key})])) {
+                if (isset($types[self::getClass($workVar->{$key} ?? '')])) {
                     $needsFixing = true;
                     break;
                 }

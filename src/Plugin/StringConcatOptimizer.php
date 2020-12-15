@@ -39,7 +39,8 @@ class StringConcatOptimizer extends Plugin
         $this->enqueue($concat, $concatQueue);
         $newQueue = new SplQueue;
         $prevNode = $concatQueue->dequeue();
-        while ($node = $concatQueue->dequeue()) {
+        while ($concatQueue->count()) {
+            $node = $concatQueue->dequeue();
             if ($node instanceof String_ && $prevNode instanceof String_) {
                 $prevNode = new String_($prevNode->value.$node->value);
             } else {
@@ -53,7 +54,7 @@ class StringConcatOptimizer extends Plugin
             return $newQueue->dequeue();
         }
         $concat = new Concat($newQueue->dequeue(), $newQueue->dequeue());
-        while ($node = $newQueue->dequeue()) {
+        while ($newQueue->count()) {
             $concat = new Concat($concat, $newQueue->dequeue());
         }
         return $concat;
