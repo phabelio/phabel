@@ -69,7 +69,7 @@ class IssetExpressionFixer extends Plugin
             if (!$subNodes) {
                 continue;
             }
-            $workVar = $this->extractWorkVar($var);
+            $workVar = &$this->extractWorkVar($var);
             $needsFixing = false;
 
             foreach ($subNodes as $key => $types) {

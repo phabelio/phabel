@@ -50,12 +50,14 @@ class ArrowClosure extends Plugin
             $params[$param->var->name] = true;
         }
         $this->traverser->traverseAst($func->expr);
-        $nodes['uses'] = \array_intersect_key(
-            \array_diff_key(
-                $this->finderPlugin->getFound(),
-                $params,
-            ),
-            $context->variables->top()->getVars()
+        $nodes['uses'] = array_values(
+            \array_intersect_key(
+                \array_diff_key(
+                    $this->finderPlugin->getFound(),
+                    $params,
+                ),
+                $context->variables->top()->getVars()
+            )
         );
         return new Closure($nodes, $func->getAttributes());
     }

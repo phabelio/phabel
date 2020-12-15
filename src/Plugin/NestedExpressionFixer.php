@@ -79,7 +79,7 @@ class NestedExpressionFixer extends Plugin
                 if (!$value instanceof Expr) {
                     continue;
                 }
-                $workVar = $this->extractWorkVar($value);
+                $workVar = &$this->extractWorkVar($value);
                 if (!isset($types[\get_class($workVar)])) {
                     continue;
                 }

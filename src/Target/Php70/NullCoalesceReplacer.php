@@ -47,16 +47,17 @@ class NullCoalesceReplacer extends Plugin
      */
     public function enter(Coalesce $node, Context $ctx): Ternary
     {
-        if (!Tools::hasSideEffects($workVar = self::extractWorkVar($node->left))) {
+        if (!Tools::hasSideEffects($workVar = &self::extractWorkVar($node->left))) {
             return new Ternary(new Isset_([$node->left]), $node->left, $node->right);
         }
         $valueCopy = $workVar;
+        $check = new NotIdentical(
+            Tools::toLiteral(null),
+            new Assign($workVar = $ctx->getVariable(), $valueCopy)
+        );
         return new Ternary(
-            new BooleanAnd(
-                new NotIdentical(
-                    Tools::toLiteral(null),
-                    new Assign($workVar = $ctx->getVariable(), $valueCopy)
-                ),
+            $node->left === $workVar ? $check : new BooleanAnd(
+                $check,
                 new Isset_([$node->left])
             ),
             $node->left,
