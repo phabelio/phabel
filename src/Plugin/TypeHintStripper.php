@@ -259,7 +259,7 @@ class TypeHintStripper extends Plugin
         $start = new Concat($start, new String_(", "));
         $start = new Concat($start, $noOop ? self::call('gettype', $var) : self::callPoly('gettype', $var));
         $start = new Concat($start, new String_(" returned in "));
-        $start = new Concat($start, self::callPoly('trace', 0));
+        $start = new Concat($start, self::callPoly('trace', new LNumber(0)));
 
         $if = new If_($condition, [new Throw_(new New_(new FullyQualified(\TypeError::class), [new Arg($start)]))]);
 

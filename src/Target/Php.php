@@ -28,7 +28,7 @@ class Php extends Plugin
     /**
      * Default target.
      */
-    private const DEFAULT_TARGET = '70';
+    private const DEFAULT_TARGET = '56';
     public static function normalizeVersion(string $target): string
     {
         if (\preg_match(":^\D*(\d+\.\d+)\..*:", $target, $matches)) {
