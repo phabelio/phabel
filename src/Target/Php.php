@@ -45,14 +45,14 @@ class Php extends Plugin
      */
     private static function getRange(array $config): array
     {
-        $target = $config['target'] ?? PHP_MAJOR_VERSION.PHP_MINOR_VERSION;
+        $target = $config['target'] ?? self::DEFAULT_TARGET;
         if (\preg_match(":^\D*(\d+\.\d+)\..*:", $target, $matches)) {
             $target = $matches[1];
         }
         $key = \array_search(\str_replace('.', '', $target), self::VERSIONS);
         return \array_slice(
             self::VERSIONS,
-            $key === false ? self::DEFAULT_TARGET : $key
+            1 + ($key === false ? self::DEFAULT_TARGET : $key)
         );
     }
     public static function composerRequires(array $config): array
@@ -66,7 +66,10 @@ class Php extends Plugin
     {
         $classes = [];
         foreach (self::getRange($config) as $version) {
-            foreach (\scandir(__DIR__."/Php$version") as $file) {
+            if (!file_exists($dir = __DIR__."/Php$version")) {
+                continue;
+            }
+            foreach (\scandir($dir) as $file) {
                 if (\substr($file, -4) !== '.php') {
                     continue;
                 }

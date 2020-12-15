@@ -7,6 +7,7 @@ use PhpParser\BuilderHelpers;
 use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\List_;
+use PhpParser\Node\Scalar\LNumber;
 use PhpParser\Node\Stmt\Foreach_;
 
 /**
@@ -69,7 +70,7 @@ class ListKey extends Plugin
         $key = 0; // Technically a list assignment does not support mixed keys, but we need this for nested assignments
         foreach ($list->items as $item) {
             if ($item) {
-                $curKey = $item->key ?? $key++;
+                $curKey = $item->key ?? new LNumber($key++);
                 $item->key = null;
                 if ($item->value instanceof List_) {
                     [$item->value, $keys[$curKey]] = self::splitList($list);
@@ -126,7 +127,7 @@ class ListKey extends Plugin
     /**
      * {@inheritDoc}
      */
-    public static function runAfter(): array
+    public static function runAfter(array $config): array
     {
         return [ArrayList::class];
     }

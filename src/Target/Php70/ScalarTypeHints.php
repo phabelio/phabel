@@ -16,7 +16,7 @@ class ScalarTypeHints extends Plugin
      *
      * @return array
      */
-    public static function runAfter(): array
+    public static function runAfter(array $config): array
     {
         return [
             TypeHintStripper::class => [

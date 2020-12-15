@@ -78,7 +78,7 @@ class ThrowableReplacer extends Plugin
      *
      * @return array
      */
-    public static function runWithBefore(): array
+    public static function runWithBefore(array $config): array
     {
         return [
             TypeHintStripper::class => [

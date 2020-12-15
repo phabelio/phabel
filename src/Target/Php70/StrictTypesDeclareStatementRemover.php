@@ -2,8 +2,10 @@
 
 namespace Phabel\Target\Php70;
 
+use Phabel\Plugin;
 use PhpParser\Node\Stmt\Declare_;
 use PhpParser\Node\Stmt\DeclareDeclare;
+use PhpParser\Node\Stmt\Nop;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitorAbstract;
 
@@ -11,17 +13,13 @@ use PhpParser\NodeVisitorAbstract;
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT
  */
-class StrictTypesDeclareStatementRemover extends NodeVisitorAbstract
+class StrictTypesDeclareStatementRemover extends Plugin
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function leave(Declare_ $node): ?int
+    public function leave(Declare_ $node): ?Nop
     {
         $node->declares = \array_filter($node->declares, fn (DeclareDeclare $declare) => $declare->key->name !== 'strict_types');
-
         if (empty($node->declares)) {
-            return NodeTraverser::REMOVE_NODE;
+            return new Nop();
         }
         return null;
     }

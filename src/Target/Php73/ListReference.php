@@ -4,6 +4,7 @@ namespace Phabel\Target\Php73;
 
 use Phabel\Context;
 use Phabel\Plugin;
+use Phabel\Tools;
 use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Expr\ArrayDimFetch;
 use PhpParser\Node\Expr\ArrayItem;
@@ -11,6 +12,7 @@ use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\AssignRef;
 use PhpParser\Node\Expr\List_;
 use PhpParser\Node\Expr\Variable;
+use PhpParser\Node\Scalar\LNumber;
 use PhpParser\Node\Stmt\Foreach_;
 
 /**
@@ -40,9 +42,9 @@ class ListReference extends Plugin
      *
      * @param Assign $node List assignment
      *
-     * @return void
+     * @return mixed
      */
-    public function enterAssign(Assign $node, Context $ctx): void
+    public function enterAssign(Assign $node, Context $ctx)
     {
         if (!($node->var instanceof List_ || $node->var instanceof Array_) || !$this->shouldSplit($node->var)) {
             return;
@@ -77,7 +79,7 @@ class ListReference extends Plugin
             if (!$item) {
                 continue;
             }
-            $curKey = $item->key ?? $key++;
+            $curKey = $item->key ?? new LNumber($key++);
             if ($item->byRef) {
                 $assignments []= new AssignRef($item->value, new ArrayDimFetch($var, $curKey));
             } else {

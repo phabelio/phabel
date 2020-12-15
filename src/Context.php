@@ -281,7 +281,7 @@ class Context
             );
             $node = $result;
         }
-        $this->insertBefore($parent, $insert);
+        $this->insertBefore($parent, ...(is_array($insert) ? $insert : [$insert]));
     }
     /**
      * Insert nodes after node.

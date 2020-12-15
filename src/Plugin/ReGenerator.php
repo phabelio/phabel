@@ -3,6 +3,7 @@
 namespace Phabel\Plugin;
 
 use Phabel\Plugin;
+use Phabel\Target\Php74\ArrowClosure;
 use Phabel\Traverser;
 use PhpParser\Builder\FunctionLike;
 

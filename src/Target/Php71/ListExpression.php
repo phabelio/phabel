@@ -8,6 +8,7 @@ use Phabel\Target\Php73\ListReference;
 use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\List_;
+use PhpParser\Node\Expr\Variable;
 
 /**
  * Polyfills list expression return value.
@@ -19,13 +20,13 @@ class ListExpression extends Plugin
      *
      * @param Assign $node List assignment
      *
-     * @return void
+     * @return ?Variable
      */
-    public function enterAssign(Assign $node, Context $ctx): void
+    public function enterAssign(Assign $node, Context $ctx): ?Variable
     {
         $isStmt = $ctx->parents[0]->getAttribute('currentNode') === 'stmts';
         if (!($node->var instanceof List_ || $node->var instanceof Array_) || $isStmt) {
-            return;
+            return null;
         }
         $list = $node->var;
         $var = $ctx->getVariable();

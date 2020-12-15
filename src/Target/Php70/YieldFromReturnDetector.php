@@ -5,6 +5,7 @@ namespace Phabel\Target\Php70;
 use Phabel\Context;
 use Phabel\Plugin;
 use Phabel\Plugin\ReGenerator;
+use Phabel\Target\Php74\ArrowClosure;
 use PhpParser\Node\Expr\Yield_;
 use PhpParser\Node\Expr\YieldFrom;
 use PhpParser\Node\FunctionLike;
@@ -52,11 +53,11 @@ class YieldFromReturnDetector extends Plugin
             }
         }
     }
-    public static function runBefore(): array
+    public static function runBefore(array $config): array
     {
         return [ReGenerator::class];
     }
-    public static function runAfter(): array
+    public static function runAfter(array $config): array
     {
         return [ArrowClosure::class];
     }
