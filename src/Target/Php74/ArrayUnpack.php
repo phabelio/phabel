@@ -2,10 +2,14 @@
 
 namespace Phabel\Target\Php74;
 
+use Phabel\Context;
 use Phabel\Plugin;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr\Array_;
+use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\FuncCall;
+use PhpParser\Node\Expr\List_;
+use PhpParser\Node\Stmt\Foreach_;
 
 /**
  * @author Daniil Gentili <daniil@daniil.it>
@@ -13,13 +17,26 @@ use PhpParser\Node\Expr\FuncCall;
  */
 class ArrayUnpack extends Plugin
 {
-    public function enter(Array_ $array): ?FuncCall
+    public function enter(Array_ $array, Context $context): ?FuncCall
     {
-        $hasUnpack = false;
-        foreach ($array->items as $item) {
-            if (!$item) { // Empty item, only present in array expansions
+        foreach ($context->parents as $parent) {
+            if ($parent instanceof Array_) {
+                continue;
+            }
+            if ($parent instanceof List_) {
                 return null;
             }
+            $key = $parent->getAttribute('currentNode');
+            if ($parent instanceof Assign && $key === 'var') {
+                return null;
+            }
+            if ($parent instanceof Foreach_ && $key === 'valueVar') {
+                return null;
+            }
+            break;
+        }
+        $hasUnpack = false;
+        foreach ($array->items as $item) {
             if ($item->unpack) {
                 $hasUnpack = true;
                 break;
@@ -29,20 +46,20 @@ class ArrayUnpack extends Plugin
             return null;
         }
         $args = [];
-        $array = new Array_();
+        $current = new Array_();
         foreach ($array->items as $item) {
-            if ($item && $item->unpack) {
-                if ($array->items) {
-                    $args []= new Arg($array);
-                    $array = new Array_();
+            if ($item->unpack) {
+                if ($current->items) {
+                    $args []= new Arg($current);
+                    $current = new Array_();
                 }
                 $args []= new Arg($item->value);
             } else {
-                $array->items []= $item;
+                $current->items []= $item;
             }
         }
-        if ($array->items) {
-            $args []= new Arg($array);
+        if ($current->items) {
+            $args []= new Arg($current);
         }
         return Plugin::call("array_merge", ...$args);
     }
