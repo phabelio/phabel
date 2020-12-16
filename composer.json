@@ -22,6 +22,11 @@
             "Phabel\\": "src"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "PhabelTest\\": "test/"
+        }
+    },
     "extra": {
         "class": "Phabel\\Composer\\Plugin"
     },
@@ -32,6 +37,6 @@
         ],
         "cs": "php-cs-fixer fix -v --diff --dry-run",
         "cs-fix": "php-cs-fixer fix -v --diff",
-        "test": "@php -dzend.assertions=1 -dassert.exception=1 ./vendor/bin/phpunit --coverage-text"
+        "test": "@php -dzend.assertions=1 -dassert.exception=1 ./vendor/bin/phpunit --coverage-text --config test/phpunit.xml"
     }
 }
