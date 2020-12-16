@@ -20,7 +20,7 @@ class ScalarTypeHints extends Plugin
     {
         return [
             TypeHintStripper::class => [
-                'types' => ['int', 'integer', 'float', 'string', 'bool', 'boolean']
+                'types' => ['int', 'float', 'string', 'bool']
             ]
         ];
     }

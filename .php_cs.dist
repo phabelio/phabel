@@ -3,7 +3,8 @@
 $config = new Amp\CodeStyle\Config();
 $config->getFinder()
     ->in(__DIR__ . '/src')
-    ->in(__DIR__ . '/test');
+    ->in(__DIR__ . '/test')
+    ->notPath(__DIR__ . '/test/Target/Php70/GroupUseReplacer.php');
 
 $cacheDir = getenv('TRAVIS') ? getenv('HOME') . '/.php-cs-fixer' : __DIR__;
 
