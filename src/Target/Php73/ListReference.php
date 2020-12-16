@@ -4,7 +4,6 @@ namespace Phabel\Target\Php73;
 
 use Phabel\Context;
 use Phabel\Plugin;
-use Phabel\Tools;
 use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Expr\ArrayDimFetch;
 use PhpParser\Node\Expr\ArrayItem;

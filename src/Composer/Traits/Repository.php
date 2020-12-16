@@ -14,7 +14,6 @@ use Composer\Semver\Constraint\MultiConstraint;
 use Phabel\Target\Php;
 use Phabel\Tools;
 
-
 const SEPARATOR = ' ';
 const HEADER = 'phabel ';
 
@@ -36,7 +35,7 @@ trait Repository
         return parent::isVersionAcceptable($constraint, $name, $versionData, $acceptableStabilities, $stabilityFlags);
     }
     /**
-     * Load packages
+     * Load packages.
      *
      * @param array $packageNameMap
      * @param array $acceptableStabilities
@@ -97,7 +96,7 @@ trait Repository
     }
 
     /**
-     * Merge configs
+     * Merge configs.
      *
      * @param array|null $prev Config trickled from above
      * @param array|null $new  Current config
@@ -111,7 +110,7 @@ trait Repository
         return $prev;
     }
     /**
-     * Add phabel config to all requires
+     * Add phabel config to all requires.
      *
      * @param PackageInterface $package
      * @param string $config
@@ -152,8 +151,8 @@ trait Repository
     {
         if ($constraint instanceof ComposerConstraint) {
             $version = $constraint->getVersion();
-            if (str_starts_with($version, HEADER)) {
-                [$version] = \explode(SEPARATOR, \substr($version, strlen(HEADER)), 2);
+            if (\str_starts_with($version, HEADER)) {
+                [$version] = \explode(SEPARATOR, \substr($version, \strlen(HEADER)), 2);
             }
             $version = HEADER.$version.SEPARATOR.$config;
             return new ComposerConstraint($constraint->getOperator(), $version);
@@ -163,7 +162,7 @@ trait Repository
                 $cur = self::injectConfig($cur, $config);
             }
             return new MultiConstraint($constraints, $constraint->isConjunctive());
-        } else if ($constraint instanceof MatchAllConstraint) {
+        } elseif ($constraint instanceof MatchAllConstraint) {
             $version = HEADER."*".SEPARATOR.$config;
             return new ComposerConstraint('=', $version);
         }
@@ -183,9 +182,9 @@ trait Repository
         $config = null;
         if ($constraint instanceof ComposerConstraint) {
             $version = $constraint->getVersion();
-            if (str_starts_with($version, HEADER)) {
-                var_dump($version);
-                [$version, $config] = \explode(SEPARATOR, \substr($version, strlen(HEADER)), 2);
+            if (\str_starts_with($version, HEADER)) {
+                \var_dump($version);
+                [$version, $config] = \explode(SEPARATOR, \substr($version, \strlen(HEADER)), 2);
                 //var_export($version);
                 //var_export($config);
                 //var_dump("========");
@@ -193,8 +192,8 @@ trait Repository
                 if ($config === false) {
                     $config = null;
                 }
-                $constraint = $version === '*' 
-                    ? new MatchAllConstraint 
+                $constraint = $version === '*'
+                    ? new MatchAllConstraint
                     : new ComposerConstraint($constraint->getOperator(), $version);
             }
         } elseif ($constraint instanceof MultiConstraint) {

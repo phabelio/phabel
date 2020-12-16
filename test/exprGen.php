@@ -131,7 +131,7 @@ foreach ($expressions as $expr) {
     foreach ($types as &$type) {
         $type = \explode("|", $type);
         foreach ($type as $key => &$subtype) {
-            if (str_starts_with($subtype, 'Node')) {
+            if (\str_starts_with($subtype, 'Node')) {
                 $subtype = 'PhpParser\\'.$subtype;
             } elseif ($subtype === 'Error') {
                 unset($type[$key]);
@@ -311,11 +311,11 @@ foreach ($result as $type => $results) {
             /**
              * Expression fixer for PHP $version
              *
-             * @param array $config
+             * @param array \$config
              *
              * @return array
              */
-            public static function runAfter(array $config): array
+            public static function runAfter(array \$config): array
             {
                 return [
                     fixer::class => $config

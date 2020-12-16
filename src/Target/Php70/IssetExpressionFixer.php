@@ -10,6 +10,8 @@ class IssetExpressionFixer extends Plugin
     /**
      * Expression fixer for PHP 70.
      *
+     * @param array $config
+     *
      * @return array
      */
     public static function runAfter(array $config): array

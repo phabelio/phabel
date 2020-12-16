@@ -6,8 +6,6 @@ use Phabel\Plugin;
 use PhpParser\Node\Stmt\Declare_;
 use PhpParser\Node\Stmt\DeclareDeclare;
 use PhpParser\Node\Stmt\Nop;
-use PhpParser\NodeTraverser;
-use PhpParser\NodeVisitorAbstract;
 
 /**
  * @author Daniil Gentili <daniil@daniil.it>

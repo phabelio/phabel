@@ -10,6 +10,8 @@ class NestedExpressionFixer extends Plugin
     /**
      * Expression fixer for PHP 73.
      *
+     * @param array $config
+     *
      * @return array
      */
     public static function runAfter(array $config): array

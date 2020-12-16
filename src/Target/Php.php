@@ -66,7 +66,7 @@ class Php extends Plugin
     {
         $classes = [];
         foreach (self::getRange($config) as $version) {
-            if (!file_exists($dir = __DIR__."/Php$version")) {
+            if (!\file_exists($dir = __DIR__."/Php$version")) {
                 continue;
             }
             foreach (\scandir($dir) as $file) {
