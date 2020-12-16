@@ -15,6 +15,15 @@ use PhpParser\Node\Expr\Variable;
  */
 class ListExpression extends TestCase
 {
+    public function test()
+    {
+        $arr = ['a', ['b' => 'bb', 'c' => ['d', 'e']]];
+        $this->assertEquals($arr, [$a, ['b' => $b, 'c' => [$d, $e]]] = $arr);
+        $this->assertEquals('a', $a);
+        $this->assertEquals('bb', $b);
+        $this->assertEquals('d', $d);
+        $this->assertEquals('e', $e);
+    }
     /**
      * Parse list assignment.
      *

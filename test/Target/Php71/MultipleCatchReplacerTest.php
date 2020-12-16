@@ -28,9 +28,9 @@ class MultipleCatchReplacer extends TestCase
     public function exceptionProvider(): array
     {
         return [
-            new \Exception,
-            new \Error,
-            new \RuntimeException,
+            [new \Exception],
+            [new \Error],
+            [new \RuntimeException],
         ];
     }
 }

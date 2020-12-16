@@ -36,21 +36,25 @@ class NullCoalesceReplacer extends TestCase
         $arr = ['a' => ['b' => new class {
             public function __construct()
             {
-                $this->c = new class extends \ArrayAccess {
+                $this->c = new class implements \ArrayAccess {
                     public function __construct()
                     {
                         $this->d = ['e' => true, 'e2' => false];
                     }
-                    public function offsetExists($offset): bool {
+                    public function offsetExists($offset): bool
+                    {
                         return false;
                     }
-                    public function offsetGet($offset) {
+                    public function offsetGet($offset)
+                    {
                         return 'uwu';
                     }
-                    public function offsetSet($offset, $val) {
-
+                    public function offsetSet($offset, $val)
+                    {
                     }
-                    public function offsetUnset($offset) {}
+                    public function offsetUnset($offset)
+                    {
+                    }
                 };
             }
         }]];

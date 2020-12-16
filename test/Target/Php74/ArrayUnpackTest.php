@@ -19,8 +19,8 @@ class ArrayUnpack extends TestCase
 {
     public function test()
     {
-        $b = ['b' => 'bb'];
-        $this->assertEquals(['a' => 'aa', 'b' => 'bb', 'c' => 'cc'], ['a' => 'aa', ...$b, 'c' => 'cc']);
-        $this->assertEquals(['a' => 'aa', 'b' => 'bb', 'c' => 'cc'], ['a' => 'aa', ...(fn () => $b)(), 'c' => 'cc']);
+        $b = ['bb'];
+        $this->assertEquals(['a' => 'aa', 'bb', 'c' => 'cc'], ['a' => 'aa', ...$b, 'c' => 'cc']);
+        $this->assertEquals(['a' => 'aa', 'bb', 'c' => 'cc'], ['a' => 'aa', ...(fn () => $b)(), 'c' => 'cc']);
     }
 }
