@@ -9,9 +9,14 @@ use Composer\Package\PackageInterface;
 use Composer\Repository\PlatformRepository;
 use Composer\Semver\Constraint\Constraint as ComposerConstraint;
 use Composer\Semver\Constraint\ConstraintInterface;
+use Composer\Semver\Constraint\MatchAllConstraint;
 use Composer\Semver\Constraint\MultiConstraint;
 use Phabel\Target\Php;
 use Phabel\Tools;
+
+
+const SEPARATOR = ' ';
+const HEADER = 'phabel ';
 
 /**
  * @author Daniil Gentili <daniil@daniil.it>
@@ -30,6 +35,15 @@ trait Repository
         self::extractConfig($constraint);
         return parent::isVersionAcceptable($constraint, $name, $versionData, $acceptableStabilities, $stabilityFlags);
     }
+    /**
+     * Load packages
+     *
+     * @param array $packageNameMap
+     * @param array $acceptableStabilities
+     * @param array $stabilityFlags
+     * @param array $alreadyLoaded
+     * @return void
+     */
     public function loadPackages(array $packageNameMap, array $acceptableStabilities, array $stabilityFlags, array $alreadyLoaded = [])
     {
         $configs = [];
@@ -42,14 +56,6 @@ trait Repository
             self::preparePackage($package, $configs[$package->getName()] ?? null);
         }
         return $packages;
-    }
-
-    private static function trickleMergeConfig(?array $prev, ?array $new): ?array
-    {
-        if ($prev === null || empty($prev)) {
-            return $new;
-        }
-        return $prev;
     }
     /**
      * Prepare package.
@@ -78,6 +84,9 @@ trait Repository
                 }
             }
         }
+        if (!$havePhabel) {
+            $myConfig = [];
+        }
         if (!$havePhabel && $config === null) {
             \var_dump("Skipping ".$package->getName());
             return;
@@ -87,6 +96,27 @@ trait Repository
         self::processRequires($package, \json_encode($config));
     }
 
+    /**
+     * Merge configs
+     *
+     * @param array|null $prev Config trickled from above
+     * @param array|null $new  Current config
+     * @return array|null
+     */
+    private static function trickleMergeConfig(?array $prev, ?array $new): ?array
+    {
+        if ($prev === null || empty($prev)) {
+            return $new;
+        }
+        return $prev;
+    }
+    /**
+     * Add phabel config to all requires
+     *
+     * @param PackageInterface $package
+     * @param string $config
+     * @return void
+     */
     private static function processRequires(PackageInterface $package, string $config)
     {
         $links = [];
@@ -122,7 +152,10 @@ trait Repository
     {
         if ($constraint instanceof ComposerConstraint) {
             $version = $constraint->getVersion();
-            $version = "phabel$version\0$config";
+            if (str_starts_with($version, HEADER)) {
+                [$version] = \explode(SEPARATOR, \substr($version, strlen(HEADER)), 2);
+            }
+            $version = HEADER.$version.SEPARATOR.$config;
             return new ComposerConstraint($constraint->getOperator(), $version);
         } elseif ($constraint instanceof MultiConstraint) {
             $constraints = $constraint->getConstraints();
@@ -130,6 +163,9 @@ trait Repository
                 $cur = self::injectConfig($cur, $config);
             }
             return new MultiConstraint($constraints, $constraint->isConjunctive());
+        } else if ($constraint instanceof MatchAllConstraint) {
+            $version = HEADER."*".SEPARATOR.$config;
+            return new ComposerConstraint('=', $version);
         }
         return $constraint;
     }
@@ -143,19 +179,26 @@ trait Repository
      */
     public static function extractConfig(ConstraintInterface &$constraint): ?array
     {
+        //var_dump($constraint);
         $config = null;
         if ($constraint instanceof ComposerConstraint) {
             $version = $constraint->getVersion();
-            if (str_starts_with($version, 'phabel')) {
-                [$version, $config] = \explode("\0", \substr($version, 6));
+            if (str_starts_with($version, HEADER)) {
+                var_dump($version);
+                [$version, $config] = \explode(SEPARATOR, \substr($version, strlen(HEADER)), 2);
+                //var_export($version);
+                //var_export($config);
+                //var_dump("========");
                 $config = \json_decode($config, true);
                 if ($config === false) {
                     $config = null;
                 }
-                $constraint = new ComposerConstraint($constraint->getOperator(), $version);
+                $constraint = $version === '*' 
+                    ? new MatchAllConstraint 
+                    : new ComposerConstraint($constraint->getOperator(), $version);
             }
         } elseif ($constraint instanceof MultiConstraint) {
-            $constraints = $constraint->getConstraints() ;
+            $constraints = $constraint->getConstraints();
             foreach ($constraints as &$cur) {
                 $config = self::trickleMergeConfig($config, self::extractConfig($cur));
             }
@@ -164,6 +207,8 @@ trait Repository
 
         return $config;
     }
+
+
     /**
      * Searches for the first match of a package by name and version.
      *
