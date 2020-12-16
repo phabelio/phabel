@@ -2,19 +2,21 @@
 
 namespace PhabelTest\Target\Php70;
 
+use PhpParser\Node\Stmt\GroupUse;
+use PhpParser\Node\Stmt\Use_;
+use PhpParser\Node\Stmt\UseUse as uwu;
 use PHPUnit\Framework\TestCase;
-use PhpParser\Node\Stmt\{GroupUse, Use_, UseUse as uwu};
 
 /**
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT
  */
-class GroupUseReplacer extends TestCase
+class GroupUseReplacerTest extends TestCase
 {
     public function test()
     {
-        $this->assertTrue(class_exists(uwu::class));
-        $this->assertTrue(class_exists(GroupUse::class));
-        $this->assertTrue(class_exists(Use_::class));
+        $this->assertTrue(\class_exists(uwu::class));
+        $this->assertTrue(\class_exists(GroupUse::class));
+        $this->assertTrue(\class_exists(Use_::class));
     }
 }

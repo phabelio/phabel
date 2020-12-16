@@ -2,18 +2,13 @@
 
 namespace PhabelTest\Target\Php74;
 
-use Phabel\Context;
-use PHPUnit\Framework\TestCase;
-use Phabel\Traverser;
-use PhpParser\Node\Expr\ArrowFunction;
 use PhpParser\Node\Expr\Closure;
-use PhpParser\Node\Param;
-use PhpParser\Node\Stmt\Return_;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Turn an arrow function into a closure.
  */
-class ArrowClosure extends TestCase
+class ArrowClosureTest extends TestCase
 {
     public function test()
     {

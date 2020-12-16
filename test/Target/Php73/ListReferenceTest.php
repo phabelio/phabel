@@ -2,22 +2,12 @@
 
 namespace PhabelTest\Target\Php73;
 
-use Phabel\Context;
 use PHPUnit\Framework\TestCase;
-use PhpParser\Node\Expr\Array_;
-use PhpParser\Node\Expr\ArrayDimFetch;
-use PhpParser\Node\Expr\ArrayItem;
-use PhpParser\Node\Expr\Assign;
-use PhpParser\Node\Expr\AssignRef;
-use PhpParser\Node\Expr\List_;
-use PhpParser\Node\Expr\Variable;
-use PhpParser\Node\Scalar\LNumber;
-use PhpParser\Node\Stmt\Foreach_;
 
 /**
  * Polyfills list assignment by reference.
  */
-class ListReference extends TestCase
+class ListReferenceTest extends TestCase
 {
     public function test()
     {

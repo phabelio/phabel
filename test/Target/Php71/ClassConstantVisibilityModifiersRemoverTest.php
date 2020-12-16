@@ -3,12 +3,11 @@
 namespace PhabelTest\Target\Php71;
 
 use PHPUnit\Framework\TestCase;
-use PhpParser\Node\Stmt\ClassConst;
 
 /**
  * Removes the class constant visibility modifiers (PHP 7.1).
  */
-class ClassConstantVisibilityModifiersRemover extends TestCase
+class ClassConstantVisibilityModifiersRemoverTest extends TestCase
 {
     private const A = 'owo';
     protected const B = 'uwu';
@@ -19,7 +18,7 @@ class ClassConstantVisibilityModifiersRemover extends TestCase
         $this->assertEquals(self::B, 'uwu');
         $this->assertEquals(self::C, 'pony');
 
-        $class = new class extends ClassConstantVisibilityModifiersRemover {
+        $class = new class extends ClassConstantVisibilityModifiersRemoverTest {
             private const AA = 'owo1';
             protected const BB = 'uwu1';
             public const CC = 'pony1';

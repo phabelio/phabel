@@ -3,15 +3,11 @@
 namespace PhabelTest\Target\Php71;
 
 use PHPUnit\Framework\TestCase;
-use PhpParser\Node\Expr\Array_;
-use PhpParser\Node\Expr\Assign;
-use PhpParser\Node\Expr\List_;
-use PhpParser\Node\Stmt\Foreach_;
 
 /**
  * Replaces [] array list syntax.
  */
-class ArrayList extends TestCase
+class ArrayListTest extends TestCase
 {
     public function testForeach()
     {

@@ -2,23 +2,16 @@
 
 namespace PhabelTest\Target\Php70;
 
-use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\TestCase\TypeHintStripper;
-use Phabel\Target\Php71\MultipleCatchReplacer;
-use PhpParser\Node;
-use PhpParser\Node\Expr\BinaryOp\BooleanOr;
-use PhpParser\Node\Expr\Instanceof_;
-use PhpParser\Node\Name\FullyQualified;
 use PhpParser\Node\Param;
-use PhpParser\Node\Stmt\TryCatch;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Replace \Throwable usages.
  */
-class ThrowableReplacer extends TestCase
+class ThrowableReplacerTest extends TestCase
 {
     /**
-     * Throwable test
+     * Throwable test.
      *
      * @param \Throwable $input Exception
      *

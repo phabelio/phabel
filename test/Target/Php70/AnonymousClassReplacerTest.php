@@ -8,10 +8,10 @@ use PHPUnit\Framework\TestCase;
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT
  */
-class AnonymousClassReplacer extends TestCase
+class AnonymousClassReplacerTest extends TestCase
 {
     /**
-     * Test anonymous classes
+     * Test anonymous classes.
      */
     public function test()
     {

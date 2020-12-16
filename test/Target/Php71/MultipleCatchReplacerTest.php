@@ -3,15 +3,14 @@
 namespace PhabelTest\Target\Php71;
 
 use PHPUnit\Framework\TestCase;
-use PhpParser\Node\Stmt\TryCatch;
 
 /**
  * Replace compound catches.
  */
-class MultipleCatchReplacer extends TestCase
+class MultipleCatchReplacerTest extends TestCase
 {
     /**
-     * Throwable test
+     * Throwable test.
      *
      * @param \Throwable $input Exception
      *

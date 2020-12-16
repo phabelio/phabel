@@ -3,17 +3,11 @@
 namespace PhabelTest\Target\Php71;
 
 use PHPUnit\Framework\TestCase;
-use PhpParser\BuilderHelpers;
-use PhpParser\Node\Expr\Array_;
-use PhpParser\Node\Expr\Assign;
-use PhpParser\Node\Expr\List_;
-use PhpParser\Node\Scalar\LNumber;
-use PhpParser\Node\Stmt\Foreach_;
 
 /**
  * Polyfills keyed list assignment.
  */
-class ListKey extends TestCase
+class ListKeyTest extends TestCase
 {
     public function test()
     {

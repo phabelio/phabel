@@ -3,15 +3,12 @@
 namespace PhabelTest\Target\Php74;
 
 use PHPUnit\Framework\TestCase;
-use PhpParser\Node\Expr\Assign;
-use PhpParser\Node\Expr\AssignOp\Coalesce;
-use PhpParser\Node\Expr\BinaryOp\Coalesce as BinaryOpCoalesce;
 
 /**
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT
  */
-class NullCoalesceAssignment extends TestCase
+class NullCoalesceAssignmentTest extends TestCase
 {
     public function test()
     {

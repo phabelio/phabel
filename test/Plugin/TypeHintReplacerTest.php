@@ -3,7 +3,6 @@
 namespace PhabelTest\Plugin;
 
 use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\TestCase\TypeHintStripper;
 
 /**
  * @author Daniil Gentili <daniil@daniil.it>
@@ -19,7 +18,7 @@ class TypeHintReplacer extends TestCase
     {
         return $data;
     }
-    private function testInt(int $data):int
+    private function testInt(int $data): int
     {
         return $data;
     }
@@ -27,7 +26,7 @@ class TypeHintReplacer extends TestCase
     {
         return $data;
     }
-    private function testFloat(float $data):float
+    private function testFloat(float $data): float
     {
         return $data;
     }
@@ -35,7 +34,7 @@ class TypeHintReplacer extends TestCase
     {
         return $data;
     }
-    private function testBool(bool $data):bool
+    private function testBool(bool $data): bool
     {
         return $data;
     }

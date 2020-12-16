@@ -3,17 +3,17 @@
 namespace PhabelTest\Target\Php71;
 
 use Phabel\Context;
-use PHPUnit\Framework\TestCase;
 use Phabel\Target\Php73\ListReference;
 use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\List_;
 use PhpParser\Node\Expr\Variable;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Polyfills list expression return value.
  */
-class ListExpression extends TestCase
+class ListExpressionTest extends TestCase
 {
     public function test()
     {
