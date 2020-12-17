@@ -27,7 +27,7 @@ function getErrorMessage(string $scalarParam, string $scalar, string $scalarSane
         );
         $funcMessage = \str_replace(
             "$to class@anonymous::{closure}",
-            "$to test$scalarSane",
+            "$to PhabelTest\\Target\\test$scalarSane",
             $message
         );
 
@@ -82,7 +82,7 @@ foreach ($SCALARS as $scalar => $vals) {
         $closures []= "[[\$this, 'test$scalarSane'], $val, $wrongVal, $methodMessage]";
         $closures []= "[[self::class, 'test$scalarSane'], $val, $wrongVal, $methodMessage]";
         if (!$self) {
-            $closures []= "['test$scalarSane', $val, $wrongVal, $funcMessage]";
+            $closures []= "['PhabelTest\\Target\\test$scalarSane', $val, $wrongVal, $funcMessage]";
         }
 
         $classFuncs .= "private static function test$scalarSane($scalar \$data): $scalar { return \$data; }\n";
@@ -98,7 +98,7 @@ foreach ($SCALARS as $scalar => $vals) {
         $closuresRet []= "[[\$this, 'testRet$scalarSane'], $val, $wrongVal, $methodMessage]";
         $closuresRet []= "[[self::class, 'testRet$scalarSane'], $val, $wrongVal, $methodMessage]";
         if (!$self) {
-            $closuresRet []= "['testRet$scalarSane', $val, $wrongVal, $funcMessage]";
+            $closuresRet []= "['PhabelTest\\Target\\testRet$scalarSane', $val, $wrongVal, $funcMessage]";
         }
 
         $classFuncs .= "private static function testRet$scalarSane(\$data): $scalar { return \$data; }\n";
@@ -114,12 +114,11 @@ $providerRet = "[\n".\implode(",\n", $closuresRet)."];\n";
 $template = <<< EOF
 <?php
 
-$funcs
-
 namespace PhabelTest\Target;
 
 use PHPUnit\Framework\TestCase;
 
+$funcs
 
 /**
  * @author Daniil Gentili <daniil@daniil.it>
