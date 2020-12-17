@@ -3,7 +3,7 @@
 namespace Phabel\Target\Php71;
 
 use Phabel\Plugin;
-use Phabel\Plugin\TypeHintStripper;
+use Phabel\Plugin\TypeHintReplacer;
 
 /**
  * @author Daniil Gentili <daniil@daniil.it>
@@ -19,7 +19,7 @@ class IterableHint extends Plugin
     public static function runAfter(array $config): array
     {
         return [
-            TypeHintStripper::class => [
+            TypeHintReplacer::class => [
                 'types' => ['iterable']
             ]
         ];

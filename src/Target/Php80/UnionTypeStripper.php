@@ -3,7 +3,7 @@
 namespace Phabel\Target\Php80;
 
 use Phabel\Plugin;
-use Phabel\Plugin\TypeHintStripper;
+use Phabel\Plugin\TypeHintReplacer;
 
 /**
  * Strip union types, polyfilling type checks.
@@ -18,7 +18,7 @@ class UnionTypeStripper extends Plugin
     public static function runWithAfter(array $config): array
     {
         return [
-            TypeHintStripper::class => [
+            TypeHintReplacer::class => [
                 'union' => true
             ]
         ];

@@ -3,7 +3,7 @@
 namespace Phabel\Target\Php70;
 
 use Phabel\Plugin;
-use Phabel\Plugin\TypeHintStripper;
+use Phabel\Plugin\TypeHintReplacer;
 use Phabel\Target\Php71\MultipleCatchReplacer;
 use PhpParser\Node;
 use PhpParser\Node\Expr\BinaryOp\BooleanOr;
@@ -81,7 +81,7 @@ class ThrowableReplacer extends Plugin
     public static function runWithBefore(array $config): array
     {
         return [
-            TypeHintStripper::class => [
+            TypeHintReplacer::class => [
                 'type' => [
                     \Throwable::class,
                     'Throwable'

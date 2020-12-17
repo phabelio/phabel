@@ -1,0 +1,162 @@
+<?php
+/**
+ * This file generates a set of functions, closures and arrow functions with specific type hints, to test the typehint replacer.
+ *
+ * @author Daniil Gentili <daniil@daniil.it>
+ * @license MIT
+ */
+
+function getErrorMessage(string $scalarParam, string $scalar, string $scalarSane, $wrongVal, string $to): array
+{
+    try {
+        $f = eval("return new class { public function r() { return fn ($scalarParam \$data): $scalar => \$data; }};");
+        $f->r()(eval("return $wrongVal;"));
+    } catch (\Throwable $e) {
+        $message = $e->getMessage();
+        $message = \preg_replace("/called in .*/", ".*", $message);
+        $message = \str_replace("must be an instance of class@anonymous", "must be an instance of PhabelTest\\Target\\TypeHintReplacerTest", $message);
+        $closureMessage = \str_replace(
+            "$to class@anonymous::{closure}",
+            "$to PhabelTest\\Target\\TypeHintReplacerTest::PhabelTest\\Target\\{closure}",
+            $message
+        );
+        $methodMessage = \str_replace(
+            "$to class@anonymous::{closure}",
+            "$to PhabelTest\\Target\\TypeHintReplacerTest::test$scalarSane",
+            $message
+        );
+        $funcMessage = \str_replace(
+            "$to class@anonymous::{closure}",
+            "$to test$scalarSane",
+            $message
+        );
+
+        $closureMessage = '~'.\str_replace(['\\', '(', ')'], ['\\\\', '\\(', '\\)'], $closureMessage).'~';
+        $closureMessage = \var_export($closureMessage, true);
+
+        $methodMessage = '~'.\str_replace(['\\', '(', ')'], ['\\\\', '\\(', '\\)'], $methodMessage).'~';
+        $methodMessage = \var_export($methodMessage, true);
+
+        $funcMessage = '~'.\str_replace(['\\', '(', ')'], ['\\\\', '\\(', '\\)'], $funcMessage).'~';
+        $funcMessage = \var_export($funcMessage, true);
+    }
+    return [$closureMessage, $methodMessage, $funcMessage];
+}
+
+$SCALARS = [
+    'callable' => ['"is_null"', 'fn (): int => 0', '[$this, "noop"]','[self::class, "noop"]'],
+    'array' => ["['lmao']", 'array()'],
+    'iterable' => ["['lmao']", 'array()', '(fn (): \\Generator => yield)()'],
+    'bool' => ["true", "false"],
+    'float' => ["123.123", "1e3"],
+    'int' => ["123", "-1"],
+    'object' => ["new class{}", '$this'],
+    'string' => ["'lmao'"],
+    'self' => ['$this'],
+    '\\PhabelTest\\Target\\TypeHintReplacerTest' => ['$this'],
+];
+
+foreach ($SCALARS as $scalar => $val) {
+    $SCALARS["?$scalar"] = [
+        ...$val,
+        'null'
+    ];
+}
+
+$closures = [];
+$closuresRet = [];
+$classFuncs = '';
+$funcs = '';
+$k = 0;
+
+foreach ($SCALARS as $scalar => $vals) {
+    foreach ($vals as $val) {
+        $self = \strpos($scalar, 'self') !== false;
+        $scalarSane = ($k++).\preg_replace("~[^A-Za-z]*~", "", $scalar);
+        $wrongVal = \strpos($scalar, 'object') !== false ? 0 : 'new class{}';
+
+        [$closureMessage, $methodMessage, $funcMessage] = getErrorMessage($scalar, $scalar, $scalarSane, $wrongVal, "to");
+
+        $closures []= "[fn ($scalar \$data): $scalar => \$data, $val, $wrongVal, $closureMessage]";
+        $closures []= "[function ($scalar \$data): $scalar { return \$data; }, $val, $wrongVal, $closureMessage]";
+        $closures []= "[[\$this, 'test$scalarSane'], $val, $wrongVal, $methodMessage]";
+        $closures []= "[[self::class, 'test$scalarSane'], $val, $wrongVal, $methodMessage]";
+        if (!$self) {
+            $closures []= "['test$scalarSane', $val, $wrongVal, $funcMessage]";
+        }
+
+        $classFuncs .= "private static function test$scalarSane($scalar \$data): $scalar { return \$data; }\n";
+        if (!$self) {
+            $funcs .= "function test$scalarSane($scalar \$data): $scalar { return \$data; }\n";
+        }
+
+
+        [$closureMessage, $methodMessage, $funcMessage] = getErrorMessage("", $scalar, "Ret$scalarSane", $wrongVal, "value of");
+
+        $closuresRet []= "[fn (\$data): $scalar => \$data, $val, $wrongVal, $closureMessage]";
+        $closuresRet []= "[function (\$data): $scalar { return \$data; }, $val, $wrongVal, $closureMessage]";
+        $closuresRet []= "[[\$this, 'testRet$scalarSane'], $val, $wrongVal, $methodMessage]";
+        $closuresRet []= "[[self::class, 'testRet$scalarSane'], $val, $wrongVal, $methodMessage]";
+        if (!$self) {
+            $closuresRet []= "['testRet$scalarSane', $val, $wrongVal, $funcMessage]";
+        }
+
+        $classFuncs .= "private static function testRet$scalarSane(\$data): $scalar { return \$data; }\n";
+        if (!$self) {
+            $funcs .= "function testRet$scalarSane(\$data): $scalar { return \$data; }\n";
+        }
+    }
+}
+
+$provider = "[\n".\implode(",\n", $closures)."];\n";
+$providerRet = "[\n".\implode(",\n", $closuresRet)."];\n";
+
+$template = <<< EOF
+<?php
+
+$funcs
+
+namespace PhabelTest\Target;
+
+use PHPUnit\Framework\TestCase;
+
+
+/**
+ * @author Daniil Gentili <daniil@daniil.it>
+ * @license MIT
+ */
+class TypeHintReplacerTest extends TestCase
+{
+    /**
+     * @dataProvider returnDataProvider
+     */
+    public function testRet(callable \$c, \$data, \$wrongData, string \$exception) {
+        \$this->assertEquals(\$data, \$c(\$data));
+
+        \$this->expectExceptionMessageMatches(\$exception);
+        \$c(\$wrongData);
+    }
+    public function returnDataProvider(): array
+    {
+        return $providerRet;
+    }
+    /**
+     * @dataProvider paramDataProvider
+     */
+    public function test(callable \$c, \$data, \$wrongData, string \$exception) {
+        \$this->assertEquals(\$data, \$c(\$data));
+
+        \$this->expectExceptionMessageMatches(\$exception);
+        \$c(\$wrongData);
+    }
+    public function paramDataProvider(): array
+    {
+        return $provider;
+    }
+    
+    public static function noop() {}
+    $classFuncs
+}
+EOF;
+
+\file_put_contents(__DIR__.'/Target/TypeHintReplacerTest.php', $template);

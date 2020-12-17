@@ -45,7 +45,7 @@ use SplStack;
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT
  */
-class TypeHintStripper extends Plugin
+class TypeHintReplacer extends Plugin
 {
     private const IGNORE_RETURN = 0;
     private const VOID_RETURN = 1;
@@ -70,10 +70,10 @@ class TypeHintStripper extends Plugin
     /**
      * Convert a function to a closure.
      */
-    private function toClosure(FunctionLike &$func): void
+    private function toClosure(FunctionLike &$func, Context $ctx): void
     {
         if ($func instanceof ArrowFunction) {
-            $func = $this->converter->enterClosure($func);
+            $func = $this->converter->enter($func, $ctx);
         }
     }
     /**
@@ -217,12 +217,12 @@ class TypeHintStripper extends Plugin
             }
         }
         if ($stmts) {
-            $this->toClosure($func);
+            $this->toClosure($func, $ctx);
             $func->stmts = \array_merge($stmts, $func->getStmts() ?? []);
         }
 
         if ($this->getConfig('void', false) && $func->getReturnType() instanceof Identifier && $func->getReturnType()->toLowerString() === 'void') {
-            $this->toClosure($func);
+            $this->toClosure($func, $ctx);
             $this->stack->push([self::VOID_RETURN]);
         }
         $var = new Variable('phabelReturn');
@@ -230,7 +230,7 @@ class TypeHintStripper extends Plugin
             $this->stack->push([self::IGNORE_RETURN]);
             return null;
         }
-        $this->toClosure($func);
+        $this->toClosure($func, $ctx);
         $this->stack->push([self::TYPE_RETURN, $functionName, $func->returnsByRef(), ...$condition]);
         return $func;
     }
