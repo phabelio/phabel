@@ -6,3 +6,5 @@ vendor
 coverage
 a.php
 test/.phpunit.result.cache
+result.php
+resultReverse.php

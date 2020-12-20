@@ -13,20 +13,26 @@ use Phabel\Plugin\IssetExpressionFixer;
 use Phabel\Plugin\NestedExpressionFixer;
 use PhpParser\Builder\Class_;
 use PhpParser\Builder\Method;
+use PhpParser\Builder\Namespace_;
 use PhpParser\Internal\PrintableNewAnonClassNode;
 use PhpParser\Node;
+use PhpParser\Node\Arg;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\ArrayItem;
 use PhpParser\Node\Expr\ArrowFunction;
+use PhpParser\Node\Expr\BinaryOp\Identical;
 use PhpParser\Node\Expr\Error;
 use PhpParser\Node\Expr\Exit_;
 use PhpParser\Node\Expr\Isset_;
 use PhpParser\Node\Expr\List_;
+use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Name;
 use PhpParser\Node\Scalar\EncapsedStringPart;
+use PhpParser\Node\Scalar\LNumber;
 use PhpParser\Node\Stmt\Class_ as StmtClass_;
+use PhpParser\Node\Stmt\If_;
 use PhpParser\Node\VarLikeIdentifier;
 
 require 'vendor/autoload.php';
@@ -55,26 +61,37 @@ function checkSyntaxVersion(int $version, string $code): bool
 {
     $hasPrompt = $version < 80;
     $code = \str_replace(["\n", '<?php'], '', $code)."\n";
+    static $robin = [];
     static $processes = [];
     static $pipes = [];
     if (!isset($processes[$version])) {
         $cmd = "php$version -a 2>&1";
-        $processes[$version] = \proc_open($cmd, [0 => ['pipe', 'r'], 1 => ['pipe', 'w']], $pipes[$version]);
-        if ($hasPrompt) {
-            readUntilPrompt($pipes[$version][1]);
-        } else {
-            \fgets($pipes[$version][1]);
-            \fgets($pipes[$version][1]);
+        $pipes[$version] = [];
+        $processes[$version] = [];
+        $robin[$version] = [];
+        for ($x = 0; $x < 15; $x++) {
+            $processes[$version][$x] = \proc_open($cmd, [0 => ['pipe', 'r'], 1 => ['pipe', 'w']], $pipes[$version][$x]);
+            if ($hasPrompt) {
+                readUntilPrompt($pipes[$version][$x][1]);
+            } else {
+                \fgets($pipes[$version][$x][1]);
+                \fgets($pipes[$version][$x][1]);
+            }
+            $robin[$version] = 0;
         }
     }
     if (!$hasPrompt) {
         $code .= "echo 'php > ';\n";
     }
-    \fputs($pipes[$version][0], $code);
+    $x = $robin[$version];
+    $robin[$version]++;
+    $robin[$version] %= \count($pipes[$version]);
+
+    \fputs($pipes[$version][$x][0], $code);
     if ($hasPrompt) {
-        $result = \str_replace(['{', '}'], '', \substr(\preg_replace('#\\x1b[[][^A-Za-z]*[A-Za-z]#', '', readUntilPrompt($pipes[$version][1])), \strlen($code)));
+        $result = \str_replace(['{', '}'], '', \substr(\preg_replace('#\\x1b[[][^A-Za-z]*[A-Za-z]#', '', readUntilPrompt($pipes[$version][$x][1])), \strlen($code)));
     } else {
-        $result = readUntilPrompt($pipes[$version][1]);
+        $result = readUntilPrompt($pipes[$version][$x][1]);
     }
     //var_dump($code, "Result for $version is: " .trim($result));
     $result = \trim($result);
@@ -210,6 +227,8 @@ foreach ($exprInstances as $class => $instance) {
     $versionMap[$class] = $version ?: 1000;
 }
 
+$tests = [];
+
 foreach ($instanceArgTypes as $class => $argTypes) {
     $baseArgs = $instanceArgs[$class];
     foreach ($argTypes as $key => [$isArray, $types]) {
@@ -258,12 +277,46 @@ foreach ($instanceArgTypes as $class => $argTypes) {
                 $result['main'][$curVersion][$class][$name][\get_debug_type($arg)] = true;
                 echo "Min $curVersion for $code\n";
             }
+            if ($curVersion) {
+                $tests[] = (new Method("test".\count($tests)))
+                    ->addStmt(
+                        new MethodCall(
+                            new Variable('this'),
+                            'assertTrue',
+                            [new Arg(new Identical(new LNumber(0), new LNumber(0)))]
+                        )
+                    )
+                    ->addStmt(
+                        new If_(
+                            new LNumber(0),
+                            ['stmts' => [$prev]]
+                        )
+                    )
+                    ->getNode();
+            }
 
             $code = format(new Isset_([$prev]));
             $curVersion = checkSyntax($code, $subVersion);
             if ($curVersion && $curVersion !== $subVersion) {
                 $result['isset'][$curVersion][$class][$name][\get_debug_type($arg)] = true;
                 echo "Min $curVersion for $code\n";
+            }
+            if ($curVersion) {
+                $tests[] = (new Method("test".\count($tests)))
+                    ->addStmt(
+                        new MethodCall(
+                            new Variable('this'),
+                            'assertTrue',
+                            [new Arg(new Identical(new LNumber(0), new LNumber(0)))]
+                        )
+                    )
+                    ->addStmt(
+                        new If_(
+                            new LNumber(0),
+                            ['stmts' => [new Isset_([$prev])]]
+                        )
+                    )
+                    ->getNode();
             }
         }
     }
@@ -339,3 +392,25 @@ foreach ($result as &$type) {
     }
 }
 \file_put_contents('resultReverse.php', '<?php $result = '.\var_export($result, true).";");
+
+$comment = <<< PHP
+/**
+ * @author Daniil Gentili <daniil@daniil.it>
+ * @license MIT
+ */
+PHP;
+
+$class = (new Class_("Expression"))
+    ->extend(\PHPUnit\Framework\TestCase::class)
+    ->setDocComment($comment)
+    ->addStmts($tests)
+    ->getNode();
+
+$class = (new Namespace_(PhabelTest\Target::class))
+    ->addStmt($class)
+    ->getNode();
+
+$prettyPrinter = new PhpParser\PrettyPrinter\Standard(['shortArraySyntax' => true]);
+$class = $prettyPrinter->prettyPrintFile([$class]);
+
+\file_put_contents("test/Target/Expression.php", $class);
