@@ -6,23 +6,36 @@
  * @license MIT
  */
 
+const CLAZZ = "PhabelTest\\Target\\TypeHintReplacerTest";
+
+function escapeRegex(string $in): string
+{
+    return \var_export('~'.\str_replace(['\\', '(', ')', '$', '?'], ['\\\\', '\\(', '\\)', '\\$', '\\?'], $in).'~', true);
+}
+
 function getErrorMessage(string $scalarParam, string $scalar, string $scalarSane, $wrongVal, string $to): array
 {
     try {
-        $f = eval("return new class { public function r() { return fn ($scalarParam \$data): $scalar => \$data; }};");
+        $f = eval($uwu = "return new class { public function r() { return fn ($scalarParam \$data): $scalar => \$data; }};");
         $f->r()(eval("return $wrongVal;"));
     } catch (\Throwable $e) {
         $message = $e->getMessage();
-        $message = \preg_replace("/called in .*/", ".*", $message);
-        $message = \str_replace("must be an instance of class@anonymous", "must be an instance of PhabelTest\\Target\\TypeHintReplacerTest", $message);
+        $message = \str_replace("self", CLAZZ, $message);
+        $message = \preg_replace(["/called in .*/", "/.*: /"], ".*", $message);
+        if (\preg_match_all("/must be of type (\S+)/", $message, $matches)) {
+            foreach ($matches[1] as $match) {
+                $message = \str_replace($match, \str_replace("class@anonymous", CLAZZ, $match), $message);
+            }
+        }
+
         $closureMessage = \str_replace(
             "$to class@anonymous::{closure}",
-            "$to PhabelTest\\Target\\TypeHintReplacerTest::PhabelTest\\Target\\{closure}",
+            "$to ".CLAZZ."::PhabelTest\\Target\\{closure}",
             $message
         );
         $methodMessage = \str_replace(
             "$to class@anonymous::{closure}",
-            "$to PhabelTest\\Target\\TypeHintReplacerTest::test$scalarSane",
+            "$to ".CLAZZ."::test$scalarSane",
             $message
         );
         $funcMessage = \str_replace(
@@ -30,36 +43,37 @@ function getErrorMessage(string $scalarParam, string $scalar, string $scalarSane
             "$to PhabelTest\\Target\\test$scalarSane",
             $message
         );
-
-        $closureMessage = '~'.\str_replace(['\\', '(', ')'], ['\\\\', '\\(', '\\)'], $closureMessage).'~';
-        $closureMessage = \var_export($closureMessage, true);
-
-        $methodMessage = '~'.\str_replace(['\\', '(', ')'], ['\\\\', '\\(', '\\)'], $methodMessage).'~';
-        $methodMessage = \var_export($methodMessage, true);
-
-        $funcMessage = '~'.\str_replace(['\\', '(', ')'], ['\\\\', '\\(', '\\)'], $funcMessage).'~';
-        $funcMessage = \var_export($funcMessage, true);
     }
-    return [$closureMessage, $methodMessage, $funcMessage];
+    return [escapeRegex($closureMessage), escapeRegex($methodMessage), escapeRegex($funcMessage)];
 }
 
 $SCALARS = [
     'callable' => ['"is_null"', 'fn (): int => 0', '[$this, "noop"]','[self::class, "noop"]'],
     'array' => ["['lmao']", 'array()'],
-    'iterable' => ["['lmao']", 'array()', '(fn (): \\Generator => yield)()'],
     'bool' => ["true", "false"],
+    'iterable' => ["['lmao']", 'array()', '(fn (): \\Generator => yield)()'],
     'float' => ["123.123", "1e3"],
-    'int' => ["123", "-1"],
     'object' => ["new class{}", '$this'],
     'string' => ["'lmao'"],
     'self' => ['$this'],
-    '\\PhabelTest\\Target\\TypeHintReplacerTest' => ['$this'],
+    'int' => ["123", "-1"],
+    '\\'.CLAZZ => ['$this'],
 ];
 
+$count = \count($SCALARS);
+$k = 0;
 foreach ($SCALARS as $scalar => $val) {
     $SCALARS["?$scalar"] = [
         ...$val,
         'null'
+    ];
+    $k = ($k + 1) % $count;
+    $nextScalar = \array_keys($SCALARS)[$k];
+    $nextVal = $SCALARS[$nextScalar];
+
+    $SCALARS["$scalar|$nextScalar"] = [
+        ...$val,
+        ...$nextVal,
     ];
 }
 
@@ -74,6 +88,9 @@ foreach ($SCALARS as $scalar => $vals) {
         $self = \strpos($scalar, 'self') !== false;
         $scalarSane = ($k++).\preg_replace("~[^A-Za-z]*~", "", $scalar);
         $wrongVal = \strpos($scalar, 'object') !== false ? 0 : 'new class{}';
+        if ($scalar === 'float|object' || $scalar === 'object|string') {
+            $wrongVal = 'null';
+        }
 
         [$closureMessage, $methodMessage, $funcMessage] = getErrorMessage($scalar, $scalar, $scalarSane, $wrongVal, "to");
 

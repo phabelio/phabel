@@ -3,7 +3,7 @@
     "description": "Write and deploy modern PHP 8 code, today.",
     "type": "project",
     "require": {
-        "nikic/php-parser": "^4.7"
+        "nikic/php-parser": "^4.10"
     },
     "require-dev": {
         "phpunit/phpunit": "^7 | ^8 | ^9",

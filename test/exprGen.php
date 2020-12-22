@@ -14,25 +14,37 @@ use Phabel\Plugin\NestedExpressionFixer;
 use PhpParser\Builder\Class_;
 use PhpParser\Builder\Method;
 use PhpParser\Builder\Namespace_;
+use PhpParser\Builder\Use_;
 use PhpParser\Internal\PrintableNewAnonClassNode;
 use PhpParser\Node;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr;
+use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Expr\ArrayItem;
 use PhpParser\Node\Expr\ArrowFunction;
+use PhpParser\Node\Expr\AssignRef;
 use PhpParser\Node\Expr\BinaryOp\Identical;
+use PhpParser\Node\Expr\BinaryOp\LogicalAnd;
+use PhpParser\Node\Expr\BinaryOp\LogicalOr;
+use PhpParser\Node\Expr\BinaryOp\LogicalXor;
+use PhpParser\Node\Expr\Cast\Unset_;
 use PhpParser\Node\Expr\Error;
 use PhpParser\Node\Expr\Exit_;
 use PhpParser\Node\Expr\Isset_;
 use PhpParser\Node\Expr\List_;
 use PhpParser\Node\Expr\MethodCall;
+use PhpParser\Node\Expr\New_;
+use PhpParser\Node\Expr\Print_;
+use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\Variable;
+use PhpParser\Node\Expr\Yield_;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Name;
 use PhpParser\Node\Scalar\EncapsedStringPart;
 use PhpParser\Node\Scalar\LNumber;
 use PhpParser\Node\Stmt\Class_ as StmtClass_;
-use PhpParser\Node\Stmt\If_;
+use PhpParser\Node\Stmt\Expression;
+use PhpParser\Node\Stmt\Use_ as StmtUse_;
 use PhpParser\Node\VarLikeIdentifier;
 
 require 'vendor/autoload.php';
@@ -126,6 +138,7 @@ foreach (ClassFinder::getClassesInNamespace('PhpParser', ClassFinder::RECURSIVE_
         && $class->getName() !== ArrayItem::class
         && $class->getName() !== EncapsedStringPart::class
         && $class->getName() !== Exit_::class
+        && $class->getName() !== Unset_::class
         && $class->getName() !== List_::class) {
         $expressions []= $class;
     }
@@ -277,7 +290,11 @@ foreach ($instanceArgTypes as $class => $argTypes) {
                 $result['main'][$curVersion][$class][$name][\get_debug_type($arg)] = true;
                 echo "Min $curVersion for $code\n";
             }
-            if ($curVersion) {
+            if ($curVersion
+                && !($class === AssignRef::class && $arg instanceof New_)
+                && !($class === Yield_::class && $name === 'key' && ($arg instanceof LogicalAnd || $arg instanceof LogicalOr || $arg instanceof LogicalXor))
+                && !(\in_array($class, [MethodCall::class, StaticCall::class]) && $name === 'name' && ($arg instanceof Array_ || $arg instanceof Print_))
+            ) {
                 $tests[] = (new Method("test".\count($tests)))
                     ->addStmt(
                         new MethodCall(
@@ -287,10 +304,9 @@ foreach ($instanceArgTypes as $class => $argTypes) {
                         )
                     )
                     ->addStmt(
-                        new If_(
-                            new LNumber(0),
-                            ['stmts' => [$prev]]
-                        )
+                        new Expression(new ArrowFunction(
+                            ['expr' => $prev]
+                        ))
                     )
                     ->getNode();
             }
@@ -311,10 +327,9 @@ foreach ($instanceArgTypes as $class => $argTypes) {
                         )
                     )
                     ->addStmt(
-                        new If_(
-                            new LNumber(0),
-                            ['stmts' => [new Isset_([$prev])]]
-                        )
+                        new Expression(new ArrowFunction(
+                            ['expr' => new Isset_([$prev])]
+                        ))
                     )
                     ->getNode();
             }
@@ -401,16 +416,17 @@ $comment = <<< PHP
 PHP;
 
 $class = (new Class_("Expression"))
-    ->extend(\PHPUnit\Framework\TestCase::class)
+    ->extend("TestCase")
     ->setDocComment($comment)
     ->addStmts($tests)
     ->getNode();
 
 $class = (new Namespace_(PhabelTest\Target::class))
+    ->addStmt(new Use_(\PHPUnit\Framework\TestCase::class, StmtUse_::TYPE_NORMAL))
     ->addStmt($class)
     ->getNode();
 
 $prettyPrinter = new PhpParser\PrettyPrinter\Standard(['shortArraySyntax' => true]);
 $class = $prettyPrinter->prettyPrintFile([$class]);
 
-\file_put_contents("test/Target/Expression.php", $class);
+\file_put_contents("test/Target/ExpressionTest.php", $class);
