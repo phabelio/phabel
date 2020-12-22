@@ -16,7 +16,7 @@ function escapeRegex(string $in): string
 function getErrorMessage(string $scalarParam, string $scalar, string $scalarSane, $wrongVal, string $to): array
 {
     try {
-        $f = eval($uwu = "return new class { public function r() { return fn ($scalarParam \$data): $scalar => \$data; }};");
+        $f = eval("return new class { public function r() { return fn ($scalarParam \$data): $scalar => \$data; }};");
         $f->r()(eval("return $wrongVal;"));
     } catch (\Throwable $e) {
         $message = $e->getMessage();
@@ -70,6 +70,10 @@ foreach ($SCALARS as $scalar => $val) {
     $k = ($k + 1) % $count;
     $nextScalar = \array_keys($SCALARS)[$k];
     $nextVal = $SCALARS[$nextScalar];
+
+    if ($scalar === 'self' || $nextScalar === 'self') {
+        continue; // Bypass php8 bug
+    }
 
     $SCALARS["$scalar|$nextScalar"] = [
         ...$val,

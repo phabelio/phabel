@@ -4,7 +4,9 @@ $config = new Amp\CodeStyle\Config();
 $config->getFinder()
     ->in(__DIR__ . '/src')
     ->in(__DIR__ . '/test')
-    ->notPath(__DIR__ . '/test/Target/Php70/GroupUseReplacer.php');
+    ->notPath(__DIR__ . '/test/Target/Php70/GroupUseReplacer.php')
+    ->notPath(__DIR__ . '/test/Target/ExpressionTest.php')
+    ->notPath(__DIR__ . '/test/Target/TypeHintReplacerTest.php');
 
 $cacheDir = getenv('TRAVIS') ? getenv('HOME') . '/.php-cs-fixer' : __DIR__;
 

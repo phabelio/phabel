@@ -20,5 +20,8 @@ class ArrowClosureTest extends TestCase
 
         $this->assertFalse((fn () => $r = false)());
         $this->assertTrue((fn () => $r)());
+
+        $this->assertEquals($this, (fn () => $this)());
+        $this->assertFalse((static fn (): bool => isset($this))());
     }
 }

@@ -142,32 +142,32 @@ function test68string(?string $data): ?string { return $data; }
 function testRet68string($data): ?string { return $data; }
 function test69string(?string $data): ?string { return $data; }
 function testRet69string($data): ?string { return $data; }
-function test77int(?int $data): ?int { return $data; }
-function testRet77int($data): ?int { return $data; }
-function test78int(?int $data): ?int { return $data; }
-function testRet78int($data): ?int { return $data; }
-function test79int(?int $data): ?int { return $data; }
-function testRet79int($data): ?int { return $data; }
-function test80intPhabelTestTargetTypeHintReplacerTest(int|\PhabelTest\Target\TypeHintReplacerTest $data): int|\PhabelTest\Target\TypeHintReplacerTest { return $data; }
-function testRet80intPhabelTestTargetTypeHintReplacerTest($data): int|\PhabelTest\Target\TypeHintReplacerTest { return $data; }
-function test81intPhabelTestTargetTypeHintReplacerTest(int|\PhabelTest\Target\TypeHintReplacerTest $data): int|\PhabelTest\Target\TypeHintReplacerTest { return $data; }
-function testRet81intPhabelTestTargetTypeHintReplacerTest($data): int|\PhabelTest\Target\TypeHintReplacerTest { return $data; }
-function test82intPhabelTestTargetTypeHintReplacerTest(int|\PhabelTest\Target\TypeHintReplacerTest $data): int|\PhabelTest\Target\TypeHintReplacerTest { return $data; }
-function testRet82intPhabelTestTargetTypeHintReplacerTest($data): int|\PhabelTest\Target\TypeHintReplacerTest { return $data; }
-function test83PhabelTestTargetTypeHintReplacerTest(?\PhabelTest\Target\TypeHintReplacerTest $data): ?\PhabelTest\Target\TypeHintReplacerTest { return $data; }
-function testRet83PhabelTestTargetTypeHintReplacerTest($data): ?\PhabelTest\Target\TypeHintReplacerTest { return $data; }
-function test84PhabelTestTargetTypeHintReplacerTest(?\PhabelTest\Target\TypeHintReplacerTest $data): ?\PhabelTest\Target\TypeHintReplacerTest { return $data; }
-function testRet84PhabelTestTargetTypeHintReplacerTest($data): ?\PhabelTest\Target\TypeHintReplacerTest { return $data; }
-function test85PhabelTestTargetTypeHintReplacerTestcallable(\PhabelTest\Target\TypeHintReplacerTest|callable $data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }
-function testRet85PhabelTestTargetTypeHintReplacerTestcallable($data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }
-function test86PhabelTestTargetTypeHintReplacerTestcallable(\PhabelTest\Target\TypeHintReplacerTest|callable $data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }
-function testRet86PhabelTestTargetTypeHintReplacerTestcallable($data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }
-function test87PhabelTestTargetTypeHintReplacerTestcallable(\PhabelTest\Target\TypeHintReplacerTest|callable $data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }
-function testRet87PhabelTestTargetTypeHintReplacerTestcallable($data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }
-function test88PhabelTestTargetTypeHintReplacerTestcallable(\PhabelTest\Target\TypeHintReplacerTest|callable $data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }
-function testRet88PhabelTestTargetTypeHintReplacerTestcallable($data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }
-function test89PhabelTestTargetTypeHintReplacerTestcallable(\PhabelTest\Target\TypeHintReplacerTest|callable $data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }
-function testRet89PhabelTestTargetTypeHintReplacerTestcallable($data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }
+function test72int(?int $data): ?int { return $data; }
+function testRet72int($data): ?int { return $data; }
+function test73int(?int $data): ?int { return $data; }
+function testRet73int($data): ?int { return $data; }
+function test74int(?int $data): ?int { return $data; }
+function testRet74int($data): ?int { return $data; }
+function test75intPhabelTestTargetTypeHintReplacerTest(int|\PhabelTest\Target\TypeHintReplacerTest $data): int|\PhabelTest\Target\TypeHintReplacerTest { return $data; }
+function testRet75intPhabelTestTargetTypeHintReplacerTest($data): int|\PhabelTest\Target\TypeHintReplacerTest { return $data; }
+function test76intPhabelTestTargetTypeHintReplacerTest(int|\PhabelTest\Target\TypeHintReplacerTest $data): int|\PhabelTest\Target\TypeHintReplacerTest { return $data; }
+function testRet76intPhabelTestTargetTypeHintReplacerTest($data): int|\PhabelTest\Target\TypeHintReplacerTest { return $data; }
+function test77intPhabelTestTargetTypeHintReplacerTest(int|\PhabelTest\Target\TypeHintReplacerTest $data): int|\PhabelTest\Target\TypeHintReplacerTest { return $data; }
+function testRet77intPhabelTestTargetTypeHintReplacerTest($data): int|\PhabelTest\Target\TypeHintReplacerTest { return $data; }
+function test78PhabelTestTargetTypeHintReplacerTest(?\PhabelTest\Target\TypeHintReplacerTest $data): ?\PhabelTest\Target\TypeHintReplacerTest { return $data; }
+function testRet78PhabelTestTargetTypeHintReplacerTest($data): ?\PhabelTest\Target\TypeHintReplacerTest { return $data; }
+function test79PhabelTestTargetTypeHintReplacerTest(?\PhabelTest\Target\TypeHintReplacerTest $data): ?\PhabelTest\Target\TypeHintReplacerTest { return $data; }
+function testRet79PhabelTestTargetTypeHintReplacerTest($data): ?\PhabelTest\Target\TypeHintReplacerTest { return $data; }
+function test80PhabelTestTargetTypeHintReplacerTestcallable(\PhabelTest\Target\TypeHintReplacerTest|callable $data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }
+function testRet80PhabelTestTargetTypeHintReplacerTestcallable($data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }
+function test81PhabelTestTargetTypeHintReplacerTestcallable(\PhabelTest\Target\TypeHintReplacerTest|callable $data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }
+function testRet81PhabelTestTargetTypeHintReplacerTestcallable($data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }
+function test82PhabelTestTargetTypeHintReplacerTestcallable(\PhabelTest\Target\TypeHintReplacerTest|callable $data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }
+function testRet82PhabelTestTargetTypeHintReplacerTestcallable($data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }
+function test83PhabelTestTargetTypeHintReplacerTestcallable(\PhabelTest\Target\TypeHintReplacerTest|callable $data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }
+function testRet83PhabelTestTargetTypeHintReplacerTestcallable($data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }
+function test84PhabelTestTargetTypeHintReplacerTestcallable(\PhabelTest\Target\TypeHintReplacerTest|callable $data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }
+function testRet84PhabelTestTargetTypeHintReplacerTestcallable($data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }
 
 
 /**
@@ -537,99 +537,79 @@ class TypeHintReplacerTest extends TestCase
 [[$this, 'testRet69string'], null, new class{}, '~.*Return value must be of type \\?string, class@anonymous returned~'],
 [[self::class, 'testRet69string'], null, new class{}, '~.*Return value must be of type \\?string, class@anonymous returned~'],
 ['PhabelTest\Target\testRet69string', null, new class{}, '~.*Return value must be of type \\?string, class@anonymous returned~'],
-[fn ($data): string|self => $data, 'lmao', new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
-[function ($data): string|self { return $data; }, 'lmao', new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
-[[$this, 'testRet70stringself'], 'lmao', new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
-[[self::class, 'testRet70stringself'], 'lmao', new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
-[fn ($data): string|self => $data, $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
-[function ($data): string|self { return $data; }, $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
-[[$this, 'testRet71stringself'], $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
-[[self::class, 'testRet71stringself'], $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
 [fn ($data): ?self => $data, $this, new class{}, '~.*Return value must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
 [function ($data): ?self { return $data; }, $this, new class{}, '~.*Return value must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
-[[$this, 'testRet72self'], $this, new class{}, '~.*Return value must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
-[[self::class, 'testRet72self'], $this, new class{}, '~.*Return value must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
+[[$this, 'testRet70self'], $this, new class{}, '~.*Return value must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
+[[self::class, 'testRet70self'], $this, new class{}, '~.*Return value must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
 [fn ($data): ?self => $data, null, new class{}, '~.*Return value must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
 [function ($data): ?self { return $data; }, null, new class{}, '~.*Return value must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
-[[$this, 'testRet73self'], null, new class{}, '~.*Return value must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
-[[self::class, 'testRet73self'], null, new class{}, '~.*Return value must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
-[fn ($data): self|int => $data, $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
-[function ($data): self|int { return $data; }, $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
-[[$this, 'testRet74selfint'], $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
-[[self::class, 'testRet74selfint'], $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
-[fn ($data): self|int => $data, 123, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
-[function ($data): self|int { return $data; }, 123, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
-[[$this, 'testRet75selfint'], 123, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
-[[self::class, 'testRet75selfint'], 123, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
-[fn ($data): self|int => $data, -1, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
-[function ($data): self|int { return $data; }, -1, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
-[[$this, 'testRet76selfint'], -1, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
-[[self::class, 'testRet76selfint'], -1, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
+[[$this, 'testRet71self'], null, new class{}, '~.*Return value must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
+[[self::class, 'testRet71self'], null, new class{}, '~.*Return value must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
 [fn ($data): ?int => $data, 123, new class{}, '~.*Return value must be of type \\?int, class@anonymous returned~'],
 [function ($data): ?int { return $data; }, 123, new class{}, '~.*Return value must be of type \\?int, class@anonymous returned~'],
-[[$this, 'testRet77int'], 123, new class{}, '~.*Return value must be of type \\?int, class@anonymous returned~'],
-[[self::class, 'testRet77int'], 123, new class{}, '~.*Return value must be of type \\?int, class@anonymous returned~'],
-['PhabelTest\Target\testRet77int', 123, new class{}, '~.*Return value must be of type \\?int, class@anonymous returned~'],
+[[$this, 'testRet72int'], 123, new class{}, '~.*Return value must be of type \\?int, class@anonymous returned~'],
+[[self::class, 'testRet72int'], 123, new class{}, '~.*Return value must be of type \\?int, class@anonymous returned~'],
+['PhabelTest\Target\testRet72int', 123, new class{}, '~.*Return value must be of type \\?int, class@anonymous returned~'],
 [fn ($data): ?int => $data, -1, new class{}, '~.*Return value must be of type \\?int, class@anonymous returned~'],
 [function ($data): ?int { return $data; }, -1, new class{}, '~.*Return value must be of type \\?int, class@anonymous returned~'],
-[[$this, 'testRet78int'], -1, new class{}, '~.*Return value must be of type \\?int, class@anonymous returned~'],
-[[self::class, 'testRet78int'], -1, new class{}, '~.*Return value must be of type \\?int, class@anonymous returned~'],
-['PhabelTest\Target\testRet78int', -1, new class{}, '~.*Return value must be of type \\?int, class@anonymous returned~'],
+[[$this, 'testRet73int'], -1, new class{}, '~.*Return value must be of type \\?int, class@anonymous returned~'],
+[[self::class, 'testRet73int'], -1, new class{}, '~.*Return value must be of type \\?int, class@anonymous returned~'],
+['PhabelTest\Target\testRet73int', -1, new class{}, '~.*Return value must be of type \\?int, class@anonymous returned~'],
 [fn ($data): ?int => $data, null, new class{}, '~.*Return value must be of type \\?int, class@anonymous returned~'],
 [function ($data): ?int { return $data; }, null, new class{}, '~.*Return value must be of type \\?int, class@anonymous returned~'],
-[[$this, 'testRet79int'], null, new class{}, '~.*Return value must be of type \\?int, class@anonymous returned~'],
-[[self::class, 'testRet79int'], null, new class{}, '~.*Return value must be of type \\?int, class@anonymous returned~'],
-['PhabelTest\Target\testRet79int', null, new class{}, '~.*Return value must be of type \\?int, class@anonymous returned~'],
+[[$this, 'testRet74int'], null, new class{}, '~.*Return value must be of type \\?int, class@anonymous returned~'],
+[[self::class, 'testRet74int'], null, new class{}, '~.*Return value must be of type \\?int, class@anonymous returned~'],
+['PhabelTest\Target\testRet74int', null, new class{}, '~.*Return value must be of type \\?int, class@anonymous returned~'],
 [fn ($data): int|\PhabelTest\Target\TypeHintReplacerTest => $data, 123, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous returned~'],
 [function ($data): int|\PhabelTest\Target\TypeHintReplacerTest { return $data; }, 123, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous returned~'],
-[[$this, 'testRet80intPhabelTestTargetTypeHintReplacerTest'], 123, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous returned~'],
-[[self::class, 'testRet80intPhabelTestTargetTypeHintReplacerTest'], 123, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous returned~'],
-['PhabelTest\Target\testRet80intPhabelTestTargetTypeHintReplacerTest', 123, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous returned~'],
+[[$this, 'testRet75intPhabelTestTargetTypeHintReplacerTest'], 123, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous returned~'],
+[[self::class, 'testRet75intPhabelTestTargetTypeHintReplacerTest'], 123, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous returned~'],
+['PhabelTest\Target\testRet75intPhabelTestTargetTypeHintReplacerTest', 123, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous returned~'],
 [fn ($data): int|\PhabelTest\Target\TypeHintReplacerTest => $data, -1, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous returned~'],
 [function ($data): int|\PhabelTest\Target\TypeHintReplacerTest { return $data; }, -1, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous returned~'],
-[[$this, 'testRet81intPhabelTestTargetTypeHintReplacerTest'], -1, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous returned~'],
-[[self::class, 'testRet81intPhabelTestTargetTypeHintReplacerTest'], -1, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous returned~'],
-['PhabelTest\Target\testRet81intPhabelTestTargetTypeHintReplacerTest', -1, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous returned~'],
+[[$this, 'testRet76intPhabelTestTargetTypeHintReplacerTest'], -1, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous returned~'],
+[[self::class, 'testRet76intPhabelTestTargetTypeHintReplacerTest'], -1, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous returned~'],
+['PhabelTest\Target\testRet76intPhabelTestTargetTypeHintReplacerTest', -1, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous returned~'],
 [fn ($data): int|\PhabelTest\Target\TypeHintReplacerTest => $data, $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous returned~'],
 [function ($data): int|\PhabelTest\Target\TypeHintReplacerTest { return $data; }, $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous returned~'],
-[[$this, 'testRet82intPhabelTestTargetTypeHintReplacerTest'], $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous returned~'],
-[[self::class, 'testRet82intPhabelTestTargetTypeHintReplacerTest'], $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous returned~'],
-['PhabelTest\Target\testRet82intPhabelTestTargetTypeHintReplacerTest', $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous returned~'],
+[[$this, 'testRet77intPhabelTestTargetTypeHintReplacerTest'], $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous returned~'],
+[[self::class, 'testRet77intPhabelTestTargetTypeHintReplacerTest'], $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous returned~'],
+['PhabelTest\Target\testRet77intPhabelTestTargetTypeHintReplacerTest', $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous returned~'],
 [fn ($data): ?\PhabelTest\Target\TypeHintReplacerTest => $data, $this, new class{}, '~.*Return value must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
 [function ($data): ?\PhabelTest\Target\TypeHintReplacerTest { return $data; }, $this, new class{}, '~.*Return value must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
-[[$this, 'testRet83PhabelTestTargetTypeHintReplacerTest'], $this, new class{}, '~.*Return value must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
-[[self::class, 'testRet83PhabelTestTargetTypeHintReplacerTest'], $this, new class{}, '~.*Return value must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
-['PhabelTest\Target\testRet83PhabelTestTargetTypeHintReplacerTest', $this, new class{}, '~.*Return value must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
+[[$this, 'testRet78PhabelTestTargetTypeHintReplacerTest'], $this, new class{}, '~.*Return value must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
+[[self::class, 'testRet78PhabelTestTargetTypeHintReplacerTest'], $this, new class{}, '~.*Return value must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
+['PhabelTest\Target\testRet78PhabelTestTargetTypeHintReplacerTest', $this, new class{}, '~.*Return value must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
 [fn ($data): ?\PhabelTest\Target\TypeHintReplacerTest => $data, null, new class{}, '~.*Return value must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
 [function ($data): ?\PhabelTest\Target\TypeHintReplacerTest { return $data; }, null, new class{}, '~.*Return value must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
-[[$this, 'testRet84PhabelTestTargetTypeHintReplacerTest'], null, new class{}, '~.*Return value must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
-[[self::class, 'testRet84PhabelTestTargetTypeHintReplacerTest'], null, new class{}, '~.*Return value must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
-['PhabelTest\Target\testRet84PhabelTestTargetTypeHintReplacerTest', null, new class{}, '~.*Return value must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
+[[$this, 'testRet79PhabelTestTargetTypeHintReplacerTest'], null, new class{}, '~.*Return value must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
+[[self::class, 'testRet79PhabelTestTargetTypeHintReplacerTest'], null, new class{}, '~.*Return value must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
+['PhabelTest\Target\testRet79PhabelTestTargetTypeHintReplacerTest', null, new class{}, '~.*Return value must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous returned~'],
 [fn ($data): \PhabelTest\Target\TypeHintReplacerTest|callable => $data, $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous returned~'],
 [function ($data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }, $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous returned~'],
-[[$this, 'testRet85PhabelTestTargetTypeHintReplacerTestcallable'], $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous returned~'],
-[[self::class, 'testRet85PhabelTestTargetTypeHintReplacerTestcallable'], $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous returned~'],
-['PhabelTest\Target\testRet85PhabelTestTargetTypeHintReplacerTestcallable', $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous returned~'],
+[[$this, 'testRet80PhabelTestTargetTypeHintReplacerTestcallable'], $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous returned~'],
+[[self::class, 'testRet80PhabelTestTargetTypeHintReplacerTestcallable'], $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous returned~'],
+['PhabelTest\Target\testRet80PhabelTestTargetTypeHintReplacerTestcallable', $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous returned~'],
 [fn ($data): \PhabelTest\Target\TypeHintReplacerTest|callable => $data, "is_null", new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous returned~'],
 [function ($data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }, "is_null", new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous returned~'],
-[[$this, 'testRet86PhabelTestTargetTypeHintReplacerTestcallable'], "is_null", new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous returned~'],
-[[self::class, 'testRet86PhabelTestTargetTypeHintReplacerTestcallable'], "is_null", new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous returned~'],
-['PhabelTest\Target\testRet86PhabelTestTargetTypeHintReplacerTestcallable', "is_null", new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous returned~'],
+[[$this, 'testRet81PhabelTestTargetTypeHintReplacerTestcallable'], "is_null", new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous returned~'],
+[[self::class, 'testRet81PhabelTestTargetTypeHintReplacerTestcallable'], "is_null", new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous returned~'],
+['PhabelTest\Target\testRet81PhabelTestTargetTypeHintReplacerTestcallable', "is_null", new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous returned~'],
 [fn ($data): \PhabelTest\Target\TypeHintReplacerTest|callable => $data, fn (): int => 0, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous returned~'],
 [function ($data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }, fn (): int => 0, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous returned~'],
-[[$this, 'testRet87PhabelTestTargetTypeHintReplacerTestcallable'], fn (): int => 0, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous returned~'],
-[[self::class, 'testRet87PhabelTestTargetTypeHintReplacerTestcallable'], fn (): int => 0, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous returned~'],
-['PhabelTest\Target\testRet87PhabelTestTargetTypeHintReplacerTestcallable', fn (): int => 0, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous returned~'],
+[[$this, 'testRet82PhabelTestTargetTypeHintReplacerTestcallable'], fn (): int => 0, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous returned~'],
+[[self::class, 'testRet82PhabelTestTargetTypeHintReplacerTestcallable'], fn (): int => 0, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous returned~'],
+['PhabelTest\Target\testRet82PhabelTestTargetTypeHintReplacerTestcallable', fn (): int => 0, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous returned~'],
 [fn ($data): \PhabelTest\Target\TypeHintReplacerTest|callable => $data, [$this, "noop"], new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous returned~'],
 [function ($data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }, [$this, "noop"], new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous returned~'],
-[[$this, 'testRet88PhabelTestTargetTypeHintReplacerTestcallable'], [$this, "noop"], new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous returned~'],
-[[self::class, 'testRet88PhabelTestTargetTypeHintReplacerTestcallable'], [$this, "noop"], new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous returned~'],
-['PhabelTest\Target\testRet88PhabelTestTargetTypeHintReplacerTestcallable', [$this, "noop"], new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous returned~'],
+[[$this, 'testRet83PhabelTestTargetTypeHintReplacerTestcallable'], [$this, "noop"], new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous returned~'],
+[[self::class, 'testRet83PhabelTestTargetTypeHintReplacerTestcallable'], [$this, "noop"], new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous returned~'],
+['PhabelTest\Target\testRet83PhabelTestTargetTypeHintReplacerTestcallable', [$this, "noop"], new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous returned~'],
 [fn ($data): \PhabelTest\Target\TypeHintReplacerTest|callable => $data, [self::class, "noop"], new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous returned~'],
 [function ($data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }, [self::class, "noop"], new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous returned~'],
-[[$this, 'testRet89PhabelTestTargetTypeHintReplacerTestcallable'], [self::class, "noop"], new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous returned~'],
-[[self::class, 'testRet89PhabelTestTargetTypeHintReplacerTestcallable'], [self::class, "noop"], new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous returned~'],
-['PhabelTest\Target\testRet89PhabelTestTargetTypeHintReplacerTestcallable', [self::class, "noop"], new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous returned~']];
+[[$this, 'testRet84PhabelTestTargetTypeHintReplacerTestcallable'], [self::class, "noop"], new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous returned~'],
+[[self::class, 'testRet84PhabelTestTargetTypeHintReplacerTestcallable'], [self::class, "noop"], new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous returned~'],
+['PhabelTest\Target\testRet84PhabelTestTargetTypeHintReplacerTestcallable', [self::class, "noop"], new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous returned~']];
 ;
     }
     /**
@@ -993,99 +973,79 @@ class TypeHintReplacerTest extends TestCase
 [[$this, 'test69string'], null, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?string, class@anonymous given, .*~'],
 [[self::class, 'test69string'], null, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?string, class@anonymous given, .*~'],
 ['PhabelTest\Target\test69string', null, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?string, class@anonymous given, .*~'],
-[fn (string|self $data): string|self => $data, 'lmao', new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
-[function (string|self $data): string|self { return $data; }, 'lmao', new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
-[[$this, 'test70stringself'], 'lmao', new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
-[[self::class, 'test70stringself'], 'lmao', new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
-[fn (string|self $data): string|self => $data, $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
-[function (string|self $data): string|self { return $data; }, $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
-[[$this, 'test71stringself'], $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
-[[self::class, 'test71stringself'], $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
 [fn (?self $data): ?self => $data, $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
 [function (?self $data): ?self { return $data; }, $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
-[[$this, 'test72self'], $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
-[[self::class, 'test72self'], $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
+[[$this, 'test70self'], $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
+[[self::class, 'test70self'], $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
 [fn (?self $data): ?self => $data, null, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
 [function (?self $data): ?self { return $data; }, null, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
-[[$this, 'test73self'], null, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
-[[self::class, 'test73self'], null, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
-[fn (self|int $data): self|int => $data, $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
-[function (self|int $data): self|int { return $data; }, $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
-[[$this, 'test74selfint'], $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
-[[self::class, 'test74selfint'], $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
-[fn (self|int $data): self|int => $data, 123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
-[function (self|int $data): self|int { return $data; }, 123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
-[[$this, 'test75selfint'], 123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
-[[self::class, 'test75selfint'], 123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
-[fn (self|int $data): self|int => $data, -1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
-[function (self|int $data): self|int { return $data; }, -1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
-[[$this, 'test76selfint'], -1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
-[[self::class, 'test76selfint'], -1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
+[[$this, 'test71self'], null, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
+[[self::class, 'test71self'], null, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
 [fn (?int $data): ?int => $data, 123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?int, class@anonymous given, .*~'],
 [function (?int $data): ?int { return $data; }, 123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?int, class@anonymous given, .*~'],
-[[$this, 'test77int'], 123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?int, class@anonymous given, .*~'],
-[[self::class, 'test77int'], 123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?int, class@anonymous given, .*~'],
-['PhabelTest\Target\test77int', 123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?int, class@anonymous given, .*~'],
+[[$this, 'test72int'], 123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?int, class@anonymous given, .*~'],
+[[self::class, 'test72int'], 123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?int, class@anonymous given, .*~'],
+['PhabelTest\Target\test72int', 123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?int, class@anonymous given, .*~'],
 [fn (?int $data): ?int => $data, -1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?int, class@anonymous given, .*~'],
 [function (?int $data): ?int { return $data; }, -1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?int, class@anonymous given, .*~'],
-[[$this, 'test78int'], -1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?int, class@anonymous given, .*~'],
-[[self::class, 'test78int'], -1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?int, class@anonymous given, .*~'],
-['PhabelTest\Target\test78int', -1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?int, class@anonymous given, .*~'],
+[[$this, 'test73int'], -1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?int, class@anonymous given, .*~'],
+[[self::class, 'test73int'], -1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?int, class@anonymous given, .*~'],
+['PhabelTest\Target\test73int', -1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?int, class@anonymous given, .*~'],
 [fn (?int $data): ?int => $data, null, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?int, class@anonymous given, .*~'],
 [function (?int $data): ?int { return $data; }, null, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?int, class@anonymous given, .*~'],
-[[$this, 'test79int'], null, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?int, class@anonymous given, .*~'],
-[[self::class, 'test79int'], null, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?int, class@anonymous given, .*~'],
-['PhabelTest\Target\test79int', null, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?int, class@anonymous given, .*~'],
+[[$this, 'test74int'], null, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?int, class@anonymous given, .*~'],
+[[self::class, 'test74int'], null, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?int, class@anonymous given, .*~'],
+['PhabelTest\Target\test74int', null, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?int, class@anonymous given, .*~'],
 [fn (int|\PhabelTest\Target\TypeHintReplacerTest $data): int|\PhabelTest\Target\TypeHintReplacerTest => $data, 123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous given, .*~'],
 [function (int|\PhabelTest\Target\TypeHintReplacerTest $data): int|\PhabelTest\Target\TypeHintReplacerTest { return $data; }, 123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous given, .*~'],
-[[$this, 'test80intPhabelTestTargetTypeHintReplacerTest'], 123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous given, .*~'],
-[[self::class, 'test80intPhabelTestTargetTypeHintReplacerTest'], 123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous given, .*~'],
-['PhabelTest\Target\test80intPhabelTestTargetTypeHintReplacerTest', 123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous given, .*~'],
+[[$this, 'test75intPhabelTestTargetTypeHintReplacerTest'], 123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous given, .*~'],
+[[self::class, 'test75intPhabelTestTargetTypeHintReplacerTest'], 123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous given, .*~'],
+['PhabelTest\Target\test75intPhabelTestTargetTypeHintReplacerTest', 123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous given, .*~'],
 [fn (int|\PhabelTest\Target\TypeHintReplacerTest $data): int|\PhabelTest\Target\TypeHintReplacerTest => $data, -1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous given, .*~'],
 [function (int|\PhabelTest\Target\TypeHintReplacerTest $data): int|\PhabelTest\Target\TypeHintReplacerTest { return $data; }, -1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous given, .*~'],
-[[$this, 'test81intPhabelTestTargetTypeHintReplacerTest'], -1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous given, .*~'],
-[[self::class, 'test81intPhabelTestTargetTypeHintReplacerTest'], -1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous given, .*~'],
-['PhabelTest\Target\test81intPhabelTestTargetTypeHintReplacerTest', -1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous given, .*~'],
+[[$this, 'test76intPhabelTestTargetTypeHintReplacerTest'], -1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous given, .*~'],
+[[self::class, 'test76intPhabelTestTargetTypeHintReplacerTest'], -1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous given, .*~'],
+['PhabelTest\Target\test76intPhabelTestTargetTypeHintReplacerTest', -1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous given, .*~'],
 [fn (int|\PhabelTest\Target\TypeHintReplacerTest $data): int|\PhabelTest\Target\TypeHintReplacerTest => $data, $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous given, .*~'],
 [function (int|\PhabelTest\Target\TypeHintReplacerTest $data): int|\PhabelTest\Target\TypeHintReplacerTest { return $data; }, $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous given, .*~'],
-[[$this, 'test82intPhabelTestTargetTypeHintReplacerTest'], $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous given, .*~'],
-[[self::class, 'test82intPhabelTestTargetTypeHintReplacerTest'], $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous given, .*~'],
-['PhabelTest\Target\test82intPhabelTestTargetTypeHintReplacerTest', $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous given, .*~'],
+[[$this, 'test77intPhabelTestTargetTypeHintReplacerTest'], $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous given, .*~'],
+[[self::class, 'test77intPhabelTestTargetTypeHintReplacerTest'], $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous given, .*~'],
+['PhabelTest\Target\test77intPhabelTestTargetTypeHintReplacerTest', $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|int, class@anonymous given, .*~'],
 [fn (?\PhabelTest\Target\TypeHintReplacerTest $data): ?\PhabelTest\Target\TypeHintReplacerTest => $data, $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
 [function (?\PhabelTest\Target\TypeHintReplacerTest $data): ?\PhabelTest\Target\TypeHintReplacerTest { return $data; }, $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
-[[$this, 'test83PhabelTestTargetTypeHintReplacerTest'], $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
-[[self::class, 'test83PhabelTestTargetTypeHintReplacerTest'], $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
-['PhabelTest\Target\test83PhabelTestTargetTypeHintReplacerTest', $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
+[[$this, 'test78PhabelTestTargetTypeHintReplacerTest'], $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
+[[self::class, 'test78PhabelTestTargetTypeHintReplacerTest'], $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
+['PhabelTest\Target\test78PhabelTestTargetTypeHintReplacerTest', $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
 [fn (?\PhabelTest\Target\TypeHintReplacerTest $data): ?\PhabelTest\Target\TypeHintReplacerTest => $data, null, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
 [function (?\PhabelTest\Target\TypeHintReplacerTest $data): ?\PhabelTest\Target\TypeHintReplacerTest { return $data; }, null, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
-[[$this, 'test84PhabelTestTargetTypeHintReplacerTest'], null, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
-[[self::class, 'test84PhabelTestTargetTypeHintReplacerTest'], null, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
-['PhabelTest\Target\test84PhabelTestTargetTypeHintReplacerTest', null, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
+[[$this, 'test79PhabelTestTargetTypeHintReplacerTest'], null, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
+[[self::class, 'test79PhabelTestTargetTypeHintReplacerTest'], null, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
+['PhabelTest\Target\test79PhabelTestTargetTypeHintReplacerTest', null, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacerTest, class@anonymous given, .*~'],
 [fn (\PhabelTest\Target\TypeHintReplacerTest|callable $data): \PhabelTest\Target\TypeHintReplacerTest|callable => $data, $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous given, .*~'],
 [function (\PhabelTest\Target\TypeHintReplacerTest|callable $data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }, $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous given, .*~'],
-[[$this, 'test85PhabelTestTargetTypeHintReplacerTestcallable'], $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous given, .*~'],
-[[self::class, 'test85PhabelTestTargetTypeHintReplacerTestcallable'], $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous given, .*~'],
-['PhabelTest\Target\test85PhabelTestTargetTypeHintReplacerTestcallable', $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous given, .*~'],
+[[$this, 'test80PhabelTestTargetTypeHintReplacerTestcallable'], $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous given, .*~'],
+[[self::class, 'test80PhabelTestTargetTypeHintReplacerTestcallable'], $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous given, .*~'],
+['PhabelTest\Target\test80PhabelTestTargetTypeHintReplacerTestcallable', $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous given, .*~'],
 [fn (\PhabelTest\Target\TypeHintReplacerTest|callable $data): \PhabelTest\Target\TypeHintReplacerTest|callable => $data, "is_null", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous given, .*~'],
 [function (\PhabelTest\Target\TypeHintReplacerTest|callable $data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }, "is_null", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous given, .*~'],
-[[$this, 'test86PhabelTestTargetTypeHintReplacerTestcallable'], "is_null", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous given, .*~'],
-[[self::class, 'test86PhabelTestTargetTypeHintReplacerTestcallable'], "is_null", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous given, .*~'],
-['PhabelTest\Target\test86PhabelTestTargetTypeHintReplacerTestcallable', "is_null", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous given, .*~'],
+[[$this, 'test81PhabelTestTargetTypeHintReplacerTestcallable'], "is_null", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous given, .*~'],
+[[self::class, 'test81PhabelTestTargetTypeHintReplacerTestcallable'], "is_null", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous given, .*~'],
+['PhabelTest\Target\test81PhabelTestTargetTypeHintReplacerTestcallable', "is_null", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous given, .*~'],
 [fn (\PhabelTest\Target\TypeHintReplacerTest|callable $data): \PhabelTest\Target\TypeHintReplacerTest|callable => $data, fn (): int => 0, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous given, .*~'],
 [function (\PhabelTest\Target\TypeHintReplacerTest|callable $data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }, fn (): int => 0, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous given, .*~'],
-[[$this, 'test87PhabelTestTargetTypeHintReplacerTestcallable'], fn (): int => 0, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous given, .*~'],
-[[self::class, 'test87PhabelTestTargetTypeHintReplacerTestcallable'], fn (): int => 0, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous given, .*~'],
-['PhabelTest\Target\test87PhabelTestTargetTypeHintReplacerTestcallable', fn (): int => 0, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous given, .*~'],
+[[$this, 'test82PhabelTestTargetTypeHintReplacerTestcallable'], fn (): int => 0, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous given, .*~'],
+[[self::class, 'test82PhabelTestTargetTypeHintReplacerTestcallable'], fn (): int => 0, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous given, .*~'],
+['PhabelTest\Target\test82PhabelTestTargetTypeHintReplacerTestcallable', fn (): int => 0, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous given, .*~'],
 [fn (\PhabelTest\Target\TypeHintReplacerTest|callable $data): \PhabelTest\Target\TypeHintReplacerTest|callable => $data, [$this, "noop"], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous given, .*~'],
 [function (\PhabelTest\Target\TypeHintReplacerTest|callable $data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }, [$this, "noop"], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous given, .*~'],
-[[$this, 'test88PhabelTestTargetTypeHintReplacerTestcallable'], [$this, "noop"], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous given, .*~'],
-[[self::class, 'test88PhabelTestTargetTypeHintReplacerTestcallable'], [$this, "noop"], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous given, .*~'],
-['PhabelTest\Target\test88PhabelTestTargetTypeHintReplacerTestcallable', [$this, "noop"], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous given, .*~'],
+[[$this, 'test83PhabelTestTargetTypeHintReplacerTestcallable'], [$this, "noop"], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous given, .*~'],
+[[self::class, 'test83PhabelTestTargetTypeHintReplacerTestcallable'], [$this, "noop"], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous given, .*~'],
+['PhabelTest\Target\test83PhabelTestTargetTypeHintReplacerTestcallable', [$this, "noop"], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous given, .*~'],
 [fn (\PhabelTest\Target\TypeHintReplacerTest|callable $data): \PhabelTest\Target\TypeHintReplacerTest|callable => $data, [self::class, "noop"], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous given, .*~'],
 [function (\PhabelTest\Target\TypeHintReplacerTest|callable $data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }, [self::class, "noop"], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous given, .*~'],
-[[$this, 'test89PhabelTestTargetTypeHintReplacerTestcallable'], [self::class, "noop"], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous given, .*~'],
-[[self::class, 'test89PhabelTestTargetTypeHintReplacerTestcallable'], [self::class, "noop"], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous given, .*~'],
-['PhabelTest\Target\test89PhabelTestTargetTypeHintReplacerTestcallable', [self::class, "noop"], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous given, .*~']];
+[[$this, 'test84PhabelTestTargetTypeHintReplacerTestcallable'], [self::class, "noop"], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous given, .*~'],
+[[self::class, 'test84PhabelTestTargetTypeHintReplacerTestcallable'], [self::class, "noop"], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous given, .*~'],
+['PhabelTest\Target\test84PhabelTestTargetTypeHintReplacerTestcallable', [self::class, "noop"], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacerTest|callable, class@anonymous given, .*~']];
 ;
     }
     
@@ -1230,45 +1190,35 @@ private static function test68string(?string $data): ?string { return $data; }
 private static function testRet68string($data): ?string { return $data; }
 private static function test69string(?string $data): ?string { return $data; }
 private static function testRet69string($data): ?string { return $data; }
-private static function test70stringself(string|self $data): string|self { return $data; }
-private static function testRet70stringself($data): string|self { return $data; }
-private static function test71stringself(string|self $data): string|self { return $data; }
-private static function testRet71stringself($data): string|self { return $data; }
-private static function test72self(?self $data): ?self { return $data; }
-private static function testRet72self($data): ?self { return $data; }
-private static function test73self(?self $data): ?self { return $data; }
-private static function testRet73self($data): ?self { return $data; }
-private static function test74selfint(self|int $data): self|int { return $data; }
-private static function testRet74selfint($data): self|int { return $data; }
-private static function test75selfint(self|int $data): self|int { return $data; }
-private static function testRet75selfint($data): self|int { return $data; }
-private static function test76selfint(self|int $data): self|int { return $data; }
-private static function testRet76selfint($data): self|int { return $data; }
-private static function test77int(?int $data): ?int { return $data; }
-private static function testRet77int($data): ?int { return $data; }
-private static function test78int(?int $data): ?int { return $data; }
-private static function testRet78int($data): ?int { return $data; }
-private static function test79int(?int $data): ?int { return $data; }
-private static function testRet79int($data): ?int { return $data; }
-private static function test80intPhabelTestTargetTypeHintReplacerTest(int|\PhabelTest\Target\TypeHintReplacerTest $data): int|\PhabelTest\Target\TypeHintReplacerTest { return $data; }
-private static function testRet80intPhabelTestTargetTypeHintReplacerTest($data): int|\PhabelTest\Target\TypeHintReplacerTest { return $data; }
-private static function test81intPhabelTestTargetTypeHintReplacerTest(int|\PhabelTest\Target\TypeHintReplacerTest $data): int|\PhabelTest\Target\TypeHintReplacerTest { return $data; }
-private static function testRet81intPhabelTestTargetTypeHintReplacerTest($data): int|\PhabelTest\Target\TypeHintReplacerTest { return $data; }
-private static function test82intPhabelTestTargetTypeHintReplacerTest(int|\PhabelTest\Target\TypeHintReplacerTest $data): int|\PhabelTest\Target\TypeHintReplacerTest { return $data; }
-private static function testRet82intPhabelTestTargetTypeHintReplacerTest($data): int|\PhabelTest\Target\TypeHintReplacerTest { return $data; }
-private static function test83PhabelTestTargetTypeHintReplacerTest(?\PhabelTest\Target\TypeHintReplacerTest $data): ?\PhabelTest\Target\TypeHintReplacerTest { return $data; }
-private static function testRet83PhabelTestTargetTypeHintReplacerTest($data): ?\PhabelTest\Target\TypeHintReplacerTest { return $data; }
-private static function test84PhabelTestTargetTypeHintReplacerTest(?\PhabelTest\Target\TypeHintReplacerTest $data): ?\PhabelTest\Target\TypeHintReplacerTest { return $data; }
-private static function testRet84PhabelTestTargetTypeHintReplacerTest($data): ?\PhabelTest\Target\TypeHintReplacerTest { return $data; }
-private static function test85PhabelTestTargetTypeHintReplacerTestcallable(\PhabelTest\Target\TypeHintReplacerTest|callable $data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }
-private static function testRet85PhabelTestTargetTypeHintReplacerTestcallable($data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }
-private static function test86PhabelTestTargetTypeHintReplacerTestcallable(\PhabelTest\Target\TypeHintReplacerTest|callable $data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }
-private static function testRet86PhabelTestTargetTypeHintReplacerTestcallable($data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }
-private static function test87PhabelTestTargetTypeHintReplacerTestcallable(\PhabelTest\Target\TypeHintReplacerTest|callable $data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }
-private static function testRet87PhabelTestTargetTypeHintReplacerTestcallable($data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }
-private static function test88PhabelTestTargetTypeHintReplacerTestcallable(\PhabelTest\Target\TypeHintReplacerTest|callable $data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }
-private static function testRet88PhabelTestTargetTypeHintReplacerTestcallable($data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }
-private static function test89PhabelTestTargetTypeHintReplacerTestcallable(\PhabelTest\Target\TypeHintReplacerTest|callable $data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }
-private static function testRet89PhabelTestTargetTypeHintReplacerTestcallable($data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }
+private static function test70self(?self $data): ?self { return $data; }
+private static function testRet70self($data): ?self { return $data; }
+private static function test71self(?self $data): ?self { return $data; }
+private static function testRet71self($data): ?self { return $data; }
+private static function test72int(?int $data): ?int { return $data; }
+private static function testRet72int($data): ?int { return $data; }
+private static function test73int(?int $data): ?int { return $data; }
+private static function testRet73int($data): ?int { return $data; }
+private static function test74int(?int $data): ?int { return $data; }
+private static function testRet74int($data): ?int { return $data; }
+private static function test75intPhabelTestTargetTypeHintReplacerTest(int|\PhabelTest\Target\TypeHintReplacerTest $data): int|\PhabelTest\Target\TypeHintReplacerTest { return $data; }
+private static function testRet75intPhabelTestTargetTypeHintReplacerTest($data): int|\PhabelTest\Target\TypeHintReplacerTest { return $data; }
+private static function test76intPhabelTestTargetTypeHintReplacerTest(int|\PhabelTest\Target\TypeHintReplacerTest $data): int|\PhabelTest\Target\TypeHintReplacerTest { return $data; }
+private static function testRet76intPhabelTestTargetTypeHintReplacerTest($data): int|\PhabelTest\Target\TypeHintReplacerTest { return $data; }
+private static function test77intPhabelTestTargetTypeHintReplacerTest(int|\PhabelTest\Target\TypeHintReplacerTest $data): int|\PhabelTest\Target\TypeHintReplacerTest { return $data; }
+private static function testRet77intPhabelTestTargetTypeHintReplacerTest($data): int|\PhabelTest\Target\TypeHintReplacerTest { return $data; }
+private static function test78PhabelTestTargetTypeHintReplacerTest(?\PhabelTest\Target\TypeHintReplacerTest $data): ?\PhabelTest\Target\TypeHintReplacerTest { return $data; }
+private static function testRet78PhabelTestTargetTypeHintReplacerTest($data): ?\PhabelTest\Target\TypeHintReplacerTest { return $data; }
+private static function test79PhabelTestTargetTypeHintReplacerTest(?\PhabelTest\Target\TypeHintReplacerTest $data): ?\PhabelTest\Target\TypeHintReplacerTest { return $data; }
+private static function testRet79PhabelTestTargetTypeHintReplacerTest($data): ?\PhabelTest\Target\TypeHintReplacerTest { return $data; }
+private static function test80PhabelTestTargetTypeHintReplacerTestcallable(\PhabelTest\Target\TypeHintReplacerTest|callable $data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }
+private static function testRet80PhabelTestTargetTypeHintReplacerTestcallable($data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }
+private static function test81PhabelTestTargetTypeHintReplacerTestcallable(\PhabelTest\Target\TypeHintReplacerTest|callable $data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }
+private static function testRet81PhabelTestTargetTypeHintReplacerTestcallable($data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }
+private static function test82PhabelTestTargetTypeHintReplacerTestcallable(\PhabelTest\Target\TypeHintReplacerTest|callable $data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }
+private static function testRet82PhabelTestTargetTypeHintReplacerTestcallable($data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }
+private static function test83PhabelTestTargetTypeHintReplacerTestcallable(\PhabelTest\Target\TypeHintReplacerTest|callable $data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }
+private static function testRet83PhabelTestTargetTypeHintReplacerTestcallable($data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }
+private static function test84PhabelTestTargetTypeHintReplacerTestcallable(\PhabelTest\Target\TypeHintReplacerTest|callable $data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }
+private static function testRet84PhabelTestTargetTypeHintReplacerTestcallable($data): \PhabelTest\Target\TypeHintReplacerTest|callable { return $data; }
 
 }
