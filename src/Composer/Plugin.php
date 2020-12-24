@@ -34,7 +34,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     public function activate(Composer $composer, IOInterface $io): void
     {
         $rootPackage = $composer->getPackage();
-        Repository::preparePackage($rootPackage, null);
+        Repository::preparePackage($rootPackage, $rootPackage->getName(), null);
         \var_dump($rootPackage->getRequires());
 
         $repoManager = $composer->getRepositoryManager();

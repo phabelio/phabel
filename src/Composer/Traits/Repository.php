@@ -3,19 +3,19 @@
 namespace Phabel\Composer\Traits;
 
 use Composer\Package\AliasPackage;
+use Composer\Package\BasePackage;
 use Composer\Package\Link;
 use Composer\Package\Package;
 use Composer\Package\PackageInterface;
 use Composer\Repository\PlatformRepository;
 use Composer\Semver\Constraint\Constraint as ComposerConstraint;
-use Composer\Semver\Constraint\ConstraintInterface;
 use Composer\Semver\Constraint\MatchAllConstraint;
-use Composer\Semver\Constraint\MultiConstraint;
 use Phabel\Target\Php;
 use Phabel\Tools;
+use ReflectionClass;
 
-const SEPARATOR = ' ';
-const HEADER = 'phabel ';
+const SEPARATOR = '_';
+const HEADER = 'phabelpackage_';
 
 /**
  * @author Daniil Gentili <daniil@daniil.it>
@@ -31,7 +31,7 @@ trait Repository
      */
     public function isVersionAcceptable($constraint, $name, $versionData, array $acceptableStabilities = null, array $stabilityFlags = null)
     {
-        self::extractConfig($constraint);
+        self::extractConfig($name);
         return parent::isVersionAcceptable($constraint, $name, $versionData, $acceptableStabilities, $stabilityFlags);
     }
     /**
@@ -45,14 +45,23 @@ trait Repository
      */
     public function loadPackages(array $packageNameMap, array $acceptableStabilities, array $stabilityFlags, array $alreadyLoaded = [])
     {
+        $newPackages = [];
         $configs = [];
-        foreach ($packageNameMap as $key => &$constraint) {
-            $configs[$key] = self::extractConfig($constraint);
+        $keyMap = [];
+        foreach ($packageNameMap as $key => $constraint) {
+            var_dump($key);
+            [$package, $config] = self::extractConfig($key);
+            $newPackages[$package] = $constraint;
+            $configs[$package] = $config;
+            $keyMap[$package] = $key;
         }
 
-        $packages = parent::loadPackages($packageNameMap, $acceptableStabilities, $stabilityFlags, $alreadyLoaded);
-        foreach ($packages['packages'] as &$package) {
-            self::preparePackage($package, $configs[$package->getName()] ?? null);
+        $packages = parent::loadPackages($newPackages, $acceptableStabilities, $stabilityFlags, $alreadyLoaded);
+        foreach ($packages['namesFound'] as &$name) {
+            $name = $keyMap[$name];
+        }
+        foreach ($packages['packages'] as $key => &$package) {
+            self::preparePackage($package, $keyMap[$package->getName()], $configs[$package->getName()] ?? null);
         }
         return $packages;
     }
@@ -64,7 +73,7 @@ trait Repository
      *
      * @return void
      */
-    public static function preparePackage(PackageInterface $package, ?array $config): void
+    public static function preparePackage(PackageInterface $package, string $newName, ?array $config): void
     {
         /**
          * Phabel configuration of current package.
@@ -92,7 +101,11 @@ trait Repository
         }
         \var_dump("Applying ".$package->getName());
         $config = self::trickleMergeConfig($config, $myConfig);
-        self::processRequires($package, \json_encode($config));
+        self::processRequires($package, bin2hex(\json_encode($config)));
+
+        $base = new ReflectionClass(BasePackage::class);
+        $method = $base->getMethod('__construct');
+        $method->invokeArgs($package, [$newName]);
     }
 
     /**
@@ -126,8 +139,8 @@ trait Repository
             //var_dumP($link->getTarget(), (string) $link->getConstraint());
             $links []= new Link(
                 $link->getSource(),
-                $link->getTarget(),
-                self::injectConfig($link->getConstraint(), $config),
+                self::injectConfig($link->getTarget(), $config),
+                $link->getConstraint(),
                 $link->getDescription(),
                 $link->getPrettyConstraint()
             );
@@ -141,70 +154,38 @@ trait Repository
     }
 
     /**
-     * Inject config into constraint.
+     * Inject config into package name.
      *
-     * @param ConstraintInterface $constraint
+     * @param string $package
      * @param string $config
-     * @return ConstraintInterface
+     * @return string
      */
-    private static function injectConfig(ConstraintInterface $constraint, string $config): ConstraintInterface
+    private static function injectConfig(string $package, string $config): string
     {
-        if ($constraint instanceof ComposerConstraint) {
-            $version = $constraint->getVersion();
-            if (\str_starts_with($version, HEADER)) {
-                [$version] = \explode(SEPARATOR, \substr($version, \strlen(HEADER)), 2);
-            }
-            $version = HEADER.$version.SEPARATOR.$config;
-            return new ComposerConstraint($constraint->getOperator(), $version);
-        } elseif ($constraint instanceof MultiConstraint) {
-            $constraints = $constraint->getConstraints();
-            foreach ($constraints as &$cur) {
-                $cur = self::injectConfig($cur, $config);
-            }
-            return new MultiConstraint($constraints, $constraint->isConjunctive());
-        } elseif ($constraint instanceof MatchAllConstraint) {
-            $version = HEADER."*".SEPARATOR.$config;
-            return new ComposerConstraint('=', $version);
+        if (strpos($package, HEADER) === 0) {
+            [, $package] = \explode(SEPARATOR, \substr($package, \strlen(HEADER)), 2);
         }
-        return $constraint;
+        return HEADER.$config.SEPARATOR.$package;
     }
 
     /**
      * Look for phabel configuration parameters in constraint.
      *
-     * @param \Composer\Semver\Constraint\ConstraintInterface $constraint package version or version constraint to match against
+     * @param string $constraint package version or version constraint to match against
      *
      * @return ?array
      */
-    public static function extractConfig(ConstraintInterface &$constraint): ?array
+    public static function extractConfig(string $package): array
     {
-        //var_dump($constraint);
-        $config = null;
-        if ($constraint instanceof ComposerConstraint) {
-            $version = $constraint->getVersion();
-            if (\str_starts_with($version, HEADER)) {
-                \var_dump($version);
-                [$version, $config] = \explode(SEPARATOR, \substr($version, \strlen(HEADER)), 2);
-                //var_export($version);
-                //var_export($config);
-                //var_dump("========");
-                $config = \json_decode($config, true);
-                if ($config === false) {
-                    $config = null;
-                }
-                $constraint = $version === '*'
-                    ? new MatchAllConstraint
-                    : new ComposerConstraint($constraint->getOperator(), $version);
-            }
-        } elseif ($constraint instanceof MultiConstraint) {
-            $constraints = $constraint->getConstraints();
-            foreach ($constraints as &$cur) {
-                $config = self::trickleMergeConfig($config, self::extractConfig($cur));
-            }
-            $constraint = new MultiConstraint($constraints, $constraint->isConjunctive());
+        if (strpos($package, HEADER) === false) {
+            return [$package, null];
         }
-
-        return $config;
+        [$config, $package] = \explode(SEPARATOR, \substr($package, \strlen(HEADER)), 2);
+        $config = \json_decode(hex2bin($config), true);
+        if ($config === false) {
+            $config = null;
+        }
+        return [$package, $config];
     }
 
 
@@ -216,13 +197,13 @@ trait Repository
      *
      * @return PackageInterface|null
      */
-    public function findPackage($name, $constraint)
+    public function findPackage($fullName, $constraint)
     {
-        $config = self::extractConfig($constraint);
+        [$name, $config] = self::extractConfig($fullName);
         if (!$package = parent::findPackage($name, $constraint)) {
             return null;
         }
-        return self::preparePackage($package, $config);
+        return self::preparePackage($package, $fullName, $config);
     }
 
     /**
@@ -233,11 +214,11 @@ trait Repository
      *
      * @return PackageInterface[]
      */
-    public function findPackages($name, $constraint = null)
+    public function findPackages($fullName, $constraint = null)
     {
-        $config = self::extractConfig($constraint);
+        [$name, $config] = self::extractConfig($fullName);
         foreach ($packages = parent::findPackages($name, $constraint) as $package) {
-            self::preparePackage($package, $config);
+            self::preparePackage($package, $fullName, $config);
         }
         return $packages;
     }
@@ -251,7 +232,7 @@ trait Repository
     {
         $packages = parent::getPackages();
         foreach ($packages as $package) {
-            self::preparePackage($package, null);
+            self::preparePackage($package, $package->getName(), null);
         }
         return $packages;
     }
