@@ -49,7 +49,6 @@ trait Repository
         $configs = [];
         $keyMap = [];
         foreach ($packageNameMap as $key => $constraint) {
-            var_dump($key);
             [$package, $config] = self::extractConfig($key);
             $newPackages[$package] = $constraint;
             $configs[$package] = $config;
@@ -101,7 +100,11 @@ trait Repository
         }
         \var_dump("Applying ".$package->getName());
         $config = self::trickleMergeConfig($config, $myConfig);
-        self::processRequires($package, bin2hex(\json_encode($config)));
+        self::processRequires(
+            $package, 
+            new ComposerConstraint('>=', Php::unnormalizeVersion($config['target'] ?? Php::DEFAULT_TARGET)), 
+            bin2hex(\json_encode($config))
+        );
 
         $base = new ReflectionClass(BasePackage::class);
         $method = $base->getMethod('__construct');
@@ -129,14 +132,24 @@ trait Repository
      * @param string $config
      * @return void
      */
-    private static function processRequires(PackageInterface $package, string $config)
+    private static function processRequires(PackageInterface $package, ComposerConstraint $target, string $config)
     {
         $links = [];
         foreach ($package->getRequires() as $link) {
             if (PlatformRepository::isPlatformPackage($link->getTarget())) {
+                if ($link->getTarget() === 'php') {
+                    $links []= new Link(
+                        $link->getSource(),
+                        $link->getTarget(),
+                        $target,
+                        $link->getDescription(),
+                        $target->getPrettyString()
+                    );
+                } else {
+                    $links []= $link;
+                }
                 continue;
             }
-            //var_dumP($link->getTarget(), (string) $link->getConstraint());
             $links []= new Link(
                 $link->getSource(),
                 self::injectConfig($link->getTarget(), $config),
@@ -149,7 +162,7 @@ trait Repository
             $package->setRequires($links);
         } elseif ($package instanceof AliasPackage) {
             Tools::setVar($package, 'requires', $links);
-            self::processRequires($package->getAliasOf(), $config);
+            self::processRequires($package->getAliasOf(), $target, $config);
         }
     }
 

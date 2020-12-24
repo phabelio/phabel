@@ -28,7 +28,7 @@ class Php extends Plugin
     /**
      * Default target.
      */
-    private const DEFAULT_TARGET = '56';
+    const DEFAULT_TARGET = '56';
     public static function normalizeVersion(string $target): string
     {
         if (\preg_match(":^\D*(\d+\.\d+)\..*:", $target, $matches)) {
@@ -36,6 +36,9 @@ class Php extends Plugin
         }
         $target = \str_replace('.', '', $target);
         return \in_array($target, self::VERSIONS) ? $target : self::DEFAULT_TARGET;
+    }
+    public static function unnormalizeVersion(string $target): string {
+        return $target[0].'.'.$target[1];
     }
     /**
      * Get PHP version range to target.

@@ -228,8 +228,10 @@ abstract class Tools
      *
      * @return object
      */
-    public static function cloneWithTrait(object $obj, string $trait, string $interface): object
+    public static function cloneWithTrait(object $obj, string $trait): object
     {
+        static $count = 0;
+        
         $reflect = new ReflectionClass($obj);
 
 
@@ -239,12 +241,15 @@ abstract class Tools
         }
 
         $extend = "extends \\".$r->getName();
-        $eval = "\$newObj = new class $extend implements \\$interface {
+        $eval = "class phabelTmpClass$count $extend {
             use \\$trait;
 
             public function __construct() {}
-        };";
-        eval($eval);
+        }
+        return new phabelTmpClass$count;";
+        $count++;
+        
+        $newObj = eval($eval);
 
         $reflectNew = new ReflectionClass($newObj);
 

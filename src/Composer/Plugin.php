@@ -9,6 +9,8 @@ use Composer\Installer\PackageEvent;
 use Composer\Installer\PackageEvents;
 use Composer\IO\IOInterface;
 use Composer\Plugin\PluginInterface;
+use Composer\Script\Event;
+use Composer\Script\ScriptEvents;
 use Phabel\Composer\Traits\Repository;
 use Phabel\Tools;
 use ReflectionObject;
@@ -43,7 +45,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         $reflect->setAccessible(true);
         $reflect->setValue($repoManager, []);
         foreach ($repos as $repo) {
-            $repoManager->prependRepository(Tools::cloneWithTrait($repo, Repository::class, PhabelRepositoryInterface::class));
+            $repoManager->prependRepository(Tools::cloneWithTrait($repo, Repository::class));
         }
         //\var_dump(\array_map('get_class', $repoManager->getRepositories()));
         $this->io = $io;
@@ -81,13 +83,25 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            PackageEvents::POST_PACKAGE_INSTALL =>
-                ['onInstall', 100000],
+            ScriptEvents::POST_INSTALL_CMD =>
+                ['onInstall', 1],
+            ScriptEvents::POST_UPDATE_CMD =>
+                    ['onInstall', 1],
         ];
     }
 
-    public function onInstall(PackageEvent $event): void
+    public function onInstall(Event $event): void
     {
+        $lock = json_decode(file_get_contents('composer.lock'), true);
+        foreach ($lock['packages'] as $package) {
+            [, $config] = Repository::extractConfig($package['name']);
+            var_dump($package);
+            if ($config === null) {
+                continue;
+            }
+            var_dump($config);
+        }
+        var_dump(file_get_contents('vendor/autoload.php'));
     }
 
     /**
