@@ -16,28 +16,48 @@ class Php extends Plugin
      * PHP versions.
      */
     private const VERSIONS = [
-        '55',
-        '56',
-        '70',
-        '71',
-        '72',
-        '73',
-        '74',
-        '80',
+        55,
+        56,
+        70,
+        71,
+        72,
+        73,
+        74,
+        80,
     ];
     /**
      * Default target.
      */
-    const DEFAULT_TARGET = '56';
-    public static function normalizeVersion(string $target): string
+    const DEFAULT_TARGET = PHP_MAJOR_VERSION.PHP_MINOR_VERSION;
+    /**
+     * Ignore target
+     */
+    const TARGET_IGNORE = 1000;
+    /**
+     * Normalize target version string
+     *
+     * @param string $target
+     * @return integer
+     */
+    public static function normalizeVersion(string $target): int
     {
+        if ($target === 'auto') {
+            return PHP_MAJOR_VERSION.PHP_MINOR_VERSION;
+        }
         if (\preg_match(":^\D*(\d+\.\d+)\..*:", $target, $matches)) {
             $target = $matches[1];
         }
         $target = \str_replace('.', '', $target);
         return \in_array($target, self::VERSIONS) ? $target : self::DEFAULT_TARGET;
     }
-    public static function unnormalizeVersion(string $target): string {
+    /**
+     * Unnormalize version string
+     *
+     * @param int $target
+     * @return string
+     */
+    public static function unnormalizeVersion(int $target): string {
+        $target = (string) $target;
         return $target[0].'.'.$target[1];
     }
     /**
@@ -48,11 +68,7 @@ class Php extends Plugin
      */
     private static function getRange(array $config): array
     {
-        $target = $config['target'] ?? self::DEFAULT_TARGET;
-        if (\preg_match(":^\D*(\d+\.\d+)\..*:", $target, $matches)) {
-            $target = $matches[1];
-        }
-        $key = \array_search(\str_replace('.', '', $target), self::VERSIONS);
+        $key = \array_search($config['target'] ?? self::DEFAULT_TARGET, self::VERSIONS);
         return \array_slice(
             self::VERSIONS,
             1 + ($key === false ? self::DEFAULT_TARGET : $key)

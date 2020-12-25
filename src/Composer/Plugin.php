@@ -5,13 +5,11 @@ namespace Phabel\Composer;
 use Composer\Composer;
 use Composer\EventDispatcher\EventSubscriberInterface;
 use Composer\Installer\InstallerEvent;
-use Composer\Installer\PackageEvent;
-use Composer\Installer\PackageEvents;
 use Composer\IO\IOInterface;
 use Composer\Plugin\PluginInterface;
 use Composer\Script\Event;
 use Composer\Script\ScriptEvents;
-use Phabel\Composer\Traits\Repository;
+use Phabel\Target\Php;
 use Phabel\Tools;
 use ReflectionObject;
 
@@ -21,10 +19,7 @@ use ReflectionObject;
  */
 class Plugin implements PluginInterface, EventSubscriberInterface
 {
-    /**
-     * IO interface.
-     */
-    private IOInterface $io;
+    private Transformer $transformer;
     /**
      * Apply plugin modifications to Composer.
      *
@@ -36,16 +31,16 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     public function activate(Composer $composer, IOInterface $io): void
     {
         $rootPackage = $composer->getPackage();
-        Repository::preparePackage($rootPackage, $rootPackage->getName(), null);
+        $this->transformer = new Transformer($io);
+        $this->transformer->preparePackage($rootPackage, $rootPackage->getName());
         \var_dump($rootPackage->getRequires());
 
         $repoManager = $composer->getRepositoryManager();
         $repos = $repoManager->getRepositories();
-        $reflect = (new ReflectionObject($repoManager))->getProperty('repositories');
-        $reflect->setAccessible(true);
-        $reflect->setValue($repoManager, []);
         foreach (array_reverse($repos) as $repo) {
-            $repoManager->prependRepository(Tools::cloneWithTrait($repo, Repository::class));
+            $repo = Tools::cloneWithTrait($repo, Repository::class);
+            $repo->phabelTransformer = $this->transformer;
+            $repoManager->prependRepository($repo);
         }
         //\var_dump(\array_map('get_class', $repoManager->getRepositories()));
         $this->io = $io;
@@ -94,12 +89,12 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     {
         $lock = json_decode(file_get_contents('composer.lock'), true);
         foreach ($lock['packages'] as $package) {
-            [, $config] = Repository::extractConfig($package['name']);
-            if ($config === null) {
+            [, $target] = $this->transformer->extractTarget($package['name']);
+            if ($target === Php::TARGET_IGNORE) {
                 continue;
             }
             $path = "vendor/".$package['name'];
-            var_dump($path, $config);
+            var_dump($path, $target);
         }
     }
 
