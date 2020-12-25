@@ -30,7 +30,8 @@
         }
     },
     "extra": {
-        "class": "Phabel\\Composer\\Plugin"
+        "class": "Phabel\\Composer\\Plugin",
+        "plugin-modifies-downloads": true
     },
     "scripts": {
         "check": [
