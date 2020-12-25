@@ -14,8 +14,8 @@ use Phabel\Target\Php;
 use Phabel\Tools;
 use ReflectionClass;
 
-const SEPARATOR = '_';
-const HEADER = 'phabelpackage_';
+const HEADER = 'phabel-transpiled';
+const SEPARATOR = '/../';
 
 /**
  * @author Daniil Gentili <daniil@daniil.it>
@@ -175,8 +175,11 @@ trait Repository
      */
     private static function injectConfig(string $package, string $config): string
     {
-        if (strpos($package, HEADER) === 0) {
-            [, $package] = \explode(SEPARATOR, \substr($package, \strlen(HEADER)), 2);
+        if (str_starts_with($package, HEADER)) {
+            [, $package] = \explode(SEPARATOR, $package, 2);
+        }
+        if ($config === '5b5d') { // bin2hex('[]')
+            $config = 'default';
         }
         return HEADER.$config.SEPARATOR.$package;
     }
@@ -190,15 +193,20 @@ trait Repository
      */
     public static function extractConfig(string $package): array
     {
-        if (strpos($package, HEADER) === false) {
-            return [$package, null];
+        if (str_starts_with($package, HEADER)) {
+            $parts = \explode(SEPARATOR, $package, 2);
+            $config = $parts[0];
+            $package = $parts[1].'/'.$parts[2];
+            if ($config === 'default') {
+                return [$package, []];
+            }
+            $config = \json_decode(hex2bin($config), true);
+            if ($config === false) {
+                $config = null;
+            }
+            return [$package, $config];
         }
-        [$config, $package] = \explode(SEPARATOR, \substr($package, \strlen(HEADER)), 2);
-        $config = \json_decode(hex2bin($config), true);
-        if ($config === false) {
-            $config = null;
-        }
-        return [$package, $config];
+        return [$package, null];
     }
 
 

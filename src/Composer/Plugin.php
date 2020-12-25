@@ -44,7 +44,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         $reflect = (new ReflectionObject($repoManager))->getProperty('repositories');
         $reflect->setAccessible(true);
         $reflect->setValue($repoManager, []);
-        foreach ($repos as $repo) {
+        foreach (array_reverse($repos) as $repo) {
             $repoManager->prependRepository(Tools::cloneWithTrait($repo, Repository::class));
         }
         //\var_dump(\array_map('get_class', $repoManager->getRepositories()));
@@ -95,13 +95,12 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         $lock = json_decode(file_get_contents('composer.lock'), true);
         foreach ($lock['packages'] as $package) {
             [, $config] = Repository::extractConfig($package['name']);
-            var_dump($package);
             if ($config === null) {
                 continue;
             }
-            var_dump($config);
+            $path = "vendor/".$package['name'];
+            var_dump($path, $config);
         }
-        var_dump(file_get_contents('vendor/autoload.php'));
     }
 
     /**
