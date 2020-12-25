@@ -15,6 +15,7 @@ use ReflectionClass;
 
 use Composer\IO\IOInterface;
 use Exception;
+use Phabel\PluginGraph\Graph;
 
 class Transformer
 {
@@ -46,10 +47,6 @@ class Transformer
      */
     public function preparePackage(PackageInterface $package, string $newName, int $target = Php::TARGET_IGNORE): void
     {
-        if ($package->getName() === 'phabel/phabel') {
-            return;
-        }
-
         /**
          * Phabel configuration of current package.
          * @var array
@@ -140,9 +137,6 @@ class Transformer
      */
     private function injectTarget(string $package, int $target): string
     {
-        if ($package === 'phabel/phabel') {
-            return $package;
-        }
         [$package] = $this->extractTarget($package);
         return self::HEADER.$target.self::SEPARATOR.$package;
     }
@@ -161,5 +155,46 @@ class Transformer
             return [$package, $version];
         }
         return [$package, Php::TARGET_IGNORE];
+    }
+
+    /**
+     * Transform dependencies
+     *
+     * @param array $lock
+     * @return void
+     */
+    public function transform(array $lock) {
+        $byName = [];
+        foreach ($lock['packages'] as $package) {
+            [$name, $target] = $this->extractTarget($package['name']);
+            if ($target === Php::TARGET_IGNORE) {
+                continue;
+            }
+            $package['phabelTarget'] = (int) $target;
+            $package['phabelConfig'] = $package['extra']['phabel'] ?? [];
+            unset($package['phabelConfig']['target']);            
+            $byName[$name] = $package;
+        }
+        do {
+            $changed = false;
+            foreach ($byName as $name => $package) {
+                $parentConfig = $package['phabelConfig'];
+                foreach ($package['require'] ?? [] as $subName => $constraint) {
+                    if (PlatformRepository::isPlatformPackage($subName)) {
+                        continue;
+                    }
+                    [$subName] = $this->extractTarget($subName);
+                    if ($target === Php::TARGET_IGNORE) {
+                        continue;
+                    }
+                    $config = $byName[$subName]['phabelConfig'];
+                    $byName[$subName]['phabelConfig'] = array_merge($parentConfig, $config);
+                    if ($byName[$subName]['phabelConfig'] !== $config) {
+                        $changed = true;
+                    }
+                }
+            }
+        } while ($changed);
+        var_dump($byName);
     }
 }

@@ -3,6 +3,7 @@
 namespace Phabel\Composer;
 
 use Composer\Composer;
+use Composer\Console\Application;
 use Composer\EventDispatcher\EventSubscriberInterface;
 use Composer\Installer\InstallerEvent;
 use Composer\IO\IOInterface;
@@ -42,8 +43,27 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             $repo->phabelTransformer = $this->transformer;
             $repoManager->prependRepository($repo);
         }
-        //\var_dump(\array_map('get_class', $repoManager->getRepositories()));
-        $this->io = $io;
+        
+        $hasPhabel = false;
+        if (file_exists('composer.lock')) {
+            $packages = json_decode(file_get_contents('composer.lock'), true)['packages'] ?? [];
+            foreach ($packages as $package) {
+                [$name] = $this->transformer->extractTarget($package['name']);
+                if ($name === 'phabel/phabel') {
+                    $hasPhabel = true;
+                    if ($name !== $package['name']) {
+                        return;
+                    }
+                }
+            }
+        }
+        if (!$hasPhabel) {
+            return;
+        }
+
+        if (isset($GLOBALS['application']) && $GLOBALS['application'] instanceof Application) {
+            register_shutdown_function(fn () => $GLOBALS['application']->run());
+        }
     }
 
     /**
@@ -81,21 +101,13 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             ScriptEvents::POST_INSTALL_CMD =>
                 ['onInstall', 1],
             ScriptEvents::POST_UPDATE_CMD =>
-                    ['onInstall', 1],
+                ['onInstall', 1]
         ];
     }
 
     public function onInstall(Event $event): void
     {
-        $lock = json_decode(file_get_contents('composer.lock'), true);
-        foreach ($lock['packages'] as $package) {
-            [, $target] = $this->transformer->extractTarget($package['name']);
-            if ($target === Php::TARGET_IGNORE) {
-                continue;
-            }
-            $path = "vendor/".$package['name'];
-            var_dump($path, $target);
-        }
+        $this->transformer->transform(json_decode(file_get_contents('composer.lock'), true));
     }
 
     /**
