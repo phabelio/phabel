@@ -28,7 +28,7 @@ class Php extends Plugin
     /**
      * Default target.
      */
-    const DEFAULT_TARGET = PHP_MAJOR_VERSION.PHP_MINOR_VERSION;
+    const DEFAULT_TARGET = 56; //PHP_MAJOR_VERSION.PHP_MINOR_VERSION;
     /**
      * Ignore target
      */
@@ -92,7 +92,7 @@ class Php extends Plugin
                 if (\substr($file, -4) !== '.php') {
                     continue;
                 }
-                $class = \Phabel\Target\Php::class.$version.'\\'.\basename($file, '.php');
+                $class = self::class.$version.'\\'.\basename($file, '.php');
                 $classes[$class] = $config[$class] ?? [];
             }
         }

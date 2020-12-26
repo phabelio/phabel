@@ -25,7 +25,7 @@ class PackageContext
      */
     public function addPackage(string $package): void
     {
-        $this->packages[$package] = null;
+        $this->packages[$package] = true;
     }
     /**
      * Merge two contexts.

@@ -2,9 +2,11 @@
 
 namespace Phabel\Composer;
 
+use Composer\Command\InstallCommand;
 use Composer\Composer;
 use Composer\Console\Application;
 use Composer\EventDispatcher\EventSubscriberInterface;
+use Composer\Installer;
 use Composer\Installer\InstallerEvent;
 use Composer\IO\IOInterface;
 use Composer\Plugin\PluginInterface;
@@ -13,6 +15,10 @@ use Composer\Script\ScriptEvents;
 use Phabel\Target\Php;
 use Phabel\Tools;
 use ReflectionObject;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Input\InputDefinition;
+use Symfony\Component\Console\Output\NullOutput;
 
 /**
  * @author Daniil Gentili <daniil@daniil.it>
@@ -62,7 +68,9 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         }
 
         if (isset($GLOBALS['application']) && $GLOBALS['application'] instanceof Application) {
-            register_shutdown_function(fn () => $GLOBALS['application']->run());
+            register_shutdown_function(function () use ($composer, $io) {
+                //Installer::create($composer, $io);
+            });
         }
     }
 

@@ -59,4 +59,11 @@ class Graph
     {
         return $this->graph->flatten();
     }
+    /**
+     * Get dependency list
+     */
+    public function getDependencies(): array
+    {
+        return [];
+    }
 }
