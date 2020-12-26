@@ -3,21 +3,28 @@
 namespace Phabel\Composer;
 
 use Composer\Command\InstallCommand;
+use Composer\Command\RequireCommand;
 use Composer\Composer;
+use Composer\Config;
 use Composer\Console\Application;
 use Composer\EventDispatcher\EventSubscriberInterface;
 use Composer\Installer;
 use Composer\Installer\InstallerEvent;
 use Composer\IO\IOInterface;
+use Composer\Package\Link;
 use Composer\Plugin\PluginInterface;
+use Composer\Repository\PlatformRepository;
 use Composer\Script\Event;
 use Composer\Script\ScriptEvents;
 use Phabel\Target\Php;
 use Phabel\Tools;
+use PhpParser\Node\Expr\ArrayItem;
 use ReflectionObject;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputDefinition;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\NullOutput;
 
 /**
@@ -26,6 +33,7 @@ use Symfony\Component\Console\Output\NullOutput;
  */
 class Plugin implements PluginInterface, EventSubscriberInterface
 {
+    private string $toRequire = '';
     private Transformer $transformer;
     /**
      * Apply plugin modifications to Composer.
@@ -40,7 +48,12 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         $rootPackage = $composer->getPackage();
         $this->transformer = new Transformer($io);
         $this->transformer->preparePackage($rootPackage, $rootPackage->getName());
-        \var_dump($rootPackage->getRequires());
+        foreach ($rootPackage->getRequires() as $link) {
+            if (PlatformRepository::isPlatformPackage($link->getTarget())) {
+                continue;
+            }
+            $this->toRequire = $link->getTarget();
+        }
 
         $repoManager = $composer->getRepositoryManager();
         $repos = $repoManager->getRepositories();
@@ -48,29 +61,6 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             $repo = Tools::cloneWithTrait($repo, Repository::class);
             $repo->phabelTransformer = $this->transformer;
             $repoManager->prependRepository($repo);
-        }
-        
-        $hasPhabel = false;
-        if (file_exists('composer.lock')) {
-            $packages = json_decode(file_get_contents('composer.lock'), true)['packages'] ?? [];
-            foreach ($packages as $package) {
-                [$name] = $this->transformer->extractTarget($package['name']);
-                if ($name === 'phabel/phabel') {
-                    $hasPhabel = true;
-                    if ($name !== $package['name']) {
-                        return;
-                    }
-                }
-            }
-        }
-        if (!$hasPhabel) {
-            return;
-        }
-
-        if (isset($GLOBALS['application']) && $GLOBALS['application'] instanceof Application) {
-            register_shutdown_function(function () use ($composer, $io) {
-                //Installer::create($composer, $io);
-            });
         }
     }
 
@@ -109,14 +99,36 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             ScriptEvents::POST_INSTALL_CMD =>
                 ['onInstall', 1],
             ScriptEvents::POST_UPDATE_CMD =>
-                ['onInstall', 1]
+                ['onUpdate', 1]
         ];
     }
 
     public function onInstall(Event $event): void
     {
-        $this->transformer->transform(json_decode(file_get_contents('composer.lock'), true));
+        $this->run($event, false);
     }
+    public function onUpdate(Event $event): void
+    {
+        $this->run($event, true);
+    }
+    private function run(Event $event, bool $isUpdate): void
+    {
+        register_shutdown_function(function () use ($isUpdate) {
+            /** @var Application */
+            $application = ($GLOBALS['application'] ?? null) instanceof Application ? $GLOBALS['application'] : new Application;
+            if (!Transformer::processedRequires()) {
+                if (!$isUpdate) {
+                    $this->transformer->log("\nLoading additional dependencies...");
+                    $require = $application->find('require');
+                    $require->run(new ArrayInput(['packages' => [$this->toRequire]]), new NullOutput);
+                } else {
+                    $application->run();
+                }
+            }
+        });
+        $this->transformer->transform(json_decode(file_get_contents('composer.lock'), true)['packages'] ?? []);
+    }
+
 
     /**
      * Emitted before composer solves dependencies.

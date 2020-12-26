@@ -63,28 +63,28 @@ class Php extends Plugin
     /**
      * Get PHP version range to target.
      *
-     * @param array $config
+     * @param int $target
      * @return array
      */
-    private static function getRange(array $config): array
+    private static function getRange(int $target): array
     {
-        $key = \array_search($config['target'] ?? self::DEFAULT_TARGET, self::VERSIONS);
+        $key = \array_search($target, self::VERSIONS);
         return \array_slice(
             self::VERSIONS,
             1 + ($key === false ? self::DEFAULT_TARGET : $key)
         );
     }
-    public static function composerRequires(array $config): array
+    public function getComposerRequires(): array
     {
         return \array_fill_keys(
-            \array_map(fn (string $version): string => "symfony/polyfill-$version", self::getRange($config)),
+            \array_map(fn (string $version): string => "symfony/polyfill-php$version", self::getRange($this->config['target'] ?? self::DEFAULT_TARGET)),
             '*'
         );
     }
     public static function runWithAfter(array $config): array
     {
         $classes = [];
-        foreach (self::getRange($config) as $version) {
+        foreach (self::getRange($config['target'] ?? self::DEFAULT_TARGET) as $version) {
             if (!\file_exists($dir = __DIR__."/Php$version")) {
                 continue;
             }

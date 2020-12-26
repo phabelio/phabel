@@ -15,7 +15,7 @@ class ArrowClosureVariableFinder extends Plugin
     private array $found = [];
     public function enter(Variable $var)
     {
-        if ($var->name !== 'this') {
+        if (is_string($var->name) && $var->name !== 'this') {
             $this->found[$var->name]= new ClosureUse($var, $this->getConfig('byRef', false));
         }
     }

@@ -3,7 +3,6 @@
 namespace Phabel\Composer;
 
 use Composer\Package\PackageInterface;
-use Phabel\Target\Php;
 
 /**
  * @author Daniil Gentili <daniil@daniil.it>

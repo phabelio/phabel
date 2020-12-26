@@ -119,7 +119,7 @@ abstract class Plugin extends Tools implements PluginInterface
     /**
      * {@inheritDoc}
      */
-    public static function composerRequires(array $config): array
+    public function getComposerRequires(): array
     {
         return [];
     }

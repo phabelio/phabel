@@ -156,7 +156,7 @@ class Context
             throw new \RuntimeException('Node is not a part of the current AST stack!');
         }
         $child = $node->{$subNode};
-        if ($index = $node->getAttribute('currentNodeIndex')) {
+        if (null !== $index = $node->getAttribute('currentNodeIndex')) {
             return $child[$index];
         }
         return $child;

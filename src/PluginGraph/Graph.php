@@ -53,17 +53,17 @@ class Graph
     /**
      * Flatten graph.
      *
-     * @return SplQueue<SplQueue<Plugin>>
+     * @return array{0: SplQueue<SplQueue<Plugin>>, array}
      */
-    public function flatten(): SplQueue
+    public function flatten(): array
     {
-        return $this->graph->flatten();
-    }
-    /**
-     * Get dependency list
-     */
-    public function getDependencies(): array
-    {
-        return [];
+        $plugins = $this->graph->flatten();
+        $requires = [];
+        foreach ($plugins as $queue) {
+            foreach ($queue as $plugin) {
+                $requires += $plugin->getComposerRequires();
+            }
+        }
+        return [$plugins, $requires];
     }
 }
