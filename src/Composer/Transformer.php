@@ -2,23 +2,24 @@
 
 namespace Phabel\Composer;
 
+use Composer\IO\IOInterface;
 use Composer\Package\AliasPackage;
 use Composer\Package\BasePackage;
 use Composer\Package\Link;
 use Composer\Package\Package;
 use Composer\Package\PackageInterface;
+use Composer\Package\RootPackageInterface;
 use Composer\Repository\PlatformRepository;
 use Composer\Semver\Constraint\Constraint as ComposerConstraint;
-use Phabel\Target\Php;
-use ReflectionClass;
 
-use Composer\IO\IOInterface;
 use Composer\Semver\VersionParser;
 use Phabel\PluginGraph\Graph;
+use Phabel\Target\Php;
+use Phabel\Tools;
 use Phabel\Traverser;
+use ReflectionClass;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
-use Symfony\Component\Console\Output\ConsoleOutput;
 
 class Transformer
 {
@@ -39,27 +40,41 @@ class Transformer
     private OutputFormatter $outputFormatter;
 
     /**
-     * Version parser
+     * Version parser.
      */
     private VersionParser $versionParser;
     /**
-     * Requires
+     * Requires.
      */
-    private static array $requires = [];
+    private array $requires = [];
     /**
-     * Whether we processed requirements
+     * Whether we processed requirements.
      */
-    private static array $processedRequires = [];
+    private array $processedRequires = [];
     /**
-     * Whether we processed any dependencies
+     * Whether we processed any dependencies.
      */
-    private static bool $processed = false;
+    private bool $processed = false;
     /**
-     * Constructor
+     * Instance
+     */
+    private static self $instance;
+    /**
+     * Get singleton
+     *
+     * @return self
+     */
+    public static function getInstance(IOInterface $io): self
+    {
+        self::$instance ??= new self($io);
+        return self::$instance;
+    }
+    /**
+     * Constructor.
      *
      * @param IOInterface $io
      */
-    public function __construct(IOInterface $io)
+    private function __construct(IOInterface $io)
     {
         $this->io = $io;
         $this->versionParser = new VersionParser;
@@ -71,7 +86,7 @@ class Transformer
     }
 
     /**
-     * Log text
+     * Log text.
      *
      * @param string $text
      * @param bool $format
@@ -92,7 +107,7 @@ class Transformer
      *
      * @return void
      */
-    public function preparePackage(PackageInterface $package, string $newName, int $target = Php::TARGET_IGNORE): void
+    public function preparePackage(PackageInterface &$package, string $newName, int $target = Php::TARGET_IGNORE): void
     {
         /**
          * Phabel configuration of current package.
@@ -115,38 +130,31 @@ class Transformer
         }
         if (!$havePhabel) {
             if ($target === Php::TARGET_IGNORE) {
-                $this->io->debug("Skipping ".$package->getName());
+                $this->io->debug("Skipping ".$package->getName()."=$newName");
                 return;
             }
             $myTarget = $target;
         } else {
             $myTarget = Php::normalizeVersion($myTarget);
-            $myTarget = min($myTarget, $target);
+            $myTarget = \min($myTarget, $target);
         }
 
-        $this->io->debug("Applying ".$package->getName());
+        $this->io->debug("Applying ".$package->getName()."=$newName");
 
-        self::$processed = true;
-        self::$processedRequires = self::$requires;
-        $requires = self::$requires;
+        $this->processed = true;
+        $this->processedRequires = $this->requires;
+        $requires = $this->requires;
         foreach ($config['require'] ?? [] as $name => $constraint) {
             $requires[$this->injectTarget($name, $myTarget)] = $constraint;
         }
 
-        $this->processRequires(
-            $package,
-            $myTarget,
-            $requires,
-            $havePhabel,
-        );
-
-        if (method_exists($package, 'setProvides')) {
-            $package->setProvides(array_merge(
+        if ($newName !== $package->getName() && \method_exists($package, 'setProvides')) {
+            $package->setProvides(\array_merge(
                 $package->getProvides(),
                 [$package->getName() => new Link(
-                    $newName, 
-                    $package->getName(), 
-                    new ComposerConstraint('=', $package->getVersion()), 
+                    $newName,
+                    $package->getName(),
+                    new ComposerConstraint('=', $package->getVersion()),
                     Link::TYPE_PROVIDE,
                     $package->getVersion()
                 )]
@@ -156,6 +164,13 @@ class Transformer
         $base = new ReflectionClass(BasePackage::class);
         $method = $base->getMethod('__construct');
         $method->invokeArgs($package, [$newName]);
+
+        $this->processRequires(
+            $package,
+            $myTarget,
+            $requires,
+            $havePhabel,
+        );
     }
 
     /**
@@ -165,7 +180,7 @@ class Transformer
      * @param int $target
      * @param array $config
      * @param bool $havePhabel
-     * 
+     *
      * @return void
      */
     private function processRequires(PackageInterface $package, int $target, array $requires, bool $havePhabel)
@@ -176,7 +191,7 @@ class Transformer
                 if ($link->getTarget() === 'php') {
                     $constraint = new ComposerConstraint('>=', Php::unnormalizeVersion($target));
                     $links[$name]= new Link(
-                        $link->getSource(),
+                        $package->getName(),
                         $link->getTarget(),
                         $constraint,
                         $link->getDescription(),
@@ -187,25 +202,15 @@ class Transformer
                 }
                 continue;
             }
-            if ($havePhabel) {
-                $links[$name] = $link;
-                continue;
-            }
-            $name = $this->injectTarget($link->getTarget(), $target);
             $links [$name]= new Link(
-                $link->getSource(),
-                $name,
+                $package->getName(),
+                $havePhabel ? $link->getTarget() : $this->injectTarget($link->getTarget(), $target),
                 $link->getConstraint(),
                 $link->getDescription(),
                 $link->getPrettyConstraint()
             );
         }
-        $package->getRequires();
         foreach ($requires as $name => $version) {
-            if (PlatformRepository::isPlatformPackage($name)) {
-                continue;
-            }
-
             $links[$name] = new Link(
                 $package->getName(),
                 $name,
@@ -244,19 +249,20 @@ class Transformer
     public function extractTarget(string $package): array
     {
         if (str_starts_with($package, self::HEADER)) {
-            [$version, $package] = \explode(self::SEPARATOR, substr($package, strlen(self::HEADER)), 2);
+            [$version, $package] = \explode(self::SEPARATOR, \substr($package, \strlen(self::HEADER)), 2);
             return [$package, $version];
         }
         return [$package, Php::TARGET_IGNORE];
     }
 
     /**
-     * Transform dependencies
+     * Transform dependencies.
      *
      * @param array $packages
-     * @return void
+     * @return bool Whether no more packages should be updated
      */
-    public function transform(array $packages) {
+    public function transform(array $packages): bool
+    {
         static $printed = false;
         if (!$printed) {
             $printed = true;
@@ -272,7 +278,7 @@ class Transformer
             }
             $package['phabelTarget'] = (int) $target;
             $package['phabelConfig'] = [$package['extra']['phabel'] ?? []];
-            unset($package['phabelConfig']['target'][0]);            
+            unset($package['phabelConfig'][0]['target']);
             $byName[$name] = $package;
         }
         do {
@@ -288,7 +294,7 @@ class Transformer
                         continue;
                     }
                     foreach ($parentConfigs as $config) {
-                        if (!in_array($config, $byName[$subName]['phabelConfig'])) {
+                        if (!\in_array($config, $byName[$subName]['phabelConfig'])) {
                             $byName[$subName]['phabelConfig'][] = $config;
                             $changed = true;
                         }
@@ -307,15 +313,19 @@ class Transformer
             }
         }
 
-        [$plugins, self::$requires] = $graph->flatten();
+        [$plugins, $this->requires] = $graph->flatten();
         $traverser = new Traverser($plugins);
+
+        if (!$this->processedRequires()) {
+            return false;
+        }
 
         $this->log("Applying transforms...");
         foreach ($byName as $name => $package) {
             $traverser->setPackage($name);
 
             $it = new \RecursiveDirectoryIterator("vendor/".$package['name']);
-            foreach(new \RecursiveIteratorIterator($it) as $file) {
+            foreach (new \RecursiveIteratorIterator($it) as $file) {
                 if ($file->isFile() && $file->getExtension() == 'php') {
                     $this->io->debug("Transforming ".$file->getRealPath());
                     $traverser->traverse($file->getRealPath(), $file->getRealPath());
@@ -323,25 +333,27 @@ class Transformer
             }
         }
         $this->log("Done!");
+
+        return true;
     }
 
     /**
-     * Get whether we processed any dependencies
+     * Get whether we processed any dependencies.
      *
      * @return bool
      */
-    public static function processedAny(): bool
+    public function processedRequires(): bool
     {
-        return self::$processed;
+        return $this->processed && $this->processedRequires === $this->requires;
     }
 
     /**
-     * Get whether we processed any dependencies
+     * Get IO interface.
      *
-     * @return bool
+     * @return IOInterface
      */
-    public static function processedRequires(): bool
+    public function getIo(): IOInterface
     {
-        return self::$processed && self::$processedRequires === self::$requires;
+        return $this->io;
     }
 }

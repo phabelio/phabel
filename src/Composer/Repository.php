@@ -10,7 +10,7 @@ use Composer\Package\PackageInterface;
  */
 trait Repository
 {
-    public Transformer $phabelTransformer;
+    private Transformer $phabelTransformer;
     /**
      * TODO v3 should make this private once we can drop PHP 5.3 support.
      *
@@ -33,23 +33,45 @@ trait Repository
      */
     public function loadPackages(array $packageNameMap, array $acceptableStabilities, array $stabilityFlags, array $alreadyLoaded = [])
     {
-        $newPackages = [];
-        $targets = [];
-        $keyMap = [];
+        $newAlreadyLoaded = [];
+        $newPackageNameMap = [];
+        $transformInfo = [];
         foreach ($packageNameMap as $key => $constraint) {
             [$package, $target] = $this->phabelTransformer->extractTarget($key);
-            $newPackages[$package] = $constraint;
-            $targets[$package] = $target;
-            $keyMap[$package] = $key;
+            $newPackageNameMap[$target] ??= [];
+            $newPackageNameMap[$target][$package] = $constraint;
+            $transformInfo[$target] ??= [];
+            $transformInfo[$target][$package] = $key;
+        }
+        foreach ($alreadyLoaded as $key => $versions) {
+            [$package, $target] = $this->phabelTransformer->extractTarget($key);
+            $newAlreadyLoaded[$target] ??= [];
+            $newAlreadyLoaded[$target][$package] = $versions;
         }
 
-        $packages = parent::loadPackages($newPackages, $acceptableStabilities, $stabilityFlags, $alreadyLoaded);
-        foreach ($packages['namesFound'] as &$name) {
-            $name = $keyMap[$name];
+        $finalNamesFound = [];
+        $finalPackages = [];
+        foreach ($newPackageNameMap as $target => $map) {
+            $t = $transformInfo[$target];
+            $packages = parent::loadPackages($map, $acceptableStabilities, $stabilityFlags, $newAlreadyLoaded[$target] ?? []);
+            foreach ($packages['namesFound'] as $package) {
+                $finalNamesFound []= $t[$package];
+            }
+            foreach ($packages['packages'] as $package) {
+                $package = clone $package;
+                $this->phabelTransformer->preparePackage($package, $t[$package->getName()], $target);
+                $finalPackages []= $package;
+            }
         }
-        foreach ($packages['packages'] as $key => &$package) {
-            $this->phabelTransformer->preparePackage($package, $keyMap[$package->getName()], $targets[$package->getName()]);
-        }
+        $packages['namesFound'] = $finalNamesFound;
+        $packages['packages'] = $finalPackages;
+
+        /*$missing = \array_diff(\array_keys($packageNameMap), $finalNamesFound);
+        if (!empty($missing)) {
+            $this->phabelTransformer->getIo()->debug("Could not find the following packages in ".\get_parent_class($this).": ".\implode(", ", $missing));
+        } else {
+            $this->phabelTransformer->getIo()->debug("Loaded packages in ".\get_parent_class($this).": ".\implode(", ", $finalNamesFound));
+        }*/
         return $packages;
     }
 
@@ -67,7 +89,9 @@ trait Repository
         if (!$package = parent::findPackage($name, $constraint)) {
             return null;
         }
-        return $this->phabelTransformer->preparePackage($package, $fullName, $target);
+        $package = clone $package;
+        $this->phabelTransformer->preparePackage($package, $fullName, $target);
+        return $package;
     }
 
     /**
@@ -81,7 +105,9 @@ trait Repository
     public function findPackages($fullName, $constraint = null)
     {
         [$name, $target] = $this->phabelTransformer->extractTarget($fullName);
-        foreach ($packages = parent::findPackages($name, $constraint) as $package) {
+        $packages = parent::findPackages($name, $constraint);
+        foreach ($packages as &$package) {
+            $package = clone $package;
             $this->phabelTransformer->preparePackage($package, $fullName, $target);
         }
         return $packages;
@@ -95,9 +121,24 @@ trait Repository
     public function getPackages()
     {
         $packages = parent::getPackages();
-        foreach ($packages as $package) {
+        foreach ($packages as &$package) {
+            $package = clone $package;
             $this->phabelTransformer->preparePackage($package, $package->getName());
         }
         return $packages;
+    }
+
+    /**
+     * Set the value of phabelTransformer.
+     *
+     * @param Transformer $phabelTransformer
+     *
+     * @return self
+     */
+    public function setPhabelTransformer(Transformer $phabelTransformer): self
+    {
+        $this->phabelTransformer = $phabelTransformer;
+
+        return $this;
     }
 }

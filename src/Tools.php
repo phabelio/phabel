@@ -231,6 +231,7 @@ abstract class Tools
     public static function cloneWithTrait(object $obj, string $trait): object
     {
         static $count = 0;
+        static $memoized = [];
         
         $reflect = new ReflectionClass($obj);
 
@@ -241,15 +242,18 @@ abstract class Tools
         }
 
         $extend = "extends \\".$r->getName();
-        $eval = "class phabelTmpClass$count $extend {
-            use \\$trait;
-
-            public function __construct() {}
+        if (isset($memoized["$trait $extend"])) {
+            $newObj = new $memoized["$trait $extend"];
+        } else {
+            $memoized["$trait $extend"] = "phabelTmpClass$count";
+            $eval = "class phabelTmpClass$count $extend {
+                use \\$trait;
+                public function __construct() {}
+            }
+            return new phabelTmpClass$count;";
+            $count++;
+            $newObj = eval($eval);
         }
-        return new phabelTmpClass$count;";
-        $count++;
-        
-        $newObj = eval($eval);
 
         $reflectNew = new ReflectionClass($newObj);
 

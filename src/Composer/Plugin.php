@@ -2,29 +2,17 @@
 
 namespace Phabel\Composer;
 
-use Composer\Command\InstallCommand;
-use Composer\Command\RequireCommand;
 use Composer\Composer;
-use Composer\Config;
 use Composer\Console\Application;
 use Composer\EventDispatcher\EventSubscriberInterface;
-use Composer\Installer;
 use Composer\Installer\InstallerEvent;
 use Composer\IO\IOInterface;
-use Composer\Package\Link;
 use Composer\Plugin\PluginInterface;
 use Composer\Repository\PlatformRepository;
 use Composer\Script\Event;
 use Composer\Script\ScriptEvents;
-use Phabel\Target\Php;
 use Phabel\Tools;
-use PhpParser\Node\Expr\ArrayItem;
-use ReflectionObject;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Input\InputDefinition;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\NullOutput;
 
 /**
@@ -46,7 +34,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     public function activate(Composer $composer, IOInterface $io): void
     {
         $rootPackage = $composer->getPackage();
-        $this->transformer = new Transformer($io);
+        $this->transformer = Transformer::getInstance($io);
         $this->transformer->preparePackage($rootPackage, $rootPackage->getName());
         foreach ($rootPackage->getRequires() as $link) {
             if (PlatformRepository::isPlatformPackage($link->getTarget())) {
@@ -57,10 +45,12 @@ class Plugin implements PluginInterface, EventSubscriberInterface
 
         $repoManager = $composer->getRepositoryManager();
         $repos = $repoManager->getRepositories();
-        foreach (array_reverse($repos) as $repo) {
-            $repo = Tools::cloneWithTrait($repo, Repository::class);
-            $repo->phabelTransformer = $this->transformer;
-            $repoManager->prependRepository($repo);
+        foreach (\array_reverse($repos) as $repo) {
+            if (!\method_exists($repo, 'setPhabelTransformer')) {
+                $repo = Tools::cloneWithTrait($repo, Repository::class);
+                $repo->setPhabelTransformer($this->transformer);
+                $repoManager->prependRepository($repo);
+            }
         }
     }
 
@@ -113,20 +103,20 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     }
     private function run(Event $event, bool $isUpdate): void
     {
-        register_shutdown_function(function () use ($isUpdate) {
-            /** @var Application */
-            $application = ($GLOBALS['application'] ?? null) instanceof Application ? $GLOBALS['application'] : new Application;
-            if (!Transformer::processedRequires()) {
+        if (!$this->transformer->transform(\json_decode(\file_get_contents('composer.lock'), true)['packages'] ?? [])) {
+            \register_shutdown_function(function () use ($isUpdate) {
+                /** @var Application */
+                $application = ($GLOBALS['application'] ?? null) instanceof Application ? $GLOBALS['application'] : new Application;
+                $this->transformer->log("Loading additional dependencies...\n");
                 if (!$isUpdate) {
-                    $this->transformer->log("\nLoading additional dependencies...");
                     $require = $application->find('require');
                     $require->run(new ArrayInput(['packages' => [$this->toRequire]]), new NullOutput);
                 } else {
+                    $application->setAutoExit(false);
                     $application->run();
                 }
-            }
-        });
-        $this->transformer->transform(json_decode(file_get_contents('composer.lock'), true)['packages'] ?? []);
+            });
+        }
     }
 
 
