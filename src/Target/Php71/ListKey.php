@@ -73,13 +73,12 @@ class ListKey extends Plugin
                 $curKey = $item->key ?? new LNumber($key++);
                 $item->key = null;
                 if ($item->value instanceof List_) {
-                    [$item->value, $keys[$curKey]] = self::splitList($list);
-                } else {
-                    $keys[$curKey] = null;
+                    [$item->value, $curKey] = self::splitList($list);
                 }
+                $keys[] = $curKey;
             } else {
                 $newList []= null;
-                $keys[$key++] = null;
+                $keys[] = new LNumber($key++);
             }
         }
         /** @var Array_ */

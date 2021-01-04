@@ -98,6 +98,9 @@ class ListReference extends Plugin
     {
         /** @var ArrayItem $item */
         foreach ($list->items ?? [] as $item) {
+            if (!$item) {
+                continue;
+            }
             if ($item->byRef) {
                 return true;
             } elseif ($recurse && ($item->value instanceof List_ || $item->value instanceof Array_)) {

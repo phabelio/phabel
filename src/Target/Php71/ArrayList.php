@@ -49,7 +49,7 @@ class ArrayList extends Plugin
     public function enterList(List_ $node): void
     {
         foreach ($node->items as $item) {
-            if ($item->value instanceof Array_) {
+            if ($item && $item->value instanceof Array_) {
                 self::replaceTypeInPlace($item->value, List_::class);
             }
         }

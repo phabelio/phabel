@@ -6,8 +6,10 @@ use Phabel\Plugin;
 use Phabel\Plugin\TypeHintReplacer;
 use Phabel\Target\Php71\MultipleCatchReplacer;
 use PhpParser\Node;
+use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\BinaryOp\BooleanOr;
 use PhpParser\Node\Expr\Instanceof_;
+use PhpParser\Node\Name;
 use PhpParser\Node\Name\FullyQualified;
 use PhpParser\Node\Param;
 use PhpParser\Node\Stmt\TryCatch;
@@ -24,26 +26,43 @@ class ThrowableReplacer extends Plugin
      *
      * @return boolean
      */
-    private function isThrowable(string $type): bool
+    private static function isThrowable(string $type): bool
     {
         return $type === \Throwable::class || $type === 'Throwable';
+    }
+    /**
+     * Check if is a throwable
+     *
+     * @param mixed $obj
+     * @param mixed $class
+     * @return boolean
+     */
+    public static function isInstanceofThrowable($obj, $class): bool
+    {
+        if ((is_string($class) && self::isThrowable($class)) || get_class($class) === \Throwable::class) {
+            return $obj instanceof \Throwable;
+        }
+        return $obj instanceof $class;
     }
     /**
      * Split instance of \Throwable.
      *
      * @param Instanceof_ $node
      *
-     * @return ?BooleanOr
+     * @return Node
      */
-    public function enterInstanceOf(Instanceof_ $node): ?BooleanOr
+    public function enterInstanceOf(Instanceof_ $node)
     {
-        if (!$this->isThrowable($node->class->toString())) {
-            return null;
+        if ($node->class instanceof Name) {
+            if (!$this->isThrowable($node->class->toString())) {
+                return null;
+            }
+            return new BooleanOr(
+                new Instanceof_($node->expr, new FullyQualified('Exception')),
+                new Instanceof_($node->expr, new FullyQualified('Error'))
+            );
         }
-        return new BooleanOr(
-            new Instanceof_($node->expr, new FullyQualified('Exception')),
-            new Instanceof_($node->expr, new FullyQualified('Error'))
-        );
+        return self::callPoly('isInstanceofThrowable', $node->expr, $node->class);
     }
     /**
      * Substitute try-catch.
