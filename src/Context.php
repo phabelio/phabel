@@ -193,7 +193,7 @@ class Context
             $skips = $parent->getAttribute('skipNodes', []);
             $skips []= $nodeKeyIndex+\count($insert);
             $parent->setAttribute('skipNodes', $skips);
-            $parent->setAttribute('currentNodeIndex', max(0, $nodeKeyIndex - 1));
+            //$parent->setAttribute('currentNodeIndex', max(0, $nodeKeyIndex - 1));
             return; // Done, inserted!
         }
 

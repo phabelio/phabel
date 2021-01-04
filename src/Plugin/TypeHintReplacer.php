@@ -32,8 +32,10 @@ use PhpParser\Node\Scalar\MagicConst\Method;
 use PhpParser\Node\Scalar\String_;
 use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\Node\Stmt\ClassMethod;
+use PhpParser\Node\Stmt\Expression;
 use PhpParser\Node\Stmt\Foreach_;
 use PhpParser\Node\Stmt\If_;
+use PhpParser\Node\Stmt\Interface_;
 use PhpParser\Node\Stmt\Return_;
 use PhpParser\Node\Stmt\Throw_;
 use PhpParser\Node\UnionType;
@@ -188,6 +190,14 @@ class TypeHintReplacer extends Plugin
         if ($func instanceof ClassMethod) {
             /** @var ClassLike */
             $parent = $ctx->parents->top();
+            if ($parent instanceof Interface_) {
+                foreach ($func->getParams() as $param) {
+                    $param->type = null;
+                }
+                $func->returnType = null;
+                $this->stack->push([self::IGNORE_RETURN]);
+                return null;
+            }
             if (!$parent->name) {
                 $functionName = new Concat(new String_('class@anonymous:'), new MagicConstFunction_());
             }
@@ -209,7 +219,7 @@ class TypeHintReplacer extends Plugin
             $start = new Concat($start, new String_(" given, called in "));
             $start = new Concat($start, self::callPoly('trace', new LNumber(0)));
 
-            $if = new If_($condition, [new Throw_(new New_(new FullyQualified(\TypeError::class), [new Arg($start)]))]);
+            $if = new If_($condition, ['stmts' => [new Throw_(new New_(new FullyQualified(\TypeError::class), [new Arg($start)]))]]);
             if ($param->variadic) {
                 $stmts []= new Foreach_($param->var, new Variable('phabelVariadic'), ['keyVar' => new Variable('phabelVariadicIndex'), 'stmts' => [$if]]);
             } else {
@@ -250,7 +260,7 @@ class TypeHintReplacer extends Plugin
         [, $functionName, $byRef, $noOop, $string, $condition] = $current;
 
         $var = new Variable('phabelReturn');
-        $assign = $byRef ? new AssignRef($var, $return->expr ?? new Name('null')) : new Assign($var, $return->expr ?? new Name('null'));
+        $assign = new Expression($byRef ? new AssignRef($var, $return->expr ?? new Name('null')) : new Assign($var, $return->expr ?? new Name('null')));
 
         $start = new String_("Return value of");
         $start = new Concat($start, $functionName);
