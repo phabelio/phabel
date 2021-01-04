@@ -13,6 +13,7 @@ use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\BinaryOp\BooleanOr;
 use PhpParser\Node\Expr\ClassConstFetch;
 use PhpParser\Node\Expr\Closure;
+use PhpParser\Node\Expr\ClosureUse;
 use PhpParser\Node\Expr\ErrorSuppress;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\Instanceof_;
@@ -23,6 +24,7 @@ use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\StaticPropertyFetch;
 use PhpParser\Node\Expr\Ternary;
 use PhpParser\Node\Expr\Throw_;
+use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Scalar\LNumber;
 use PhpParser\Node\Stmt\Return_;
 
@@ -127,7 +129,7 @@ class NestedExpressionFixer extends Plugin
                                 "returnMe",
                                 new Closure([
                                     'byRef' => true,
-                                    'uses' => \array_keys($this->finderPlugin->getFound()),
+                                    'uses' => \array_map(fn (string $s): ClosureUse => new ClosureUse(new Variable($s)), \array_keys($this->finderPlugin->getFound())),
                                     'stmts' => [
                                         new Assign($value = $context->getVariable(), $valueCopy),
                                         new Return_($expr)

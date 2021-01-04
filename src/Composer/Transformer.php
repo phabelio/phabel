@@ -8,14 +8,12 @@ use Composer\Package\BasePackage;
 use Composer\Package\Link;
 use Composer\Package\Package;
 use Composer\Package\PackageInterface;
-use Composer\Package\RootPackageInterface;
 use Composer\Repository\PlatformRepository;
 use Composer\Semver\Constraint\Constraint as ComposerConstraint;
 
 use Composer\Semver\VersionParser;
 use Phabel\PluginGraph\Graph;
 use Phabel\Target\Php;
-use Phabel\Tools;
 use Phabel\Traverser;
 use ReflectionClass;
 use Symfony\Component\Console\Formatter\OutputFormatter;
@@ -56,11 +54,11 @@ class Transformer
      */
     private bool $processed = false;
     /**
-     * Instance
+     * Instance.
      */
     private static self $instance;
     /**
-     * Get singleton
+     * Get singleton.
      *
      * @return self
      */

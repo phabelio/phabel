@@ -232,7 +232,7 @@ abstract class Tools
     {
         static $count = 0;
         static $memoized = [];
-        
+
         $reflect = new ReflectionClass($obj);
 
 

@@ -30,11 +30,11 @@ class Php extends Plugin
      */
     const DEFAULT_TARGET = 56; //PHP_MAJOR_VERSION.PHP_MINOR_VERSION;
     /**
-     * Ignore target
+     * Ignore target.
      */
     const TARGET_IGNORE = 1000;
     /**
-     * Normalize target version string
+     * Normalize target version string.
      *
      * @param string $target
      * @return integer
@@ -51,12 +51,13 @@ class Php extends Plugin
         return \in_array($target, self::VERSIONS) ? $target : self::DEFAULT_TARGET;
     }
     /**
-     * Unnormalize version string
+     * Unnormalize version string.
      *
      * @param int $target
      * @return string
      */
-    public static function unnormalizeVersion(int $target): string {
+    public static function unnormalizeVersion(int $target): string
+    {
         $target = (string) $target;
         return $target[0].'.'.$target[1];
     }
