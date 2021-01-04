@@ -37,23 +37,6 @@ use PhpParser\Node\Stmt\Return_;
 class NestedExpressionFixer extends Plugin
 {
     /**
-     * Traverser.
-     */
-    private Traverser $traverser;
-    /**
-     * Finder plugin.
-     */
-    private ArrowClosureVariableFinder $finderPlugin;
-    /**
-     * Constructor.
-     */
-    public function __construct()
-    {
-        $this->finderPlugin = new ArrowClosureVariableFinder;
-        $this->finderPlugin->setConfig('byRef', true);
-        $this->traverser = Traverser::fromPlugin($this->finderPlugin);
-    }
-    /**
      * Recursively extract bottom ArrayDimFetch.
      *
      * @param Node $var
@@ -119,26 +102,9 @@ class NestedExpressionFixer extends Plugin
                 case StaticCall::class:
                 case StaticPropertyFetch::class:
                 case FuncCall::class:
-                    $this->traverser->traverseAst($expr);
                     $valueCopy = $value;
                     $context->insertBefore($expr, new Assign($value = $context->getVariable(), $valueCopy));
-
-                    return new ErrorSuppress(
-                        new MethodCall(
-                            self::callPoly(
-                                "returnMe",
-                                new Closure([
-                                    'byRef' => true,
-                                    'uses' => \array_map(fn (string $s): ClosureUse => new ClosureUse(new Variable($s)), \array_keys($this->finderPlugin->getFound())),
-                                    'stmts' => [
-                                        new Assign($value = $context->getVariable(), $valueCopy),
-                                        new Return_($expr)
-                                    ]
-                                ])
-                            ),
-                            '__invoke'
-                        )
-                    );
+                    break;
             }
         }
         return null;

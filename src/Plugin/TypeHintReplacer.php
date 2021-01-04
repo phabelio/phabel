@@ -246,6 +246,9 @@ class TypeHintReplacer extends Plugin
     }
     public function enterReturn(Return_ $return, Context $ctx): ?Node
     {
+        if ($this->stack->isEmpty()) {
+            return null;
+        }
         $current = $this->stack->top();
         if ($current[0] === self::IGNORE_RETURN) {
             return null;
@@ -278,6 +281,10 @@ class TypeHintReplacer extends Plugin
         $ctx->insertBefore($return, $assign, $if);
 
         return null;
+    }
+    public function leaveFunc(FunctionLike $func): void
+    {
+        $this->stack->pop();
     }
     /**
      * Get trace string for errors.

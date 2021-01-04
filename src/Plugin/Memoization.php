@@ -137,7 +137,7 @@ class Memoization
      */
     public function enterReturn(Return_ $return)
     {
-        if ($this->cache->top()) {
+        if ($this->cache->count() && $this->cache->top()) {
             $return->expr = new Assign($this->cache->top(), $return->expr);
         }
     }
