@@ -37,7 +37,7 @@ class ThrowableReplacer extends Plugin
      */
     public function enterInstanceOf(Instanceof_ $node): ?BooleanOr
     {
-        if (!$this->isThrowable($node->class)) {
+        if (!$this->isThrowable($node->class->toString())) {
             return null;
         }
         return new BooleanOr(
@@ -62,7 +62,7 @@ class ThrowableReplacer extends Plugin
                     $type->getLast() === "Error") {
                     $alreadyHasError = true;
                 }
-                if ($this->isThrowable($type)) {
+                if ($this->isThrowable($type->toString())) {
                     $runAfter = true;
                     $type = new FullyQualified('Exception');
                 }
