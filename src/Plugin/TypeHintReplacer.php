@@ -324,7 +324,7 @@ class TypeHintReplacer extends Plugin
      *
      * @return array
      */
-    public static function runWithAfter(array $config): array
+    public static function runWithBefore(array $config): array
     {
         return [StringConcatOptimizer::class];
     }
