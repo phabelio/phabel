@@ -24,8 +24,7 @@ class ListExpression extends Plugin
      */
     public function enterAssign(Assign $node, Context $ctx): ?Variable
     {
-        $isStmt = $ctx->parents[0]->getAttribute('currentNode') === 'stmts';
-        if (!($node->var instanceof List_ || $node->var instanceof Array_) || $isStmt) {
+        if (!($node->var instanceof List_ || $node->var instanceof Array_) || $ctx->parentIsStmt()) {
             return null;
         }
         $list = $node->var;

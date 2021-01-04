@@ -24,6 +24,7 @@ use PhpParser\Node\Expr\Ternary;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\FunctionLike;
 use PhpParser\Node\Param;
+use PhpParser\Node\Stmt\Expression;
 use PhpParser\Node\Stmt\If_;
 use PhpParser\NodeVisitor\NameResolver;
 use SplStack;
@@ -318,5 +319,15 @@ class Context
     public function getNameContext(): NameContext
     {
         return $this->nameResolver->getNameContext();
+    }
+    /**
+     * Check if the parent node is a statement
+     * 
+     * @return bool
+     */
+    public function parentIsStmt(): bool
+    {
+        $parent = $this->parents[0];
+        return $parent instanceof Expression || $parent->getAttribute('currentNode') === 'stmts';
     }
 }

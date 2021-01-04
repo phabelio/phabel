@@ -48,11 +48,10 @@ class ListReference extends Plugin
         if (!($node->var instanceof List_ || $node->var instanceof Array_) || !$this->shouldSplit($node->var)) {
             return;
         }
-        $isStmt = $ctx->parents[0]->getAttribute('currentNode') === 'stmts';
         $list = $node->var;
         $var = $ctx->getVariable();
         $assignments = self::splitList($list, $var);
-        if ($isStmt) {
+        if ($ctx->parentIsStmt()) {
             $last = \array_pop($assignments);
             $ctx->insertBefore($node, new Assign($node->var, $node->expr), ...$assignments);
             return $last;
