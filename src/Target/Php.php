@@ -100,7 +100,7 @@ class Php extends Plugin
         }
         return $classes;
     }
-    public static function runAfter(array $config): array
+    public static function runBefore(array $config): array
     {
         return [StmtExprWrapper::class => $config[StmtExprWrapper::class] ?? []];
     }
