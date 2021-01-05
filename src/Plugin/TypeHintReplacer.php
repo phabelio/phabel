@@ -155,24 +155,25 @@ class TypeHintReplacer extends Plugin
     /**
      * Strip typehint.
      *
-     * @param Variable                                    $var  Variable
-     * @param null|Identifier|Name|NullableType|UnionType $type Type
+     * @param Variable                                    $var   Variable
+     * @param null|Identifier|Name|NullableType|UnionType $type  Type
+     * @param bool                                        $force Whether to force strip
      *
      * @return null|array{0: bool, 1: Node, 2: BooleanNot} Whether the polyfilled gettype should be used, the error message, the condition
      */
-    private function strip(Variable $var, ?Node $type): ?array
+    private function strip(Variable $var, ?Node $type, bool $force = false): ?array
     {
         if (!$type) {
             return null;
         }
-        if ($type instanceof UnionType && $this->getConfig('union', false)) {
+        if ($type instanceof UnionType && $this->getConfig('union', $force)) {
             return $this->generateConditions($var, $type->types);
         }
-        if ($type instanceof NullableType && $this->getConfig('nullable', false)) {
+        if ($type instanceof NullableType && $this->getConfig('nullable', $force)) {
             return $this->generateConditions($var, [$type->type], true);
         }
         $subType = $type instanceof NullableType ? $type->type : $type;
-        if (\in_array($subType->toString(), $this->getConfig('types', []))) {
+        if (\in_array($subType->toString(), $this->getConfig('types', [])) || $force) {
             return $this->generateConditions($var, [$subType], $type instanceof NullableType);
         }
         return null;
@@ -196,7 +197,10 @@ class TypeHintReplacer extends Plugin
                         $param->type = null;
                     }
                 }
-                if ($this->strip(new Variable('phabelReturn'), $func->getReturnType())) {
+                if ($this->getConfig('void', $this->getConfig('return', false)) && $func->getReturnType() instanceof Identifier && $func->getReturnType()->toLowerString() === 'void') {
+                    $func->returnType = null;
+                }
+                if ($this->strip(new Variable('phabelReturn'), $func->getReturnType(), $this->getConfig('return', false))) {
                     $func->returnType = null;
                 }
                 $this->stack->push([self::IGNORE_RETURN]);
@@ -209,7 +213,7 @@ class TypeHintReplacer extends Plugin
         $stmts = [];
         foreach ($func->getParams() as $index => $param) {
             if (!$condition = $this->strip($param->variadic ? new Variable('phabelVariadic') : $param->var, $param->type)) {
-                break;
+                continue;
             }
             $param->type = null;
             [$noOop, $string, $condition] = $condition;
@@ -235,12 +239,14 @@ class TypeHintReplacer extends Plugin
             $func->stmts = \array_merge($stmts, $func->getStmts() ?? []);
         }
 
-        if ($this->getConfig('void', false) && $func->getReturnType() instanceof Identifier && $func->getReturnType()->toLowerString() === 'void') {
+        if ($this->getConfig('void', $this->getConfig('return', false)) && $func->getReturnType() instanceof Identifier && $func->getReturnType()->toLowerString() === 'void') {
             $this->toClosure($func, $ctx);
             $this->stack->push([self::VOID_RETURN]);
+            $func->returnType = null;
+            return $func;
         }
         $var = new Variable('phabelReturn');
-        if (!$condition = $this->strip($var, $func->getReturnType())) {
+        if (!$condition = $this->strip($var, $func->getReturnType(), $this->getConfig('return', false))) {
             $this->stack->push([self::IGNORE_RETURN]);
             return null;
         }
