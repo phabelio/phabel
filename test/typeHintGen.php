@@ -58,6 +58,7 @@ $SCALARS = [
     'self' => ['$this'],
     'int' => ["123", "-1"],
     '\\'.CLAZZ => ['$this'],
+    '\\Generator' => ['(fn (): \\Generator => yield)()'],
 ];
 
 $count = \count($SCALARS);

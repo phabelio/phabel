@@ -258,6 +258,23 @@ class TypeHintReplacer extends Plugin
         }
         $this->toClosure($func, $ctx);
         $this->stack->push([self::TYPE_RETURN, $functionName, $func->returnsByRef(), ...$condition]);
+
+        $stmts = $func->getStmts();
+        $final = \end($stmts);
+        if (!$final instanceof Return_) {
+            [, $string, $condition] = $condition;
+
+            $start = new String_("Return value of");
+            $start = new Concat($start, $functionName);
+            $start = new Concat($start, new String_(" must be "));
+            $start = new Concat($start, $string);
+            $start = new Concat($start, new String_(", none returned in "));
+            $start = new Concat($start, self::callPoly('trace', new LNumber(0)));
+
+            $throw = new Throw_(new New_(new FullyQualified(\TypeError::class), [new Arg($start)]));
+            $func->stmts []= $throw;
+        }
+
         return $func;
     }
     public function enterReturn(Return_ $return, Context $ctx): ?Node
@@ -340,7 +357,7 @@ class TypeHintReplacer extends Plugin
         return [StringConcatOptimizer::class];
     }
     /**
-     * Run after generator detector
+     * Run after generator detector.
      *
      * @param array $config
      * @return array

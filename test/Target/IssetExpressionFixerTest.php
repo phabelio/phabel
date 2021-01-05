@@ -4,9 +4,6 @@ namespace PhabelTest\Target;
 
 use PHPUnit\Framework\TestCase;
 
-class a
-{
-}
 /**
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT
