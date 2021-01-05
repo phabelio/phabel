@@ -5,6 +5,7 @@ namespace Phabel\Plugin;
 use Phabel\Context;
 use Phabel\Plugin;
 use Phabel\Target\Php74\ArrowClosure;
+use PhpParser\BuilderHelpers;
 use PhpParser\Node;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr;
@@ -274,7 +275,7 @@ class TypeHintReplacer extends Plugin
         [, $functionName, $byRef, $noOop, $string, $condition] = $current;
 
         $var = new Variable('phabelReturn');
-        $assign = new Expression($byRef ? new AssignRef($var, $return->expr ?? new Name('null')) : new Assign($var, $return->expr ?? new Name('null')));
+        $assign = new Expression($byRef && $return->expr ? new AssignRef($var, $return->expr) : new Assign($var, $return->expr ?? BuilderHelpers::normalizeValue(null)));
 
         $start = new String_("Return value of");
         $start = new Concat($start, $functionName);
