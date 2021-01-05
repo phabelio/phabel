@@ -33,4 +33,10 @@ class ListKeyTest extends TestCase
             $this->assertEquals($input[$i][1][2]['k'], $val2);
         }
     }
+    public function testOrder()
+    {
+        ['a' => $key, $key => $uwu] = ['a' => 'b', 'b' => 'kek'];
+        $this->assertEquals('b', $key);
+        $this->assertEquals('kek', $uwu);
+    }
 }
