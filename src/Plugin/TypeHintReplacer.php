@@ -252,6 +252,10 @@ class TypeHintReplacer extends Plugin
             return null;
         }
         $func->returnType = null;
+        if ($func->getAttribute(GeneratorDetector::IS_GENERATOR, false)) {
+            $this->stack->push([self::IGNORE_RETURN]);
+            return null;
+        }
         $this->toClosure($func, $ctx);
         $this->stack->push([self::TYPE_RETURN, $functionName, $func->returnsByRef(), ...$condition]);
         return $func;
@@ -334,5 +338,15 @@ class TypeHintReplacer extends Plugin
     public static function runWithBefore(array $config): array
     {
         return [StringConcatOptimizer::class];
+    }
+    /**
+     * Run after generator detector
+     *
+     * @param array $config
+     * @return array
+     */
+    public static function runAfter(array $config): array
+    {
+        return [GeneratorDetector::class];
     }
 }
