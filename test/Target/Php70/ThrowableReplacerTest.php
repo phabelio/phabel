@@ -20,6 +20,13 @@ class ThrowableReplacerTest extends TestCase
     public function test(\Throwable $input)
     {
         $this->assertTrue($input instanceof \Throwable);
+        $this->assertTrue($input instanceof $input);
+
+        $c1 = '\\Throwable';
+        $c2 = \Throwable::class;
+        $this->assertTrue($input instanceof $c1);
+        $this->assertTrue($input instanceof $c2);
+        
 
         try {
             throw $input;
