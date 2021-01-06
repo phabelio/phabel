@@ -2,10 +2,13 @@
 
 namespace Phabel\Plugin;
 
+use Phabel\Context;
 use Phabel\Plugin;
+use Phabel\Target\Php74\ArrowClosure;
 use PhpParser\Node;
 use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Expr\ArrayDimFetch;
+use PhpParser\Node\Expr\ArrowFunction;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\Isset_;
 use PhpParser\Node\Expr\Variable;
@@ -24,7 +27,7 @@ use SplStack;
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT
  */
-class Memoization
+class Memoization extends Plugin
 {
     /**
      * Stack of cache objects for current function.
@@ -32,19 +35,23 @@ class Memoization
      * @var SplStack<null|ArrayDimFetch>
      */
     private SplStack $cache;
-    /**
-     * Stack of stmts to prepend for current function.
-     *
-     * @var SplStack<Node[]>
-     */
-    private SplStack $stmts;
+    private ArrowClosure $converter;
     /**
      * Constructor function.
      */
     public function __construct()
     {
         $this->cache = new SplStack;
-        $this->stmts = new SplStack;
+        $this->converter = new ArrowClosure;
+    }
+    /**
+     * Convert a function to a closure.
+     */
+    private function toClosure(FunctionLike &$func, Context $ctx): void
+    {
+        if ($func instanceof ArrowFunction) {
+            $func = $this->converter->enter($func, $ctx);
+        }
     }
     /**
      * Enter functions.
@@ -53,11 +60,10 @@ class Memoization
      *
      * @return void
      */
-    public function enterFunctionLike(FunctionLike $node): void
+    public function enterFunctionLike(FunctionLike $node, Context $ctx): void
     {
         if (!\preg_match_all('/@memoize \$([\w\d_]+)/', (string) ($node->getDocComment() ?? ''), $matches)) {
             $this->cache->push(null);
-            $this->stmts->push([]);
             return;
         }
 
@@ -113,7 +119,11 @@ class Memoization
         $toPrepend []= new If_(new Isset_([$cache]), [new Return_($cache)]);
 
         $this->cache->push($cache);
-        $this->stmts->push($toPrepend);
+        if (empty($toPrepend)) {
+            return;
+        }
+        $this->toClosure($node, $ctx);
+        $node->stmts = \array_merge($toPrepend, $node->stmts);
     }
     /**
      * Leave function.
@@ -122,10 +132,9 @@ class Memoization
      *
      * @return void
      */
-    public function leaveFunctionLike(FunctionLike $fun): void
+    public function leaveFunctionLike(FunctionLike $fun, Context $context): void
     {
         $this->cache->pop();
-        $fun->stmts = \array_merge($this->stmts->pop(), $fun->stmts);
     }
 
     /**

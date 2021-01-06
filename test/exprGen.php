@@ -47,7 +47,7 @@ use PhpParser\Node\Stmt\Expression;
 use PhpParser\Node\Stmt\Use_ as StmtUse_;
 use PhpParser\Node\VarLikeIdentifier;
 
-require 'vendor/autoload.php';
+require_once 'vendor/autoload.php';
 
 function format(Node $code): string
 {

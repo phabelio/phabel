@@ -2,6 +2,7 @@
 
 namespace Phabel;
 
+use Phabel\PluginGraph\Graph;
 use PhpParser\Node;
 use PhpParser\Parser;
 use PhpParser\ParserFactory;
@@ -33,7 +34,7 @@ class Traverser
      */
     private ?SplQueue $packageQueue;
     /**
-     * Current file
+     * Current file.
      */
     private ?string $file;
     /**
@@ -52,6 +53,64 @@ class Traverser
         $final = new SplQueue;
         $final->enqueue($queue);
         return new self($final);
+    }
+    /**
+     * Run phabel
+     *
+     * @param array $plugins Plugins
+     * @param string $input  Input file/directory
+     * @param string $output Output file/directory
+     * @return array
+     */
+    public static function run(array $plugins, string $input, string $output): array
+    {
+        \set_error_handler(
+            function ($errno = 0, $errstr = null, $errfile = null, $errline = null): bool {
+                // If error is suppressed with @, don't throw an exception
+                if (\error_reporting() === 0) {
+                    return false;
+                }
+                throw new Exception($errstr, $errno, null, $errfile, $errline);
+            }
+        );
+
+        $graph = new Graph;
+        foreach ($plugins as $plugin => $config) {
+            $graph->addPlugin($plugin, $config, $graph->getPackageContext());
+        }
+
+        [$plugins, $packages] = $graph->flatten();
+        var_dump($plugins);
+        $p = new Traverser($plugins);
+
+        if (\is_file($input) && \is_file($output)) {
+            $p->traverse($input, $output);
+            return $packages;
+        }
+
+        if (!\file_exists($output)) {
+            \mkdir($output, 0777, true);
+        }
+
+        $it = new \RecursiveDirectoryIterator($input, \RecursiveDirectoryIterator::SKIP_DOTS);
+        $ri = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::SELF_FIRST);
+        foreach ($ri as $file) {
+            $targetPath = $output.DIRECTORY_SEPARATOR.$ri->getSubPathname();
+            if ($file->isDir()) {
+                if (!\file_exists($targetPath)) {
+                    \mkdir($targetPath, 0777, true);
+                }
+            } elseif ($file->isFile()) {
+                if ($file->getExtension() == 'php') {
+                    echo("Transforming ".$file->getRealPath().PHP_EOL);
+                    $p->traverse($file->getRealPath(), $targetPath);
+                } else {
+                    \copy($file->getRealPath(), $targetPath);
+                }
+            }
+        }
+
+        return $packages;
     }
     /**
      * AST traverser.
@@ -158,7 +217,12 @@ class Traverser
                 $this->traverseNode($node, $queue, $context);
             }
         } catch (\Throwable $e) {
-            throw new Exception($e->getMessage(), $e->getLine(), null, $this->file, $context->getCurrentChild($context->parents[0])->getStartLine());
+            $message = $e->getMessage();
+            $message .= " while processing ";
+            $message .= $this->file;
+            $message .= ":";
+            $message .= $context->getCurrentChild($context->parents[0])->getStartLine();
+            throw new Exception($message, $e->getCode(), null, $e->getFile(), $e->getLine());
         }
         return $context;
     }

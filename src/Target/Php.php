@@ -16,8 +16,7 @@ class Php extends Plugin
     /**
      * PHP versions.
      */
-    private const VERSIONS = [
-        55,
+    const VERSIONS = [
         56,
         70,
         71,
