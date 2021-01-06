@@ -19,6 +19,11 @@ class ArrowClosureVariableFinder extends Plugin
             $this->found[$var->name]= new ClosureUse($var, $this->getConfig('byRef', false));
         }
     }
+    /**
+     * Get found closure uses
+     *
+     * @return array<string, ClosureUse>
+     */
     public function getFound(): array
     {
         $found = $this->found;

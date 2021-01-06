@@ -19,22 +19,8 @@ use PhpParser\Node\Stmt\Foreach_;
  */
 class ListKey extends ListSplitter
 {
-    /**
-     * Whether this is a keyed list.
-     *
-     * @param List_|Array_ $list List
-     *
-     * @return boolean
-     */
-    protected function shouldSplit($list, bool $recurse = false): bool
+    public static function runWithAfter(array $config): array
     {
-        return isset($list->items[0]->key);
-    }
-    /**
-     * {@inheritDoc}
-     */
-    public static function runAfter(array $config): array
-    {
-        return [ArrayList::class];
+        return [ListSplitter::class => ['key' => true]];
     }
 }

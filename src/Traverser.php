@@ -82,7 +82,7 @@ class Traverser
         [$plugins, $packages] = $graph->flatten();
         $p = new Traverser($plugins);
 
-        if (\is_file($input) && \is_file($output)) {
+        if (\is_file($input)) {
             $p->traverse($input, $output);
             return $packages;
         }
@@ -220,7 +220,11 @@ class Traverser
             $message .= " while processing ";
             $message .= $this->file;
             $message .= ":";
-            $message .= $context->getCurrentChild($context->parents[0])->getStartLine();
+            try {
+                $message .= $context->getCurrentChild($context->parents[0])->getStartLine();
+            } catch (\Throwable $e) {
+                $message .= "-1";
+            }
             throw new Exception($message, $e->getCode(), $e, $e->getFile(), $e->getLine());
         }
         return $context;
@@ -264,12 +268,8 @@ class Traverser
                     if ($subNode[$index] instanceof Node) {
                         $this->traverseNode($subNode[$index], $plugins, $context);
                     }
-                    $index = $node->getAttribute('currentNodeIndex');
-                    do {
-                        $index++;
-                    } while (\in_array($index, $node->getAttribute('skipNodes', [])));
+                    $index = $node->getAttribute('currentNodeIndex') + 1;
                 }
-                $node->setAttribute('skipNodes', []);
             } elseif ($subNode instanceof Node) {
                 $this->traverseNode($subNode, $plugins, $context);
             }

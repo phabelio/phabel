@@ -24,6 +24,7 @@ use PhpParser\Node\Expr\Ternary;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\FunctionLike;
 use PhpParser\Node\Param;
+use PhpParser\Node\Stmt\Else_;
 use PhpParser\Node\Stmt\Expression;
 use PhpParser\Node\Stmt\If_;
 use PhpParser\NodeVisitor\NameResolver;
@@ -191,10 +192,7 @@ class Context
             /** @var int */
             $nodeKeyIndex = $parent->getAttribute('currentNodeIndex');
             \array_splice($parent->{$nodeKey}, $nodeKeyIndex, 0, $insert);
-            $skips = $parent->getAttribute('skipNodes', []);
-            $skips []= $nodeKeyIndex+\count($insert);
-            $parent->setAttribute('skipNodes', $skips);
-            //$parent->setAttribute('currentNodeIndex', max(0, $nodeKeyIndex - 1));
+            $parent->setAttribute('currentNodeIndex', $nodeKeyIndex + count($insert));
             return; // Done, inserted!
         }
 
@@ -214,10 +212,10 @@ class Context
                     'stmts' => [
                         new Assign($result, BuilderHelpers::normalizeValue(true))
                     ],
-                    'else' => [
+                    'else' => new Else_([
                         ...$insert,
                         new Assign($result, new Bool_($node->right))
-                    ]
+                    ])
                 ]
             );
             $node = $result;
@@ -230,9 +228,9 @@ class Context
                         ...$insert,
                         new Assign($result, new Bool_($node->right))
                     ],
-                    'else' => [
+                    'else' => new Else_([
                         new Assign($result, BuilderHelpers::normalizeValue(false))
-                    ]
+                    ])
                 ]
             );
             $node = $result;
@@ -258,10 +256,10 @@ class Context
                             ...$nodeKey === 'if' ? $insert : [],
                             new Assign($result, $node->if)
                         ],
-                        'else' => [
+                        'else' => new Else_([
                             ...$nodeKey === 'else' ? $insert : [],
                             new Assign($result, $node->else)
-                        ]
+                        ])
                     ]
                 );
             }

@@ -33,6 +33,13 @@ foreach (Php::VERSIONS as $version) {
         __DIR__.'/Target',
         __DIR__."/Target$version"
     );
+    $packages += Traverser::run(
+        [
+            PhabelTestGenerator::class => ['target' => 1000+$version]
+        ],
+        __DIR__.'/Target',
+        __DIR__."/Target10$version"
+    );
 }
 
 if (!empty($packages)) {

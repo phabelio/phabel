@@ -15,9 +15,9 @@ use PhpParser\Node\Scalar\LNumber;
 use PhpParser\Node\Stmt\Foreach_;
 
 /**
- * Polyfills unsupported list assignments
+ * Polyfills unsupported list assignments.
  */
-abstract class ListSplitter extends Plugin
+class ListSplitter extends Plugin
 {
     /**
      * Parse list foreach with custom keys.
@@ -28,13 +28,13 @@ abstract class ListSplitter extends Plugin
      */
     public function enterForeach(Foreach_ $node, Context $ctx): void
     {
-        if (!($node->valueVar instanceof List_ || $node->valueVar instanceof Array_) || !$this->shouldSplit($node->valueVar, true)) {
+        if (!($node->valueVar instanceof List_ || $node->valueVar instanceof Array_) || !$this->shouldSplit($node->valueVar)) {
             return;
         }
         $list = $node->valueVar;
         $var = $node->valueVar = $ctx->getVariable();
         $assignments = self::splitList($list, $var);
-        $node->stmts = \array_merge($assignments, $node->stmts);
+        $node->stmts = \array_merge([new Assign($var, $node->expr)], $assignments, $node->stmts);
     }
     /**
      * Parse list assignment with custom keys.
@@ -48,18 +48,18 @@ abstract class ListSplitter extends Plugin
         if (!($node->var instanceof List_ || $node->var instanceof Array_) || !$this->shouldSplit($node->var)) {
             return;
         }
-        $list = $node->var;
         $var = $ctx->getVariable();
-        $assignments = self::splitList($list, $var);
+        $assignments = self::splitList($node->var, $var);
+
         if ($ctx->parentIsStmt()) {
             $last = \array_pop($assignments);
-            $ctx->insertBefore($node, new Assign($node->var, $node->expr), ...$assignments);
+            $ctx->insertBefore($node, new Assign($var, $node->expr), ...$assignments);
             return $last;
+        } else {
+            // On newer versions of php, the list assignment expression returns the original array
+            $ctx->insertBefore($node, new Assign($var, $node->expr), ...$assignments);
+            return $var;
         }
-
-        // On newer versions of php, the list assignment expression returns the original array
-        $ctx->insertBefore($node, new Assign($var, $node->expr), ...$assignments);
-        return $var;
     }
     /**
      * Split referenced list into multiple assignments.
@@ -94,5 +94,23 @@ abstract class ListSplitter extends Plugin
      *
      * @return boolean
      */
-    abstract protected function shouldSplit($list, bool $recurse = false): bool;
+    private function shouldSplit($list): bool
+    {
+        /** @var ArrayItem $item */
+        foreach ($list->items ?? [] as $item) {
+            if (!$item) {
+                continue;
+            }
+            if ($this->getConfig('byRef', false) && $item->byRef) {
+                return true;
+            } elseif ($this->getConfig('key', false) && isset($item->key)) {
+                return true;
+            } elseif ($item->value instanceof List_ || $item->value instanceof Array_) {
+                if ($this->shouldSplit($item->value)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }

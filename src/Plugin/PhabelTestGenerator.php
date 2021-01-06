@@ -23,8 +23,8 @@ class PhabelTestGenerator extends Plugin
     }
     public function enterLiteral(String_ $str): ?String_
     {
-        if (str_contains($str->value, "\\PhabelTest\\Target\\")) {
-            return new String_(\str_replace($str->value, "\\PhabelTest\\Target\\", "\\PhabelTest\\Target\\".$this->getConfig('target', '')));
+        if (str_contains($str->value, "\\Target\\")) {
+            return new String_(\str_replace($str->value, "\\Target\\", "\\Target".$this->getConfig('target', '')."\\"));
         }
         return null;
     }
@@ -32,7 +32,7 @@ class PhabelTestGenerator extends Plugin
     public static function runAfter(array $config): array
     {
         return [
-            Php::class => $config,
+            Php::class => ['target' => $config['target'] % 1000],
             StringConcatOptimizer::class => [],
         ];
     }
