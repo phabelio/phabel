@@ -6,7 +6,6 @@ use Phabel\Plugin;
 use Phabel\Plugin\TypeHintReplacer;
 use Phabel\Target\Php71\MultipleCatchReplacer;
 use PhpParser\Node;
-use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\BinaryOp\BooleanOr;
 use PhpParser\Node\Expr\Instanceof_;
 use PhpParser\Node\Name;
@@ -31,7 +30,7 @@ class ThrowableReplacer extends Plugin
         return $type === \Throwable::class || $type === 'Throwable';
     }
     /**
-     * Check if is a throwable
+     * Check if is a throwable.
      *
      * @param mixed $obj
      * @param mixed $class
@@ -39,7 +38,7 @@ class ThrowableReplacer extends Plugin
      */
     public static function isInstanceofThrowable($obj, $class): bool
     {
-        if ((is_string($class) && self::isThrowable($class)) || get_class($class) === \Throwable::class) {
+        if ((\is_string($class) && self::isThrowable($class)) || \get_class($class) === \Throwable::class) {
             return $obj instanceof \Exception || $obj instanceof \Error;
         }
         return $obj instanceof $class;
