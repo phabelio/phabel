@@ -2,6 +2,7 @@
 
 namespace Phabel\PluginGraph;
 
+use Phabel\Plugin;
 use Phabel\PluginInterface;
 use SplObjectStorage;
 use SplQueue;
@@ -120,8 +121,27 @@ class GraphInternal
                 /** @var Node */
                 $initNode = $node;
             }
+            $this->unlinkedNodes = new SplObjectStorage;
+            $this->unlinkedNodes->attach($initNode);
             return $initNode->circular()->flatten();
         }
         return \array_values(\array_values($this->plugins)[0])[0]->circular()->flatten();
+    }
+    /**
+     * Returns graph debug information
+     *
+     * @return array
+     */
+    public function __debugInfo(): array
+    {
+        $res = [];
+        foreach ($this->flatten() as $queue) {
+            $cur = [];
+            foreach ($queue as $plugin) {
+                $cur[] = [get_class($plugin), $plugin->getConfigArray()];
+            }
+            $res []= $cur;
+        }
+        return $res;
     }
 }

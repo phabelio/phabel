@@ -99,12 +99,13 @@ class PluginCache
      */
     public static function runBefore(string $plugin, array $config): array
     {
+        $pluginConfig = $plugin.var_export($config, true);
         /** @var array<class-string<PluginInterface>, array<class-string<PluginInterface>, array>> */
         static $cache = [];
-        if (isset($cache[$plugin])) {
-            return $cache[$plugin];
+        if (isset($cache[$pluginConfig])) {
+            return $cache[$pluginConfig];
         }
-        return $cache[$plugin] = self::simplify($plugin::runBefore($config));
+        return $cache[$pluginConfig] = self::simplify($plugin::runBefore($config));
     }
     /**
      * Get runAfter requirements.
@@ -117,12 +118,13 @@ class PluginCache
      */
     public static function runAfter(string $plugin, array $config): array
     {
+        $pluginConfig = $plugin.var_export($config, true);
         /** @var array<class-string<PluginInterface>, array<class-string<PluginInterface>, array>> */
         static $cache = [];
-        if (isset($cache[$plugin])) {
-            return $cache[$plugin];
+        if (isset($cache[$pluginConfig])) {
+            return $cache[$pluginConfig];
         }
-        return $cache[$plugin] = self::simplify($plugin::runAfter($config));
+        return $cache[$pluginConfig] = self::simplify($plugin::runAfter($config));
     }
     /**
      * Get runWithBefore requirements.
@@ -135,12 +137,13 @@ class PluginCache
      */
     public static function runWithBefore(string $plugin, array $config): array
     {
+        $pluginConfig = $plugin.var_export($config, true);
         /** @var array<class-string<PluginInterface>, array<class-string<PluginInterface>, array>> */
         static $cache = [];
-        if (isset($cache[$plugin])) {
-            return $cache[$plugin];
+        if (isset($cache[$pluginConfig])) {
+            return $cache[$pluginConfig];
         }
-        return $cache[$plugin] = self::simplify($plugin::runWithBefore($config));
+        return $cache[$pluginConfig] = self::simplify($plugin::runWithBefore($config));
     }
     /**
      * Get runWithAfter requirements.
@@ -153,12 +156,13 @@ class PluginCache
      */
     public static function runWithAfter(string $plugin, array $config): array
     {
+        $pluginConfig = $plugin.var_export($config, true);
         /** @var array<class-string<PluginInterface>, array<class-string<PluginInterface>, array>> */
         static $cache = [];
-        if (isset($cache[$plugin])) {
-            return $cache[$plugin];
+        if (isset($cache[$pluginConfig])) {
+            return $cache[$pluginConfig];
         }
-        return $cache[$plugin] = self::simplify($plugin::runWithAfter($config));
+        return $cache[$pluginConfig] = self::simplify($plugin::runWithAfter($config));
     }
     /**
      * Simplify requirements.

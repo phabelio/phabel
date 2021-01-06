@@ -80,7 +80,6 @@ class Traverser
         }
 
         [$plugins, $packages] = $graph->flatten();
-        var_dump($plugins);
         $p = new Traverser($plugins);
 
         if (\is_file($input) && \is_file($output)) {
@@ -222,7 +221,7 @@ class Traverser
             $message .= $this->file;
             $message .= ":";
             $message .= $context->getCurrentChild($context->parents[0])->getStartLine();
-            throw new Exception($message, $e->getCode(), null, $e->getFile(), $e->getLine());
+            throw new Exception($message, $e->getCode(), $e, $e->getFile(), $e->getLine());
         }
         return $context;
     }

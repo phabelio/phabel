@@ -66,4 +66,14 @@ class Graph
         }
         return [$plugins, $requires];
     }
+
+    /**
+     * Returns graph debug information
+     *
+     * @return array
+     */
+    public function __debugInfo(): array
+    {
+        return $this->graph->__debugInfo();
+    }
 }

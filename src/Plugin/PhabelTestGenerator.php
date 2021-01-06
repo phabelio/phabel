@@ -33,7 +33,6 @@ class PhabelTestGenerator extends Plugin
     {
         return [
             Php::class => $config,
-            Memoization::class => [],
             StringConcatOptimizer::class => [],
         ];
     }

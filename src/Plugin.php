@@ -35,6 +35,15 @@ abstract class Plugin extends Tools implements PluginInterface
         $this->config = $config;
     }
     /**
+     * Get configuration array.
+     *
+     * @return array
+     */
+    public function getConfigArray(): array
+    {
+        return $this->config;
+    }
+    /**
      * Set package context.
      *
      * @param PackageContext $ctx Ctx

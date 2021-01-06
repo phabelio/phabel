@@ -103,28 +103,28 @@ class Node
      *
      * @return self
      */
-    public function init(string $plugin, array $config): self
+    public function init(string $plugin, array $pluginConfig): self
     {
         $this->name = $plugin;
-        $this->plugin = new Plugins($plugin, $config);
+        $this->plugin = new Plugins($plugin, $pluginConfig);
 
         $this->canBeRequired = PluginCache::canBeRequired($plugin);
-        foreach (PluginCache::runAfter($plugin, $config) as $class => $config) {
+        foreach (PluginCache::runAfter($plugin, $pluginConfig) as $class => $config) {
             foreach ($this->graph->addPlugin($class, $config, $this->packageContext) as $node) {
                 $this->require($node);
             }
         }
-        foreach (PluginCache::runBefore($plugin, $config) as $class => $config) {
+        foreach (PluginCache::runBefore($plugin, $pluginConfig) as $class => $config) {
             foreach ($this->graph->addPlugin($class, $config, $this->packageContext) as $node) {
                 $node->require($this);
             }
         }
-        foreach (PluginCache::runWithAfter($plugin, $config) as $class => $config) {
+        foreach (PluginCache::runWithAfter($plugin, $pluginConfig) as $class => $config) {
             foreach ($this->graph->addPlugin($class, $config, $this->packageContext) as $node) {
                 $this->extend($node);
             }
         }
-        foreach (PluginCache::runWithBefore($plugin, $config) as $class => $config) {
+        foreach (PluginCache::runWithBefore($plugin, $pluginConfig) as $class => $config) {
             foreach ($this->graph->addPlugin($class, $config, $this->packageContext) as $node) {
                 $node->extend($this);
             }
@@ -184,15 +184,14 @@ class Node
     {
         $this->packageContext->merge($other->packageContext);
         $this->plugin->merge($other->plugin);
-        foreach ($other->requiredBy as $node) {
-            $node->require($this);
-            $node->requires->detach($other);
+        foreach ($other->requiredBy as $that) {
+            $that->require($this);
+            $that->requires->detach($other);
         }
-        foreach ($other->extendedBy as $node) {
-            $node->extend($this);
-            $node->extends->detach($other);
+        foreach ($other->extendedBy as $that) {
+            $that->extend($this);
+            $that->extends->detach($other);
         }
-
         return $this;
     }
 
@@ -233,11 +232,11 @@ class Node
         }
         $this->visitedCircular = true;
 
-        foreach ($this->requiredBy as $node) {
-            $this->packageContext->merge($node->circular()->packageContext);
+        foreach ($this->requiredBy as $that) {
+            $this->packageContext->merge($that->circular()->packageContext);
         }
-        foreach ($this->extendedBy as $node) {
-            $this->packageContext->merge($node->circular()->packageContext);
+        foreach ($this->extendedBy as $that) {
+            $this->packageContext->merge($that->circular()->packageContext);
         }
 
         $this->visitedCircular = false;
@@ -247,13 +246,13 @@ class Node
     /**
      * Internal flattening.
      *
-     * @param SplQueue<SplQueue<PluginInterface>> $splQueue Queue
+     * @param SplQueue<SplQueue<PluginInterface>> $queueOfQueues Queue
      *
      * @return void
      */
-    private function flattenInternal(SplQueue $splQueue): void
+    private function flattenInternal(SplQueue $queueOfQueues): void
     {
-        $queue = $splQueue->top();
+        $queue = $queueOfQueues->top();
         $this->plugin->enqueue($queue, $this->packageContext);
 
         /** @var SplQueue<Node> */
@@ -295,14 +294,14 @@ class Node
         foreach ($extendedBy as $node) {
             $node->extends->detach($this);
             if (\count($node->extends) + \count($node->requires) === 0) {
-                $node->flattenInternal($splQueue);
+                $node->flattenInternal($queueOfQueues);
             }
         }
         foreach ($requiredBy as $node) {
             $node->requires->detach($this);
             if (\count($node->extends) + \count($node->requires) === 0) {
-                $splQueue->enqueue(new SplQueue);
-                $node->flattenInternal($splQueue);
+                $queueOfQueues->enqueue(new SplQueue);
+                $node->flattenInternal($queueOfQueues);
             }
         }
     }
