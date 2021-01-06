@@ -11,6 +11,7 @@ use PhpParser\Node\Expr\Isset_;
 use PhpParser\Node\Expr\PropertyFetch;
 use PhpParser\Node\Expr\StaticPropertyFetch;
 use PhpParser\Node\Expr\Ternary;
+use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Scalar\LNumber;
 use PhpParser\Node\Scalar\String_;
 use PhpParser\Node\VarLikeIdentifier;
@@ -101,6 +102,9 @@ class IssetExpressionFixer extends Plugin
                         new String_($workVar->name->name),
                         new LNumber(0)
                     ));
+                    break;
+                case Variable::class:
+                    $workVar->name = self::callPoly('returnMe', $workVar->name);
                     break;
                 default:
                     throw new \RuntimeException("Trying to fix unknown isset expression $class");

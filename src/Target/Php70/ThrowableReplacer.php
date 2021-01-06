@@ -40,7 +40,7 @@ class ThrowableReplacer extends Plugin
     public static function isInstanceofThrowable($obj, $class): bool
     {
         if ((is_string($class) && self::isThrowable($class)) || get_class($class) === \Throwable::class) {
-            return $obj instanceof \Throwable;
+            return $obj instanceof \Exception || $obj instanceof \Error;
         }
         return $obj instanceof $class;
     }

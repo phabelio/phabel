@@ -321,8 +321,8 @@ class Context
         return $this->nameResolver->getNameContext();
     }
     /**
-     * Check if the parent node is a statement
-     * 
+     * Check if the parent node is a statement.
+     *
      * @return bool
      */
     public function parentIsStmt(): bool

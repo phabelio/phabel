@@ -33,6 +33,10 @@ class Traverser
      */
     private ?SplQueue $packageQueue;
     /**
+     * Current file
+     */
+    private ?string $file;
+    /**
      * Generate traverser from basic plugin instances.
      *
      * @param Plugin ...$plugin Plugins
@@ -117,6 +121,7 @@ class Traverser
             return;
         }
 
+        $this->file = $file;
         $ast = new RootNode($this->parser->parse(\file_get_contents($file)) ?? []);
         $this->traverseAstInternal($ast, $reducedQueue);
         $printer = new Standard();
@@ -132,6 +137,7 @@ class Traverser
      */
     public function traverseAst(Node &$node, SplQueue $pluginQueue = null): Context
     {
+        $this->file = null;
         $n = new RootNode([&$node]);
         return $this->traverseAstInternal($n, $pluginQueue);
     }
@@ -145,10 +151,14 @@ class Traverser
      */
     private function traverseAstInternal(RootNode &$node, SplQueue $pluginQueue = null): Context
     {
-        foreach ($pluginQueue ?? $this->packageQueue ?? $this->queue as $queue) {
-            $context = new Context;
-            $context->push($node);
-            $this->traverseNode($node, $queue, $context);
+        try {
+            foreach ($pluginQueue ?? $this->packageQueue ?? $this->queue as $queue) {
+                $context = new Context($this->file);
+                $context->push($node);
+                $this->traverseNode($node, $queue, $context);
+            }
+        } catch (\Throwable $e) {
+            throw new Exception($e->getMessage(), $e->getLine(), null, $this->file, $context->getCurrentChild($context->parents[0])->getStartLine());
         }
         return $context;
     }
@@ -161,7 +171,7 @@ class Traverser
      *
      * @return void
      */
-    public function traverseNode(Node &$node, SplQueue $plugins, Context $context): void
+    private function traverseNode(Node &$node, SplQueue $plugins, Context $context): void
     {
         foreach ($plugins as $plugin) {
             foreach (PluginCache::enterMethods(\get_class($plugin)) as $type => $methods) {

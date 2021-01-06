@@ -29,7 +29,7 @@ class Php extends Plugin
     /**
      * Default target.
      */
-    const DEFAULT_TARGET = 56; //PHP_MAJOR_VERSION.PHP_MINOR_VERSION;
+    const DEFAULT_TARGET = PHP_MAJOR_VERSION.PHP_MINOR_VERSION;
     /**
      * Ignore target.
      */
