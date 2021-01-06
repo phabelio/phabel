@@ -118,7 +118,7 @@ abstract class Plugin extends Tools implements PluginInterface
     {
         $newConfigs = [];
         foreach ($configs as $config) {
-            if (!in_array($config, $newConfigs)) {
+            if (!\in_array($config, $newConfigs)) {
                 $newConfigs []= $config;
             }
         }

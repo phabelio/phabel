@@ -55,11 +55,10 @@ class ListSplitter extends Plugin
             $last = \array_pop($assignments);
             $ctx->insertBefore($node, new Assign($var, $node->expr), ...$assignments);
             return $last;
-        } else {
-            // On newer versions of php, the list assignment expression returns the original array
-            $ctx->insertBefore($node, new Assign($var, $node->expr), ...$assignments);
-            return $var;
         }
+        // On newer versions of php, the list assignment expression returns the original array
+        $ctx->insertBefore($node, new Assign($var, $node->expr), ...$assignments);
+        return $var;
     }
     /**
      * Split referenced list into multiple assignments.

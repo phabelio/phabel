@@ -3,9 +3,9 @@
 namespace Phabel\Target\Php80;
 
 /**
- * Nullsafe class
+ * Nullsafe class.
  */
-class NullSafe
+class Target_Php80_NullSafe_NullSafe
 {
     public function __call($name, $arguments)
     {

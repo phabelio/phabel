@@ -5,7 +5,6 @@ namespace Phabel\Target\Php80;
 use Phabel\Context;
 use Phabel\Plugin;
 use Phabel\Plugin\ArrowClosureVariableFinder;
-use Phabel\Plugin\NestedExpressionFixer;
 use Phabel\Traverser;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr\BinaryOp\Concat;

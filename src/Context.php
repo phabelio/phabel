@@ -192,7 +192,7 @@ class Context
             /** @var int */
             $nodeKeyIndex = $parent->getAttribute('currentNodeIndex');
             \array_splice($parent->{$nodeKey}, $nodeKeyIndex, 0, $insert);
-            $parent->setAttribute('currentNodeIndex', $nodeKeyIndex + count($insert));
+            $parent->setAttribute('currentNodeIndex', $nodeKeyIndex + \count($insert));
             return; // Done, inserted!
         }
 

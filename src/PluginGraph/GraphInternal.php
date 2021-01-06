@@ -128,7 +128,7 @@ class GraphInternal
         return \array_values(\array_values($this->plugins)[0])[0]->circular()->flatten();
     }
     /**
-     * Returns graph debug information
+     * Returns graph debug information.
      *
      * @return array
      */
@@ -138,7 +138,7 @@ class GraphInternal
         foreach ($this->flatten() as $queue) {
             $cur = [];
             foreach ($queue as $plugin) {
-                $cur[] = [get_class($plugin), $plugin->getConfigArray()];
+                $cur[] = [\get_class($plugin), $plugin->getConfigArray()];
             }
             $res []= $cur;
         }

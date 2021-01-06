@@ -8,7 +8,7 @@ namespace Phabel;
 class Exception extends \Exception
 {
     /**
-     * Constructor
+     * Constructor.
      *
      * @param string $message
      * @param integer $code

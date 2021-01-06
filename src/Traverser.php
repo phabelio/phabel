@@ -55,7 +55,7 @@ class Traverser
         return new self($final);
     }
     /**
-     * Run phabel
+     * Run phabel.
      *
      * @param array $plugins Plugins
      * @param string $input  Input file/directory

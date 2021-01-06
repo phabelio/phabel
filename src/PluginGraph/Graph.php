@@ -68,7 +68,7 @@ class Graph
     }
 
     /**
-     * Returns graph debug information
+     * Returns graph debug information.
      *
      * @return array
      */

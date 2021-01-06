@@ -20,7 +20,7 @@ class ArrowClosureVariableFinder extends Plugin
         }
     }
     /**
-     * Get found closure uses
+     * Get found closure uses.
      *
      * @return array<string, ClosureUse>
      */
@@ -28,6 +28,6 @@ class ArrowClosureVariableFinder extends Plugin
     {
         $found = $this->found;
         $this->found = [];
-        return array_values($found);
+        return \array_values($found);
     }
 }
