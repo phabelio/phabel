@@ -1,6 +1,6 @@
 <?php
 
-namespace Phabel\Target\Php74;
+namespace Phabel\Plugin;
 
 use Phabel\Plugin;
 use PhpParser\Node\Expr\ClosureUse;
@@ -28,6 +28,6 @@ class ArrowClosureVariableFinder extends Plugin
     {
         $found = $this->found;
         $this->found = [];
-        return $found;
+        return array_values($found);
     }
 }

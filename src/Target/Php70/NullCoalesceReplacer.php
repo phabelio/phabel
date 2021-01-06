@@ -5,6 +5,7 @@ namespace Phabel\Target\Php70;
 use Phabel\Context;
 use Phabel\Plugin;
 use Phabel\Target\Php74\NullCoalesceAssignment;
+use Phabel\Target\Php80\NullSafeTransformer;
 use Phabel\Tools;
 use PhpParser\Node;
 use PhpParser\Node\Expr;
@@ -67,6 +68,6 @@ class NullCoalesceReplacer extends Plugin
     }
     public static function runWithAfter(array $config): array
     {
-        return [NullCoalesceAssignment::class];
+        return [NullCoalesceAssignment::class, NullSafeTransformer::class];
     }
 }

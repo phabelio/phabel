@@ -116,7 +116,13 @@ abstract class Plugin extends Tools implements PluginInterface
      */
     public static function mergeConfigs(array ...$configs): array
     {
-        return $configs;
+        $newConfigs = [];
+        foreach ($configs as $config) {
+            if (!in_array($config, $newConfigs)) {
+                $newConfigs []= $config;
+            }
+        }
+        return $newConfigs;
     }
     /**
      * {@inheritDoc}

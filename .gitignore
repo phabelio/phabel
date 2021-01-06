@@ -5,7 +5,7 @@ vendor
 .php_cs.cache
 coverage
 a.php
-test/.phpunit.result.cache
+.phpunit.result.cache
 result.php
 resultReverse.php
 test/Target55
@@ -17,3 +17,4 @@ test/Target73
 test/Target74
 test/Target80
 test/Target81
+

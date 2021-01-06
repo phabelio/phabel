@@ -90,7 +90,7 @@ class Php extends Plugin
                 continue;
             }
             foreach (\scandir($dir) as $file) {
-                if (\substr($file, -4) !== '.php') {
+                if (\substr($file, -4) !== '.php' || !(str_ends_with($file, "NestedExpressionFixer.php") || str_ends_with($file, "IssetExpressionFixer.php"))) {
                     continue;
                 }
                 $class = self::class.$version.'\\'.\basename($file, '.php');
@@ -101,6 +101,19 @@ class Php extends Plugin
     }
     public static function runBefore(array $config): array
     {
-        return [StmtExprWrapper::class => $config[StmtExprWrapper::class] ?? []];
+        $classes = [StmtExprWrapper::class => $config[StmtExprWrapper::class] ?? []];
+        foreach (self::getRange($config['target'] ?? self::DEFAULT_TARGET) as $version) {
+            if (!\file_exists($dir = __DIR__."/Php$version")) {
+                continue;
+            }
+            foreach (\scandir($dir) as $file) {
+                if (\substr($file, -4) !== '.php' || str_ends_with($file, "NestedExpressionFixer.php") || str_ends_with($file, "IssetExpressionFixer.php")) {
+                    continue;
+                }
+                $class = self::class.$version.'\\'.\basename($file, '.php');
+                $classes[$class] = $config[$class] ?? [];
+            }
+        }
+        return $classes;
     }
 }

@@ -33,11 +33,12 @@ foreach (Php::VERSIONS as $version) {
         __DIR__.'/Target',
         __DIR__."/Target$version"
     );
+    echo("Converting target $version (secondary)...".PHP_EOL);
     $packages += Traverser::run(
         [
             PhabelTestGenerator::class => ['target' => 1000+$version]
         ],
-        __DIR__.'/Target',
+        __DIR__."/Target$version",
         __DIR__."/Target10$version"
     );
 }

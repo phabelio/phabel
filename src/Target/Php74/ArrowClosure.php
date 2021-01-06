@@ -4,6 +4,7 @@ namespace Phabel\Target\Php74;
 
 use Phabel\Context;
 use Phabel\Plugin;
+use Phabel\Plugin\ArrowClosureVariableFinder;
 use Phabel\Traverser;
 use PhpParser\Node\Expr\ArrowFunction;
 use PhpParser\Node\Expr\Closure;

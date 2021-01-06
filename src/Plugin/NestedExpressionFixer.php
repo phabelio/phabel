@@ -98,6 +98,8 @@ class NestedExpressionFixer extends Plugin
                     $valueCopy = $value;
                     $context->insertBefore($expr, new Assign($value = $context->getVariable(), $valueCopy));
                     break;
+                default:
+                    throw new \RuntimeException("Trying to fix unknown nested expression $class");
             }
         }
         return null;

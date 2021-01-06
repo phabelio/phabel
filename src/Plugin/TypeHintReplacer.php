@@ -167,7 +167,10 @@ class TypeHintReplacer extends Plugin
         if (!$type) {
             return null;
         }
-        if ($type instanceof UnionType && $this->getConfig('union', $force)) {
+        if ($type instanceof UnionType) {
+            if ($this->getConfig('union', $force)) {
+                return null;
+            }
             return $this->generateConditions($var, $type->types);
         }
         if ($type instanceof NullableType && $this->getConfig('nullable', $force)) {

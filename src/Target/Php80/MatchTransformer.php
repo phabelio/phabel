@@ -4,8 +4,8 @@ namespace Phabel\Target\Php80;
 
 use Phabel\Context;
 use Phabel\Plugin;
+use Phabel\Plugin\ArrowClosureVariableFinder;
 use Phabel\Plugin\NestedExpressionFixer;
-use Phabel\Target\Php74\ArrowClosureVariableFinder;
 use Phabel\Traverser;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr\BinaryOp\Concat;
@@ -17,6 +17,7 @@ use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Name\FullyQualified;
 use PhpParser\Node\Param;
 use PhpParser\Node\Scalar\String_;
+use PhpParser\Node\Stmt\Else_;
 use PhpParser\Node\Stmt\ElseIf_;
 use PhpParser\Node\Stmt\If_;
 use PhpParser\Node\Stmt\Throw_;
@@ -64,18 +65,23 @@ class MatchTransformer extends Plugin
         if (empty($cases)) {
             $closure->stmts = [$default];
         } else {
-            [$ifCond, $ifBody] = \array_unshift($cases);
+            [$ifCond, $ifBody] = \array_shift($cases);
             foreach ($cases as &$case) {
                 [$cond, $body] = $case;
                 $case = new ElseIf_($cond, [$body]);
             }
-            $closure->stmts = [new If_($ifCond, ['elseifs' => $cases, 'else' => $default])];
+            $closure->stmts = [
+                new If_(
+                    $ifCond,
+                    [
+                        'stmts' => [$ifBody],
+                        'elseifs' => $cases,
+                        'else' => new Else_([$default])
+                    ]
+                )
+            ];
         }
 
         return new FuncCall($closure, [new Arg($match->cond)]);
-    }
-    public static function runBefore(array $config): array
-    {
-        return [NestedExpressionFixer::class];
     }
 }
