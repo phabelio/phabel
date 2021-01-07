@@ -2,6 +2,7 @@
 
 namespace Phabel\PluginGraph;
 
+use Phabel\Plugin\ListSplitter;
 use Phabel\PluginInterface;
 use SplQueue;
 

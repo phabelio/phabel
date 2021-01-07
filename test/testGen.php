@@ -6,11 +6,6 @@ use Phabel\Plugin\TestNamespaceReplacer;
 use Phabel\Target\Php;
 use Phabel\Traverser;
 
-if (PHP_MAJOR_VERSION !== 8) {
-    echo("The test generator can only be run on PHP 8.0+".PHP_EOL);
-    die(1);
-}
-
 require_once __DIR__.'/../vendor/autoload.php';
 /*
 echo("Running expression generator...".PHP_EOL);

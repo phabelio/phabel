@@ -28,6 +28,8 @@ use PhpParser\Node\Stmt\Else_;
 use PhpParser\Node\Stmt\Expression;
 use PhpParser\Node\Stmt\If_;
 use PhpParser\NodeVisitor\NameResolver;
+use PhpParser\PrettyPrinter\Standard;
+use PhpParser\PrettyPrinterAbstract;
 use SplStack;
 
 /**
@@ -57,6 +59,10 @@ class Context
      */
     public NameResolver $nameResolver;
     /**
+     * Pretty printer
+     */
+    public PrettyPrinterAbstract $prettyPrinter;
+    /**
      * Constructor.
      */
     public function __construct()
@@ -65,6 +71,7 @@ class Context
         $this->parents = new SplStack;
         /** @var SplStack<VariableContext> */
         $this->variables = new SplStack;
+        $this->prettyPrinter = new Standard();
         $this->nameResolver = new NameResolver(new Throwing, ['replaceNodes' => false]);
         $this->nameResolver->beforeTraverse([]);
     }
@@ -327,5 +334,13 @@ class Context
     {
         $parent = $this->parents[0];
         return $parent instanceof Expression || $parent->getAttribute('currentNode') === 'stmts';
+    }
+
+    /**
+     * Dumps AST
+     */
+    public function dumpAst(Node $stmt): void
+    {
+        var_dump($this->prettyPrinter->prettyPrintFile([$stmt]));
     }
 }

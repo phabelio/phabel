@@ -82,7 +82,7 @@ class Php extends Plugin
             '*'
         );
     }
-    public static function runWithAfter(array $config): array
+    public static function runAfter(array $config): array
     {
         $classes = [];
         foreach (self::getRange($config['target'] ?? self::DEFAULT_TARGET) as $version) {
@@ -90,7 +90,10 @@ class Php extends Plugin
                 continue;
             }
             foreach (\scandir($dir) as $file) {
-                if (\substr($file, -4) !== '.php' || !(str_ends_with($file, "NestedExpressionFixer.php") || str_ends_with($file, "IssetExpressionFixer.php"))) {
+                if (\substr($file, -4) !== '.php') {
+                    continue;
+                }
+                if (str_ends_with($file, 'ExpressionFixer.php')) {
                     continue;
                 }
                 $class = self::class.$version.'\\'.\basename($file, '.php');
@@ -106,14 +109,12 @@ class Php extends Plugin
             if (!\file_exists($dir = __DIR__."/Php$version")) {
                 continue;
             }
-            foreach (\scandir($dir) as $file) {
-                if (\substr($file, -4) !== '.php' || str_ends_with($file, "NestedExpressionFixer.php") || str_ends_with($file, "IssetExpressionFixer.php")) {
-                    continue;
-                }
-                $class = self::class.$version.'\\'.\basename($file, '.php');
+            foreach (['Nested', 'Isset'] as $t) {
+                $class = self::class.$version."\\$t"."ExpressionFixer";
                 $classes[$class] = $config[$class] ?? [];
             }
         }
+
         return $classes;
     }
 }

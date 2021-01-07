@@ -267,7 +267,7 @@ class TypeHintReplacer extends Plugin
         if (!$final instanceof Return_) {
             [, $string, $condition] = $condition;
 
-            $start = new String_("Return value of");
+            $start = new String_("Return value of ");
             $start = new Concat($start, $functionName);
             $start = new Concat($start, new String_(" must be "));
             $start = new Concat($start, $string);

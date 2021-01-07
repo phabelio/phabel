@@ -274,16 +274,19 @@ class Traverser
             $node->setAttribute('currentNode', $name);
 
             $subNode = &$node->{$name};
-            if (\is_array($subNode)) {
-                for ($index = 0; $index < \count($subNode);) {
-                    $node->setAttribute('currentNodeIndex', $index);
-                    if ($subNode[$index] instanceof Node) {
-                        $this->traverseNode($subNode[$index], $plugins, $context);
-                    }
-                    $index = $node->getAttribute('currentNodeIndex') + 1;
-                }
-            } elseif ($subNode instanceof Node) {
+            if ($subNode instanceof Node) {
                 $this->traverseNode($subNode, $plugins, $context);
+                continue;
+            }
+            if (!\is_array($subNode)) {
+                continue;
+            }
+            for ($index = 0; $index < \count($subNode);) {
+                $node->setAttribute('currentNodeIndex', $index);
+                if ($subNode[$index] instanceof Node) {
+                    $this->traverseNode($subNode[$index], $plugins, $context);
+                }
+                $index = $node->getAttribute('currentNodeIndex') + 1;
             }
         }
         $context->pop();

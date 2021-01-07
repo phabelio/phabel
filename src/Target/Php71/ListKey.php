@@ -2,12 +2,13 @@
 
 namespace Phabel\Target\Php71;
 
+use Phabel\Plugin;
 use Phabel\Plugin\ListSplitter;
 
 /**
  * Polyfills keyed list assignment.
  */
-class ListKey extends ListSplitter
+class ListKey extends Plugin
 {
     public static function runWithAfter(array $config): array
     {

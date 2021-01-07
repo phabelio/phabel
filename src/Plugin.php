@@ -116,20 +116,24 @@ abstract class Plugin extends Tools implements PluginInterface
      */
     public static function mergeConfigs(array ...$configs): array
     {
-        $newConfigs = [];
-        foreach ($configs as $config) {
-            if (!\in_array($config, $newConfigs)) {
-                $newConfigs []= $config;
+        $final = [];
+        foreach (array_unique($configs, SORT_REGULAR) as $config) {
+            foreach ($final as $k => $compare) {
+                if (empty(array_intersect_key($config, $compare))) {
+                    $final[$k] = $config + $compare;
+                    continue 2;
+                }
             }
+            $final []= $config;
         }
-        return $newConfigs;
+        return $final;
     }
     /**
      * {@inheritDoc}
      */
     public static function splitConfig(array $config): array
     {
-        return [$config];
+        return empty($config) ? [[]] : array_chunk($config, 1, true);
     }
     /**
      * {@inheritDoc}

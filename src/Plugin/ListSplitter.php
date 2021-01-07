@@ -34,7 +34,7 @@ class ListSplitter extends Plugin
         $list = $node->valueVar;
         $var = $node->valueVar = $ctx->getVariable();
         $assignments = self::splitList($list, $var);
-        $node->stmts = \array_merge([new Assign($var, $node->expr)], $assignments, $node->stmts);
+        $node->stmts = \array_merge($assignments, $node->stmts);
     }
     /**
      * Parse list assignment with custom keys.
