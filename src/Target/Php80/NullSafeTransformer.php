@@ -3,11 +3,16 @@
 namespace Phabel\Target\Php80;
 
 use Phabel\Plugin;
+use Phabel\Plugin\NestedExpressionFixer;
+use Phabel\Target\Php80\NullSafe\NullSafe;
 use PhpParser\Node\Expr\BinaryOp\Coalesce;
 use PhpParser\Node\Expr\MethodCall;
+use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Expr\NullsafeMethodCall;
 use PhpParser\Node\Expr\NullsafePropertyFetch;
 use PhpParser\Node\Expr\PropertyFetch;
+use PhpParser\Node\Expr\StaticPropertyFetch;
+use PhpParser\Node\Name\FullyQualified;
 use PhpParser\Node\Param;
 
 /**
@@ -23,7 +28,7 @@ class NullSafeTransformer extends Plugin
      */
     public function enterPropertyFetch(NullsafePropertyFetch $fetch): PropertyFetch
     {
-        return new PropertyFetch(new Coalesce($fetch->var, self::callPoly('nullClass')), $fetch->name);
+        return new PropertyFetch(new Coalesce($fetch->var, new StaticPropertyFetch(new FullyQualified(NullSafe::class), 'singleton')), $fetch->name);
     }
 
     /**
@@ -34,18 +39,11 @@ class NullSafeTransformer extends Plugin
      */
     public function enterMethodCall(NullsafeMethodCall $fetch): MethodCall
     {
-        return new MethodCall(new Coalesce($fetch->var, self::callPoly('nullClass')), $fetch->name, $fetch->args);
+        return new MethodCall(new Coalesce($fetch->var, new StaticPropertyFetch(new FullyQualified(NullSafe::class), 'singleton')), $fetch->name, $fetch->args);
     }
 
-    /**
-     * Return and memoize nullsafe class.
-     *
-     * @return NullSafe
-     */
-    public static function nullClass(): NullSafe
+    public static function runAfter(array $config): array
     {
-        static $safe;
-        $safe ??= new NullSafe;
-        return $safe;
+        return [NestedExpressionFixer::class => [New_::class => ['class' => [NullsafePropertyFetch::class => true, NullsafeMethodCall::class => true]]]];
     }
 }

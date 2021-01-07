@@ -24,6 +24,7 @@ use PhpParser\Node\Expr\PostInc;
 use PhpParser\Node\Expr\PreDec;
 use PhpParser\Node\Expr\PreInc;
 use PhpParser\Node\Expr\PropertyFetch;
+use PhpParser\Node\Expr\ShellExec;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Expr\Yield_;
@@ -197,6 +198,7 @@ abstract class Tools
             || $node instanceof StaticCall
             || $node instanceof Yield_
             || $node instanceof YieldFrom
+            || $node instanceof ShellExec
             ) {
             $node->setAttribute('hasSideEffects', true);
             return true;

@@ -4,8 +4,7 @@ namespace Phabel\Target\Php80;
 
 use Phabel\Context;
 use Phabel\Plugin;
-use Phabel\Plugin\ArrowClosureVariableFinder;
-use Phabel\Traverser;
+use Phabel\Plugin\VariableFinder;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr\BinaryOp\Concat;
 use PhpParser\Node\Expr\BinaryOp\Identical;
@@ -26,21 +25,12 @@ use PhpParser\Node\Stmt\Throw_;
  */
 class MatchTransformer extends Plugin
 {
-    private ArrowClosureVariableFinder $finder;
-    private Traverser $finderTraverser;
-    public function __construct()
-    {
-        $this->finder = new ArrowClosureVariableFinder;
-        $this->finder->setConfigArray(['byRef' => true]);
-        $this->finderTraverser = Traverser::fromPlugin($this->finder);
-    }
     public function enter(Match_ $match, Context $context): FuncCall
     {
-        $this->finderTraverser->traverseAst($match);
         $closure = new Closure(
             [
                 'params' => [new Param($var = $context->getVariable())],
-                'uses' => $this->finder->getFound()
+                'uses' => VariableFinder::find($match, true)
             ]
         );
 

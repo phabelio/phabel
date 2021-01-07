@@ -181,9 +181,21 @@ class Traverser
 
         $this->file = $file;
         $ast = new RootNode($this->parser->parse(\file_get_contents($file)) ?? []);
-        $this->traverseAstInternal($ast, $reducedQueue);
         $printer = new Standard();
-        \file_put_contents($output, $printer->prettyPrintFile($ast->stmts));
+
+        $result = '';
+        do {
+            $this->traverseAstInternal($ast, $reducedQueue);
+            $oldResult = $result;
+            $result = $printer->prettyPrintFile($ast->stmts);
+            /*if ($oldResult) {
+                \file_put_contents('/tmp/old', $oldResult);
+                \file_put_contents('/tmp/new', $result);
+                \passthru("diff --color /tmp/old /tmp/new");
+            }
+            echo "Running...\n";*/
+        } while ($result !== $oldResult);
+        \file_put_contents($output, $result);
     }
     /**
      * Traverse AST.

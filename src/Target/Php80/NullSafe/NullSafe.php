@@ -1,12 +1,13 @@
 <?php
 
-namespace Phabel\Target\Php80;
+namespace Phabel\Target\Php80\NullSafe;
 
 /**
  * Nullsafe class.
  */
-class Target_Php80_NullSafe_NullSafe
+class NullSafe
 {
+    public static self $singleton;
     public function __call($name, $arguments)
     {
     }
@@ -17,3 +18,5 @@ class Target_Php80_NullSafe_NullSafe
     {
     }
 }
+
+NullSafe::$singleton = new NullSafe;

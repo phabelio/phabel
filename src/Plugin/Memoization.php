@@ -5,6 +5,7 @@ namespace Phabel\Plugin;
 use Phabel\Context;
 use Phabel\Plugin;
 use Phabel\Target\Php74\ArrowClosure;
+use PhpParser\Comment\Doc;
 use PhpParser\Node;
 use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Expr\ArrayDimFetch;
@@ -124,6 +125,7 @@ class Memoization extends Plugin
         }
         $this->toClosure($node, $ctx);
         $node->stmts = \array_merge($toPrepend, $node->stmts);
+        $node->setDocComment(new Doc(\str_replace("@memoize ", "@memoized ", $node->getDocComment())));
     }
     /**
      * Leave function.
