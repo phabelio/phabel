@@ -15,11 +15,11 @@ use PhpParser\Node\Expr\Variable;
 class VariableFinder extends Plugin
 {
     /**
-     * Singleton
+     * Singleton.
      */
     private static self $singleton;
     /**
-     * Traverser
+     * Traverser.
      */
     private static Traverser $singletonTraverser;
     /**
@@ -41,17 +41,17 @@ class VariableFinder extends Plugin
         return self::$singleton->getFound();
     }
     /**
-     * Constructor
+     * Constructor.
      */
     private function __construct()
     {
     }
     /**
-     * Found array
+     * Found array.
      */
     private array $found = [];
     /**
-     * Enter variable
+     * Enter variable.
      *
      * @param Variable $var
      * @return void
