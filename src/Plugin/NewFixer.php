@@ -9,12 +9,15 @@ use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\BinaryOp\BooleanOr;
 use PhpParser\Node\Expr\FuncCall;
+use PhpParser\Node\Expr\Instanceof_;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Expr\NullsafeMethodCall;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\Ternary;
+use PhpParser\Node\Scalar;
 use PhpParser\Node\Scalar\LNumber;
+use PhpParser\Node\Stmt\Class_;
 use PhpParser\NodeFinder;
 
 /**
@@ -29,16 +32,26 @@ class NewFixer extends Plugin
     {
         $this->finder = new NodeFinder;
     }
+    private function isParenthesised(Node $node): bool
+    {
+        return !($node instanceof Expr\Variable
+            || $node instanceof Node\Name
+            || $node instanceof Expr\ArrayDimFetch
+            || $node instanceof Expr\PropertyFetch
+            || $node instanceof Expr\NullsafePropertyFetch
+            || $node instanceof Expr\StaticPropertyFetch
+            || $node instanceof Expr\Array_
+            || $node instanceof Scalar\String_
+            || $node instanceof Expr\ConstFetch
+            || $node instanceof Expr\ClassConstFetch);
+    }
+    private function hasParenthesised(Node $node): bool
+    {
+        return $node instanceof Expr && $this->finder->findFirst($node, fn (Node $node): bool => $this->isParenthesised($node)) !== null;
+    }
     public function enterNew(New_ $new, Context $context)
     {
-        if ($new->class instanceof Expr && !($new->class instanceof FuncCall
-            || $new->class instanceof StaticCall
-            || $new->class instanceof MethodCall
-            || $new->class instanceof NullsafeMethodCall)
-            && $this->finder->findFirst($new->class, fn (Node $node): bool => ($node instanceof FuncCall
-            || $node instanceof StaticCall
-            || $node instanceof MethodCall
-            || $node instanceof NullsafeMethodCall))) {
+        if ($this->hasParenthesised($new->class)) {
             $valueCopy = $new->class;
             return new Ternary(
                 new BooleanOr(
@@ -50,19 +63,22 @@ class NewFixer extends Plugin
             );
         }
     }
-    public static function runWithBefore(array $config): array
+    public function enterInstanceof(Instanceof_ $expr)
     {
-        return [
-            NestedExpressionFixer::class => [
-                New_::class => [
-                    'class' => [
-                        NullsafeMethodCall::class => true,
-                        StaticCall::class => true,
-                        MethodCall::class => true,
-                        FuncCall::class => true,
-                    ]
-                ]
-            ]
-        ];
+        if ($this->hasParenthesised($expr->class)) {
+            return self::callPoly('instanceOf', $expr->expr, $expr->class);
+        }
+    }
+    /**
+     * Check if a is instance of b.
+     *
+     * @param class-string|object $a
+     * @param class-string|object $b
+     *
+     * @return boolean
+     */
+    public static function instanceOf($a, $b): bool
+    {
+        return $a instanceof $b;
     }
 }
