@@ -194,6 +194,7 @@ class Traverser
                 \passthru("diff --color /tmp/old /tmp/new");
             }
             echo "Running...\n";*/
+            while (\gc_collect_cycles());
         } while ($result !== $oldResult);
         \file_put_contents($output, $result);
     }

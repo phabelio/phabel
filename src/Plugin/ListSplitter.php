@@ -28,7 +28,10 @@ class ListSplitter extends Plugin
      */
     public function enterForeach(Foreach_ $node, Context $ctx): void
     {
-        if (!($node->valueVar instanceof List_ || $node->valueVar instanceof Array_) || !$this->shouldSplit($node->valueVar)) {
+        if (!($node->valueVar instanceof List_ || $node->valueVar instanceof Array_)) {
+            return;
+        }
+        if (!$this->shouldSplit($node->valueVar) && !($this->getConfig('parentExpr', false) && $ctx->parentIsStmt())) {
             return;
         }
         $list = $node->valueVar;

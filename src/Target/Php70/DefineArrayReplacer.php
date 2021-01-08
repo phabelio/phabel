@@ -9,6 +9,7 @@ use PhpParser\Node;
 use PhpParser\Node\Expr\ArrayDimFetch;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\ConstFetch;
+use PhpParser\Node\Expr\Eval_;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\StaticPropertyFetch;
 use PhpParser\Node\Name;
@@ -21,14 +22,12 @@ use PhpParser\Node\Stmt\Const_;
  */
 class DefineArrayReplacer extends Plugin
 {
-    public static array $constants = [];
-    private array $toReplace = [];
     /**
      * Convert define() arrays into const arrays.
      *
      * @param FuncCall $node Node
      *
-     * @return Const_|Assign|null
+     * @return Const_|Eval_|null
      */
     public function enter(FuncCall $node, Context $context)
     {
@@ -44,34 +43,24 @@ class DefineArrayReplacer extends Plugin
         }
 
         if (!$context->parents->top() instanceof RootNode) {
-            $this->toReplace[$nameNode->value] = true;
-            return new Assign(
-                new ArrayDimFetch(
-                    new StaticPropertyFetch(
-                        new FullyQualified(self::class),
-                        'constants'
-                    ),
-                    new String_($nameNode->value)
-                ),
-                $valueNode
-            );
+            return self::callPoly('defineMe', ...$node->args);
         }
 
         $constNode = new Node\Const_($nameNode->value, $valueNode);
 
         return new Node\Stmt\Const_([$constNode]);
     }
-    public function enterConst(ConstFetch $const): ?ArrayDimFetch
+    /**
+     * Define a constant
+     *
+     * @param string $name
+     * @param array $value
+     * @return void
+     */
+    public static function defineMe(string $name, array $value): void
     {
-        if (!isset($this->toReplace[$const->name->toString()])) {
-            return new ArrayDimFetch(
-                new StaticPropertyFetch(
-                    new FullyQualified(self::class),
-                    'constants'
-                ),
-                new String_($const->name->toString())
-            );
-        }
-        return null;
+        $name = preg_replace("/[^A-Za-z0-9_]/", '', $name);
+        $value = var_export($value, true);
+        eval("const $name = $value;");
     }
 }

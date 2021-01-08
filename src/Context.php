@@ -339,8 +339,8 @@ class Context
     /**
      * Dumps AST
      */
-    public function dumpAst(Node $stmt): void
+    public function dumpAst(Node $stmt): string
     {
-        var_dump($this->prettyPrinter->prettyPrintFile([$stmt]));
+        return $this->prettyPrinter->prettyPrint([$stmt]);
     }
 }
