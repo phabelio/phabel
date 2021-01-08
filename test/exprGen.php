@@ -11,6 +11,7 @@
 use HaydenPierce\ClassFinder\ClassFinder;
 use Phabel\Plugin\IssetExpressionFixer;
 use Phabel\Plugin\NestedExpressionFixer;
+use Phabel\Target\Php;
 use PhpParser\Builder\Class_;
 use PhpParser\Builder\Method;
 use PhpParser\Builder\Namespace_;
@@ -48,6 +49,13 @@ use PhpParser\Node\Stmt\Use_ as StmtUse_;
 use PhpParser\Node\VarLikeIdentifier;
 
 require_once 'vendor/autoload.php';
+
+foreach (Php::VERSIONS as $version) {
+    if (empty(shell_exec("which php$version 2>&1"))) {
+        echo("Could not find PHP $version!".PHP_EOL);
+        die(1);
+    }
+}
 
 function format(Node $code): string
 {
@@ -115,7 +123,7 @@ function checkSyntax(string $code, int $startFrom = 56): int
         return $startFrom;
     }
 
-    foreach ([56, 70, 71, 72, 73, 74, 80] as $version) {
+    foreach (Php::VERSIONS as $version) {
         if ($version < $startFrom) {
             continue;
         }
@@ -344,7 +352,7 @@ foreach ($result['main'] as $version) {
 foreach ($keys as &$values) {
     $values = \array_keys($values);
 }
-foreach ([56, 70, 71, 72, 73, 74, 80] as $version) {
+foreach (Php::VERSIONS as $version) {
     foreach (['NestedExpressionFixer', 'IssetExpressionFixer'] as $name) {
         $code = <<< PHP
         <?php

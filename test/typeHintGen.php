@@ -6,6 +6,11 @@
  * @license MIT
  */
 
+if (PHP_MAJOR_VERSION < 8) {
+    echo("This generator can only run on PHP 8.0+".PHP_EOL);
+    die(1);
+}
+
 const CLAZZ = "PhabelTest\\Target\\TypeHintReplacerTest";
 
 function escapeRegex(string $in): string
