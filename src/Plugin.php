@@ -117,9 +117,9 @@ abstract class Plugin extends Tools implements PluginInterface
     public static function mergeConfigs(array ...$configs): array
     {
         $final = [];
-        foreach (array_unique($configs, SORT_REGULAR) as $config) {
+        foreach (\array_unique($configs, SORT_REGULAR) as $config) {
             foreach ($final as $k => $compare) {
-                if (empty(array_intersect_key($config, $compare))) {
+                if (empty(\array_intersect_key($config, $compare))) {
                     $final[$k] = $config + $compare;
                     continue 2;
                 }
@@ -133,7 +133,7 @@ abstract class Plugin extends Tools implements PluginInterface
      */
     public static function splitConfig(array $config): array
     {
-        return empty($config) ? [[]] : array_chunk($config, 1, true);
+        return empty($config) ? [[]] : \array_chunk($config, 1, true);
     }
     /**
      * {@inheritDoc}

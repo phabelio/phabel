@@ -59,7 +59,7 @@ class Context
      */
     public NameResolver $nameResolver;
     /**
-     * Pretty printer
+     * Pretty printer.
      */
     public PrettyPrinterAbstract $prettyPrinter;
     /**
@@ -337,7 +337,7 @@ class Context
     }
 
     /**
-     * Dumps AST
+     * Dumps AST.
      */
     public function dumpAst(Node $stmt): string
     {

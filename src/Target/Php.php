@@ -3,14 +3,8 @@
 namespace Phabel\Target;
 
 use Phabel\Plugin;
-use Phabel\Plugin\NestedExpressionFixer;
 use Phabel\Plugin\NewFixer;
 use Phabel\Plugin\StmtExprWrapper;
-use PhpParser\Node\Expr\FuncCall;
-use PhpParser\Node\Expr\MethodCall;
-use PhpParser\Node\Expr\New_;
-use PhpParser\Node\Expr\NullsafeMethodCall;
-use PhpParser\Node\Expr\StaticCall;
 
 /**
  * Makes changes necessary to polyfill syntaxes of various PHP versions.

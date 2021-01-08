@@ -8,16 +8,11 @@ use PhpParser\Node;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\BinaryOp\BooleanOr;
-use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\Instanceof_;
-use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\New_;
-use PhpParser\Node\Expr\NullsafeMethodCall;
-use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\Ternary;
 use PhpParser\Node\Scalar;
 use PhpParser\Node\Scalar\LNumber;
-use PhpParser\Node\Stmt\Class_;
 use PhpParser\NodeFinder;
 
 /**

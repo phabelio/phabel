@@ -4,8 +4,10 @@ namespace PhabelTest\Target;
 
 use PHPUnit\Framework\TestCase;
 
-class a
-{
+if (!\class_exists(a::class)) {
+    class a
+    {
+    }
 }
 /**
  * @author Daniil Gentili <daniil@daniil.it>

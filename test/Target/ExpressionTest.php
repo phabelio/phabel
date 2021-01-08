@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT
  */
-class Expression extends TestCase
+class ExpressionTest extends TestCase
 {
     function test0()
     {

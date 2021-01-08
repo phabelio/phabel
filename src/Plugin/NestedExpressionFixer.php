@@ -153,4 +153,9 @@ class NestedExpressionFixer extends Plugin
     {
         return $a instanceof $b;
     }
+
+    public static function runBefore(array $config): array
+    {
+        return [NewFixer::class];
+    }
 }

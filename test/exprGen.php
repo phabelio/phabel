@@ -415,7 +415,7 @@ $comment = <<< PHP
  */
 PHP;
 
-$class = (new Class_("Expression"))
+$class = (new Class_("ExpressionTest"))
     ->extend("TestCase")
     ->setDocComment($comment)
     ->addStmts($tests)

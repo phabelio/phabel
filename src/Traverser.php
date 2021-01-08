@@ -103,7 +103,7 @@ class Traverser
                 if ($file->getExtension() == 'php') {
                     echo("Transforming ".$file->getRealPath().PHP_EOL);
                     $p->traverse($file->getRealPath(), $targetPath);
-                } else if (realpath($targetPath) !== $file->getRealPath()) {
+                } elseif (\realpath($targetPath) !== $file->getRealPath()) {
                     \copy($file->getRealPath(), $targetPath);
                 }
             }

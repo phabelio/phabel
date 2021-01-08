@@ -6,15 +6,9 @@ use Phabel\Context;
 use Phabel\Plugin;
 use Phabel\RootNode;
 use PhpParser\Node;
-use PhpParser\Node\Expr\ArrayDimFetch;
-use PhpParser\Node\Expr\Assign;
-use PhpParser\Node\Expr\ConstFetch;
 use PhpParser\Node\Expr\Eval_;
 use PhpParser\Node\Expr\FuncCall;
-use PhpParser\Node\Expr\StaticPropertyFetch;
 use PhpParser\Node\Name;
-use PhpParser\Node\Name\FullyQualified;
-use PhpParser\Node\Scalar\String_;
 use PhpParser\Node\Stmt\Const_;
 
 /**
@@ -51,7 +45,7 @@ class DefineArrayReplacer extends Plugin
         return new Node\Stmt\Const_([$constNode]);
     }
     /**
-     * Define a constant
+     * Define a constant.
      *
      * @param string $name
      * @param array $value
@@ -59,8 +53,8 @@ class DefineArrayReplacer extends Plugin
      */
     public static function defineMe(string $name, array $value): void
     {
-        $name = preg_replace("/[^A-Za-z0-9_]/", '', $name);
-        $value = var_export($value, true);
+        $name = \preg_replace("/[^A-Za-z0-9_]/", '', $name);
+        $value = \var_export($value, true);
         eval("const $name = $value;");
     }
 }
