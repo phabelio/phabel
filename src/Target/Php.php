@@ -3,7 +3,14 @@
 namespace Phabel\Target;
 
 use Phabel\Plugin;
+use Phabel\Plugin\NestedExpressionFixer;
+use Phabel\Plugin\NewFixer;
 use Phabel\Plugin\StmtExprWrapper;
+use PhpParser\Node\Expr\FuncCall;
+use PhpParser\Node\Expr\MethodCall;
+use PhpParser\Node\Expr\New_;
+use PhpParser\Node\Expr\NullsafeMethodCall;
+use PhpParser\Node\Expr\StaticCall;
 
 /**
  * Makes changes necessary to polyfill syntaxes of various PHP versions.
@@ -104,7 +111,10 @@ class Php extends Plugin
     }
     public static function runBefore(array $config): array
     {
-        $classes = [StmtExprWrapper::class => $config[StmtExprWrapper::class] ?? []];
+        $classes = [
+            StmtExprWrapper::class => $config[StmtExprWrapper::class] ?? [],
+            NewFixer::class => []
+        ];
         foreach (self::getRange($config['target'] ?? self::DEFAULT_TARGET) as $version) {
             if (!\file_exists($dir = __DIR__."/Php$version")) {
                 continue;
@@ -114,7 +124,6 @@ class Php extends Plugin
                 $classes[$class] = $config[$class] ?? [];
             }
         }
-
         return $classes;
     }
 }
