@@ -17,7 +17,8 @@
         "symfony/polyfill-php71": "*",
         "symfony/polyfill-php72": "*",
         "symfony/polyfill-php73": "*",
-        "symfony/polyfill-php74": "*"
+        "symfony/polyfill-php74": "*",
+        "amphp/parallel": "^1.4"
     },
     "license": "MIT",
     "authors": [{

@@ -3,7 +3,10 @@
 use Composer\Util\Filesystem;
 use Phabel\Plugin\PhabelTestGenerator;
 use Phabel\Target\Php;
-use Phabel\Traverser;
+use PhabelTest\TraverserTask;
+
+use function Amp\Promise\all;
+use function Amp\Promise\wait;
 
 require_once __DIR__.'/../vendor/autoload.php';
 /*
@@ -17,25 +20,33 @@ require_once __DIR__.'/typeHintGen.php';
 $fs = new Filesystem();
 
 $packages = [];
+$packagesSecondary = [];
 foreach (Php::VERSIONS as $version) {
-    echo("Converting target $version...".PHP_EOL);
     $fs->remove(__DIR__."/Target$version");
-    $packages += Traverser::run(
+    $fs->remove(__DIR__."/Target10$version");
+    $packages []= $promise = TraverserTask::runAsync(
         [
             PhabelTestGenerator::class => ['target' => $version]
         ],
         __DIR__.'/Target',
         __DIR__."/Target$version"
     );
-    echo("Converting target $version (secondary)...".PHP_EOL);
-    $packages += Traverser::run(
-        [
-            PhabelTestGenerator::class => ['target' => 1000+$version]
-        ],
-        __DIR__."/Target$version",
-        __DIR__."/Target10$version"
-    );
+    $promise->onResolve(function (?\Throwable $e, ?array $res) use ($version, &$packagesSecondary) {
+        if ($e) {
+            throw $e;
+        }
+        $packagesSecondary []= TraverserTask::runAsync(
+            [
+                PhabelTestGenerator::class => ['target' => 1000+$version]
+            ],
+            __DIR__."/Target$version",
+            __DIR__."/Target10$version"
+        );
+    });
 }
+$packages = \array_merge(...wait(all($packages)));
+wait(all($packagesSecondary));
+
 
 if (!empty($packages)) {
     $cmd = "composer require --dev ";

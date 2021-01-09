@@ -27,7 +27,7 @@ class ThrowableReplacer extends Plugin
      */
     private static function isThrowable(string $type): bool
     {
-        return $type === \Throwable::class || $type === 'Throwable';
+        return $type === \Throwable::class || $type === '\\Throwable';
     }
     /**
      * Check if is a throwable.
@@ -38,7 +38,7 @@ class ThrowableReplacer extends Plugin
      */
     public static function isInstanceofThrowable($obj, $class): bool
     {
-        if ((\is_string($class) && self::isThrowable($class)) || \get_class($class) === \Throwable::class) {
+        if (\is_string($class) && self::isThrowable($class)) {
             return $obj instanceof \Exception || $obj instanceof \Error;
         }
         return $obj instanceof $class;

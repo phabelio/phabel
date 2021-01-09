@@ -122,7 +122,7 @@ class TypeHintReplacer extends Plugin
                         $stringType = new String_('iterable');
                         $conditions []= new BooleanOr(
                             Plugin::call("is_array", $var),
-                            new Instanceof_($var, new Name(\Traversable::class))
+                            new Instanceof_($var, new FullyQualified(\Traversable::class))
                         );
                         break;
                     default:
