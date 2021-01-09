@@ -55,9 +55,7 @@ use PhpParser\Node\Stmt\Expression;
 use PhpParser\Node\Stmt\Use_ as StmtUse_;
 use PhpParser\Node\VarLikeIdentifier;
 
-use function Amp\coroutine;
 use function Amp\Parallel\Worker\enqueue;
-use function Amp\Parallel\Worker\enqueueCallable;
 use function Amp\Promise\wait;
 
 require_once 'vendor/autoload.php';
@@ -85,28 +83,34 @@ class ExpressionGenerator
         }
         return \substr($data, 0, -6);
     }
-    private array $robin = [];
-    private array $busy = [];
+    private array $free = [];
+    private array $busyPromise = [];
+    private array $busyDeferred = [];
     private array $processes = [];
     private array $pipes = [];
     private function checkSyntaxVersion(int $version, string $code): \Generator
     {
         $code = \str_replace(["\n", '<?php'], '', $code)."\n";
 
-        $x = $this->robin[$version];
-        $this->robin[$version]++;
-        $this->robin[$version] %= \count($this->pipes[$version]);
-
-        while ($this->busy[$x]) {
-            yield $this->busy[$x];
+        while ($this->busyPromise[$version]) {
+            yield $this->busyPromise[$version];
         }
-        $this->busy[$x] = ($deferred = new Deferred)->promise();
+        $x = array_key_first($this->free[$version]);
+        unset($this->free[$version][$x]);
+        if (empty($this->free[$version])) {
+            $this->busyDeferred[$version] = new Deferred;
+            $this->busyPromise[$version] = $this->busyDeferred[$version]->promise();
+        }
 
         yield $this->pipes[$version][$x][0]->write($code);
         $result = yield from $this->readUntilPrompt($this->pipes[$version][$x][1]);
 
-        $this->busy[$x] = null;
-        $deferred->resolve();
+        $this->free[$version][$x] = true;
+        if ($this->busyDeferred[$version]) {
+            $deferred = $this->busyDeferred[$version];
+            $this->busyPromise[$version] = $this->busyDeferred[$version] = null;
+            $deferred->resolve();
+        }
 
         $result = \str_replace(['{', '}'], '', \substr(\preg_replace('#\\x1b[[][^A-Za-z]*[A-Za-z]#', '', $result), \strlen($code)));
         $result = \trim($result);
@@ -201,7 +205,9 @@ class ExpressionGenerator
             $cmd = "php$version -a 2>&1";
             $this->pipes[$version] = [];
             $this->processes[$version] = [];
-            $this->robin[$version] = [];
+            $this->free[$version] = [];
+            $this->busyPromise[$version] = [];
+            $this->busyDeferred[$version] = [];
             for ($x = 0; $x < 15; $x++) {
                 $this->processes[$version][$x] = $proc = new Process($cmd);
                 yield $proc->start();
@@ -210,7 +216,7 @@ class ExpressionGenerator
                     $proc->getStdout(),
                 ];
                 yield from $this->readUntilPrompt($this->pipes[$version][$x][1]);
-                $this->robin[$version] = 0;
+                $this->free[$version][$x] = true;
             }
         }
         /** @var ReflectionClass[] */
