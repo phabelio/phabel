@@ -61,10 +61,16 @@ class Graph
         $requires = [];
         foreach ($plugins as $queue) {
             foreach ($queue as $plugin) {
-                $requires += $plugin->getComposerRequires();
+                foreach ($plugin->getComposerRequires() as $package => $constraint) {
+                    $requires[$package] ??= [];
+                    $requires[$package][]= $constraint;
+                }
             }
         }
-        return [$plugins, $requires];
+        return [
+            $plugins,
+            \array_map(fn (array $constraints): string => \implode(':', \array_unique($constraints)), $requires)
+        ];
     }
 
     /**
