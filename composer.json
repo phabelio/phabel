@@ -12,7 +12,12 @@
         "composer/composer": "^1|^2",
         "haydenpierce/class-finder": "^0.4.2",
         "vimeo/psalm": "dev-master",
-        "symfony/polyfill-php80": "*"
+        "symfony/polyfill-php80": "*",
+        "symfony/polyfill-php70": "*",
+        "symfony/polyfill-php71": "*",
+        "symfony/polyfill-php72": "*",
+        "symfony/polyfill-php73": "*",
+        "symfony/polyfill-php74": "*"
     },
     "license": "MIT",
     "authors": [{

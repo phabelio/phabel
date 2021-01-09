@@ -30,7 +30,7 @@ class MatchTransformer extends Plugin
         $closure = new Closure(
             [
                 'params' => [new Param($var = $context->getVariable())],
-                'uses' => array_values(VariableFinder::find($match, true))
+                'uses' => \array_values(VariableFinder::find($match, true))
             ]
         );
 

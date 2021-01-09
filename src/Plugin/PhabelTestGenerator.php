@@ -14,17 +14,21 @@ use PhpParser\Node\Scalar\String_;
  */
 class PhabelTestGenerator extends Plugin
 {
+    private function tryReplace(string $in): string
+    {
+        return \preg_replace("~PhabelTest\\Target\d*~", "PhabelTest\\Target".$this->getConfig('target', ''), $in);
+    }
     public function enter(Name $name): ?Name
     {
-        if ($name->toString() === \PhabelTest\Target::class) {
-            return new Name($name->toString().$this->getConfig('target', ''));
+        if (str_contains($name->toString(), "PhabelTest\\Target")) {
+            return new Name($this->tryReplace($name->toString()));
         }
         return null;
     }
     public function enterLiteral(String_ $str): ?String_
     {
-        if (str_contains($str->value, "\\Target\\")) {
-            return new String_(\str_replace($str->value, "\\Target\\", "\\Target".$this->getConfig('target', '')."\\"));
+        if (str_contains($str->value, "PhabelTest\\Target")) {
+            return new String_($this->tryReplace($str->value));
         }
         return null;
     }

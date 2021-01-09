@@ -37,7 +37,9 @@ use PhpParser\Node\Expr\List_;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Expr\Print_;
+use PhpParser\Node\Expr\PropertyFetch;
 use PhpParser\Node\Expr\StaticCall;
+use PhpParser\Node\Expr\StaticPropertyFetch;
 use PhpParser\Node\Expr\UnaryMinus;
 use PhpParser\Node\Expr\UnaryPlus;
 use PhpParser\Node\Expr\Variable;
@@ -126,10 +128,6 @@ class ExpressionGenerator
     private $tests = [];
     private $versionMap = [];
 
-    private function isUnary(Node $node): bool
-    {
-        return $node instanceof UnaryPlus || $node instanceof UnaryMinus || $node instanceof BitwiseNot;
-    }
 
     private function checkPossibleValue($arg, $name, $key, $class, $baseArgs, $isArray)
     {
@@ -148,7 +146,8 @@ class ExpressionGenerator
             && !($class === AssignRef::class && $arg instanceof New_)
             && !($class === Yield_::class && $name === 'key' && ($arg instanceof LogicalAnd || $arg instanceof LogicalOr || $arg instanceof LogicalXor))
             && !(\in_array($class, [MethodCall::class, StaticCall::class]) && $name === 'name' && ($arg instanceof Array_ || $arg instanceof Print_))
-            && !($this->isUnary($prev) && $arg instanceof Array_)
+            && !(\in_array($class, [UnaryPlus::class, UnaryMinus::class, BitwiseNot::class]) && $arg instanceof Array_)
+            && !(\in_array($class, [Variable::class, StaticPropertyFetch::class, PropertyFetch::class]) && $arg instanceof Array_)
         ) {
             $this->tests[] = (new Method("test".\count($this->tests)))
                 ->addStmt(
@@ -172,7 +171,9 @@ class ExpressionGenerator
             $this->result['isset'][$curVersion][$class][$name][\get_debug_type($arg)] = true;
             echo "Min $curVersion for $code\n";
         }
-        if ($curVersion) {
+        if ($curVersion
+            && !(\in_array($class, [Variable::class, StaticPropertyFetch::class, PropertyFetch::class]) && $arg instanceof Array_)
+        ) {
             $this->tests[] = (new Method("test".\count($this->tests)))
                 ->addStmt(
                     new MethodCall(
