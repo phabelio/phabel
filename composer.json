@@ -12,9 +12,7 @@
         "amphp/php-cs-fixer-config": "dev-master",
         "composer/composer": "^1|^2",
         "haydenpierce/class-finder": "^0.4.2",
-        "vimeo/psalm": "dev-master",
-        "amphp/process": "^1.1",
-        "amphp/parallel": "^1.4"
+        "vimeo/psalm": "dev-master"
     },
     "license": "MIT",
     "authors": [{

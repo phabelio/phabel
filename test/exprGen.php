@@ -8,17 +8,11 @@
  * @license MIT
  */
 
-use Amp\ByteStream\ResourceInputStream;
 use Amp\Coroutine;
-use Amp\Deferred;
-use Amp\Parallel\Worker\Worker;
-use Amp\Process\Process;
-use Amp\Process\ProcessInputStream;
 use HaydenPierce\ClassFinder\ClassFinder;
 use Phabel\Plugin\IssetExpressionFixer;
 use Phabel\Plugin\NestedExpressionFixer;
 use Phabel\Target\Php;
-use PhabelTest\ParallelTask;
 use PhpParser\Builder\Class_;
 use PhpParser\Builder\Method;
 use PhpParser\Builder\Namespace_;
@@ -54,14 +48,14 @@ use PhpParser\Node\Stmt\Class_ as StmtClass_;
 use PhpParser\Node\Stmt\Expression;
 use PhpParser\Node\Stmt\Use_ as StmtUse_;
 use PhpParser\Node\VarLikeIdentifier;
+use PhpParser\PrettyPrinter\Standard;
 
-use function Amp\Parallel\Worker\enqueue;
 use function Amp\Promise\wait;
 
 require_once 'vendor/autoload.php';
 
 foreach (Php::VERSIONS as $version) {
-    if (empty(shell_exec("which php$version 2>&1"))) {
+    if (empty(\shell_exec("which php$version 2>&1"))) {
         echo("Could not find PHP $version!".PHP_EOL);
         die(1);
     }
@@ -69,55 +63,46 @@ foreach (Php::VERSIONS as $version) {
 
 class ExpressionGenerator
 {
+    private Standard $printer;
     private function format(Node $code)
     {
         static $count = 0;
         $count++;
-        return enqueue(new ParallelTask($code, $count));
+        $code = (new Class_("lmao{$count}"))->addStmt(
+            (new Method("te"))
+            ->addStmt($code)
+            ->getNode()
+        )->getNode();
+        return $this->printer->prettyPrintFile([$code]);
     }
-    private function readUntilPrompt(ProcessInputStream $resource)
+    private function readUntilPrompt($resource)
     {
-        $data = '';
+        $data = \fread($resource, 6);
         while (!str_ends_with($data, "php > ")) {
-            $data .= yield $resource->read();
+            $data .= \fread($resource, 1);
         }
         return \substr($data, 0, -6);
     }
-    private array $free = [];
-    private array $busyPromise = [];
-    private array $busyDeferred = [];
+    private array $robin = [];
     private array $processes = [];
     private array $pipes = [];
-    private function checkSyntaxVersion(int $version, string $code): \Generator
+    private function checkSyntaxVersion(int $version, string $code)
     {
         $code = \str_replace(["\n", '<?php'], '', $code)."\n";
 
-        while ($this->busyPromise[$version]) {
-            yield $this->busyPromise[$version];
-        }
-        $x = array_key_first($this->free[$version]);
-        unset($this->free[$version][$x]);
-        if (empty($this->free[$version])) {
-            $this->busyDeferred[$version] = new Deferred;
-            $this->busyPromise[$version] = $this->busyDeferred[$version]->promise();
-        }
+        $x = $this->robin[$version];
+        $this->robin[$version]++;
+        $this->robin[$version] %= \count($this->pipes[$version]);
 
-        yield $this->pipes[$version][$x][0]->write($code);
-        $result = yield from $this->readUntilPrompt($this->pipes[$version][$x][1]);
+        \fputs($this->pipes[$version][$x][0], $code);
 
-        $this->free[$version][$x] = true;
-        if ($this->busyDeferred[$version]) {
-            $deferred = $this->busyDeferred[$version];
-            $this->busyPromise[$version] = $this->busyDeferred[$version] = null;
-            $deferred->resolve();
-        }
-
+        $result = $this->readUntilPrompt($this->pipes[$version][$x][1]);
         $result = \str_replace(['{', '}'], '', \substr(\preg_replace('#\\x1b[[][^A-Za-z]*[A-Za-z]#', '', $result), \strlen($code)));
         $result = \trim($result);
         //var_dump($code, "Result for $version is: $result");
         return \strlen($result) === 0;
     }
-    private function checkSyntax(string $code, int $startFrom = 56): \Generator
+    private function checkSyntax(string $code, int $startFrom = 56)
     {
         if (!$startFrom) {
             return $startFrom;
@@ -127,7 +112,7 @@ class ExpressionGenerator
             if ($version < $startFrom) {
                 continue;
             }
-            if (yield from $this->checkSyntaxVersion($version, $code)) {
+            if ($this->checkSyntaxVersion($version, $code)) {
                 return $version;
             }
         }
@@ -148,8 +133,8 @@ class ExpressionGenerator
         $arguments = $baseArgs;
         $arguments[$key] = $isArray ? [$arg] : $arg;
 
-        $code = yield $this->format($prev = new $class(...$arguments));
-        $curVersion = yield from $this->checkSyntax($code, $subVersion);
+        $code = $this->format($prev = new $class(...$arguments));
+        $curVersion = $this->checkSyntax($code, $subVersion);
         if ($curVersion && $curVersion !== $subVersion) {
             $this->result['main'][$curVersion][$class][$name][\get_debug_type($arg)] = true;
             echo "Min $curVersion for $code\n";
@@ -175,8 +160,8 @@ class ExpressionGenerator
                 ->getNode();
         }
 
-        $code = yield $this->format(new Isset_([$prev]));
-        $curVersion = yield from $this->checkSyntax($code, $subVersion);
+        $code = $this->format(new Isset_([$prev]));
+        $curVersion = $this->checkSyntax($code, $subVersion);
         if ($curVersion && $curVersion !== $subVersion) {
             $this->result['isset'][$curVersion][$class][$name][\get_debug_type($arg)] = true;
             echo "Min $curVersion for $code\n";
@@ -201,22 +186,15 @@ class ExpressionGenerator
 
     public function run()
     {
+        $this->printer = new Standard(['shortArraySyntax' => true]);
         foreach (Php::VERSIONS as $version) {
             $cmd = "php$version -a 2>&1";
             $this->pipes[$version] = [];
             $this->processes[$version] = [];
-            $this->free[$version] = [];
-            $this->busyPromise[$version] = [];
-            $this->busyDeferred[$version] = [];
-            for ($x = 0; $x < 50; $x++) {
-                $this->processes[$version][$x] = $proc = new Process($cmd);
-                yield $proc->start();
-                $this->pipes[$version][$x] = [
-                    $proc->getStdin(),
-                    $proc->getStdout(),
-                ];
-                yield from $this->readUntilPrompt($this->pipes[$version][$x][1]);
-                $this->free[$version][$x] = true;
+            $this->robin[$version] = 0;
+            for ($x = 0; $x < 15; $x++) {
+                $this->processes[$version][$x] = \proc_open($cmd, [0 => ['pipe', 'r'], 1 => ['pipe', 'w']], $this->pipes[$version][$x]);
+                $this->readUntilPrompt($this->pipes[$version][$x][1]);
             }
         }
         /** @var ReflectionClass[] */
@@ -236,7 +214,7 @@ class ExpressionGenerator
                 $expressions []= $class;
             }
         }
-        
+
         $instanceArgs = [];
         $instanceArgNames = [];
         $instanceArgTypes = [];
@@ -320,12 +298,10 @@ class ExpressionGenerator
             }
         }
 
-        $defaultTo = fn ($instance, int $version) => (yield from $this->checkSyntax(yield $this->format($instance))) ?: $version;
 
         foreach ($exprInstances as $class => $instance) {
-            $this->versionMap[$class] = new Coroutine($defaultTo($instance, 1000));
+            $this->versionMap[$class] = $this->checkSyntax($this->format($instance)) ?: 1000;
         }
-        $this->versionMap = yield $this->versionMap;
 
         $wait = [];
         foreach ($instanceArgTypes as $class => $argTypes) {
@@ -365,11 +341,10 @@ class ExpressionGenerator
                     }
                 }
                 foreach ($possibleValues as $arg) {
-                    $wait []= new Coroutine($this->checkPossibleValue($arg, $name, $key, $class, $baseArgs, $isArray));
+                    $this->checkPossibleValue($arg, $name, $key, $class, $baseArgs, $isArray);
                 }
             }
         }
-        yield $wait;
 
         $keys = [];
         foreach ($this->result['main'] as $version) {
@@ -437,15 +412,15 @@ PHP;
 PHP;
 
         $class = (new Class_("ExpressionTest"))
-    ->extend("TestCase")
-    ->setDocComment($comment)
-    ->addStmts($this->tests)
-    ->getNode();
+            ->extend("TestCase")
+            ->setDocComment($comment)
+            ->addStmts($this->tests)
+            ->getNode();
 
         $class = (new Namespace_(PhabelTest\Target::class))
-    ->addStmt(new Use_(\PHPUnit\Framework\TestCase::class, StmtUse_::TYPE_NORMAL))
-    ->addStmt($class)
-    ->getNode();
+            ->addStmt(new Use_(\PHPUnit\Framework\TestCase::class, StmtUse_::TYPE_NORMAL))
+            ->addStmt($class)
+            ->getNode();
 
         $prettyPrinter = new PhpParser\PrettyPrinter\Standard(['shortArraySyntax' => true]);
         $class = $prettyPrinter->prettyPrintFile([$class]);
@@ -454,4 +429,4 @@ PHP;
     }
 }
 
-wait(new Coroutine((new ExpressionGenerator)->run()));
+(new ExpressionGenerator)->run();

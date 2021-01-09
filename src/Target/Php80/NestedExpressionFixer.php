@@ -36,6 +36,13 @@ class NestedExpressionFixer extends Plugin
       'PhpParser\\Node\\Expr\\Throw_' => true,
     ],
   ],
+  'PhpParser\\Node\\Expr\\BitwiseNot' =>
+  [
+    'expr' =>
+    [
+      'PhpParser\\Node\\Expr\\Throw_' => true,
+    ],
+  ],
   'PhpParser\\Node\\Expr\\BooleanNot' =>
   [
     'expr' =>
@@ -153,6 +160,7 @@ class NestedExpressionFixer extends Plugin
       'PhpParser\\Node\\Expr\\Cast\\Object_' => true,
       'PhpParser\\Node\\Expr\\Cast\\String_' => true,
       'PhpParser\\Node\\Scalar\\Encapsed' => true,
+      'PhpParser\\Node\\Scalar\\String_' => true,
       'PhpParser\\Node\\Scalar\\MagicConst\\Class_' => true,
       'PhpParser\\Node\\Scalar\\MagicConst\\Dir' => true,
       'PhpParser\\Node\\Scalar\\MagicConst\\File' => true,
@@ -245,6 +253,7 @@ class NestedExpressionFixer extends Plugin
       'PhpParser\\Node\\Expr\\Cast\\Object_' => true,
       'PhpParser\\Node\\Expr\\Cast\\String_' => true,
       'PhpParser\\Node\\Scalar\\Encapsed' => true,
+      'PhpParser\\Node\\Scalar\\String_' => true,
       'PhpParser\\Node\\Scalar\\MagicConst\\Class_' => true,
       'PhpParser\\Node\\Scalar\\MagicConst\\Dir' => true,
       'PhpParser\\Node\\Scalar\\MagicConst\\File' => true,
