@@ -10,6 +10,7 @@ use PhpParser\Node\Expr\BooleanNot;
 use PhpParser\Node\Expr\ClassConstFetch;
 use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Identifier;
+use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\If_;
 
 /**
@@ -58,6 +59,12 @@ class AnonymousClassReplacer extends Plugin
             new BooleanNot(self::call('class_exists', new ClassConstFetch($node->class, new Identifier('class')))),
             ['stmts' => [$classNode]]
         );
+        foreach ($ctx->parents as $parent) {
+            if ($parent instanceof Class_) {
+                $ctx->insertAfter($parent, $classNode);
+                return;
+            }
+        }
         $ctx->insertBefore($node, $classNode);
     }
 
