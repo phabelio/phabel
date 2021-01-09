@@ -208,7 +208,7 @@ class ExpressionGenerator
             $this->free[$version] = [];
             $this->busyPromise[$version] = [];
             $this->busyDeferred[$version] = [];
-            for ($x = 0; $x < 15; $x++) {
+            for ($x = 0; $x < 50; $x++) {
                 $this->processes[$version][$x] = $proc = new Process($cmd);
                 yield $proc->start();
                 $this->pipes[$version][$x] = [
