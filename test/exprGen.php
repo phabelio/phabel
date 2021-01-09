@@ -216,8 +216,7 @@ class ExpressionGenerator
                 && $class->getName() !== ArrayItem::class
                 && $class->getName() !== EncapsedStringPart::class
                 && $class->getName() !== Exit_::class
-                && $class->getName() !== Unset_::class
-                && $class->getName() !== List_::class) {
+                && $class->getName() !== Unset_::class) {
                 $expressions []= $class;
             }
         }
@@ -305,6 +304,27 @@ class ExpressionGenerator
             }
         }
 
+
+        $disallowedIssetExprs = [];
+        foreach ($exprInstances as $expr) {
+            if (!$this->checkSyntaxVersion(56, $this->format(new Isset_([$expr])))) {
+                $disallowedIssetExprs[get_class($expr)] = true;
+            }
+        }
+        $disallowedIssetExprs = var_export($disallowedIssetExprs, true);
+        $disallowedIssetExprs = <<< PHP
+<?php
+
+namespace Phabel\Target\Php70\NullCoalesce;
+
+use Phabel\Plugin;
+
+abstract class DisallowedExpressions extends Plugin
+{
+    const EXPRESSIONS = $disallowedIssetExprs;
+}
+PHP;
+        file_put_contents("src/Target/Php70/NullCoalesce/DisallowedExpressions.php", $disallowedIssetExprs);
 
         foreach ($exprInstances as $class => $instance) {
             $this->versionMap[$class] = $this->checkSyntax($this->format($instance)) ?: 1000;

@@ -54,6 +54,7 @@
         ],
         "cs": "php-cs-fixer fix -v --diff --dry-run",
         "cs-fix": "php-cs-fixer fix -v --diff",
-        "test": "@php -dzend.assertions=1 -dassert.exception=1 ./vendor/bin/phpunit --coverage-text"
+        "test": "@php -dzend.assertions=1 -dassert.exception=1 ./vendor/bin/phpunit --coverage-text",
+        "test-quick": "@php -dzend.assertions=1 -dassert.exception=1 ./vendor/bin/phpunit --coverage-text -c phpunit-quick.xml"
     }
 }
