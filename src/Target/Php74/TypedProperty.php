@@ -12,22 +12,12 @@ use PhpParser\Node\Stmt\Property;
  */
 class TypedProperty extends Plugin
 {
-    public function enter(Class_ $class, Context $context): void
+    public function enter(Class_ $class): void
     {
-        /** @var Property[] */
-        $typed = [];
         foreach ($class->stmts as $stmt) {
             if ($stmt instanceof Property && $stmt->type) {
-                $typed []= $stmt;
+                $stmt->type = null;
             }
-        }
-
-        if (empty($typed)) {
-            return;
-        }
-
-
-        foreach ($typed as $property) {
         }
     }
 }
