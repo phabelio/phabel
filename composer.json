@@ -41,7 +41,7 @@
     },
     "scripts": {
         "typeHintGen": "php80 test/typeHintGen.php",
-        "exprGen": "php test/exprGen.php",
+        "exprGen": "@php test/exprGen.php",
         "build": [
             "@typeHintGen",
             "@exprGen",
