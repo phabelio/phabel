@@ -16,7 +16,7 @@ class PhabelTestGenerator extends Plugin
 {
     private function tryReplace(string $in): string
     {
-        return \preg_replace("~PhabelTest\\Target\d*~", "PhabelTest\\Target".$this->getConfig('target', ''), $in);
+        return \preg_replace("~PhabelTest\\\\Target\d*~", "PhabelTest\\Target".$this->getConfig('target', ''), $in);
     }
     public function enter(Name $name): ?Name
     {
