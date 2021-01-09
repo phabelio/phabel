@@ -59,7 +59,6 @@ class AnonymousClassReplacer extends Plugin
             ['stmts' => [$classNode]]
         );
         $ctx->insertBefore($node, $classNode);
-        throw new \RuntimeException('Could not find hook for inserting anonymous class!');
     }
 
     public static function runAfter(array $config): array
