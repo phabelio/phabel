@@ -2,7 +2,6 @@
 
 use Composer\Util\Filesystem;
 use Phabel\Plugin\PhabelTestGenerator;
-use Phabel\Plugin\TestNamespaceReplacer;
 use Phabel\Target\Php;
 use Phabel\Traverser;
 
@@ -41,7 +40,7 @@ foreach (Php::VERSIONS as $version) {
 if (!empty($packages)) {
     $cmd = "composer require --dev ";
     foreach ($packages as $package => $constraint) {
-        $cmd .= \escapeshellarg("$package:$constraint");
+        $cmd .= \escapeshellarg("$package:$constraint")." ";
     }
     echo("Running $cmd...".PHP_EOL);
     \passthru($cmd);

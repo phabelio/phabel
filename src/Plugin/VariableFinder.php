@@ -71,6 +71,6 @@ class VariableFinder extends Plugin
     {
         $found = $this->found;
         $this->found = [];
-        return \array_values($found);
+        return $found;
     }
 }

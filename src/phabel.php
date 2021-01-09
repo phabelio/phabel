@@ -30,8 +30,9 @@ $packages = Traverser::run(
 if (!empty($packages)) {
     $cmd = "composer require --dev ";
     foreach ($packages as $package => $constraint) {
-        $cmd .= \escapeshellarg("$package:$constraint");
+        $cmd .= \escapeshellarg("$package:$constraint")." ";
     }
     echo "All done, OK!".PHP_EOL;
-    echo "Please run $cmd to install required development dependencies.".PHP_EOL;
+    echo "Please run the following command to install required development dependencies:".PHP_EOL.PHP_EOL;
+    echo $cmd.PHP_EOL.PHP_EOL;
 }

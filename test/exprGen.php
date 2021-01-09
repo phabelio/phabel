@@ -8,7 +8,6 @@
  * @license MIT
  */
 
-use Amp\Coroutine;
 use HaydenPierce\ClassFinder\ClassFinder;
 use Phabel\Plugin\IssetExpressionFixer;
 use Phabel\Plugin\NestedExpressionFixer;
@@ -29,6 +28,7 @@ use PhpParser\Node\Expr\BinaryOp\Identical;
 use PhpParser\Node\Expr\BinaryOp\LogicalAnd;
 use PhpParser\Node\Expr\BinaryOp\LogicalOr;
 use PhpParser\Node\Expr\BinaryOp\LogicalXor;
+use PhpParser\Node\Expr\BitwiseNot;
 use PhpParser\Node\Expr\Cast\Unset_;
 use PhpParser\Node\Expr\Error;
 use PhpParser\Node\Expr\Exit_;
@@ -38,6 +38,8 @@ use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Expr\Print_;
 use PhpParser\Node\Expr\StaticCall;
+use PhpParser\Node\Expr\UnaryMinus;
+use PhpParser\Node\Expr\UnaryPlus;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Expr\Yield_;
 use PhpParser\Node\Identifier;
@@ -49,8 +51,6 @@ use PhpParser\Node\Stmt\Expression;
 use PhpParser\Node\Stmt\Use_ as StmtUse_;
 use PhpParser\Node\VarLikeIdentifier;
 use PhpParser\PrettyPrinter\Standard;
-
-use function Amp\Promise\wait;
 
 require_once 'vendor/autoload.php';
 
@@ -126,6 +126,11 @@ class ExpressionGenerator
     private $tests = [];
     private $versionMap = [];
 
+    private function isUnary(Node $node): bool
+    {
+        return $node instanceof UnaryPlus || $node instanceof UnaryMinus || $node instanceof BitwiseNot;
+    }
+
     private function checkPossibleValue($arg, $name, $key, $class, $baseArgs, $isArray)
     {
         $subVersion = \max($this->versionMap[\get_debug_type($arg)] ?? 0, $this->versionMap[$class]);
@@ -143,6 +148,7 @@ class ExpressionGenerator
             && !($class === AssignRef::class && $arg instanceof New_)
             && !($class === Yield_::class && $name === 'key' && ($arg instanceof LogicalAnd || $arg instanceof LogicalOr || $arg instanceof LogicalXor))
             && !(\in_array($class, [MethodCall::class, StaticCall::class]) && $name === 'name' && ($arg instanceof Array_ || $arg instanceof Print_))
+            && !($this->isUnary($prev) && $arg instanceof Array_)
         ) {
             $this->tests[] = (new Method("test".\count($this->tests)))
                 ->addStmt(
