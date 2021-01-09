@@ -4,11 +4,13 @@ namespace Phabel\Target\Php70;
 
 use Phabel\Context;
 use Phabel\Plugin;
-use Phabel\RootNode;
+use Phabel\Target\Php74\ArrowClosure;
 use PhpParser\Node;
+use PhpParser\Node\Expr\BooleanNot;
+use PhpParser\Node\Expr\ClassConstFetch;
 use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Identifier;
-use PhpParser\Node\Stmt\Namespace_;
+use PhpParser\Node\Stmt\If_;
 
 /**
  * @author Daniil Gentili <daniil@daniil.it>
@@ -48,16 +50,20 @@ class AnonymousClassReplacer extends Plugin
         if (!$classNode instanceof Node\Stmt\Class_) {
             return;
         }
-        $classNode->name = new Identifier('PhabelAnonymousClass'.$this->fileName.(self::$count++));
+        $name = 'PhabelAnonymousClass'.$this->fileName.(self::$count++);
+        $classNode->name = new Identifier($name);
+        $node->class = new Node\Name($name);
 
-        $node->class = new Node\Name($classNode->name->name);
-
-        foreach ($ctx->parents as $node) {
-            if ($node instanceof Namespace_ || $node instanceof RootNode) {
-                $ctx->insertBefore($ctx->getCurrentChild($node), $classNode);
-                return;
-            }
-        }
+        $classNode = new If_(
+            new BooleanNot(self::call('class_exists', new ClassConstFetch($node->class, new Identifier('class')))),
+            ['stmts' => [$classNode]]
+        );
+        $ctx->insertBefore($node, $classNode);
         throw new \RuntimeException('Could not find hook for inserting anonymous class!');
+    }
+
+    public static function runAfter(array $config): array
+    {
+        return [ArrowClosure::class];
     }
 }

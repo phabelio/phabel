@@ -29,5 +29,19 @@ class AnonymousClassReplacerTest extends TestCase
         })->getData();
 
         $this->assertEquals($data, $data2);
+
+        $data3 = (fn () => ((new class($data) {
+            private string $data;
+            public function __construct(string $data)
+            {
+                $this->data = $data;
+            }
+            public function getData(): string
+            {
+                return $this->data;
+            }
+        })->getData()))();
+
+        $this->assertEquals($data, $data3);
     }
 }
