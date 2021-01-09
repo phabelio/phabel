@@ -301,7 +301,7 @@ class TypeHintReplacer extends Plugin
         $var = new Variable('phabelReturn');
         $assign = new Expression($byRef && $return->expr ? new AssignRef($var, $return->expr) : new Assign($var, $return->expr ?? BuilderHelpers::normalizeValue(null)));
 
-        $start = new String_("Return value of");
+        $start = new String_("Return value of ");
         $start = new Concat($start, $functionName);
         $start = new Concat($start, new String_(" must be "));
         $start = new Concat($start, $string);

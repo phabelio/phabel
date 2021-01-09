@@ -19,7 +19,7 @@ class AnonymousClassReplacer extends Plugin
     /**
      * Anonymous class count.
      */
-    private int $count = 0;
+    private static int $count = 0;
     /**
      * Current file name hash.
      */
@@ -48,7 +48,7 @@ class AnonymousClassReplacer extends Plugin
         if (!$classNode instanceof Node\Stmt\Class_) {
             return;
         }
-        $classNode->name = new Identifier('PhabelAnonymousClass'.$this->fileName.($this->count++));
+        $classNode->name = new Identifier('PhabelAnonymousClass'.$this->fileName.(self::$count++));
 
         $node->class = new Node\Name($classNode->name->name);
 

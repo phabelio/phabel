@@ -9,6 +9,7 @@ use Phabel\Target\Php80\NullSafeTransformer;
 use Phabel\Tools;
 use PhpParser\Node;
 use PhpParser\Node\Expr;
+use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Expr\ArrayDimFetch;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\BinaryOp\BooleanAnd;
@@ -17,6 +18,7 @@ use PhpParser\Node\Expr\BinaryOp\NotIdentical;
 use PhpParser\Node\Expr\Isset_;
 use PhpParser\Node\Expr\PropertyFetch;
 use PhpParser\Node\Expr\Ternary;
+use PhpParser\Node\Scalar;
 
 /**
  * @author Daniil Gentili <daniil@daniil.it>
@@ -49,7 +51,10 @@ class NullCoalesceReplacer extends Plugin
      */
     public function enter(Coalesce $node, Context $ctx): Ternary
     {
-        if (!Tools::hasSideEffects($workVar = &self::extractWorkVar($node->left))) {
+        if (!Tools::hasSideEffects($workVar = &self::extractWorkVar($node->left)) 
+            && !$node->left instanceof Scalar 
+            && !$node->left instanceof Array_
+        ) {
             return new Ternary(new Isset_([$node->left]), $node->left, $node->right);
         }
         $valueCopy = $workVar;
