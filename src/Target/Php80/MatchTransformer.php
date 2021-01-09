@@ -18,6 +18,7 @@ use PhpParser\Node\Scalar\String_;
 use PhpParser\Node\Stmt\Else_;
 use PhpParser\Node\Stmt\ElseIf_;
 use PhpParser\Node\Stmt\If_;
+use PhpParser\Node\Stmt\Return_;
 use PhpParser\Node\Stmt\Throw_;
 
 /**
@@ -39,11 +40,11 @@ class MatchTransformer extends Plugin
         $default = null;
         foreach ($match->arms as $arm) {
             if ($arm->conds === null) {
-                $default = $arm->body;
+                $default = new Return_($arm->body);
                 continue;
             }
             foreach ($arm->conds as $cond) {
-                $cases []= [new Identical($var, $cond), $arm->body];
+                $cases []= [new Identical($var, $cond), new Return_($arm->body)];
             }
         }
         if (!$default) {
