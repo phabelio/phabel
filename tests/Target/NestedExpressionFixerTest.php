@@ -9,6 +9,8 @@ if (!\class_exists(a::class)) {
     {
     }
 }
+(fn (a|callable $a) => null)(new a);
+
 /**
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT

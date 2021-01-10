@@ -2,6 +2,7 @@
 
 use Composer\Util\Filesystem;
 use Phabel\Plugin\PhabelTestGenerator;
+use Phabel\Plugin\TypeHintReplacer;
 use Phabel\Target\Php;
 use PhabelTest\TraverserTask;
 
@@ -15,14 +16,19 @@ $fs = new Filesystem();
 $packages = [];
 $packagesSecondary = [];
 foreach (Php::VERSIONS as $version) {
-    $fs->remove("tests/Target$version");
-    $fs->remove("tests/Target10$version");
+    $fs->remove("testsGenerated/Target$version");
+    $fs->remove("testsGenerated/Target10$version");
     $packages []= $promise = TraverserTask::runAsync(
         [
-            PhabelTestGenerator::class => ['target' => $version]
+            PhabelTestGenerator::class => ['target' => $version],
+            TypeHintReplacer::class => ['union' => true, 'nullable' => true, 'return' => true, 'types' => [
+                'callable', 'iterable', 'object', 'self', 'static',
+                'int', 'float', 'array', 'string', 'bool',
+                \PhabelTest\Target\TypeHintReplacerTest::class
+            ]]
         ],
-        'tests/Target',
-        "tests/Target$version"
+        'testsGenerated/Target',
+        "testsGenerated/Target$version"
     );
     $promise->onResolve(function (?\Throwable $e, ?array $res) use ($version, &$packagesSecondary) {
         if ($e) {
@@ -32,8 +38,8 @@ foreach (Php::VERSIONS as $version) {
             [
                 PhabelTestGenerator::class => ['target' => 1000+$version]
             ],
-            "tests/Target$version",
-            "tests/Target10$version"
+            "testsGenerated/Target$version",
+            "testsGenerated/Target10$version"
         );
     });
 }

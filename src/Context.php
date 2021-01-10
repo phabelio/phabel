@@ -207,10 +207,11 @@ class Context
             }
             if ($this->getCurrentChild($cur) === $node) {
                 $found = true;
+                if ($cur instanceof RootNode) {
+                    $parent = &$this->parents[\count($this->parents) - 1];
+                    break;
+                }
             }
-        }
-        if (!isset($parent)) {
-            $parent = &$this->parents[\count($this->parents) - 1];
         }
         if (!$found) {
             throw new \RuntimeException('Node is not a part of the current AST stack!');

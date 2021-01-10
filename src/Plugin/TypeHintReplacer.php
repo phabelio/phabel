@@ -99,9 +99,7 @@ class TypeHintReplacer extends Plugin
                     case 'string':
                     case 'resource':
                     case 'null':
-                        $stringType = new String_($typeName === 'callable' ?
-                            $typeName :
-                            ($typeName === 'object' ? 'an object' : "of type $typeName"));
+                        $stringType = new String_($typeName);
                         $conditions []= Plugin::call("is_$typeName", $var);
                         break;
                     case 'iterable':
@@ -114,13 +112,13 @@ class TypeHintReplacer extends Plugin
                     default:
                         $noOopTypes = false;
                         $stringType = $type->isSpecialClassName() ?
-                            new Concat(new String_("an instance of "), new ClassConstFetch(new Name($typeName), new Identifier('class'))) :
-                            new String_("an instance of ".$type->toString());
+                            new ClassConstFetch(new Name($typeName), new Identifier('class')) :
+                            new String_($type->toString());
                         $conditions []= new Instanceof_($var, new Name($typeName));
                 }
             } else {
                 $noOopTypes = false;
-                $stringType = new String_("an instance of ".$type->toString());
+                $stringType = new String_($type->toString());
                 $conditions []= new Instanceof_($var, $type);
             }
         }
@@ -210,14 +208,16 @@ class TypeHintReplacer extends Plugin
             $param->type = null;
             [$noOop, $string, $condition] = $condition;
             $start = $param->variadic
-                ? new Concat(new String_("Argument #"), new Plus(new LNumber($index), new Variable('phabelVariadicIndex')))
-                : new String_("Argument #$index ($".$param->var->name.")");
-            $start = new Concat($start, new String_(" must be "));
+                ? new Concat(new String_("(): Argument #"), new Plus(new LNumber($index), new Variable('phabelVariadicIndex')))
+                : new String_("(): Argument #$index ($".$param->var->name.")");
+            $start = new Concat($start, new String_(" must be of type "));
             $start = new Concat($start, $string);
             $start = new Concat($start, new String_(", "));
-            $start = new Concat($start, $noOop ? self::call('gettype', $param->var) : self::callPoly('gettype', $param->var));
+            $start = new Concat($start, self::call('get_debug_type', $param->var));
             $start = new Concat($start, new String_(" given, called in "));
             $start = new Concat($start, self::callPoly('trace', new LNumber(0)));
+
+            $start = new Concat($functionName, $start);
 
             $if = new If_($condition, ['stmts' => [new Throw_(new New_(new FullyQualified(\TypeError::class), [new Arg($start)]))]]);
             if ($param->variadic) {
@@ -255,9 +255,7 @@ class TypeHintReplacer extends Plugin
         if (!$final instanceof Return_) {
             [, $string, $condition] = $condition;
 
-            $start = new String_("Return value of ");
-            $start = new Concat($start, $functionName);
-            $start = new Concat($start, new String_(" must be "));
+            $start = new Concat($functionName, new String_("(): Return value must be of type "));
             $start = new Concat($start, $string);
             $start = new Concat($start, new String_(", none returned in "));
             $start = new Concat($start, self::callPoly('trace', new LNumber(0)));
@@ -289,12 +287,10 @@ class TypeHintReplacer extends Plugin
         $var = new Variable('phabelReturn');
         $assign = new Expression($byRef && $return->expr ? new AssignRef($var, $return->expr) : new Assign($var, $return->expr ?? BuilderHelpers::normalizeValue(null)));
 
-        $start = new String_("Return value of ");
-        $start = new Concat($start, $functionName);
-        $start = new Concat($start, new String_(" must be "));
+        $start = new Concat($functionName, new String_("(): Return value must be of type "));
         $start = new Concat($start, $string);
         $start = new Concat($start, new String_(", "));
-        $start = new Concat($start, $noOop ? self::call('gettype', $var) : self::callPoly('gettype', $var));
+        $start = new Concat($start, self::call('get_debug_type', $var));
         $start = new Concat($start, new String_(" returned in "));
         $start = new Concat($start, self::callPoly('trace', new LNumber(0)));
 
@@ -321,21 +317,6 @@ class TypeHintReplacer extends Plugin
     {
         $trace = \debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[$index];
         return ($trace['file'] ?? '').' on line '.($trace['line'] ?? '');
-    }
-    /**
-     * Get type string or object.
-     *
-     * @param mixed $object Object
-     *
-     * @return string
-     */
-    public static function gettype($object)
-    {
-        if (\is_object($object)) {
-            $type = \get_class($object);
-            return \str_starts_with($type, 'class@anonymous') ? 'instance of class@anonymous' : "instance of $type";
-        }
-        return \gettype($object);
     }
 
     /**
