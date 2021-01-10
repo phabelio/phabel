@@ -126,7 +126,7 @@ class TypeHintReplacer extends Plugin
             $stringType = new String_(\implode("|", $typeNames));
         }
         if ($fromNullable) {
-            $stringType = new Concat($stringType, new String_(' or null'));
+            $stringType = new Concat(new String_('?'), $stringType);
             $conditions []= Plugin::call("is_null", $var);
         }
         $initial = \array_shift($conditions);
