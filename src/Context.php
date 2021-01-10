@@ -167,10 +167,20 @@ class Context
      */
     public static function getCurrentChild(Node $node): Node
     {
+        return self::getCurrentChildByRef($node);
+    }
+    /**
+     * Get child currently being iterated on, by reference.
+     *
+     * @param Node $node
+     * @return Node
+     */
+    public static function &getCurrentChildByRef(Node $node): Node
+    {
         if (!$subNode = $node->getAttribute('currentNode')) {
             throw new \RuntimeException('Node is not a part of the current AST stack!');
         }
-        $child = $node->{$subNode};
+        $child = &$node->{$subNode};
         if (null !== $index = $node->getAttribute('currentNodeIndex')) {
             return $child[$index];
         }
@@ -189,11 +199,21 @@ class Context
             return;
         }
         $found = false;
-        foreach ($this->parents as $parent) {
-            if ($this->getCurrentChild($parent) === $node) {
-                $found = true;
+        $foundParent = false;
+        foreach ($this->parents as $cur) {
+            if ($found) {
+                $parent = &$this->getCurrentChildByRef($cur);
                 break;
             }
+            if ($foundParent) {
+                $found = true;
+            }
+            if ($this->getCurrentChild($cur) === $node) {
+                $foundParent = true;
+            }
+        }
+        if (!isset($parent)) {
+            $parent = &$this->parents[count($this->parents) - 1];
         }
         if (!$found) {
             throw new \RuntimeException('Node is not a part of the current AST stack!');
@@ -210,88 +230,88 @@ class Context
         }
 
         // Cannot insert, parent is not a statement
-        $node = &$parent->{$nodeKey};
+        $parentKey = $parent->getAttribute('currentNode');
         // If we insert before a conditional branch of a conditional expression,
         //   make sure the conditional branch has no side effects;
         //   if it does, turn the entire conditional expression into an if, and bubble it up
         //
         // Unless we want to go crazy, do not consider side effect evaluation order for stuff like function call arguments, maths and so on.
         //
-        if ($node instanceof BooleanOr && $nodeKey === 'right' && Tools::hasSideEffects($node->right)) {
+        if ($parent instanceof BooleanOr && $parentKey === 'right' && Tools::hasSideEffects($parent->right)) {
             $result = $this->getVariable();
             $insert = new If_(
-                $node->left,
+                $parent->left,
                 [
                     'stmts' => [
                         new Assign($result, BuilderHelpers::normalizeValue(true))
                     ],
                     'else' => new Else_([
                         ...$insert,
-                        new Assign($result, new Bool_($node->right))
+                        new Assign($result, new Bool_($parent->right))
                     ])
                 ]
             );
-            $node = $result;
-        } elseif ($node instanceof BooleanAnd && $nodeKey === 'right' && Tools::hasSideEffects($node->right)) {
+            $parent = $result;
+        } elseif ($parent instanceof BooleanAnd && $parentKey === 'right' && Tools::hasSideEffects($parent->right)) {
             $result = $this->getVariable();
             $insert = new If_(
-                $node->left,
+                $parent->left,
                 [
                     'stmts' => [
                         ...$insert,
-                        new Assign($result, new Bool_($node->right))
+                        new Assign($result, new Bool_($parent->right))
                     ],
                     'else' => new Else_([
                         new Assign($result, BuilderHelpers::normalizeValue(false))
                     ])
                 ]
             );
-            $node = $result;
-        } elseif ($node instanceof Ternary && $nodeKey !== 'expr' && (Tools::hasSideEffects($node->if) || Tools::hasSideEffects($node->else))) {
+            $parent = $result;
+        } elseif ($parent instanceof Ternary && $parentKey !== 'cond' && (Tools::hasSideEffects($parent->if) || Tools::hasSideEffects($parent->else))) {
             $result = $this->getVariable();
-            if (!$node->if) { // ?:
+            if (!$parent->if) { // ?:
                 $insert = new If_(
                     new BooleanNot(
-                        new Assign($result, $node->cond)
+                        new Assign($result, $parent->cond)
                     ),
                     [
                         'stmts' => [
                             ...$insert,
-                            new Assign($result, $node->else)
+                            new Assign($result, $parent->else)
                         ]
                     ]
                 );
             } else {
                 $insert = new If_(
-                    $node->cond,
+                    $parent->cond,
                     [
                         'stmts' => [
-                            ...$nodeKey === 'if' ? $insert : [],
-                            new Assign($result, $node->if)
+                            ...$parentKey === 'left' ? $insert : [],
+                            new Assign($result, $parent->if)
                         ],
                         'else' => new Else_([
-                            ...$nodeKey === 'else' ? $insert : [],
-                            new Assign($result, $node->else)
+                            ...$parentKey === 'right' ? $insert : [],
+                            new Assign($result, $parent->else)
                         ])
                     ]
                 );
             }
-            $node = $result;
-        } elseif ($node instanceof Coalesce && $nodeKey === 'right' && Tools::hasSideEffects($node->right)) {
+            $parent = $result;
+        } elseif ($parent instanceof Coalesce && $parentKey === 'right' && Tools::hasSideEffects($parent->right)) {
             $result = $this->getVariable();
             $insert = new If_(
                 Plugin::call(
                     'is_null',
-                    new Assign($result, $node->left)
+                    new Assign($result, $parent->left)
                 ),
                 [
                     'stmts' => [
                         ...$insert,
-                        new Assign($result, $node->right)
+                        new Assign($result, $parent->right)
                     ]
                 ]
             );
-            $node = $result;
+            $parent = $result;
         }
         $this->insertBefore($parent, ...(\is_array($insert) ? $insert : [$insert]));
     }
