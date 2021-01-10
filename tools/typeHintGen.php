@@ -185,4 +185,4 @@ class TypeHintReplacerTest extends TestCase
 }
 EOF;
 
-\file_put_contents(__DIR__.'/Target/TypeHintReplacerTest.php', $template);
+\file_put_contents('testsGenerated/Target/TypeHintReplacerTest.php', $template);

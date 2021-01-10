@@ -308,10 +308,10 @@ class ExpressionGenerator
         $disallowedIssetExprs = [];
         foreach ($exprInstances as $expr) {
             if (!$this->checkSyntaxVersion(56, $this->format(new Isset_([$expr])))) {
-                $disallowedIssetExprs[get_class($expr)] = true;
+                $disallowedIssetExprs[\get_class($expr)] = true;
             }
         }
-        $disallowedIssetExprs = var_export($disallowedIssetExprs, true);
+        $disallowedIssetExprs = \var_export($disallowedIssetExprs, true);
         $disallowedIssetExprs = <<< PHP
 <?php
 
@@ -324,7 +324,7 @@ abstract class DisallowedExpressions extends Plugin
     const EXPRESSIONS = $disallowedIssetExprs;
 }
 PHP;
-        file_put_contents("src/Target/Php70/NullCoalesce/DisallowedExpressions.php", $disallowedIssetExprs);
+        \file_put_contents("src/Target/Php70/NullCoalesce/DisallowedExpressions.php", $disallowedIssetExprs);
 
         foreach ($exprInstances as $class => $instance) {
             $this->versionMap[$class] = $this->checkSyntax($this->format($instance)) ?: 1000;
@@ -452,7 +452,7 @@ PHP;
         $prettyPrinter = new PhpParser\PrettyPrinter\Standard(['shortArraySyntax' => true]);
         $class = $prettyPrinter->prettyPrintFile([$class]);
 
-        \file_put_contents("test/Target/ExpressionTest.php", $class);
+        \file_put_contents("testsGenerated/Target/ExpressionTest.php", $class);
     }
 }
 

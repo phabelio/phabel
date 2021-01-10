@@ -210,7 +210,7 @@ class Context
             }
         }
         if (!isset($parent)) {
-            $parent = &$this->parents[count($this->parents) - 1];
+            $parent = &$this->parents[\count($this->parents) - 1];
         }
         if (!$found) {
             throw new \RuntimeException('Node is not a part of the current AST stack!');
