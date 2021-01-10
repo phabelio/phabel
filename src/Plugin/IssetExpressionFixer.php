@@ -85,7 +85,11 @@ class IssetExpressionFixer extends Plugin
             switch ($class = \get_class($workVar)) {
                 case ArrayDimFetch::class:
                 case PropertyFetch::class:
-                    $workVar->var = self::callPoly('returnMe', $workVar->var);
+                    if ($key === 'dim') {
+                        $workVar->dim = self::callPoly('returnMe', $workVar->dim);
+                    } else {
+                        $workVar->var = self::callPoly('returnMe', $workVar->var);
+                    }
                     break;
                 case StaticPropertyFetch::class:
                     $workVar = $this->wrapBoolean(self::callPoly(

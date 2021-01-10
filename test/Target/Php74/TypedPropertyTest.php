@@ -10,4 +10,8 @@ use PHPUnit\Framework\TestCase;
 class TypedPropertyTest extends TestCase
 {
     private int $test = 0;
+    public function test()
+    {
+        $this->assertEquals(0, $this->test);
+    }
 }

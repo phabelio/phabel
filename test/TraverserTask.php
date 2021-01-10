@@ -7,6 +7,7 @@ use Amp\Parallel\Worker\Task;
 use Amp\Promise;
 use Phabel\Traverser;
 
+use function Amp\call;
 use function Amp\Parallel\Worker\enqueue;
 
 class TraverserTask implements Task
@@ -33,7 +34,13 @@ class TraverserTask implements Task
      */
     public static function runAsync(array $plugins, string $input, string $output): Promise
     {
-        return enqueue(new self($plugins, $input, $output));
+        return call(function () use ($plugins, $input, $output) {
+            $result = yield enqueue(new self($plugins, $input, $output));
+            if ($result instanceof ExceptionWrapper) {
+                throw $result->getException();
+            }
+            return $result;
+        });
     }
     /**
      * Constructor.
@@ -59,6 +66,10 @@ class TraverserTask implements Task
      */
     public function run(Environment $environment)
     {
-        return Traverser::run($this->plugins, $this->input, $this->output);
+        try {
+            return Traverser::run($this->plugins, $this->input, $this->output);
+        } catch (\Throwable $e) {
+            return new ExceptionWrapper($e);
+        }
     }
 }

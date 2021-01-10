@@ -31,13 +31,14 @@ class ListSplitter extends Plugin
         if (!($node->valueVar instanceof List_ || $node->valueVar instanceof Array_)) {
             return;
         }
-        if (!$this->shouldSplit($node->valueVar) && !($this->getConfig('parentExpr', false) && $ctx->parentIsStmt())) {
+        if (!$this->shouldSplit($node->valueVar) && !($this->getConfig('parentExpr', false) && $ctx->isParentStmt())) {
             return;
         }
         $list = $node->valueVar;
         $var = $node->valueVar = $ctx->getVariable();
         $assignments = self::splitList($list, $var);
         $node->stmts = \array_merge($assignments, $node->stmts);
+        $node->byRef = $this->hasReference($list);
     }
     /**
      * Parse list assignment with custom keys.
@@ -54,20 +55,21 @@ class ListSplitter extends Plugin
         $var = $ctx->getVariable();
         $assignments = self::splitList($node->var, $var);
 
-        if ($ctx->parentIsStmt()) {
+        $hasReference = $this->hasReference($node->var);
+        if ($ctx->isParentStmt()) {
             $last = \array_pop($assignments);
-            $ctx->insertBefore($node, new Assign($var, $node->expr), ...$assignments);
+            $ctx->insertBefore($node, $hasReference ? new AssignRef($var, $node->expr) : new Assign($var, $node->expr), ...$assignments);
             return $last;
         }
         // On newer versions of php, the list assignment expression returns the original array
-        $ctx->insertBefore($node, new Assign($var, $node->expr), ...$assignments);
+        $ctx->insertBefore($node, $hasReference ? new AssignRef($var, $node->expr) : new Assign($var, $node->expr), ...$assignments);
         return $var;
     }
     /**
      * Split referenced list into multiple assignments.
      *
-     * @param Array_|List_ $list List
-     * @param Variable     $var  Variable
+     * @param Array_|List_ $list   List
+     * @param Variable     $var    Variable
      *
      * @return (Assign|AssignRef)[]
      */
@@ -88,6 +90,21 @@ class ListSplitter extends Plugin
             }
         }
         return $assignments;
+    }
+    /**
+     * Whether we should act on this list.
+     *
+     * @param List_|Array_ $list    List
+     *
+     * @return boolean
+     */
+    private function hasReference($list): bool
+    {
+        $c = $this->getConfigArray();
+        $this->setConfigArray(['byRef' => true]);
+        $res = $this->shouldSplit($list);
+        $this->setConfigArray($c);
+        return $res;
     }
     /**
      * Whether we should act on this list.

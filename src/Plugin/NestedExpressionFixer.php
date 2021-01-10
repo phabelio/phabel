@@ -90,8 +90,6 @@ class NestedExpressionFixer extends Plugin
                         $expr,
                         new LNumber(0)
                     );
-                // For all the following expressions, wrapping in a ternary breaks return-by-ref,
-                //  so for now wrap in a hack and fix once the expression bubbler is ready (READY NOW, done)
                 case StaticCall::class:
                 case StaticPropertyFetch::class:
                 case FuncCall::class:

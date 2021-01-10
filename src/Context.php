@@ -2,6 +2,7 @@
 
 namespace Phabel;
 
+use Phabel\Target\Php74\ArrowClosure;
 use PhpParser\BuilderHelpers;
 use PhpParser\ErrorHandler\Throwing;
 use PhpParser\NameContext;
@@ -63,6 +64,10 @@ class Context
      */
     public PrettyPrinterAbstract $prettyPrinter;
     /**
+     * Arrow closure converter.
+     */
+    private ArrowClosure $converter;
+    /**
      * Constructor.
      */
     public function __construct()
@@ -71,6 +76,7 @@ class Context
         $this->parents = new SplStack;
         /** @var SplStack<VariableContext> */
         $this->variables = new SplStack;
+        $this->converter = new ArrowClosure;
         $this->prettyPrinter = new Standard();
         $this->nameResolver = new NameResolver(new Throwing, ['replaceNodes' => false]);
         $this->nameResolver->beforeTraverse([]);
@@ -241,7 +247,7 @@ class Context
                 ]
             );
             $node = $result;
-        } elseif ($node instanceof Ternary && $nodeKey !== 'cond' && (Tools::hasSideEffects($node->if) || Tools::hasSideEffects($node->else))) {
+        } elseif ($node instanceof Ternary && $nodeKey !== 'expr' && (Tools::hasSideEffects($node->if) || Tools::hasSideEffects($node->else))) {
             $result = $this->getVariable();
             if (!$node->if) { // ?:
                 $insert = new If_(
@@ -330,7 +336,7 @@ class Context
      *
      * @return bool
      */
-    public function parentIsStmt(): bool
+    public function isParentStmt(): bool
     {
         $parent = $this->parents[0];
         return $parent instanceof Expression || $parent->getAttribute('currentNode') === 'stmts';
@@ -341,6 +347,15 @@ class Context
      */
     public function dumpAst(Node $stmt): string
     {
-        return $this->prettyPrinter->prettyPrint([$stmt]);
+        return $this->prettyPrinter->prettyPrint($stmt instanceof RootNode ? $stmt->stmts : [$stmt]);
+    }
+    /**
+     * Convert a function to a closure.
+     */
+    public function toClosure(FunctionLike &$func): void
+    {
+        if ($func instanceof ArrowFunction) {
+            $func = $this->converter->enter($func, $this);
+        }
     }
 }

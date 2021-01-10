@@ -38,14 +38,14 @@ class AnonymousClassReplacer extends Plugin
     }
 
     /**
-     * Leave new.
+     * Enter new.
      *
      * @param New_    $node New stmt
      * @param Context $ctx  Context
      *
      * @return void
      */
-    public function leaveNew(New_ $node, Context $ctx): void
+    public function enterNew(New_ $node, Context $ctx): void
     {
         $classNode = $node->class;
         if (!$classNode instanceof Node\Stmt\Class_) {
@@ -59,13 +59,17 @@ class AnonymousClassReplacer extends Plugin
             new BooleanNot(self::call('class_exists', new ClassConstFetch($node->class, new Identifier('class')))),
             ['stmts' => [$classNode]]
         );
+        $topClass = null;
         foreach ($ctx->parents as $parent) {
             if ($parent instanceof Class_) {
-                $ctx->insertAfter($parent, $classNode);
-                return;
+                $topClass = $parent;
             }
         }
-        $ctx->insertBefore($node, $classNode);
+        if ($topClass) {
+            $ctx->insertAfter($topClass, $classNode);
+        } else {
+            $ctx->insertBefore($node, $classNode);
+        }
     }
 
     public static function runAfter(array $config): array

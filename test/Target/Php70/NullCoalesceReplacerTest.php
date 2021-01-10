@@ -57,5 +57,8 @@ class NullCoalesceReplacerTest extends TestCase
         $this->assertFalse((fn () => $arr)()['a']['b']->c->d['e']['f'] ?? false);
 
         $this->assertEquals('test', (fn () => $arr)()['a']['b']->c->pony ?? 'test');
+
+
+        $this->assertFalse($unexistant[(fn () => 'a')()] ?? false);
     }
 }

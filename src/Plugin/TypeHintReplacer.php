@@ -4,12 +4,10 @@ namespace Phabel\Plugin;
 
 use Phabel\Context;
 use Phabel\Plugin;
-use Phabel\Target\Php74\ArrowClosure;
 use PhpParser\BuilderHelpers;
 use PhpParser\Node;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr;
-use PhpParser\Node\Expr\ArrowFunction;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\AssignRef;
 use PhpParser\Node\Expr\BinaryOp\BooleanOr;
@@ -17,7 +15,6 @@ use PhpParser\Node\Expr\BinaryOp\Concat;
 use PhpParser\Node\Expr\BinaryOp\Plus;
 use PhpParser\Node\Expr\BooleanNot;
 use PhpParser\Node\Expr\ClassConstFetch;
-use PhpParser\Node\Expr\Closure;
 use PhpParser\Node\Expr\Instanceof_;
 use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Expr\Variable;
@@ -61,23 +58,12 @@ class TypeHintReplacer extends Plugin
      * @var SplStack<T>
      */
     private SplStack $stack;
-    private ArrowClosure $converter;
     /**
      * Constructor.
      */
     public function __construct()
     {
         $this->stack = new SplStack;
-        $this->converter = new ArrowClosure;
-    }
-    /**
-     * Convert a function to a closure.
-     */
-    private function toClosure(FunctionLike &$func, Context $ctx): void
-    {
-        if ($func instanceof ArrowFunction) {
-            $func = $this->converter->enter($func, $ctx);
-        }
     }
     /**
      * Generate.
@@ -239,12 +225,12 @@ class TypeHintReplacer extends Plugin
             }
         }
         if ($stmts) {
-            $this->toClosure($func, $ctx);
+            $ctx->toClosure($func);
             $func->stmts = \array_merge($stmts, $func->getStmts() ?? []);
         }
 
         if ($this->getConfig('void', $this->getConfig('return', false)) && $func->getReturnType() instanceof Identifier && $func->getReturnType()->toLowerString() === 'void') {
-            $this->toClosure($func, $ctx);
+            $ctx->toClosure($func);
             $this->stack->push([self::VOID_RETURN]);
             $func->returnType = null;
             return $func;
@@ -259,7 +245,7 @@ class TypeHintReplacer extends Plugin
             $this->stack->push([self::IGNORE_RETURN]);
             return null;
         }
-        $this->toClosure($func, $ctx);
+        $ctx->toClosure($func);
         $this->stack->push([self::TYPE_RETURN, $functionName, $func->returnsByRef(), ...$condition]);
 
         $stmts = $func->getStmts();

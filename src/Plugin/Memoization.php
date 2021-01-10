@@ -4,12 +4,10 @@ namespace Phabel\Plugin;
 
 use Phabel\Context;
 use Phabel\Plugin;
-use Phabel\Target\Php74\ArrowClosure;
 use PhpParser\Comment\Doc;
 use PhpParser\Node;
 use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Expr\ArrayDimFetch;
-use PhpParser\Node\Expr\ArrowFunction;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\Isset_;
 use PhpParser\Node\Expr\Variable;
@@ -36,23 +34,12 @@ class Memoization extends Plugin
      * @var SplStack<null|ArrayDimFetch>
      */
     private SplStack $cache;
-    private ArrowClosure $converter;
     /**
      * Constructor function.
      */
     public function __construct()
     {
         $this->cache = new SplStack;
-        $this->converter = new ArrowClosure;
-    }
-    /**
-     * Convert a function to a closure.
-     */
-    private function toClosure(FunctionLike &$func, Context $ctx): void
-    {
-        if ($func instanceof ArrowFunction) {
-            $func = $this->converter->enter($func, $ctx);
-        }
     }
     /**
      * Enter functions.
@@ -123,7 +110,7 @@ class Memoization extends Plugin
         if (empty($toPrepend)) {
             return;
         }
-        $this->toClosure($node, $ctx);
+        $ctx->toClosure($node);
         $node->stmts = \array_merge($toPrepend, $node->stmts);
         $node->setDocComment(new Doc(\str_replace("@memoize ", "@memoized ", $node->getDocComment())));
     }

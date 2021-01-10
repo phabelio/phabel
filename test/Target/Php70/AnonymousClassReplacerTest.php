@@ -5,11 +5,12 @@ namespace PhabelTest\Target\Php70;
 use PHPUnit\Framework\TestCase;
 
 if (true) {
-    $anonClass = (new class($data) {
+    $anonClass = (new class('uwu') {
         private string $data;
         public function __construct(string $data)
         {
             $this->data = $data;
+            new class{};
         }
         public function getData(): string
         {
@@ -35,6 +36,7 @@ class AnonymousClassReplacerTest extends TestCase
             public function __construct(string $data)
             {
                 $this->data = $data;
+                new class{};
             }
             public function getData(): string
             {
@@ -49,10 +51,14 @@ class AnonymousClassReplacerTest extends TestCase
             public function __construct(string $data)
             {
                 $this->data = $data;
+                new class{};
             }
             public function getData(): string
             {
                 return $this->data;
+            }
+            public function testRef(AnonymousClassReplacerTest $ref)
+            {
             }
         })->getData()))();
 

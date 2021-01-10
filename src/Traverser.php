@@ -289,6 +289,7 @@ class Traverser
                 }
                 $index = $node->getAttribute('currentNodeIndex') + 1;
             }
+            $node->setAttribute('currentNodeIndex', null);
         }
         $context->pop();
         foreach ($plugins as $plugin) {
