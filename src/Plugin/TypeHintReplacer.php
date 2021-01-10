@@ -211,9 +211,7 @@ class TypeHintReplacer extends Plugin
             [$noOop, $string, $condition] = $condition;
             $start = $param->variadic
                 ? new Concat(new String_("Argument #"), new Plus(new LNumber($index), new Variable('phabelVariadicIndex')))
-                : new String_("Argument #$index");
-            $start = new Concat($start, new String_(" passed to "));
-            $start = new Concat($start, $functionName);
+                : new String_("Argument #$index ($".$param->var->name.")");
             $start = new Concat($start, new String_(" must be "));
             $start = new Concat($start, $string);
             $start = new Concat($start, new String_(", "));
