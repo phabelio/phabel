@@ -25,6 +25,7 @@ use PhpParser\Node\Expr\Ternary;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\FunctionLike;
 use PhpParser\Node\Param;
+use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\Node\Stmt\Else_;
 use PhpParser\Node\Stmt\Expression;
 use PhpParser\Node\Stmt\If_;
@@ -199,17 +200,13 @@ class Context
             return;
         }
         $found = false;
-        $foundParent = false;
         foreach ($this->parents as $cur) {
             if ($found) {
                 $parent = &$this->getCurrentChildByRef($cur);
                 break;
             }
-            if ($foundParent) {
-                $found = true;
-            }
             if ($this->getCurrentChild($cur) === $node) {
-                $foundParent = true;
+                $found = true;
             }
         }
         if (!isset($parent)) {
@@ -220,17 +217,17 @@ class Context
         }
 
         /** @var string */
-        $nodeKey = $parent->getAttribute('currentNode');
-        if ($nodeKey === 'stmts') {
+        $parentKey = $parent->getAttribute('currentNode');
+        if ($parentKey === 'stmts' && !$parent instanceof ClassLike) {
             /** @var int */
             $nodeKeyIndex = $parent->getAttribute('currentNodeIndex');
-            \array_splice($parent->{$nodeKey}, $nodeKeyIndex, 0, $insert);
+            \array_splice($parent->{$parentKey}, $nodeKeyIndex, 0, $insert);
             $parent->setAttribute('currentNodeIndex', $nodeKeyIndex + \count($insert));
             return; // Done, inserted!
         }
 
         // Cannot insert, parent is not a statement
-        $parentKey = $parent->getAttribute('currentNode');
+        //
         // If we insert before a conditional branch of a conditional expression,
         //   make sure the conditional branch has no side effects;
         //   if it does, turn the entire conditional expression into an if, and bubble it up

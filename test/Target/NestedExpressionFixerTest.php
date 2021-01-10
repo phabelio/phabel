@@ -97,7 +97,7 @@ class NestedExpressionFixerTest extends TestCase
     public function testByRef()
     {
         $a = 0;
-        $b = (function &() use (&$a) { return $a; })();
+        $b = &(function &() use (&$a) { return $a; })();
         $b = 1;
         $this->assertEquals($a, $b);
     }

@@ -205,9 +205,13 @@ class TypeHintReplacer extends Plugin
             if (!$condition = $this->strip($param->variadic ? new Variable('phabelVariadic') : $param->var, $param->type)) {
                 continue;
             }
+            $index++;
+
             $param->type = null;
             [$noOop, $string, $condition] = $condition;
-            $start = $param->variadic ? new Concat(new String_("Argument "), new Plus(new LNumber($index), new Variable('phabelVariadicIndex'))) : new String_("Argument $index");
+            $start = $param->variadic 
+                ? new Concat(new String_("Argument #"), new Plus(new LNumber($index), new Variable('phabelVariadicIndex'))) 
+                : new String_("Argument #$index");
             $start = new Concat($start, new String_(" passed to "));
             $start = new Concat($start, $functionName);
             $start = new Concat($start, new String_(" must be "));

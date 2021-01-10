@@ -179,8 +179,16 @@ class Traverser
             return;
         }
 
+        try {
+            $ast = new RootNode($this->parser->parse(\file_get_contents($file)) ?? []);
+        } catch (\Throwable $e) {
+            $message = $e->getMessage();
+            $message .= " while processing ";
+            $message .= $file;
+            throw new Exception($message, $e->getCode(), $e, $e->getFile(), $e->getLine());
+        }
+
         $this->file = $file;
-        $ast = new RootNode($this->parser->parse(\file_get_contents($file)) ?? []);
         $printer = new Standard();
 
         $result = '';
