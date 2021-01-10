@@ -15,7 +15,7 @@ const CLAZZ = "PhabelTest\\Target\\TypeHintReplacerTest";
 
 function escapeRegex(string $in): string
 {
-    return \var_export('~'.\str_replace(['\\', '(', ')', '$', '?'], ['\\\\', '\\(', '\\)', '\\$', '\\?'], $in).'~', true);
+    return \var_export('~'.\str_replace(['\\', '(', ')', '$', '?', '|'], ['\\\\', '\\(', '\\)', '\\$', '\\?', '\\|'], $in).'~', true);
 }
 
 function getErrorMessage(string $scalarParam, string $scalar, string $scalarSane, $wrongVal, string $to): array

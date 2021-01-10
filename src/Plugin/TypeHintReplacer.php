@@ -78,15 +78,15 @@ class TypeHintReplacer extends Plugin
     {
         /** @var bool Whether no explicit classes were referenced */
         $noOopTypes = true;
-        /** @var string[] */
+        /** @var Expr[] */
         $typeNames = [];
+        /** @var Expr[] */
+        $oopNames = [];
         /** @var Expr[] */
         $conditions = [];
         /** @var string Last string type name */
         $stringType = '';
         foreach ($types as $type) {
-            $typeNames []= $type->toString();
-
             if ($type instanceof Identifier) {
                 $typeName = $type->toLowerString();
                 switch ($typeName) {
@@ -101,6 +101,11 @@ class TypeHintReplacer extends Plugin
                     case 'null':
                         $stringType = new String_($typeName);
                         $conditions []= Plugin::call("is_$typeName", $var);
+                        if (\in_array($typeName, ['object', 'callable'])) {
+                            $oopNames []= $stringType;
+                        } else {
+                            $typeNames []= $stringType;
+                        }
                         break;
                     case 'iterable':
                         $stringType = new String_('iterable');
@@ -108,6 +113,7 @@ class TypeHintReplacer extends Plugin
                             Plugin::call("is_array", $var),
                             new Instanceof_($var, new FullyQualified(\Traversable::class))
                         );
+                        $oopNames []= $stringType;
                         break;
                     default:
                         $noOopTypes = false;
@@ -115,15 +121,24 @@ class TypeHintReplacer extends Plugin
                             new ClassConstFetch(new Name($typeName), new Identifier('class')) :
                             new String_($type->toString());
                         $conditions []= new Instanceof_($var, new Name($typeName));
+                        $oopNames []= $stringType;
                 }
             } else {
                 $noOopTypes = false;
-                $stringType = new String_($type->toString());
+                $stringType = $type->isSpecialClassName() ?
+                    new ClassConstFetch(new Name($type->toLowerString()), new Identifier('class')) :
+                    new String_($type->toString());
                 $conditions []= new Instanceof_($var, $type);
+                $oopNames []= $stringType;
             }
         }
-        if (\count($typeNames) > 1) {
-            $stringType = new String_(\implode("|", $typeNames));
+        if (\count($typeNames) + \count($oopNames) > 1) {
+            $typeNames = \array_merge($oopNames, $typeNames);
+            $stringType = \array_shift($typeNames);
+            foreach ($typeNames as $t) {
+                $stringType = new Concat($stringType, new String_("|"));
+                $stringType = new Concat($stringType, $t);
+            }
         }
         if ($fromNullable) {
             $stringType = new Concat(new String_('?'), $stringType);
