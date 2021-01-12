@@ -60,6 +60,6 @@
         "cs": "php-cs-fixer fix -v --diff --dry-run",
         "cs-fix": "php-cs-fixer fix -v --diff",
         "coverage": "@php tools/coverageMerge.php",
-        "phpunit": "phpdbg -qrr -dzend.assertions=1 -dassert.exception=1 ./vendor/bin/phpunit --coverage-php=coverage/phpunit.php"
+        "phpunit": "@php -dzend.assertions=1 -dassert.exception=1 ./vendor/bin/phpunit --coverage-php=coverage/phpunit.php"
     }
 }
