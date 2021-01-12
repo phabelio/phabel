@@ -45,7 +45,6 @@ jobs:
           PHP_CS_FIXER_IGNORE_ENV: 1
         run: |
           composer test
-          vendor/bin/psalm --shepherd
 
       - name: Upload coverage to Codecov
         env: 
