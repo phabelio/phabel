@@ -4,6 +4,10 @@ use Composer\Util\Filesystem;
 use Phabel\Plugin\PhabelTestGenerator;
 use Phabel\Target\Php;
 use PhabelTest\TraverserTask;
+use SebastianBergmann\CodeCoverage\Report\Clover;
+use SebastianBergmann\CodeCoverage\Report\Html\Facade;
+use SebastianBergmann\CodeCoverage\Report\PHP as ReportPHP;
+use SebastianBergmann\CodeCoverage\Report\Text;
 
 use function Amp\Promise\all;
 use function Amp\Promise\wait;
@@ -48,4 +52,7 @@ if (!empty($packages)) {
     }
     echo("Running $cmd...".PHP_EOL);
     \passthru($cmd);
+}
+if ($coverage = TraverserTask::getCoverage()) {
+    (new ReportPHP)->process($coverage, $argv[1] ?? 'coverage/transpiler.php');
 }

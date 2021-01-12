@@ -6,6 +6,9 @@ use Amp\Parallel\Worker\Environment;
 use Amp\Parallel\Worker\Task;
 use Amp\Promise;
 use Phabel\Traverser;
+use SebastianBergmann\CodeCoverage\CodeCoverage;
+use SebastianBergmann\CodeCoverage\Driver\Selector;
+use SebastianBergmann\CodeCoverage\Filter;
 
 use function Amp\call;
 use function Amp\Parallel\Worker\enqueue;
@@ -25,6 +28,10 @@ class TraverserTask implements Task
      */
     private string $output;
     /**
+     * Code coverage.
+     */
+    private static ?CodeCoverage $coverage = null;
+    /**
      * Run phabel.
      *
      * @param array $plugins Plugins
@@ -38,6 +45,14 @@ class TraverserTask implements Task
             $result = yield enqueue(new self($plugins, $input, $output));
             if ($result instanceof ExceptionWrapper) {
                 throw $result->getException();
+            }
+            [$result, $coverage] = $result;
+            if ($coverage) {
+                if (self::$coverage) {
+                    self::$coverage->merge($coverage, 'phabel');
+                } else {
+                    self::$coverage = $coverage;
+                }
             }
             return $result;
         });
@@ -66,10 +81,45 @@ class TraverserTask implements Task
      */
     public function run(Environment $environment)
     {
+        if ($environment->exists('coverage')) {
+            $coverage = $environment->get('coverage');
+        } else {
+            $coverage = null;
+            try {
+                $filter = new Filter;
+                $filter->includeDirectory(\realpath(__DIR__.'/../src'));
+
+                $coverage = new CodeCoverage(
+                    (new Selector)->forLineCoverage($filter),
+                    $filter
+                );
+                $coverage->start('phabel');
+            } catch (\Throwable $e) {
+            }
+            $environment->set('coverage', $coverage);
+        }
+        if ($coverage) {
+            $coverage->start('phabel');
+        }
+
         try {
-            return Traverser::run($this->plugins, $this->input, $this->output);
+            $result = Traverser::run($this->plugins, $this->input, $this->output);
+            if ($coverage) {
+                $coverage->stop();
+            }
+            return [$result, $coverage];
         } catch (\Throwable $e) {
             return new ExceptionWrapper($e);
         }
+    }
+
+    /**
+     * Get code coverage.
+     *
+     * @return ?CodeCoverage
+     */
+    public static function getCoverage(): ?CodeCoverage
+    {
+        return self::$coverage;
     }
 }

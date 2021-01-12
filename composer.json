@@ -18,7 +18,8 @@
         "symfony/polyfill-php72": "*",
         "symfony/polyfill-php73": "*",
         "symfony/polyfill-php74": "*",
-        "amphp/parallel": "^1.4"
+        "amphp/parallel": "^1.4",
+        "phpunit/php-code-coverage": "^9.2"
     },
     "license": "MIT",
     "authors": [{
@@ -52,9 +53,13 @@
             "@cs",
             "@test"
         ],
+        "test": [
+            "@phpunit",
+            "@coverage"
+        ],
         "cs": "php-cs-fixer fix -v --diff --dry-run",
         "cs-fix": "php-cs-fixer fix -v --diff",
-        "test": "@php -dzend.assertions=1 -dassert.exception=1 ./vendor/bin/phpunit --coverage-text",
-        "test-quick": "@php -dzend.assertions=1 -dassert.exception=1 ./vendor/bin/phpunit --coverage-text -c phpunit-quick.xml"
+        "coverage": "@php tools/coverageMerge.php",
+        "phpunit": "phpdbg -qrr -dzend.assertions=1 -dassert.exception=1 ./vendor/bin/phpunit --coverage-php=coverage/phpunit.php"
     }
 }
