@@ -19,7 +19,7 @@
         "symfony/polyfill-php73": "*",
         "symfony/polyfill-php74": "*",
         "amphp/parallel": "^1.4",
-        "phpunit/php-code-coverage": "^9.2"
+        "phpunit/php-code-coverage": "*"
     },
     "license": "MIT",
     "authors": [{
