@@ -36,7 +36,7 @@ class Traverser
     /**
      * Current file.
      */
-    private ?string $file;
+    private string $file = '';
     /**
      * Generate traverser from basic plugin instances.
      *
@@ -60,7 +60,7 @@ class Traverser
      * @param array $plugins Plugins
      * @param string $input  Input file/directory
      * @param string $output Output file/directory
-     * @return array
+     * @return array<string, string>
      */
     public static function run(array $plugins, string $input, string $output): array
     {
@@ -216,7 +216,7 @@ class Traverser
      */
     public function traverseAst(Node &$node, SplQueue $pluginQueue = null): Context
     {
-        $this->file = null;
+        $this->file = '';
         $n = new RootNode([&$node]);
         return $this->traverseAstInternal($n, $pluginQueue);
     }
@@ -230,25 +230,26 @@ class Traverser
      */
     private function traverseAstInternal(RootNode &$node, SplQueue $pluginQueue = null): Context
     {
+        $context = null;
         try {
             foreach ($pluginQueue ?? $this->packageQueue ?? $this->queue as $queue) {
                 $context = new Context($this->file);
                 $context->push($node);
                 $this->traverseNode($node, $queue, $context);
             }
+            return $context;
         } catch (\Throwable $e) {
             $message = $e->getMessage();
             $message .= " while processing ";
             $message .= $this->file;
             $message .= ":";
             try {
-                $message .= $context->getCurrentChild($context->parents[0])->getStartLine();
+                $message .= $context ? $context->getCurrentChild($context->parents[0])->getStartLine() : "-1";
             } catch (\Throwable $e) {
                 $message .= "-1";
             }
             throw new Exception($message, $e->getCode(), $e, $e->getFile(), $e->getLine());
         }
-        return $context;
     }
     /**
      * Traverse node.
@@ -267,6 +268,7 @@ class Traverser
                     continue;
                 }
                 foreach ($methods as $method) {
+                    /** @var Node|null */
                     $result = $plugin->{$method}($node, $context);
                     if ($result instanceof Node) {
                         if (!$result instanceof $node) {
@@ -279,9 +281,11 @@ class Traverser
             }
         }
         $context->push($node);
+        /** @var string $name */
         foreach ($node->getSubNodeNames() as $name) {
             $node->setAttribute('currentNode', $name);
 
+            /** @var Node[]|Node|mixed */
             $subNode = &$node->{$name};
             if ($subNode instanceof Node) {
                 $this->traverseNode($subNode, $plugins, $context);
@@ -295,6 +299,10 @@ class Traverser
                 if ($subNode[$index] instanceof Node) {
                     $this->traverseNode($subNode[$index], $plugins, $context);
                 }
+                /** 
+                 * @psalm-suppress MixedOperand 
+                 * @var int 
+                 */
                 $index = $node->getAttribute('currentNodeIndex') + 1;
             }
             $node->setAttribute('currentNodeIndex', null);
@@ -306,6 +314,7 @@ class Traverser
                     continue;
                 }
                 foreach ($methods as $method) {
+                    /** @var Node|null */
                     $result = $plugin->{$method}($node, $context);
                     if ($result instanceof Node) {
                         if (!$result instanceof $node) {

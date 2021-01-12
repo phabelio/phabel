@@ -22,7 +22,7 @@ class Exception extends \Exception
      *
      * @param string $message
      * @param integer $code
-     * @param self $previous
+     * @param \Throwable $previous
      * @param string $file
      * @param int $line
      */
