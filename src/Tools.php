@@ -53,6 +53,8 @@ abstract class Tools
      * @psalm-param class-string<Node>    $class       Class of new node
      * @psalm-param array<string, string> $propertyMap Property map between old and new objects
      *
+     * @psalm-suppress MissingClosureReturnType
+     * 
      * @return Node
      */
     public static function replaceType(Node $node, string $class, array $propertyMap = []): Node
@@ -112,6 +114,11 @@ abstract class Tools
      * @param Expr|Arg                                          ...$parameters Parameters
      *
      * @return FuncCall|StaticCall
+     * 
+     * @template T as array{0: class-string, 1: string}|callable-string
+     * @psalm-param T $name
+     * 
+     * @psalm-return (T is callable-string ? FuncCall : StaticCall)
      */
     public static function call($name, ...$parameters)
     {
@@ -203,6 +210,7 @@ abstract class Tools
             $node->setAttribute('hasSideEffects', true);
             return true;
         }
+        /** @var string */
         foreach ($node->getSubNodeNames() as $name) {
             if ($node->{$name} instanceof Expr) {
                 if (self::hasSideEffects($node->{$name})) {
@@ -210,6 +218,7 @@ abstract class Tools
                     return true;
                 }
             } elseif (\is_array($node->{$name})) {
+                /** @var Node|Node[]|string */
                 foreach ($node->{$name} as $var) {
                     if ($var instanceof Expr && self::hasSideEffects($var)) {
                         $node->setAttribute('hasSideEffects', true);
@@ -226,13 +235,17 @@ abstract class Tools
      *
      * @param object $obj
      * @param string $trait
-     * @param string $interface
      *
+     * @template T as object
+     * @psalm-param T $obj
+     * 
      * @return object
      */
     public static function cloneWithTrait(object $obj, string $trait): object
     {
+        /** @psalm-var int */
         static $count = 0;
+        /** @psalm-var array<string, class-string<T>> $memoized */
         static $memoized = [];
 
         $reflect = new ReflectionClass($obj);
@@ -245,6 +258,7 @@ abstract class Tools
 
         $extend = "extends \\".$r->getName();
         if (isset($memoized["$trait $extend"])) {
+            /** @psalm-suppress MixedMethodCall */
             $newObj = new $memoized["$trait $extend"];
         } else {
             $memoized["$trait $extend"] = "phabelTmpClass$count";
@@ -254,6 +268,7 @@ abstract class Tools
             }
             return new phabelTmpClass$count;";
             $count++;
+            /** @var object */
             $newObj = eval($eval);
         }
 
@@ -283,14 +298,18 @@ abstract class Tools
      * @param string $var Attribute name
      *
      * @psalm-suppress InvalidScope
+     * @psalm-suppress PossiblyInvalidFunctionCall
+     * @psalm-suppress MixedReturnStatement
+     * @psalm-suppress MixedPropertyFetch
+     * @psalm-suppress MixedInferredReturnType
      *
      * @return bool
      * @access public
      */
-    public static function hasVar($obj, string $var): bool
+    public static function hasVar(object $obj, string $var): bool
     {
         return \Closure::bind(
-            function () use ($var) {
+            function () use ($var): bool {
                 return isset($this->{$var});
             },
             $obj,
@@ -304,6 +323,8 @@ abstract class Tools
      * @param string $var Attribute name
      *
      * @psalm-suppress InvalidScope
+     * @psalm-suppress PossiblyInvalidFunctionCall
+     * @psalm-suppress MixedPropertyFetch
      *
      * @return mixed
      * @access public
@@ -311,6 +332,7 @@ abstract class Tools
     public static function &getVar($obj, string $var)
     {
         return \Closure::bind(
+            /** @return mixed */
             function & () use ($var) {
                 return $this->{$var};
             },
@@ -326,6 +348,7 @@ abstract class Tools
      * @param mixed  $val Attribute value
      *
      * @psalm-suppress InvalidScope
+     * @psalm-suppress PossiblyInvalidFunctionCall
      *
      * @return void
      *

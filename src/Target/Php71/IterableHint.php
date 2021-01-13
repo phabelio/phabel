@@ -11,11 +11,6 @@ use Phabel\Plugin\TypeHintReplacer;
  */
 class IterableHint extends Plugin
 {
-    /**
-     * Alias.
-     *
-     * @return array
-     */
     public static function runAfter(array $config): array
     {
         return [

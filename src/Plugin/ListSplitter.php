@@ -6,7 +6,6 @@ use Phabel\Context;
 use Phabel\Plugin;
 use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Expr\ArrayDimFetch;
-use PhpParser\Node\Expr\ArrayItem;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\AssignRef;
 use PhpParser\Node\Expr\List_;
@@ -72,6 +71,7 @@ class ListSplitter extends Plugin
      * @param Variable     $var    Variable
      *
      * @return (Assign|AssignRef)[]
+     * @psalm-return array<int, Assign|AssignRef>
      */
     public static function splitList($list, Variable $var): array
     {
@@ -115,8 +115,7 @@ class ListSplitter extends Plugin
      */
     private function shouldSplit($list): bool
     {
-        /** @var ArrayItem $item */
-        foreach ($list->items ?? [] as $item) {
+        foreach ($list->items as $item) {
             if (!$item) {
                 continue;
             }

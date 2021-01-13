@@ -410,14 +410,13 @@ namespace Phabel\Target\Php$version;
 use Phabel\Plugin;
 use $type as fixer;
 
+/**
+ * Expression fixer for PHP $version
+ */
 class $name extends Plugin
 {
     /**
-     * Expression fixer for PHP $version
-     *
-     * @param array \$config
-     *
-     * @return array
+     * {@inheritDoc}
      */
     public static function runAfter(array \$config): array
     {

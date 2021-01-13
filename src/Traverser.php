@@ -20,7 +20,7 @@ class Traverser
     /**
      * Plugin queue.
      *
-     * @return SplQueue<SplQueue<Plugin>>
+     * @var SplQueue<SplQueue<PluginInterface>>
      */
     private SplQueue $queue;
     /**
@@ -30,9 +30,9 @@ class Traverser
     /**
      * Plugin queue for specific package.
      *
-     * @return SplQueue<SplQueue<Plugin>>|null
+     * @var SplQueue<SplQueue<PluginInterface>>|null
      */
-    private ?SplQueue $packageQueue;
+    private ?SplQueue $packageQueue = null;
     /**
      * Current file.
      */
@@ -60,12 +60,15 @@ class Traverser
      * @param array $plugins Plugins
      * @param string $input  Input file/directory
      * @param string $output Output file/directory
+     * 
+     * @psalm-param array<class-string<PluginInterface>, array> $plugins
+     * 
      * @return array<string, string>
      */
     public static function run(array $plugins, string $input, string $output): array
     {
         \set_error_handler(
-            function ($errno = 0, $errstr = null, $errfile = null, $errline = null): bool {
+            function (int $errno = 0, string $errstr = '', string $errfile = '', int $errline = -1): bool {
                 // If error is suppressed with @, don't throw an exception
                 if (\error_reporting() === 0) {
                     return false;
@@ -93,6 +96,7 @@ class Traverser
 
         $it = new \RecursiveDirectoryIterator($input, \RecursiveDirectoryIterator::SKIP_DOTS);
         $ri = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::SELF_FIRST);
+        /** @var \SplFileInfo $file */
         foreach ($ri as $file) {
             $targetPath = $output.DIRECTORY_SEPARATOR.$ri->getSubPathname();
             if ($file->isDir()) {
@@ -114,10 +118,11 @@ class Traverser
     /**
      * AST traverser.
      *
-     * @return SplQueue<SplQueue<Plugin>> $queue Plugin queue
+     * @return SplQueue<SplQueue<PluginInterface>> $queue Plugin queue
      */
     public function __construct(SplQueue $queue = null)
     {
+        /** @var SplQueue<SplQueue<PluginInterface>> */
         $this->queue = $queue ?? new SplQueue;
         $this->parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
     }
@@ -130,11 +135,14 @@ class Traverser
      */
     public function setPackage(string $package): void
     {
+        /** @var SplQueue<SplQueue<PluginInterface>> */
         $this->packageQueue = new SplQueue;
+        /** @var SplQueue<PluginInterface> */
         $newQueue = new SplQueue;
         foreach ($this->queue as $queue) {
             if ($newQueue->count()) {
                 $this->packageQueue->enqueue($newQueue);
+                /** @var SplQueue<PluginInterface> */
                 $newQueue = new SplQueue;
             }
             /** @var Plugin */
@@ -158,12 +166,14 @@ class Traverser
      */
     public function traverse(string $file, string $output): void
     {
-        /** @var SplQueue<SplQueue<Plugin>> */
+        /** @var SplQueue<SplQueue<PluginInterface>> */
         $reducedQueue = new SplQueue;
+        /** @var SplQueue<PluginInterface> */
         $newQueue = new SplQueue;
         foreach ($this->packageQueue ?? $this->queue as $queue) {
             if ($newQueue->count()) {
                 $reducedQueue->enqueue($newQueue);
+                /** @var SplQueue<PluginInterface> */
                 $newQueue = new SplQueue;
             }
             /** @var Plugin */
@@ -185,7 +195,7 @@ class Traverser
             $message = $e->getMessage();
             $message .= " while processing ";
             $message .= $file;
-            throw new Exception($message, $e->getCode(), $e, $e->getFile(), $e->getLine());
+            throw new Exception($message, (int) $e->getCode(), $e, $e->getFile(), $e->getLine());
         }
 
         $this->file = $file;
@@ -212,32 +222,37 @@ class Traverser
      * @param Node     $node        Initial node
      * @param SplQueue $pluginQueue Plugin queue (optional)
      *
-     * @return Context
+     * @psalm-param SplQueue<SplQueue<PluginInterface>> $pluginQueue
+     * 
+     * @return void
      */
-    public function traverseAst(Node &$node, SplQueue $pluginQueue = null): Context
+    public function traverseAst(Node &$node, SplQueue $pluginQueue = null): void
     {
         $this->file = '';
         $n = new RootNode([&$node]);
-        return $this->traverseAstInternal($n, $pluginQueue);
+        $this->traverseAstInternal($n, $pluginQueue);
     }
     /**
      * Traverse AST.
      *
      * @param RootNode &$node        Initial node
      * @param SplQueue $pluginQueue Plugin queue (optional)
-     *
-     * @return Context
+     * 
+     * @psalm-param SplQueue<SplQueue<PluginInterface>> $pluginQueue
+     * 
+     * @psalm-suppress ReferenceConstraintViolation
+     * 
+     * @return void
      */
-    private function traverseAstInternal(RootNode &$node, SplQueue $pluginQueue = null): Context
+    private function traverseAstInternal(RootNode &$node, SplQueue $pluginQueue = null): void
     {
         $context = null;
         try {
             foreach ($pluginQueue ?? $this->packageQueue ?? $this->queue as $queue) {
-                $context = new Context($this->file);
+                $context = new Context();
                 $context->push($node);
                 $this->traverseNode($node, $queue, $context);
             }
-            return $context;
         } catch (\Throwable $e) {
             $message = $e->getMessage();
             $message .= " while processing ";
@@ -248,14 +263,14 @@ class Traverser
             } catch (\Throwable $e) {
                 $message .= "-1";
             }
-            throw new Exception($message, $e->getCode(), $e, $e->getFile(), $e->getLine());
+            throw new Exception($message, (int) $e->getCode(), $e, $e->getFile(), $e->getLine());
         }
     }
     /**
      * Traverse node.
      *
      * @param Node             &$node   Node
-     * @param SplQueue<Plugin> $plugins Plugins
+     * @param SplQueue<PluginInterface> $plugins Plugins
      * @param Context          $context Context
      *
      * @return void

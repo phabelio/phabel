@@ -53,7 +53,7 @@ class Graph
     /**
      * Flatten graph.
      *
-     * @return array{0: SplQueue<SplQueue<Plugin>>, array}
+     * @return array{0: SplQueue<SplQueue<PluginInterface>>, 1: array<string, string>}
      */
     public function flatten(): array
     {

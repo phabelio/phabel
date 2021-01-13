@@ -32,7 +32,7 @@ class GraphInternal
     /**
      * Stores list of Nodes that are not required by any other node.
      *
-     * @var SplObjectStorage<Node, void>
+     * @var SplObjectStorage<Node, null>
      */
     private SplObjectStorage $unlinkedNodes;
 
@@ -105,17 +105,19 @@ class GraphInternal
     /**
      * Flatten graph.
      *
-     * @return SplQueue<SplQueue<Plugin>>
+     * @return SplQueue<SplQueue<PluginInterface>>
      */
     public function flatten(): SplQueue
     {
         if (!$this->plugins) {
-            /** @psalm-var SplQueue<SplQueue<Plugin>> */
+            /** @psalm-var SplQueue<SplQueue<PluginInterface>> */
             return new SplQueue();
         }
         if ($this->unlinkedNodes->count()) {
+            /** @var Node|null $initNode */
+            $initNode = null;
             foreach ($this->unlinkedNodes as $node) {
-                if (isset($initNode)) {
+                if ($initNode) {
                     $node = $initNode->merge($node);
                 }
                 /** @var Node */

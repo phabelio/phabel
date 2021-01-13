@@ -7,13 +7,6 @@ use Phabel\Plugin\NestedExpressionFixer as fixer;
 
 class NestedExpressionFixer extends Plugin
 {
-    /**
-     * Expression fixer for PHP 80.
-     *
-     * @param array $config
-     *
-     * @return array
-     */
     public static function runAfter(array $config): array
     {
         return [

@@ -28,8 +28,8 @@ class NullCoalesceReplacer extends Plugin
     /**
      * Recursively extract bottom ArrayDimFetch.
      *
-     * @param Node $var
-     * @return Node
+     * @param Expr $var
+     * @return Expr
      */
     private static function &extractWorkVar(Expr &$var): Expr
     {

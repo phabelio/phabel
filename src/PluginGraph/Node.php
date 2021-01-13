@@ -38,28 +38,28 @@ class Node
     /**
      * Nodes that this node requires.
      *
-     * @var SplObjectStorage<Node>
+     * @var SplObjectStorage<Node, null>
      */
     private SplObjectStorage $requires;
 
     /**
      * Nodes that this node extends.
      *
-     * @var SplObjectStorage<Node>
+     * @var SplObjectStorage<Node, null>
      */
     private SplObjectStorage $extends;
 
     /**
      * Nodes that require this node.
      *
-     * @var SplObjectStorage<Node>
+     * @var SplObjectStorage<Node, null>
      */
     private SplObjectStorage $requiredBy;
 
     /**
      * Nodes that extend this node.
      *
-     * @var SplObjectStorage<Node>
+     * @var SplObjectStorage<Node, null>
      */
     private SplObjectStorage $extendedBy;
 

@@ -131,8 +131,6 @@ class NestedExpressionFixer extends Plugin
      * @template T
      *
      * @psalm-param T $data data
-     *
-     * @psalm-throws T
      */
     public static function throwMe(\Throwable $throwable)
     {

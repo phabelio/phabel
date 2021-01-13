@@ -6,6 +6,7 @@ use Phabel\Context;
 use Phabel\Plugin;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr\Array_;
+use PhpParser\Node\Expr\ArrayItem;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\List_;
@@ -26,6 +27,7 @@ class ArrayUnpack extends Plugin
             if ($parent instanceof List_) {
                 return null;
             }
+            /** @var string */
             $key = $parent->getAttribute('currentNode');
             if ($parent instanceof Assign && $key === 'var') {
                 return null;
@@ -37,6 +39,9 @@ class ArrayUnpack extends Plugin
         }
         $hasUnpack = false;
         foreach ($array->items as $item) {
+            if (!$item) {
+                return null;
+            }
             if ($item->unpack) {
                 $hasUnpack = true;
                 break;
@@ -47,6 +52,7 @@ class ArrayUnpack extends Plugin
         }
         $args = [];
         $current = new Array_();
+        /** @var ArrayItem */
         foreach ($array->items as $item) {
             if ($item->unpack) {
                 if ($current->items) {

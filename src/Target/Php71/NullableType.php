@@ -6,16 +6,13 @@ use Phabel\Plugin;
 use Phabel\Plugin\TypeHintReplacer;
 
 /**
+ * Remove nullable typehint.
+ * 
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT
  */
 class NullableType extends Plugin
 {
-    /**
-     * Remove nullable typehint.
-     *
-     * @return array
-     */
     public static function runAfter(array $config): array
     {
         return [

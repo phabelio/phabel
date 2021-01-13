@@ -8,12 +8,32 @@ namespace Phabel\Target\Php80\NullSafe;
 class NullSafe
 {
     public static self $singleton;
-    public function __call($name, $arguments)
+    /**
+     * Null
+     *
+     * @param mixed $name
+     * @param array $arguments
+     * @return void
+     */
+    public function __call($name, array $arguments)
     {
     }
+    /**
+     * Null
+     *
+     * @param mixed $name
+     * @param mixed $value
+     * @return void
+     */
     public function __set($name, $value)
     {
     }
+    /**
+     * Null
+     *
+     * @param mixed $name
+     * @return void
+     */
     public function __get($name)
     {
     }

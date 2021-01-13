@@ -11,11 +11,6 @@ use Phabel\Plugin\TypeHintReplacer;
  */
 class ReturnTypeHints extends Plugin
 {
-    /**
-     * Alias.
-     *
-     * @return array
-     */
     public static function runAfter(array $config): array
     {
         return [

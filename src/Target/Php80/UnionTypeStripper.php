@@ -11,9 +11,7 @@ use Phabel\Plugin\TypeHintReplacer;
 class UnionTypeStripper extends Plugin
 {
     /**
-     * Run with before.
-     *
-     * @return array
+     * {@inheritDoc}
      */
     public static function runWithAfter(array $config): array
     {

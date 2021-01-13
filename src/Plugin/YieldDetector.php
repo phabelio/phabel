@@ -1,6 +1,6 @@
 <?php
 
-namespace Phabel\Target\Php55;
+namespace Phabel\Plugin;
 
 use Phabel\Context;
 use Phabel\Plugin;
@@ -23,13 +23,5 @@ class YieldDetector extends Plugin
                 return;
             }
         }
-    }
-    public static function runBefore(): array
-    {
-        return [ReGenerator::class];
-    }
-    public static function runAfter(): array
-    {
-        return [ArrowClosure::class];
     }
 }

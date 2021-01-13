@@ -5,6 +5,7 @@ namespace Phabel\Target;
 use Phabel\Plugin;
 use Phabel\Plugin\NewFixer;
 use Phabel\Plugin\StmtExprWrapper;
+use Phabel\PluginInterface;
 
 /**
  * Makes changes necessary to polyfill syntaxes of various PHP versions.
@@ -16,6 +17,8 @@ class Php extends Plugin
 {
     /**
      * PHP versions.
+     *
+     * @var int[]
      */
     const VERSIONS = [
         56,
@@ -43,13 +46,13 @@ class Php extends Plugin
     public static function normalizeVersion(string $target): int
     {
         if ($target === 'auto') {
-            return PHP_MAJOR_VERSION.PHP_MINOR_VERSION;
+            return (int) self::DEFAULT_TARGET;
         }
         if (\preg_match(":^\D*(\d+\.\d+)\..*:", $target, $matches)) {
             $target = $matches[1];
         }
         $target = \str_replace('.', '', $target);
-        return \in_array($target, self::VERSIONS) ? $target : self::DEFAULT_TARGET;
+        return (int) (\in_array($target, self::VERSIONS) ? $target : self::DEFAULT_TARGET);
     }
     /**
      * Unnormalize version string.
@@ -66,27 +69,29 @@ class Php extends Plugin
      * Get PHP version range to target.
      *
      * @param int $target
-     * @return array
+     * @return int[]
      */
     private static function getRange(int $target): array
     {
         $key = \array_search($target, self::VERSIONS);
-        return \array_slice(
-            self::VERSIONS,
-            1 + ($key === false ? self::DEFAULT_TARGET : $key)
-        );
+        return $key === false 
+            ? self::getRange((int) self::DEFAULT_TARGET)
+            : \array_slice(
+                self::VERSIONS,
+                1 + $key
+            );
     }
     public function getComposerRequires(): array
     {
         return \array_fill_keys(
-            \array_map(fn (string $version): string => "symfony/polyfill-php$version", self::getRange($this->getConfig('target', self::DEFAULT_TARGET))),
+            \array_map(fn (int $version): string => "symfony/polyfill-php$version", self::getRange((int) $this->getConfig('target', self::DEFAULT_TARGET))),
             '*'
         );
     }
     public static function runAfter(array $config): array
     {
         $classes = [];
-        foreach (self::getRange($config['target'] ?? self::DEFAULT_TARGET) as $version) {
+        foreach (self::getRange((int) ($config['target'] ?? self::DEFAULT_TARGET)) as $version) {
             if (!\file_exists($dir = __DIR__."/Php$version")) {
                 continue;
             }
@@ -97,7 +102,9 @@ class Php extends Plugin
                 if (str_ends_with($file, 'ExpressionFixer.php')) {
                     continue;
                 }
+                /** @var class-string<PluginInterface> */
                 $class = self::class.$version.'\\'.\basename($file, '.php');
+                /** @var array */
                 $classes[$class] = $config[$class] ?? [];
             }
         }
@@ -109,12 +116,14 @@ class Php extends Plugin
             StmtExprWrapper::class => $config[StmtExprWrapper::class] ?? [],
             NewFixer::class => []
         ];
-        foreach (self::getRange($config['target'] ?? self::DEFAULT_TARGET) as $version) {
+        foreach (self::getRange((int) ($config['target'] ?? self::DEFAULT_TARGET)) as $version) {
             if (!\file_exists($dir = __DIR__."/Php$version")) {
                 continue;
             }
             foreach (['Nested', 'Isset'] as $t) {
+                /** @var class-string<PluginInterface> */
                 $class = self::class.$version."\\$t"."ExpressionFixer";
+                /** @var array */
                 $classes[$class] = $config[$class] ?? [];
             }
         }

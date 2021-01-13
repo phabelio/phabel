@@ -6,16 +6,12 @@ use Phabel\Plugin;
 use Phabel\Plugin\TypeHintReplacer;
 
 /**
+ * Remove void return typehint.
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT
  */
 class VoidReturnType extends Plugin
 {
-    /**
-     * Remove void return typehint.
-     *
-     * @return array
-     */
     public static function runAfter(array $config): array
     {
         return [

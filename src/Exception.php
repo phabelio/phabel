@@ -26,12 +26,12 @@ class Exception extends \Exception
      * @param string $file
      * @param int $line
      */
-    public function __construct($message = null, $code = 0, \Throwable $previous = null, $file = null, $line = null)
+    public function __construct(string $message = '', int $code = 0, \Throwable $previous = null, string $file = '', int $line = -1)
     {
-        if ($file !== null) {
+        if ($file !== '') {
             $this->file = $file;
         }
-        if ($line !== null) {
+        if ($line !== -1) {
             $this->line = $line;
         }
         parent::__construct($message, $code, $previous);

@@ -48,7 +48,7 @@ class ThrowableReplacer extends Plugin
      *
      * @param Instanceof_ $node
      *
-     * @return Node
+     * @return ?Node
      */
     public function enterInstanceOf(Instanceof_ $node)
     {
@@ -91,11 +91,6 @@ class ThrowableReplacer extends Plugin
         }
     }
 
-    /**
-     * Other transforms.
-     *
-     * @return array
-     */
     public static function runWithBefore(array $config): array
     {
         return [
