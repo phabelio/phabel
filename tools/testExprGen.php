@@ -29,8 +29,7 @@ foreach (Php::VERSIONS as $version) {
             ]]
         ],
         'testsGenerated/Target',
-        "testsGenerated/Target$version",
-        getenv('CI') ? false : true
+        "testsGenerated/Target$version"
     );
     $promise->onResolve(function (?\Throwable $e, ?array $res) use ($version, &$packagesSecondary) {
         if ($e) {
@@ -41,8 +40,7 @@ foreach (Php::VERSIONS as $version) {
                 PhabelTestGenerator::class => ['target' => 1000+$version]
             ],
             "testsGenerated/Target$version",
-            "testsGenerated/Target10$version",
-            getenv('CI') ? false : true
+            "testsGenerated/Target10$version"
         );
     });
 }
