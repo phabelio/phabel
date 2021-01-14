@@ -74,7 +74,7 @@ class Php extends Plugin
     private static function getRange(int $target): array
     {
         $key = \array_search($target, self::VERSIONS);
-        return $key === false 
+        return $key === false
             ? self::getRange((int) self::DEFAULT_TARGET)
             : \array_slice(
                 self::VERSIONS,

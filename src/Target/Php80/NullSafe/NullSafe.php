@@ -9,7 +9,7 @@ class NullSafe
 {
     public static self $singleton;
     /**
-     * Null
+     * Null.
      *
      * @param mixed $name
      * @param array $arguments
@@ -19,7 +19,7 @@ class NullSafe
     {
     }
     /**
-     * Null
+     * Null.
      *
      * @param mixed $name
      * @param mixed $value
@@ -29,7 +29,7 @@ class NullSafe
     {
     }
     /**
-     * Null
+     * Null.
      *
      * @param mixed $name
      * @return void

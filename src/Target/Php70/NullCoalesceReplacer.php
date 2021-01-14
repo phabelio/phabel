@@ -8,7 +8,6 @@ use Phabel\Target\Php70\NullCoalesce\DisallowedExpressions;
 use Phabel\Target\Php74\NullCoalesceAssignment;
 use Phabel\Target\Php80\NullSafeTransformer;
 use Phabel\Tools;
-use PhpParser\Node;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\ArrayDimFetch;
 use PhpParser\Node\Expr\Assign;

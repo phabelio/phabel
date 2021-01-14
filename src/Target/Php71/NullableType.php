@@ -7,7 +7,7 @@ use Phabel\Plugin\TypeHintReplacer;
 
 /**
  * Remove nullable typehint.
- * 
+ *
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT
  */

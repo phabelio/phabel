@@ -5,6 +5,7 @@ namespace PhabelTest;
 use Amp\Parallel\Worker\Environment;
 use Amp\Parallel\Worker\Task;
 use Amp\Promise;
+use Amp\Success;
 use Phabel\Traverser;
 use SebastianBergmann\CodeCoverage\CodeCoverage;
 use SebastianBergmann\CodeCoverage\Driver\Selector;
@@ -37,10 +38,31 @@ class TraverserTask implements Task
      * @param array $plugins Plugins
      * @param string $input  Input file/directory
      * @param string $output Output file/directory
+     * @param bool   $async  Whether to enable parallelization
      * @return Promise<array>
      */
-    public static function runAsync(array $plugins, string $input, string $output): Promise
+    public static function runAsync(array $plugins, string $input, string $output, bool $async = true): Promise
     {
+        if (!$async) {
+            if (!self::$coverage) {
+                try {
+                    $filter = new Filter;
+                    $filter->includeDirectory(\realpath(__DIR__.'/../src'));
+
+                    self::$coverage = new CodeCoverage(
+                        (new Selector)->forLineCoverage($filter),
+                        $filter
+                    );
+                    self::$coverage->start('phabel');
+                } catch (\Throwable $e) {
+                }
+            }
+            $res = Traverser::run($plugins, $input, $output);
+            if (self::$coverage) {
+                self::$coverage->stop();
+            }
+            return new Success($res);
+        }
         return call(function () use ($plugins, $input, $output) {
             $result = yield enqueue(new self($plugins, $input, $output));
             if ($result instanceof ExceptionWrapper) {

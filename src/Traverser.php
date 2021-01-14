@@ -60,9 +60,9 @@ class Traverser
      * @param array $plugins Plugins
      * @param string $input  Input file/directory
      * @param string $output Output file/directory
-     * 
+     *
      * @psalm-param array<class-string<PluginInterface>, array> $plugins
-     * 
+     *
      * @return array<string, string>
      */
     public static function run(array $plugins, string $input, string $output): array
@@ -223,7 +223,7 @@ class Traverser
      * @param SplQueue $pluginQueue Plugin queue (optional)
      *
      * @psalm-param SplQueue<SplQueue<PluginInterface>> $pluginQueue
-     * 
+     *
      * @return void
      */
     public function traverseAst(Node &$node, SplQueue $pluginQueue = null): void
@@ -237,11 +237,11 @@ class Traverser
      *
      * @param RootNode &$node        Initial node
      * @param SplQueue $pluginQueue Plugin queue (optional)
-     * 
+     *
      * @psalm-param SplQueue<SplQueue<PluginInterface>> $pluginQueue
-     * 
+     *
      * @psalm-suppress ReferenceConstraintViolation
-     * 
+     *
      * @return void
      */
     private function traverseAstInternal(RootNode &$node, SplQueue $pluginQueue = null): void
@@ -314,9 +314,9 @@ class Traverser
                 if ($subNode[$index] instanceof Node) {
                     $this->traverseNode($subNode[$index], $plugins, $context);
                 }
-                /** 
-                 * @psalm-suppress MixedOperand 
-                 * @var int 
+                /**
+                 * @psalm-suppress MixedOperand
+                 * @var int
                  */
                 $index = $node->getAttribute('currentNodeIndex') + 1;
             }

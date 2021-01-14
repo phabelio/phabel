@@ -4,7 +4,6 @@ namespace Phabel\Plugin;
 
 use Phabel\Context;
 use Phabel\Plugin;
-use Phabel\Plugin\ReGenerator;
 use PhpParser\Node\Expr\Yield_;
 use PhpParser\Node\FunctionLike;
 

@@ -54,7 +54,7 @@ abstract class Tools
      * @psalm-param array<string, string> $propertyMap Property map between old and new objects
      *
      * @psalm-suppress MissingClosureReturnType
-     * 
+     *
      * @return Node
      */
     public static function replaceType(Node $node, string $class, array $propertyMap = []): Node
@@ -114,10 +114,10 @@ abstract class Tools
      * @param Expr|Arg                                          ...$parameters Parameters
      *
      * @return FuncCall|StaticCall
-     * 
+     *
      * @template T as array{0: class-string, 1: string}|callable-string
      * @psalm-param T $name
-     * 
+     *
      * @psalm-return (T is callable-string ? FuncCall : StaticCall)
      */
     public static function call($name, ...$parameters)
@@ -238,7 +238,7 @@ abstract class Tools
      *
      * @template T as object
      * @psalm-param T $obj
-     * 
+     *
      * @return object
      */
     public static function cloneWithTrait(object $obj, string $trait): object
