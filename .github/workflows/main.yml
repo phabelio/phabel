@@ -40,13 +40,11 @@ jobs:
       - name: Install dependencies
         run: composer install --prefer-dist
 
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-
       - name: Run tests
         env:
           PHP_CS_FIXER_IGNORE_ENV: 1
         run: |
+          sudo sed -i 's/^disable_function.*//g' /etc/php/*/phpdbg/php.ini
           phpdbg -qrr vendor/bin/phpunit --coverage-php=coverage/phpunit.php
           phpdbg -qrr tools/testExprGen.php
           composer coverage
