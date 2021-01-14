@@ -19,7 +19,7 @@ jobs:
         with:
           php-version: ${{ matrix.php-versions }}
           extensions: mbstring, intl, sockets
-          coverage: pcov
+          coverage: none
 
       - name: Check environment
         run: |
@@ -44,7 +44,9 @@ jobs:
         env:
           PHP_CS_FIXER_IGNORE_ENV: 1
         run: |
-          composer testFull
+          phpdbg -qrr vendor/bin/phpunit --coverage-php=coverage/phpunit.php
+          phpdbg -qrr tools/testExprGen.php
+          composer coverage
 
       - name: Upload coverage to Codecov
         env: 

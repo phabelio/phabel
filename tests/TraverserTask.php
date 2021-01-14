@@ -43,28 +43,6 @@ class TraverserTask implements Task
      */
     public static function runAsync(array $plugins, string $input, string $output, bool $async = true): Promise
     {
-        if (!$async) {
-            if (!self::$coverage) {
-                try {
-                    $filter = new Filter;
-                    $filter->includeDirectory(\realpath(__DIR__.'/../src'));
-
-                    self::$coverage = new CodeCoverage(
-                        (new Selector)->forLineCoverage($filter),
-                        $filter
-                    );
-                    self::$coverage->start('phabel');
-                } catch (\Throwable $e) {
-                }
-            } else {
-                self::$coverage->start('phabel');
-            } 
-            $res = Traverser::run($plugins, $input, $output);
-            if (self::$coverage) {
-                self::$coverage->stop();
-            }
-            return new Success($res);
-        }
         return call(function () use ($plugins, $input, $output) {
             $result = yield enqueue(new self($plugins, $input, $output));
             if ($result instanceof ExceptionWrapper) {
