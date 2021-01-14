@@ -66,6 +66,6 @@
         "cs-fix": "php-cs-fixer fix -v --diff",
         "phpunit": "@php -dzend.assertions=1 -dassert.exception=1 ./vendor/bin/phpunit --coverage-php=coverage/phpunit.php",
         "coverage": "@php tools/coverageMerge.php",
-        "phpunitExpr": "php80 tools/testExprGen.php"
+        "phpunitExpr": "@php tools/testExprGen.php"
     }
 }

@@ -11,7 +11,7 @@ use function Amp\Promise\all;
 use function Amp\Promise\wait;
 
 require_once 'vendor/autoload.php';
-/*
+
 $fs = new Filesystem();
 
 $packages = [];
@@ -59,7 +59,7 @@ if (!empty($packages)) {
 if ($coverage = TraverserTask::getCoverage()) {
     (new ReportPhp)->process($coverage, $argv[1] ?? 'coverage/transpilerExpr.php');
 }
-*/
+
 $current = (int) (PHP_MAJOR_VERSION.PHP_MINOR_VERSION);
 foreach (glob("testsGenerated/*/*.php") as $i => $test) {
     $version = (int) substr(basename(dirname($test)), 6);
