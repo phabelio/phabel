@@ -60,6 +60,8 @@ if ($coverage = TraverserTask::getCoverage()) {
     (new ReportPhp)->process($coverage, $argv[1] ?? 'coverage/transpilerExpr.php');
 }
 
+$binary = PHP_SAPI === 'phpdbg' ? PHP_BINARY." -qrr" : PHP_BINARY;
+
 $current = (int) (PHP_MAJOR_VERSION.PHP_MINOR_VERSION);
 foreach (glob("testsGenerated/*/*.php") as $i => $test) {
     $version = (int) substr(basename(dirname($test)), 6);
@@ -68,5 +70,8 @@ foreach (glob("testsGenerated/*/*.php") as $i => $test) {
         continue;
     }
     
-    passthru(PHP_BINARY." vendor/bin/phpunit -c phpunit-expr.xml $test --coverage-php=coverage/transpilerExpr$i.php");
+    passthru("$binary vendor/bin/phpunit -c phpunit-expr.xml $test --coverage-php=coverage/transpilerExpr$i.php", $ret);
+    if ($ret) {
+        die($ret);
+    }
 }
