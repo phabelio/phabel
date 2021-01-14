@@ -56,7 +56,9 @@ class TraverserTask implements Task
                     self::$coverage->start('phabel');
                 } catch (\Throwable $e) {
                 }
-            }
+            } else {
+                self::$coverage->start('phabel')
+            } 
             $res = Traverser::run($plugins, $input, $output);
             if (self::$coverage) {
                 self::$coverage->stop();
