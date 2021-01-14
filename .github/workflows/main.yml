@@ -44,7 +44,7 @@ jobs:
         env:
           PHP_CS_FIXER_IGNORE_ENV: 1
         run: |
-          composer test
+          composer testFull
 
       - name: Upload coverage to Codecov
         env: 

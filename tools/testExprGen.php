@@ -5,12 +5,13 @@ use Phabel\Plugin\PhabelTestGenerator;
 use Phabel\Plugin\TypeHintReplacer;
 use Phabel\Target\Php;
 use PhabelTest\TraverserTask;
+use SebastianBergmann\CodeCoverage\Report\PHP as ReportPHP;
 
 use function Amp\Promise\all;
 use function Amp\Promise\wait;
 
 require_once 'vendor/autoload.php';
-
+/*
 $fs = new Filesystem();
 
 $packages = [];
@@ -46,7 +47,6 @@ foreach (Php::VERSIONS as $version) {
 $packages = \array_merge(...wait(all($packages)));
 wait(all($packagesSecondary));
 
-
 if (!empty($packages)) {
     $cmd = "composer require --dev ";
     foreach ($packages as $package => $constraint) {
@@ -54,4 +54,19 @@ if (!empty($packages)) {
     }
     echo("Running $cmd...".PHP_EOL);
     \passthru($cmd);
+}
+
+if ($coverage = TraverserTask::getCoverage()) {
+    (new ReportPhp)->process($coverage, $argv[1] ?? 'coverage/transpilerExpr.php');
+}
+*/
+$current = (int) (PHP_MAJOR_VERSION.PHP_MINOR_VERSION);
+foreach (glob("testsGenerated/*/*.php") as $i => $test) {
+    $version = (int) substr(basename(dirname($test)), 6);
+    $version = $version ?: 80;
+    if ($version > $current) {
+        continue;
+    }
+    
+    passthru(PHP_BINARY." vendor/bin/phpunit -c phpunit-expr.xml $test --coverage-php=coverage/transpilerExpr$i.php");
 }
