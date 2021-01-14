@@ -19,7 +19,7 @@ jobs:
         with:
           php-version: ${{ matrix.php-versions }}
           extensions: mbstring, intl, sockets
-          coverage: xdebug
+          coverage: pcov
 
       - name: Check environment
         run: |
