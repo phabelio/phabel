@@ -5,7 +5,7 @@ namespace Phabel\Target\Php70\AnonymousClass;
 interface AnonymousClassInterface
 {
     /**
-     * Get original name
+     * Get original name.
      *
      * @return string
      */

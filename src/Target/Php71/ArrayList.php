@@ -4,7 +4,6 @@ namespace Phabel\Target\Php71;
 
 use Phabel\Plugin;
 use PhpParser\Node\Expr\Array_;
-use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\List_;
 use PhpParser\Node\Stmt\Foreach_;
 

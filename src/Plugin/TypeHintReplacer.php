@@ -18,7 +18,6 @@ use PhpParser\Node\Expr\BooleanNot;
 use PhpParser\Node\Expr\ClassConstFetch;
 use PhpParser\Node\Expr\Instanceof_;
 use PhpParser\Node\Expr\New_;
-use PhpParser\Node\Expr\Ternary;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\FunctionLike;
 use PhpParser\Node\Identifier;
@@ -78,12 +77,13 @@ class TypeHintReplacer extends Plugin
      */
     private function resolveClassName($type, ?Expr $className): Expr
     {
+        $string = $type instanceof Identifier ? $type->toString() : $type->toCodeString();
         return $type->isSpecialClassName() ?
             (
-                $type->toString() === 'self' && $className
+                $string === 'self' && $className
                 ? $className
-                : new ClassConstFetch(new Name($type->toLowerString()), new Identifier('class'))
-            ) : new String_($type->toString());
+                : new ClassConstFetch(new Name($string), new Identifier('class'))
+            ) : new String_($string);
     }
     /**
      * Generate.
@@ -231,11 +231,11 @@ class TypeHintReplacer extends Plugin
             if (!$parent->name) {
                 /** @var StmtClass_ $parent */
                 if ($parent->extends) {
-                    $className = new ClassConstFetch(new Name($parent->extends), new Identifier('class'));
+                    $className = new ClassConstFetch($parent->extends, new Identifier('class'));
                 }
                 if (!$className) {
                     foreach ($parent->implements as $name) {
-                        $className = new ClassConstFetch(new Name($name), new Identifier('class'));
+                        $className = new ClassConstFetch($name, new Identifier('class'));
                         break;
                     }
                 }
@@ -366,14 +366,14 @@ class TypeHintReplacer extends Plugin
         return ($trace['file'] ?? '').' on line '.($trace['line'] ?? '');
     }
     /**
-     * Get debug type
+     * Get debug type.
      *
      * @param mixed $value
      * @return string
      */
     public static function getDebugType($value)
     {
-        if (is_object($value) && $value instanceof AnonymousClassInterface) {
+        if (\is_object($value) && $value instanceof AnonymousClassInterface) {
             return $value::getPhabelOriginalName();
         }
         return get_debug_type($value);

@@ -48,7 +48,7 @@ class VariableFinder extends Plugin
     }
     /**
      * Found array.
-     * 
+     *
      * @var array<string, ClosureUse>
      */
     private array $found = [];

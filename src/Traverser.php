@@ -235,8 +235,8 @@ class Traverser
      *
      * @psalm-param SplQueue<SplQueue<PluginInterface>> $pluginQueue
      * @template T as bool
-     * 
-     * @psalm-param T $allowMulti 
+     *
+     * @psalm-param T $allowMulti
      *
      * @return array{0: int, 1: string}|null
      * @psalm-return (T is true ? array{0: int, 1: string} : null)
