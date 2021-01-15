@@ -89,6 +89,10 @@ class Traverser
         [$plugins, $packages] = $graph->flatten();
         $p = new Traverser($plugins);
 
+        if (!\file_exists($input)) {
+            throw new \RuntimeException("File $input does not exist!");
+        }
+
         if (\is_file($input)) {
             $p->traverse($input, $output);
             return $packages;

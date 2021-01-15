@@ -83,7 +83,7 @@ class TypeHintReplacer extends Plugin
                 $string === 'self' && $className
                 ? $className
                 : new ClassConstFetch(new Name($string), new Identifier('class'))
-            ) : new String_($string);
+            ) : new String_($type->toString());
     }
     /**
      * Generate.

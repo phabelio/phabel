@@ -25,7 +25,9 @@ foreach (Php::VERSIONS as $version) {
             TypeHintReplacer::class => ['union' => true, 'nullable' => true, 'return' => true, 'types' => [
                 'callable', 'iterable', 'object', 'self', 'static',
                 'int', 'float', 'array', 'string', 'bool',
-                \PhabelTest\Target\TypeHintReplacerTest::class
+                \PhabelTest\Target\TypeHintReplacerTest::class,
+                \Generator::class,
+                str_replace("Target", "Target$version", \PhabelTest\Target\TypeHintReplacerTest::class),
             ]]
         ],
         'testsGenerated/Target',

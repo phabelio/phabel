@@ -117,7 +117,6 @@ foreach ($SCALARS as $scalar => $vals) {
             $funcs .= "function test$scalarSane($scalar \$data): $scalar { return \$data; }\n";
         }
 
-
         [$closureMessage, $methodMessage, $funcMessage] = getErrorMessage("", $scalar, "Ret$scalarSane", $wrongVal, "value of");
 
         $closuresRet []= "[fn (\$data): $scalar => \$data, $val, $wrongVal, $closureMessage]";

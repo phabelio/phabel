@@ -21,7 +21,8 @@ class PhabelTestGenerator extends Plugin
     public function enter(Name $name): ?Name
     {
         if (\preg_match("~PhabelTest\\\\+Target\d*~", $name->toString())) {
-            return new Name($this->tryReplace($name->toString()));
+            $class = \get_class($name);
+            return new $class($this->tryReplace($name->toString()));
         }
         return null;
     }
