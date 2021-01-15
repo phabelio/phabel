@@ -334,22 +334,11 @@ class TypeHintReplacer extends Plugin
         return ($trace['file'] ?? '').' on line '.($trace['line'] ?? '');
     }
 
-    /**
-     * Runwithafter.
-     *
-     * @return array
-     */
-    public static function runBefore(array $config): array
+    public static function next(array $config): array
     {
         return [StringConcatOptimizer::class];
     }
-    /**
-     * Run after generator detector.
-     *
-     * @param array $config
-     * @return array
-     */
-    public static function runAfter(array $config): array
+    public static function previous(array $config): array
     {
         return [GeneratorDetector::class];
     }

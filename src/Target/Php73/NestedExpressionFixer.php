@@ -7,7 +7,7 @@ use Phabel\Plugin\NestedExpressionFixer as fixer;
 
 class NestedExpressionFixer extends Plugin
 {
-    public static function runAfter(array $config): array
+    public static function next(array $config): array
     {
         return [
             fixer::class => [

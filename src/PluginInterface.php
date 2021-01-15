@@ -13,7 +13,15 @@ use Phabel\PluginGraph\PackageContext;
 interface PluginInterface
 {
     /**
-     * Specify which plugins does this plugin require.
+     * Specify which plugins should run before this plugin.
+     *
+     * @return array Plugin name(s)
+     *
+     * @psalm-return class-string<PluginInterface>[]|array<class-string<PluginInterface>, array>
+     */
+    public static function previous(array $config): array;
+    /**
+     * Specify which plugins should run after this plugin.
      *
      * At each level, the traverser will execute the enter and leave methods of the specified plugins, completing a full AST traversal before starting a new AST traversal for the current plugin.
      * Of course, this increases complexity as it forces an additional traversal of the AST.
@@ -24,17 +32,9 @@ interface PluginInterface
      *
      * @psalm-return class-string<PluginInterface>[]|array<class-string<PluginInterface>, array>
      */
-    public static function runAfter(array $config): array;
+    public static function next(array $config): array;
     /**
-     * Specify which plugins should run before this plugin.
-     *
-     * @return array Plugin name(s)
-     *
-     * @psalm-return class-string<PluginInterface>[]|array<class-string<PluginInterface>, array>
-     */
-    public static function runBefore(array $config): array;
-    /**
-     * Specify which plugins does this plugin extend.
+     * Specify which plugins should run before, possibly with this plugin.
      *
      * At each depth level, the traverser will first execute the enter|leave methods of the specified plugins, then immediately execute the enter|leave methods of the current plugin.
      *
@@ -44,14 +44,15 @@ interface PluginInterface
      *
      * @psalm-return class-string<PluginInterface>[]|array<class-string<PluginInterface>, array>
      */
-    public static function runWithBefore(array $config): array;
+    public static function withPrevious(array $config): array;
     /**
+     * Specify which plugins should run after, possibly with this plugin.
      *
      * @return array Plugin name(s)
      *
      * @psalm-return class-string<PluginInterface>[]|array<class-string<PluginInterface>, array>
      */
-    public static function runWithAfter(array $config): array;
+    public static function withNext(array $config): array;
 
     /**
      * Specify a list of composer dependencies.

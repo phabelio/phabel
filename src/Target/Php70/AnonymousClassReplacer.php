@@ -72,7 +72,7 @@ class AnonymousClassReplacer extends Plugin
         }
     }
 
-    public static function runAfter(array $config): array
+    public static function previous(array $config): array
     {
         return [ArrowClosure::class];
     }

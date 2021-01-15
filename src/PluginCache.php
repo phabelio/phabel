@@ -89,7 +89,7 @@ class PluginCache
         return self::$leaveMethods[$plugin];
     }
     /**
-     * Get runBefore requirements.
+     * Get previous requirements.
      *
      * @param class-string<PluginInterface> $plugin Plugin
      * @param array                         $config Config
@@ -97,7 +97,7 @@ class PluginCache
      * @return array<string, array>
      * @psalm-return array<class-string<PluginInterface>, array>
      */
-    public static function runBefore(string $plugin, array $config): array
+    public static function previous(string $plugin, array $config): array
     {
         $pluginConfig = $plugin.\var_export($config, true);
         /** @var array<class-string<PluginInterface>, array<class-string<PluginInterface>, array>> */
@@ -105,10 +105,10 @@ class PluginCache
         if (isset($cache[$pluginConfig])) {
             return $cache[$pluginConfig];
         }
-        return $cache[$pluginConfig] = self::simplify($plugin::runBefore($config));
+        return $cache[$pluginConfig] = self::simplify($plugin::previous($config));
     }
     /**
-     * Get runAfter requirements.
+     * Get next requirements.
      *
      * @param class-string<PluginInterface> $plugin Plugin
      * @param array                         $config Config
@@ -116,7 +116,7 @@ class PluginCache
      * @return array<string, array>
      * @psalm-return array<class-string<PluginInterface>, array>
      */
-    public static function runAfter(string $plugin, array $config): array
+    public static function next(string $plugin, array $config): array
     {
         $pluginConfig = $plugin.\var_export($config, true);
         /** @var array<class-string<PluginInterface>, array<class-string<PluginInterface>, array>> */
@@ -124,10 +124,10 @@ class PluginCache
         if (isset($cache[$pluginConfig])) {
             return $cache[$pluginConfig];
         }
-        return $cache[$pluginConfig] = self::simplify($plugin::runAfter($config));
+        return $cache[$pluginConfig] = self::simplify($plugin::next($config));
     }
     /**
-     * Get runWithBefore requirements.
+     * Get withPrevious requirements.
      *
      * @param class-string<PluginInterface> $plugin Plugin
      * @param array                         $config Config
@@ -135,7 +135,7 @@ class PluginCache
      * @return array<string, array>
      * @psalm-return array<class-string<PluginInterface>, array>
      */
-    public static function runWithBefore(string $plugin, array $config): array
+    public static function withPrevious(string $plugin, array $config): array
     {
         $pluginConfig = $plugin.\var_export($config, true);
         /** @var array<class-string<PluginInterface>, array<class-string<PluginInterface>, array>> */
@@ -143,10 +143,10 @@ class PluginCache
         if (isset($cache[$pluginConfig])) {
             return $cache[$pluginConfig];
         }
-        return $cache[$pluginConfig] = self::simplify($plugin::runWithBefore($config));
+        return $cache[$pluginConfig] = self::simplify($plugin::withPrevious($config));
     }
     /**
-     * Get runWithAfter requirements.
+     * Get withNext requirements.
      *
      * @param class-string<PluginInterface> $plugin Plugin
      * @param array                         $config Config
@@ -154,7 +154,7 @@ class PluginCache
      * @return array<string, array>
      * @psalm-return array<class-string<PluginInterface>, array>
      */
-    public static function runWithAfter(string $plugin, array $config): array
+    public static function withNext(string $plugin, array $config): array
     {
         $pluginConfig = $plugin.\var_export($config, true);
         /** @var array<class-string<PluginInterface>, array<class-string<PluginInterface>, array>> */
@@ -162,7 +162,7 @@ class PluginCache
         if (isset($cache[$pluginConfig])) {
             return $cache[$pluginConfig];
         }
-        return $cache[$pluginConfig] = self::simplify($plugin::runWithAfter($config));
+        return $cache[$pluginConfig] = self::simplify($plugin::withNext($config));
     }
     /**
      * Simplify requirements.

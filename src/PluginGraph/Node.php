@@ -109,24 +109,24 @@ class Node
         $this->plugin = new Plugins($plugin, $pluginConfig);
 
         $this->canBeRequired = PluginCache::canBeRequired($plugin);
-        foreach (PluginCache::runAfter($plugin, $pluginConfig) as $class => $config) {
-            foreach ($this->graph->addPlugin($class, $config, $this->packageContext) as $node) {
-                $this->require($node);
-            }
-        }
-        foreach (PluginCache::runBefore($plugin, $pluginConfig) as $class => $config) {
+        foreach (PluginCache::next($plugin, $pluginConfig) as $class => $config) {
             foreach ($this->graph->addPlugin($class, $config, $this->packageContext) as $node) {
                 $node->require($this);
             }
         }
-        foreach (PluginCache::runWithAfter($plugin, $pluginConfig) as $class => $config) {
+        foreach (PluginCache::previous($plugin, $pluginConfig) as $class => $config) {
             foreach ($this->graph->addPlugin($class, $config, $this->packageContext) as $node) {
-                $this->extend($node);
+                $this->require($node);
             }
         }
-        foreach (PluginCache::runWithBefore($plugin, $pluginConfig) as $class => $config) {
+        foreach (PluginCache::withNext($plugin, $pluginConfig) as $class => $config) {
             foreach ($this->graph->addPlugin($class, $config, $this->packageContext) as $node) {
                 $node->extend($this);
+            }
+        }
+        foreach (PluginCache::withPrevious($plugin, $pluginConfig) as $class => $config) {
+            foreach ($this->graph->addPlugin($class, $config, $this->packageContext) as $node) {
+                $this->extend($node);
             }
         }
 

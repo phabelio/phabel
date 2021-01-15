@@ -14,7 +14,7 @@ class NestedExpressionFixer extends Plugin
      *
      * @return array
      */
-    public static function runAfter(array $config): array
+    public static function next(array $config): array
     {
         return [
             fixer::class => [

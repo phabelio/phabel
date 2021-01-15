@@ -119,7 +119,8 @@ abstract class Plugin extends Tools implements PluginInterface
         $final = [];
         foreach (\array_unique($configs, SORT_REGULAR) as $config) {
             foreach ($final as $k => $compare) {
-                if (empty(\array_intersect_key($config, $compare))) {
+                if (empty($intersect = \array_intersect_key($config, $compare))
+                    || $intersect === \array_intersect_key($compare, $config)) {
                     $final[$k] = $config + $compare;
                     continue 2;
                 }
@@ -145,28 +146,28 @@ abstract class Plugin extends Tools implements PluginInterface
     /**
      * {@inheritDoc}
      */
-    public static function runAfter(array $config): array
+    public static function next(array $config): array
     {
         return [];
     }
     /**
      * {@inheritDoc}
      */
-    public static function runBefore(array $config): array
+    public static function previous(array $config): array
     {
         return [];
     }
     /**
      * {@inheritDoc}
      */
-    public static function runWithBefore(array $config): array
+    public static function withPrevious(array $config): array
     {
         return [];
     }
     /**
      * {@inheritDoc}
      */
-    public static function runWithAfter(array $config): array
+    public static function withNext(array $config): array
     {
         return [];
     }

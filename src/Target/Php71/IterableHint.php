@@ -11,7 +11,7 @@ use Phabel\Plugin\TypeHintReplacer;
  */
 class IterableHint extends Plugin
 {
-    public static function runAfter(array $config): array
+    public static function next(array $config): array
     {
         return [
             TypeHintReplacer::class => [

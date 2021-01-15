@@ -37,7 +37,7 @@ class VariableFinder extends Plugin
             self::$singletonTraverser = Traverser::fromPlugin(self::$singleton);
         }
         self::$singleton->setConfig('byRef', $byRef);
-        self::$singletonTraverser->traverseAst($ast);
+        self::$singletonTraverser->traverseAst($ast, null, false);
         return self::$singleton->getFound();
     }
     /**
@@ -48,6 +48,8 @@ class VariableFinder extends Plugin
     }
     /**
      * Found array.
+     * 
+     * @var array<string, ClosureUse>
      */
     private array $found = [];
     /**

@@ -418,7 +418,7 @@ class $name extends Plugin
     /**
      * {@inheritDoc}
      */
-    public static function runAfter(array \$config): array
+    public static function next(array \$config): array
     {
         return [
             fixer::class => $config

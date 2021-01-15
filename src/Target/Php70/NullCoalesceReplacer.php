@@ -68,7 +68,7 @@ class NullCoalesceReplacer extends Plugin
             $node->right
         );
     }
-    public static function runWithAfter(array $config): array
+    public static function withPrevious(array $config): array
     {
         return [NullCoalesceAssignment::class, NullSafeTransformer::class];
     }

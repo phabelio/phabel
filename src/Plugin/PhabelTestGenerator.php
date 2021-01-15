@@ -34,7 +34,7 @@ class PhabelTestGenerator extends Plugin
         return null;
     }
 
-    public static function runAfter(array $config): array
+    public static function previous(array $config): array
     {
         return [
             Php::class => ['target' => $config['target'] % 1000],

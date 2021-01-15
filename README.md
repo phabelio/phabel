@@ -37,7 +37,7 @@ A second, optional parameter can be provided, to allow the [Traverser](https://g
 
 #### 3.2 Plugin dependencies
 
-Plugins can also specify other plugins as "dependencies" or "reverse dependencies", with the `runBefore`, `runAfter`, `runWithBefore`, `runWithAfter` methods, to force some transforms to run before others.  
+Plugins can also specify other plugins as "dependencies" or "reverse dependencies", with the `previous`, `next`, `withPrevious`, `withNext` methods, to force some transforms to run before others.  
 By using the `*with*` methods, additional plugin graph optimization is allowed by merging multiple transforms in a single AST traversal.  
 
 Each [phabel plugin](https://github.com/phabelio/phabel/blob/master/src/PluginInterface.php) can also accept a configuration: this a simple way to reuse code, by specifying a single plugin for a class of transforms, and then requiring it from other plugins, specifying a specific configuration to trigger only certain transforms.  

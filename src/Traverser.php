@@ -28,6 +28,10 @@ class Traverser
      */
     private Parser $parser;
     /**
+     * Printer instance.
+     */
+    private Standard $printer;
+    /**
      * Plugin queue for specific package.
      *
      * @var SplQueue<SplQueue<PluginInterface>>|null
@@ -105,8 +109,8 @@ class Traverser
                 }
             } elseif ($file->isFile()) {
                 if ($file->getExtension() == 'php') {
-                    echo("Transforming ".$file->getRealPath().PHP_EOL);
-                    $p->traverse($file->getRealPath(), $targetPath);
+                    $it = $p->traverse($file->getRealPath(), $targetPath);
+                    echo("Transformed ".$file->getRealPath()." in $it iterations".PHP_EOL);
                 } elseif (\realpath($targetPath) !== $file->getRealPath()) {
                     \copy($file->getRealPath(), $targetPath);
                 }
@@ -125,6 +129,7 @@ class Traverser
         /** @var SplQueue<SplQueue<PluginInterface>> */
         $this->queue = $queue ?? new SplQueue;
         $this->parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
+        $this->printer = new Standard();
     }
     /**
      * Set package name.
@@ -162,9 +167,9 @@ class Traverser
      * @param string $file File
      * @param string $output Output file
      *
-     * @return void
+     * @return int
      */
-    public function traverse(string $file, string $output): void
+    public function traverse(string $file, string $output): int
     {
         /** @var SplQueue<SplQueue<PluginInterface>> */
         $reducedQueue = new SplQueue;
@@ -186,7 +191,7 @@ class Traverser
         if ($newQueue->count()) {
             $reducedQueue->enqueue($newQueue);
         } elseif (!$reducedQueue->count()) {
-            return;
+            return 0;
         }
 
         try {
@@ -199,13 +204,74 @@ class Traverser
         }
 
         $this->file = $file;
-        $printer = new Standard();
+        [$it, $result] = $this->traverseAstInternal($ast, $reducedQueue);
+        \file_put_contents($output, $result);
 
+        return $it;
+    }
+    /**
+     * Traverse AST.
+     *
+     * @param Node     $node        Initial node
+     * @param SplQueue $pluginQueue Plugin queue (optional)
+     * @param bool     $allowMulti  Whether to allow multiple iterations on the plugins
+     *
+     * @psalm-param SplQueue<SplQueue<PluginInterface>> $pluginQueue
+     *
+     * @return int
+     */
+    public function traverseAst(Node &$node, SplQueue $pluginQueue = null, bool $allowMulti = true): int
+    {
+        $this->file = '';
+        $n = new RootNode([&$node]);
+        return $this->traverseAstInternal($n, $pluginQueue, $allowMulti)[0] ?? 0;
+    }
+    /**
+     * Traverse AST.
+     *
+     * @param RootNode &$node       Initial node
+     * @param SplQueue $pluginQueue Plugin queue (optional)
+     * @param bool     $allowMulti  Whether to allow multiple iterations on the AST
+     *
+     * @psalm-param SplQueue<SplQueue<PluginInterface>> $pluginQueue
+     * @template T as bool
+     * 
+     * @psalm-param T $allowMulti 
+     *
+     * @return array{0: int, 1: string}|null
+     * @psalm-return (T is true ? array{0: int, 1: string} : null)
+     */
+    private function traverseAstInternal(RootNode &$node, SplQueue $pluginQueue = null, bool $allowMulti = true): ?array
+    {
+        $it = 0;
         $result = '';
         do {
-            $this->traverseAstInternal($ast, $reducedQueue);
+            $context = null;
+            try {
+                foreach ($pluginQueue ?? $this->packageQueue ?? $this->queue as $queue) {
+                    $context = new Context();
+                    $context->push($node);
+                    $this->traverseNode($node, $queue, $context);
+                    /** @var RootNode $node */
+                }
+                if (!$allowMulti) {
+                    return null;
+                }
+            } catch (\Throwable $e) {
+                $message = $e->getMessage();
+                $message .= " while processing ";
+                $message .= $this->file;
+                $message .= ":";
+                try {
+                    $message .= $context ? $context->getCurrentChild($context->parents[0])->getStartLine() : "-1";
+                } catch (\Throwable $e) {
+                    $message .= "-1";
+                }
+                throw new Exception($message, (int) $e->getCode(), $e, $e->getFile(), $e->getLine());
+            }
             $oldResult = $result;
-            $result = $printer->prettyPrintFile($ast->stmts);
+            $result = $this->printer->prettyPrintFile($node->stmts);
+            $it++;
             /*if ($oldResult) {
                 \file_put_contents('/tmp/old', $oldResult);
                 \file_put_contents('/tmp/new', $result);
@@ -214,57 +280,7 @@ class Traverser
             echo "Running...\n";*/
             while (\gc_collect_cycles());
         } while ($result !== $oldResult);
-        \file_put_contents($output, $result);
-    }
-    /**
-     * Traverse AST.
-     *
-     * @param Node     $node        Initial node
-     * @param SplQueue $pluginQueue Plugin queue (optional)
-     *
-     * @psalm-param SplQueue<SplQueue<PluginInterface>> $pluginQueue
-     *
-     * @return void
-     */
-    public function traverseAst(Node &$node, SplQueue $pluginQueue = null): void
-    {
-        $this->file = '';
-        $n = new RootNode([&$node]);
-        $this->traverseAstInternal($n, $pluginQueue);
-    }
-    /**
-     * Traverse AST.
-     *
-     * @param RootNode &$node        Initial node
-     * @param SplQueue $pluginQueue Plugin queue (optional)
-     *
-     * @psalm-param SplQueue<SplQueue<PluginInterface>> $pluginQueue
-     *
-     * @psalm-suppress ReferenceConstraintViolation
-     *
-     * @return void
-     */
-    private function traverseAstInternal(RootNode &$node, SplQueue $pluginQueue = null): void
-    {
-        $context = null;
-        try {
-            foreach ($pluginQueue ?? $this->packageQueue ?? $this->queue as $queue) {
-                $context = new Context();
-                $context->push($node);
-                $this->traverseNode($node, $queue, $context);
-            }
-        } catch (\Throwable $e) {
-            $message = $e->getMessage();
-            $message .= " while processing ";
-            $message .= $this->file;
-            $message .= ":";
-            try {
-                $message .= $context ? $context->getCurrentChild($context->parents[0])->getStartLine() : "-1";
-            } catch (\Throwable $e) {
-                $message .= "-1";
-            }
-            throw new Exception($message, (int) $e->getCode(), $e, $e->getFile(), $e->getLine());
-        }
+        return [$it, $result];
     }
     /**
      * Traverse node.

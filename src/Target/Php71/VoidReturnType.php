@@ -12,7 +12,7 @@ use Phabel\Plugin\TypeHintReplacer;
  */
 class VoidReturnType extends Plugin
 {
-    public static function runAfter(array $config): array
+    public static function next(array $config): array
     {
         return [
             TypeHintReplacer::class => [

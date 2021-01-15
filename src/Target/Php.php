@@ -88,7 +88,7 @@ class Php extends Plugin
             '*'
         );
     }
-    public static function runAfter(array $config): array
+    public static function previous(array $config): array
     {
         $classes = [];
         foreach (self::getRange((int) ($config['target'] ?? self::DEFAULT_TARGET)) as $version) {
@@ -110,7 +110,7 @@ class Php extends Plugin
         }
         return $classes;
     }
-    public static function runBefore(array $config): array
+    public static function next(array $config): array
     {
         $classes = [
             StmtExprWrapper::class => $config[StmtExprWrapper::class] ?? [],
