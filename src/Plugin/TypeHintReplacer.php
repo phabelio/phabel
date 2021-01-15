@@ -4,6 +4,7 @@ namespace Phabel\Plugin;
 
 use Phabel\Context;
 use Phabel\Plugin;
+use Phabel\Target\Php70\AnonymousClass\AnonymousClassInterface;
 use PhpParser\BuilderHelpers;
 use PhpParser\Node;
 use PhpParser\Node\Arg;
@@ -209,9 +210,6 @@ class TypeHintReplacer extends Plugin
     {
         $functionName = new Method();
         $className = null;
-        $getDebugType = function (Expr $expr): Expr {
-            return self::call('get_debug_type', $expr);
-        };
         if ($func instanceof ClassMethod) {
             /** @var ClassLike */
             $parent = $ctx->parents->top();
@@ -247,9 +245,6 @@ class TypeHintReplacer extends Plugin
                     $className = new String_('class@anonymous');
                 }
                 $functionName = new Concat($className, new Concat(new String_(':'), new MagicConstFunction_()));
-                $getDebugType = function (Expr $expr) use ($className): Expr {
-                    return new Ternary(new Instanceof_($expr, new Name('self')), $className, self::call('get_debug_type', $expr));
-                };
             }
         }
         $stmts = [];
@@ -267,9 +262,9 @@ class TypeHintReplacer extends Plugin
             $start = new Concat($start, new String_(" must be of type "));
             $start = new Concat($start, $string);
             $start = new Concat($start, new String_(", "));
-            $start = new Concat($start, $getDebugType($param->var));
+            $start = new Concat($start, self::callPoly('getDebugType', $param->var));
             $start = new Concat($start, new String_(" given, called in "));
-            $start = new Concat($start, self::callPoly('trace', new LNumber(0)));
+            $start = new Concat($start, self::callPoly('trace'));
 
             $start = new Concat($functionName, $start);
 
@@ -302,7 +297,7 @@ class TypeHintReplacer extends Plugin
             return null;
         }
         $ctx->toClosure($func);
-        $this->stack->push([self::TYPE_RETURN, $functionName, $func->returnsByRef(), $getDebugType, ...$condition]);
+        $this->stack->push([self::TYPE_RETURN, $functionName, $func->returnsByRef(), ...$condition]);
 
         $stmts = $func->getStmts();
         $final = \end($stmts);
@@ -312,7 +307,7 @@ class TypeHintReplacer extends Plugin
             $start = new Concat($functionName, new String_("(): Return value must be of type "));
             $start = new Concat($start, $string);
             $start = new Concat($start, new String_(", none returned in "));
-            $start = new Concat($start, self::callPoly('trace', new LNumber(0)));
+            $start = new Concat($start, self::callPoly('trace'));
 
             $throw = new Throw_(new New_(new FullyQualified(\TypeError::class), [new Arg($start)]));
             $func->stmts []= $throw;
@@ -336,7 +331,7 @@ class TypeHintReplacer extends Plugin
             }
             return null;
         }
-        [, $functionName, $byRef, $getDebugType, $noOop, $string, $condition] = $current;
+        [, $functionName, $byRef, $noOop, $string, $condition] = $current;
 
         $var = new Variable('phabelReturn');
         $assign = new Expression($byRef && $return->expr ? new AssignRef($var, $return->expr) : new Assign($var, $return->expr ?? BuilderHelpers::normalizeValue(null)));
@@ -344,9 +339,9 @@ class TypeHintReplacer extends Plugin
         $start = new Concat($functionName, new String_("(): Return value must be of type "));
         $start = new Concat($start, $string);
         $start = new Concat($start, new String_(", "));
-        $start = new Concat($start, $getDebugType($var));
+        $start = new Concat($start, self::callPoly('getDebugType', $var));
         $start = new Concat($start, new String_(" returned in "));
-        $start = new Concat($start, self::callPoly('trace', new LNumber(0)));
+        $start = new Concat($start, self::callPoly('trace'));
 
         $if = new If_($condition, ['stmts' => [new Throw_(new New_(new FullyQualified(\TypeError::class), [new Arg($start)]))]]);
 
@@ -363,14 +358,25 @@ class TypeHintReplacer extends Plugin
     /**
      * Get trace string for errors.
      *
-     * @param int $index Index
-     *
      * @return string
      */
-    public static function trace($index)
+    public static function trace()
     {
-        $trace = \debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[$index];
+        $trace = \debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1)[0];
         return ($trace['file'] ?? '').' on line '.($trace['line'] ?? '');
+    }
+    /**
+     * Get debug type
+     *
+     * @param mixed $value
+     * @return string
+     */
+    public static function getDebugType($value)
+    {
+        if (is_object($value) && $value instanceof AnonymousClassInterface) {
+            return $value::getPhabelOriginalName();
+        }
+        return get_debug_type($value);
     }
 
     public static function next(array $config): array

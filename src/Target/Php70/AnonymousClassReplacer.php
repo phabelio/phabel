@@ -4,16 +4,25 @@ namespace Phabel\Target\Php70;
 
 use Phabel\Context;
 use Phabel\Plugin;
+use Phabel\Target\Php70\AnonymousClass\AnonymousClassInterface;
 use Phabel\Target\Php71\NullableType;
 use Phabel\Target\Php74\ArrowClosure;
 use Phabel\Target\Php80\UnionTypeStripper;
+use PhpParser\Builder\Method;
 use PhpParser\Node;
+use PhpParser\Node\Const_;
+use PhpParser\Node\Expr\BinaryOp\Concat;
 use PhpParser\Node\Expr\BooleanNot;
 use PhpParser\Node\Expr\ClassConstFetch;
 use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Identifier;
+use PhpParser\Node\Name;
+use PhpParser\Node\Name\FullyQualified;
+use PhpParser\Node\Scalar\String_;
 use PhpParser\Node\Stmt\Class_;
+use PhpParser\Node\Stmt\ClassConst;
 use PhpParser\Node\Stmt\If_;
+use PhpParser\Node\Stmt\Return_;
 
 /**
  * @author Daniil Gentili <daniil@daniil.it>
@@ -53,7 +62,29 @@ class AnonymousClassReplacer extends Plugin
         if (!$classNode instanceof Node\Stmt\Class_) {
             return;
         }
+        $className = null;
+        if ($classNode->extends) {
+            $className = new ClassConstFetch(new Name($classNode->extends), new Identifier('class'));
+        }
+        if (!$className) {
+            foreach ($classNode->implements as $name) {
+                $className = new ClassConstFetch(new Name($name), new Identifier('class'));
+                break;
+            }
+        }
+        if ($className) {
+            $className = new Concat($className, new String_('@anonymous'));
+        } else {
+            $className = new String_('class@anonymous');
+        }
+
         $name = 'PhabelAnonymousClass'.$this->fileName.(self::$count++);
+        $classNode->stmts []= (new Method('getPhabelOriginalName'))
+            ->makePublic()
+            ->makeStatic()
+            ->addStmt(new Return_($className))
+            ->getNode();
+        $classNode->implements []= new FullyQualified(AnonymousClassInterface::class);
         $classNode->name = new Identifier($name);
         $node->class = new Node\Name($name);
 
