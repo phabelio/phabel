@@ -57,7 +57,7 @@
             "@phpunit",
             "@coverage"
         ],
-        "testFull": [
+        "test-full": [
             "@phpunit",
             "@phpunitExpr",
             "@coverage"

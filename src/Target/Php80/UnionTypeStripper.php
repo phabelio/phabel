@@ -13,7 +13,7 @@ class UnionTypeStripper extends Plugin
     /**
      * {@inheritDoc}
      */
-    public static function next(array $config): array
+    public static function previous(array $config): array
     {
         return [
             TypeHintReplacer::class => [

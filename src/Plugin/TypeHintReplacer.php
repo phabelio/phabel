@@ -17,6 +17,7 @@ use PhpParser\Node\Expr\BooleanNot;
 use PhpParser\Node\Expr\ClassConstFetch;
 use PhpParser\Node\Expr\Instanceof_;
 use PhpParser\Node\Expr\New_;
+use PhpParser\Node\Expr\Ternary;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\FunctionLike;
 use PhpParser\Node\Identifier;
@@ -28,6 +29,7 @@ use PhpParser\Node\Scalar\LNumber;
 use PhpParser\Node\Scalar\MagicConst\Function_ as MagicConstFunction_;
 use PhpParser\Node\Scalar\MagicConst\Method;
 use PhpParser\Node\Scalar\String_;
+use PhpParser\Node\Stmt\Class_ as StmtClass_;
 use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Expression;
@@ -53,9 +55,8 @@ class TypeHintReplacer extends Plugin
     /**
      * Stack.
      *
-     * @template T as array{0: self::IGNORE_RETURN|self::VOID_RETURN}|array{0: self::TYPE_RETURN, 1: Node, 2: bool, 3: bool, 4: Node, 5: BooleanNot}
-     *
-     * @var SplStack<T>
+     * @var SplStack
+     * @psalm-var SplStack<array{0: self::IGNORE_RETURN|self::VOID_RETURN}|array{0: self::TYPE_RETURN, 1: Node, 2: bool, 3: bool, 4: Node, 5: BooleanNot}>
      */
     private SplStack $stack;
     /**
@@ -63,18 +64,37 @@ class TypeHintReplacer extends Plugin
      */
     public function __construct()
     {
+        /** @psalm-var SplStack<array{0: self::IGNORE_RETURN|self::VOID_RETURN}|array{0: self::TYPE_RETURN, 1: Node, 2: bool, 3: bool, 4: Node, 5: BooleanNot}> */
         $this->stack = new SplStack;
+    }
+    /**
+     * Resolve special class name.
+     *
+     * @param Identifier|Name $type
+     * @param ?Expr            $className
+     *
+     * @return Expr
+     */
+    private function resolveClassName($type, ?Expr $className): Expr
+    {
+        return $type->isSpecialClassName() ?
+            (
+                $type->toString() === 'self' && $className
+                ? $className
+                : new ClassConstFetch(new Name($type->toLowerString()), new Identifier('class'))
+            ) : new String_($type->toString());
     }
     /**
      * Generate.
      *
      * @param Variable            $var          Variable to check
      * @param (Name|Identifier)[] $types        Types to check
+     * @param ?Expr               $className   Whether the current class is anonymous
      * @param boolean             $fromNullable Whether this type is nullable
      *
      * @return array{0: bool, 1: Node, 2: BooleanNot} Whether the polyfilled gettype should be used, the error message, the condition
      */
-    private function generateConditions(Variable $var, array $types, bool $fromNullable = false): array
+    private function generateConditions(Variable $var, array $types, ?Expr $className, bool $fromNullable = false): array
     {
         /** @var bool Whether no explicit classes were referenced */
         $noOopTypes = true;
@@ -117,17 +137,13 @@ class TypeHintReplacer extends Plugin
                         break;
                     default:
                         $noOopTypes = false;
-                        $stringType = $type->isSpecialClassName() ?
-                            new ClassConstFetch(new Name($typeName), new Identifier('class')) :
-                            new String_($type->toString());
+                        $stringType = $this->resolveClassName($type, $className);
                         $conditions []= new Instanceof_($var, new Name($typeName));
                         $oopNames []= $stringType;
                 }
             } else {
                 $noOopTypes = false;
-                $stringType = $type->isSpecialClassName() ?
-                    new ClassConstFetch(new Name($type->toLowerString()), new Identifier('class')) :
-                    new String_($type->toString());
+                $stringType = $this->resolveClassName($type, $className);
                 $conditions []= new Instanceof_($var, $type);
                 $oopNames []= $stringType;
             }
@@ -155,13 +171,14 @@ class TypeHintReplacer extends Plugin
     /**
      * Strip typehint.
      *
-     * @param Variable                                    $var   Variable
-     * @param null|Identifier|Name|NullableType|UnionType $type  Type
-     * @param bool                                        $force Whether to force strip
+     * @param Variable                                    $var        Variable
+     * @param null|Identifier|Name|NullableType|UnionType $type       Type
+     * @param ?Expr                                        $className Whether the current class is anonymous
+     * @param bool                                        $force      Whether to force strip
      *
      * @return null|array{0: bool, 1: Node, 2: BooleanNot} Whether the polyfilled gettype should be used, the error message, the condition
      */
-    private function strip(Variable $var, ?Node $type, bool $force = false): ?array
+    private function strip(Variable $var, ?Node $type, ?Expr $className, bool $force = false): ?array
     {
         if (!$type) {
             return null;
@@ -170,14 +187,14 @@ class TypeHintReplacer extends Plugin
             if (!$this->getConfig('union', $force)) {
                 return null;
             }
-            return $this->generateConditions($var, $type->types);
+            return $this->generateConditions($var, $type->types, $className);
         }
         if ($type instanceof NullableType && $this->getConfig('nullable', $force)) {
-            return $this->generateConditions($var, [$type->type], true);
+            return $this->generateConditions($var, [$type->type], $className, true);
         }
         $subType = $type instanceof NullableType ? $type->type : $type;
         if (\in_array($subType->toString(), $this->getConfig('types', [])) || $force) {
-            return $this->generateConditions($var, [$subType], $type instanceof NullableType);
+            return $this->generateConditions($var, [$subType], $className, $type instanceof NullableType);
         }
         return null;
     }
@@ -191,31 +208,53 @@ class TypeHintReplacer extends Plugin
     public function enterFunction(FunctionLike $func, Context $ctx): ?FunctionLike
     {
         $functionName = new Method();
+        $className = null;
+        $getDebugType = function (Expr $expr): Expr {
+            return self::call('get_debug_type', $expr);
+        };
         if ($func instanceof ClassMethod) {
             /** @var ClassLike */
             $parent = $ctx->parents->top();
             if ($parent instanceof Interface_) {
                 foreach ($func->getParams() as $param) {
-                    if ($this->strip(new Variable('phabelVariadic'), $param->type)) {
+                    if ($this->strip(new Variable('phabelVariadic'), $param->type, false)) {
                         $param->type = null;
                     }
                 }
                 if ($this->getConfig('void', $this->getConfig('return', false)) && $func->getReturnType() instanceof Identifier && $func->getReturnType()->toLowerString() === 'void') {
                     $func->returnType = null;
                 }
-                if ($this->strip(new Variable('phabelReturn'), $func->getReturnType(), $this->getConfig('return', false))) {
+                if ($this->strip(new Variable('phabelReturn'), $func->getReturnType(), false, $this->getConfig('return', false))) {
                     $func->returnType = null;
                 }
                 $this->stack->push([self::IGNORE_RETURN]);
                 return null;
             }
             if (!$parent->name) {
-                $functionName = new Concat(new String_('class@anonymous:'), new MagicConstFunction_());
+                /** @var StmtClass_ $parent */
+                if ($parent->extends) {
+                    $className = new ClassConstFetch(new Name($parent->extends), new Identifier('class'));
+                }
+                if (!$className) {
+                    foreach ($parent->implements as $name) {
+                        $className = new ClassConstFetch(new Name($name), new Identifier('class'));
+                        break;
+                    }
+                }
+                if ($className) {
+                    $className = new Concat($className, new String_('@anonymous'));
+                } else {
+                    $className = new String_('class@anonymous');
+                }
+                $functionName = new Concat($className, new Concat(new String_(':'), new MagicConstFunction_()));
+                $getDebugType = function (Expr $expr) use ($className): Expr {
+                    return new Ternary(new Instanceof_($expr, new Name('self')), $className, self::call('get_debug_type', $expr));
+                };
             }
         }
         $stmts = [];
         foreach ($func->getParams() as $index => $param) {
-            if (!$condition = $this->strip($param->variadic ? new Variable('phabelVariadic') : $param->var, $param->type)) {
+            if (!$condition = $this->strip($param->variadic ? new Variable('phabelVariadic') : $param->var, $param->type, $className)) {
                 continue;
             }
             $index++;
@@ -228,7 +267,7 @@ class TypeHintReplacer extends Plugin
             $start = new Concat($start, new String_(" must be of type "));
             $start = new Concat($start, $string);
             $start = new Concat($start, new String_(", "));
-            $start = new Concat($start, self::call('get_debug_type', $param->var));
+            $start = new Concat($start, $getDebugType($param->var));
             $start = new Concat($start, new String_(" given, called in "));
             $start = new Concat($start, self::callPoly('trace', new LNumber(0)));
 
@@ -253,7 +292,7 @@ class TypeHintReplacer extends Plugin
             return $func;
         }
         $var = new Variable('phabelReturn');
-        if (!$condition = $this->strip($var, $func->getReturnType(), $this->getConfig('return', false))) {
+        if (!$condition = $this->strip($var, $func->getReturnType(), $className, $this->getConfig('return', false))) {
             $this->stack->push([self::IGNORE_RETURN]);
             return null;
         }
@@ -263,7 +302,7 @@ class TypeHintReplacer extends Plugin
             return null;
         }
         $ctx->toClosure($func);
-        $this->stack->push([self::TYPE_RETURN, $functionName, $func->returnsByRef(), ...$condition]);
+        $this->stack->push([self::TYPE_RETURN, $functionName, $func->returnsByRef(), $getDebugType, ...$condition]);
 
         $stmts = $func->getStmts();
         $final = \end($stmts);
@@ -297,7 +336,7 @@ class TypeHintReplacer extends Plugin
             }
             return null;
         }
-        [, $functionName, $byRef, $noOop, $string, $condition] = $current;
+        [, $functionName, $byRef, $getDebugType, $noOop, $string, $condition] = $current;
 
         $var = new Variable('phabelReturn');
         $assign = new Expression($byRef && $return->expr ? new AssignRef($var, $return->expr) : new Assign($var, $return->expr ?? BuilderHelpers::normalizeValue(null)));
@@ -305,7 +344,7 @@ class TypeHintReplacer extends Plugin
         $start = new Concat($functionName, new String_("(): Return value must be of type "));
         $start = new Concat($start, $string);
         $start = new Concat($start, new String_(", "));
-        $start = new Concat($start, self::call('get_debug_type', $var));
+        $start = new Concat($start, $getDebugType($var));
         $start = new Concat($start, new String_(" returned in "));
         $start = new Concat($start, self::callPoly('trace', new LNumber(0)));
 

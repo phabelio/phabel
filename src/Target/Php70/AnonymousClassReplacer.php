@@ -4,7 +4,9 @@ namespace Phabel\Target\Php70;
 
 use Phabel\Context;
 use Phabel\Plugin;
+use Phabel\Target\Php71\NullableType;
 use Phabel\Target\Php74\ArrowClosure;
+use Phabel\Target\Php80\UnionTypeStripper;
 use PhpParser\Node;
 use PhpParser\Node\Expr\BooleanNot;
 use PhpParser\Node\Expr\ClassConstFetch;
@@ -74,6 +76,6 @@ class AnonymousClassReplacer extends Plugin
 
     public static function previous(array $config): array
     {
-        return [ArrowClosure::class];
+        return [ArrowClosure::class, ReturnTypeHints::class, NullableType::class, UnionTypeStripper::class];
     }
 }

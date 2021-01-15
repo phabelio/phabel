@@ -10,7 +10,7 @@ use Phabel\Plugin\ListSplitter;
  */
 class ListExpression extends Plugin
 {
-    public static function next(array $config): array
+    public static function previous(array $config): array
     {
         return [ListSplitter::class => ['parentExpr' => true]];
     }

@@ -27,19 +27,6 @@ class ArrayList extends Plugin
         }
     }
     /**
-     * Called when entering assignment node.
-     *
-     * @param Assign $node Node
-     *
-     * @return void
-     */
-    public function enterAssign(Assign $node): void
-    {
-        if ($node->var instanceof Array_) {
-            self::replaceTypeInPlace($node->var, List_::class);
-        }
-    }
-    /**
      * Called when entering list for nested lists.
      *
      * @param List_ $node Node

@@ -13,7 +13,7 @@ use Phabel\Plugin\TypeHintReplacer;
  */
 class NullableType extends Plugin
 {
-    public static function next(array $config): array
+    public static function previous(array $config): array
     {
         return [
             TypeHintReplacer::class => [
