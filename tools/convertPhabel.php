@@ -21,8 +21,8 @@ EOF;
 }
 $target = $argv[1];
 
-if (!file_exists('phabelConverted')) {
-    mkdir('phabelConverted');
+if (!\file_exists('phabelConverted')) {
+    \mkdir('phabelConverted');
 }
 
 $packages = [];
@@ -50,11 +50,13 @@ foreach ($ri as $file) {
     }
 }
 
-$message = \shell_exec("git log -1 --pretty=%B");
-$branch = \shell_exec("git rev-parse --abbrev-ref HEAD");
+$message = \trim(\shell_exec("git log -1 --pretty=%B"));
+$branch = \trim(\shell_exec("git rev-parse --abbrev-ref HEAD"));
+
 \passthru("git add -A");
 \passthru("git commit -m ".\escapeshellarg($message));
-$hash = \shell_exec("git log -1 --pretty=%H");
-\passthru("git push -f origin {$hash}:refs/heads/{$branch}-{$target}");
+
+$hash = \trim(\shell_exec("git log -1 --pretty=%H"));
+\passthru("git push -f origin ".\escapeshellarg("$hash:refs/heads/{$branch}-{$target}"));
 \passthru("git reset HEAD~1");
 \passthru("git reset --hard");

@@ -215,14 +215,14 @@ class TypeHintReplacer extends Plugin
             $parent = $ctx->parents->top();
             if ($parent instanceof Interface_) {
                 foreach ($func->getParams() as $param) {
-                    if ($this->strip(new Variable('phabelVariadic'), $param->type, false)) {
+                    if ($this->strip(new Variable('phabelVariadic'), $param->type, null)) {
                         $param->type = null;
                     }
                 }
                 if ($this->getConfig('void', $this->getConfig('return', false)) && $func->getReturnType() instanceof Identifier && $func->getReturnType()->toLowerString() === 'void') {
                     $func->returnType = null;
                 }
-                if ($this->strip(new Variable('phabelReturn'), $func->getReturnType(), false, $this->getConfig('return', false))) {
+                if ($this->strip(new Variable('phabelReturn'), $func->getReturnType(), null, $this->getConfig('return', false))) {
                     $func->returnType = null;
                 }
                 $this->stack->push([self::IGNORE_RETURN]);
