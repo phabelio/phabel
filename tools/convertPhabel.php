@@ -25,6 +25,8 @@ if (!\file_exists('phabelConverted')) {
     \mkdir('phabelConverted');
 }
 
+passthru("git stash");
+
 $packages = [];
 foreach (['tools', 'src', 'bin'] as $dir) {
     if (!\file_exists($dir)) {
@@ -41,14 +43,14 @@ if (!empty($packages)) {
     \passthru($cmd);
 }
 
-$message = \trim(\shell_exec("git log -1 --pretty=%B"));
 $branch = \trim(\shell_exec("git rev-parse --abbrev-ref HEAD"));
 $oldHash = \trim(\shell_exec("git log -1 --pretty=%H"));
 
 \passthru("git add -A");
-\passthru("git commit -m ".\escapeshellarg($message));
+\passthru("git commit -m ".\escapeshellarg("Convert to $target"));
 
 $hash = \trim(\shell_exec("git log -1 --pretty=%H"));
 \passthru("git push -f origin ".\escapeshellarg("$hash:refs/heads/{$branch}-{$target}"));
 \passthru("git reset $oldHash");
 \passthru("git reset --hard");
+\passthru("git stash pop");
