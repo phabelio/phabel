@@ -187,6 +187,7 @@ foreach ($SCALARS as $scalar => $vals) {
             }
             EOF;
 
+            $template = str_replace("TypeHintReplacerTest", "TypeHintReplacer$i", $template);
             $classFuncs = '';
             $funcs = '';
             $closures = [];

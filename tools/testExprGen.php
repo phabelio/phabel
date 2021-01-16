@@ -13,7 +13,7 @@ use function Amp\Promise\wait;
 
 require_once 'vendor/autoload.php';
 
-pool(new DefaultPool(\count(Php::VERSIONS) + 2));
+pool(new DefaultPool(getenv('CI') ? 3 : \count(Php::VERSIONS) + 2));
 
 $fs = new Filesystem();
 
