@@ -1,16 +1,19 @@
 <?php
 
+use Amp\Parallel\Worker\DefaultPool;
 use Composer\Util\Filesystem;
 use Phabel\Plugin\PhabelTestGenerator;
 use Phabel\Plugin\TypeHintReplacer;
 use Phabel\Target\Php;
 use PhabelTest\TraverserTask;
-use SebastianBergmann\CodeCoverage\Report\PHP as ReportPHP;
 
+use function Amp\Parallel\Worker\pool;
 use function Amp\Promise\all;
 use function Amp\Promise\wait;
 
 require_once 'vendor/autoload.php';
+
+pool(new DefaultPool(\count(Php::VERSIONS) + 2));
 
 $fs = new Filesystem();
 
@@ -27,7 +30,7 @@ foreach (Php::VERSIONS as $version) {
                 'int', 'float', 'array', 'string', 'bool',
                 \PhabelTest\Target\TypeHintReplacerTest::class,
                 \Generator::class,
-                str_replace("Target", "Target$version", \PhabelTest\Target\TypeHintReplacerTest::class),
+                \str_replace("Target", "Target$version", \PhabelTest\Target\TypeHintReplacerTest::class),
             ]]
         ],
         'testsGenerated/Target',
