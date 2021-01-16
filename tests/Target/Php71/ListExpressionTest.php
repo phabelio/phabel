@@ -20,4 +20,12 @@ class ListExpressionTest extends TestCase
         $this->assertEquals('d', $d);
         $this->assertEquals('e', $e);
     }
+    public function testEmpty()
+    {
+        $arr = ['a', 'b', 'c', 'd'];
+        $this->assertEquals($arr, [$a, $b, , $d] = $arr);
+        $this->assertEquals('a', $a);
+        $this->assertEquals('b', $b);
+        $this->assertEquals('d', $d);
+    }
 }

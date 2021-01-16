@@ -1,4 +1,4 @@
-name: build
+name: Code coverage
 on:
   pull_request:
   push:
@@ -19,7 +19,7 @@ jobs:
         with:
           php-version: ${{ matrix.php-versions }}
           extensions: mbstring, intl, sockets
-          coverage: none
+          coverage: pcov
 
       - name: Check environment
         run: |
@@ -47,8 +47,8 @@ jobs:
           PHP_CS_FIXER_IGNORE_ENV: 1
         run: |
           sudo sed -i 's/^disable_function.*//g' /etc/php/*/phpdbg/php.ini
-          phpdbg -qrr vendor/bin/phpunit --coverage-php=coverage/phpunit.php
-          phpdbg -qrr tools/testExprGen.php
+          php vendor/bin/phpunit --coverage-php=coverage/phpunit.php
+          php tools/testExprGen.php
           composer coverage
 
       - name: Upload coverage to Codecov

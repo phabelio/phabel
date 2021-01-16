@@ -6,6 +6,8 @@ use Phabel\Plugin\PhabelTestGenerator;
 use Phabel\Plugin\TypeHintReplacer;
 use Phabel\Target\Php;
 use PhabelTest\TraverserTask;
+use SebastianBergmann\CodeCoverage\Driver\Selector;
+use SebastianBergmann\CodeCoverage\Filter;
 
 use function Amp\Parallel\Worker\pool;
 use function Amp\Promise\all;
@@ -13,7 +15,16 @@ use function Amp\Promise\wait;
 
 require_once 'vendor/autoload.php';
 
-if (\PHP_SAPI === 'phpdbg') {
+$canCoverage = false;
+try {
+    $filter = new Filter;
+    $filter->includeDirectory(\realpath(__DIR__.'/../src'));
+    (new Selector)->forLineCoverage($filter);
+    $canCoverage = true;
+} catch (\Throwable $e) {
+}
+
+if ($canCoverage) {
     pool(new DefaultPool(\getenv('CI') ? 3 : \count(Php::VERSIONS) + 2));
 }
 
