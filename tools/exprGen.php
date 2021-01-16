@@ -412,8 +412,9 @@ PHP;
  * @license MIT
  */
 PHP;
-        (new Filesystem())->remove("testsGenerated/Target");
-        \mkdir("testsGenerated/Target");
+        foreach (glob("testsGenerated/Target/Expression*") as $file) {
+            unlink($file);
+        }
         $prettyPrinter = new PhpParser\PrettyPrinter\Standard(['shortArraySyntax' => true]);
 
         foreach (array_chunk($this->tests, 100) as $stmts) {

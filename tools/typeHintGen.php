@@ -77,14 +77,13 @@ foreach ($SCALARS as $scalar => $val) {
     $nextScalar = \array_keys($SCALARS)[$k];
     $nextVal = $SCALARS[$nextScalar];
 
-    if ($scalar === 'self' || $nextScalar === 'self') {
-        continue; // Bypass php8 bug
-    }
-
     $SCALARS["$scalar|$nextScalar"] = [
         ...$val,
         ...$nextVal,
     ];
+}
+foreach (glob("testsGenerated/Target/TypeHintReplacer*") as $file) {
+    unlink($file);
 }
 
 $closures = [];
@@ -93,6 +92,7 @@ $classFuncs = '';
 $funcs = '';
 $k = 0;
 
+$count = 0;
 foreach ($SCALARS as $scalar => $vals) {
     foreach ($vals as $val) {
         $self = \strpos($scalar, 'self') !== false;
@@ -131,57 +131,68 @@ foreach ($SCALARS as $scalar => $vals) {
         if (!$self) {
             $funcs .= "function testRet$scalarSane(\$data): $scalar { return \$data; }\n";
         }
+
+        if (!($count++ % 5)) {
+            $i = ($count-1) / 5;
+            $i .= "Test";
+            
+            $provider = "[\n".\implode(",\n", $closures)."];\n";
+            $providerRet = "[\n".\implode(",\n", $closuresRet)."];\n";
+
+            $template = <<< EOF
+            <?php
+            
+            namespace PhabelTest\Target;
+            
+            use PHPUnit\Framework\TestCase;
+            
+            $funcs
+            
+            /**
+             * @author Daniil Gentili <daniil@daniil.it>
+             * @license MIT
+             */
+            class TypeHintReplacer$i extends TestCase
+            {
+                /**
+                 * @dataProvider returnDataProvider
+                 */
+                public function testRet(callable \$c, \$data, \$wrongData, string \$exception) {
+                    \$this->assertEquals(\$data, \$c(\$data));
+            
+                    \$this->expectExceptionMessageMatches(\$exception);
+                    \$c(\$wrongData);
+                }
+                public function returnDataProvider(): array
+                {
+                    return $providerRet;
+                }
+                /**
+                 * @dataProvider paramDataProvider
+                 */
+                public function test(callable \$c, \$data, \$wrongData, string \$exception) {
+                    \$this->assertEquals(\$data, \$c(\$data));
+            
+                    \$this->expectExceptionMessageMatches(\$exception);
+                    \$c(\$wrongData);
+                }
+                public function paramDataProvider(): array
+                {
+                    return $provider;
+                }
+                
+                public static function noop() {}
+                
+                $classFuncs
+            }
+            EOF;
+
+            $classFuncs = '';
+            $funcs = '';
+            $closures = [];
+            $closuresRet = [];
+
+            \file_put_contents("testsGenerated/Target/TypeHintReplacer$i.php", $template);
+        }
     }
 }
-
-$provider = "[\n".\implode(",\n", $closures)."];\n";
-$providerRet = "[\n".\implode(",\n", $closuresRet)."];\n";
-
-$template = <<< EOF
-<?php
-
-namespace PhabelTest\Target;
-
-use PHPUnit\Framework\TestCase;
-
-$funcs
-
-/**
- * @author Daniil Gentili <daniil@daniil.it>
- * @license MIT
- */
-class TypeHintReplacerTest extends TestCase
-{
-    /**
-     * @dataProvider returnDataProvider
-     */
-    public function testRet(callable \$c, \$data, \$wrongData, string \$exception) {
-        \$this->assertEquals(\$data, \$c(\$data));
-
-        \$this->expectExceptionMessageMatches(\$exception);
-        \$c(\$wrongData);
-    }
-    public function returnDataProvider(): array
-    {
-        return $providerRet;
-    }
-    /**
-     * @dataProvider paramDataProvider
-     */
-    public function test(callable \$c, \$data, \$wrongData, string \$exception) {
-        \$this->assertEquals(\$data, \$c(\$data));
-
-        \$this->expectExceptionMessageMatches(\$exception);
-        \$c(\$wrongData);
-    }
-    public function paramDataProvider(): array
-    {
-        return $provider;
-    }
-    
-    public static function noop() {}
-    $classFuncs
-}
-EOF;
-
-\file_put_contents('testsGenerated/Target/TypeHintReplacerTest.php', $template);
