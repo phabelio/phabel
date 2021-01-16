@@ -73,7 +73,7 @@ class TraverserTask implements Task
                     }
                 } elseif ($file->isFile()) {
                     if ($file->getExtension() == 'php') {
-                        $result []= enqueue(new self($plugins, $input, $output, $prefix));
+                        $result []= enqueue(new self($plugins, $file->getRealPath(), $targetPath, $prefix));
                     } elseif (\realpath($targetPath) !== $file->getRealPath()) {
                         \copy($file->getRealPath(), $targetPath);
                     }
