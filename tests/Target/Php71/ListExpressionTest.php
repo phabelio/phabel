@@ -27,5 +27,13 @@ class ListExpressionTest extends TestCase
         $this->assertEquals('a', $a);
         $this->assertEquals('b', $b);
         $this->assertEquals('d', $d);
+        
+        $this->assertEquals($arr, [$a, $b, , &$d] = $arr);
+        $this->assertEquals('a', $a);
+        $this->assertEquals('b', $b);
+        $this->assertEquals('d', $d);
+
+        $d = 'pony';
+        $this->assertEquals('pony', $arr[3]);
     }
 }
