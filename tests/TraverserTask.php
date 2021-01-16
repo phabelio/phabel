@@ -56,11 +56,42 @@ class TraverserTask implements Task
     public static function runAsync(array $plugins, string $input, string $output, string $prefix = 'transpiler'): Promise
     {
         return call(function () use ($plugins, $input, $output, $prefix) {
-            $result = yield enqueue(new self($plugins, $input, $output, $prefix));
-            if ($result instanceof ExceptionWrapper) {
-                throw $result->getException();
+            $result = [];
+
+            if (!\file_exists($output)) {
+                \mkdir($output, 0777, true);
             }
-            return $result;
+
+            $it = new \RecursiveDirectoryIterator($input, \RecursiveDirectoryIterator::SKIP_DOTS);
+            $ri = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::SELF_FIRST);
+            /** @var \SplFileInfo $file */
+            foreach ($ri as $file) {
+                $targetPath = $output.DIRECTORY_SEPARATOR.$ri->getSubPathname();
+                if ($file->isDir()) {
+                    if (!\file_exists($targetPath)) {
+                        \mkdir($targetPath, 0777, true);
+                    }
+                } elseif ($file->isFile()) {
+                    if ($file->getExtension() == 'php') {
+                        $result []= enqueue(new self($plugins, $input, $output, $prefix));
+                    } elseif (\realpath($targetPath) !== $file->getRealPath()) {
+                        \copy($file->getRealPath(), $targetPath);
+                    }
+                }
+            }
+            foreach ($result as $r) {
+                $r->onResolve(function ($e, $result) {
+                    if ($e) {
+                        throw $e;
+                    }
+                    if ($result instanceof ExceptionWrapper) {
+                        throw $result->getException();
+                    }    
+                });
+            }
+
+            $result = yield $result;
+            return $result[0];
         });
     }
     /**
@@ -118,29 +149,9 @@ class TraverserTask implements Task
     public function run(Environment $environment)
     {
         try {
-            if (!\file_exists($this->output)) {
-                \mkdir($this->output, 0777, true);
-            }
-
-            $it = new \RecursiveDirectoryIterator($this->input, \RecursiveDirectoryIterator::SKIP_DOTS);
-            $ri = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::SELF_FIRST);
-            /** @var \SplFileInfo $file */
-            foreach ($ri as $file) {
-                $targetPath = $this->output.DIRECTORY_SEPARATOR.$ri->getSubPathname();
-                if ($file->isDir()) {
-                    if (!\file_exists($targetPath)) {
-                        \mkdir($targetPath, 0777, true);
-                    }
-                } elseif ($file->isFile()) {
-                    if ($file->getExtension() == 'php') {
-                        $this->startCoverage();
-                        $result = Traverser::run($this->plugins, $file->getRealPath(), $targetPath);
-                        $this->stopCoverage();
-                    } elseif (\realpath($targetPath) !== $file->getRealPath()) {
-                        \copy($file->getRealPath(), $targetPath);
-                    }
-                }
-            }
+            $this->startCoverage();
+            $result = Traverser::run($this->plugins, $this->input, $this->output);
+            $this->stopCoverage();
             return $result;
         } catch (\Throwable $e) {
             return new ExceptionWrapper($e);

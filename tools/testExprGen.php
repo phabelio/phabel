@@ -60,10 +60,6 @@ if (!empty($packages)) {
     \passthru($cmd);
 }
 
-if ($coverage = TraverserTask::getCoverage()) {
-    (new ReportPhp)->process($coverage, $argv[1] ?? 'coverage/transpilerExpr.php');
-}
-
 $binary = PHP_SAPI === 'phpdbg' ? PHP_BINARY." -qrr" : PHP_BINARY;
 
 $current = (int) (PHP_MAJOR_VERSION.PHP_MINOR_VERSION);
