@@ -70,7 +70,7 @@ class TraverserTask implements Task
         $this->output = $output;
 
         $prefix .= self::$count++;
-        $this->coverageOutupt = __DIR__."/../coverage/$prefix.php";
+        $this->coverageOutput = __DIR__."/../coverage/$prefix.php";
     }
     /**
      * Runs the task inside the caller's context.
