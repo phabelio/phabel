@@ -94,7 +94,8 @@ class Traverser
         }
 
         if (\is_file($input)) {
-            $p->traverse($input, $output);
+            $it = $p->traverse($input, $output);
+            echo("Transformed ".$input." in $it iterations".PHP_EOL);
             return $packages;
         }
 

@@ -5,8 +5,14 @@ namespace Phabel\Target\Php80;
 use Phabel\Plugin;
 use Phabel\Plugin\IssetExpressionFixer as fixer;
 
+/**
+ * Expression fixer for PHP 80.
+ */
 class IssetExpressionFixer extends Plugin
 {
+    /**
+     * {@inheritDoc}
+     */
     public static function next(array $config): array
     {
         return [

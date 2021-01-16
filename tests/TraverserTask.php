@@ -33,9 +33,17 @@ class TraverserTask implements Task
      */
     private static int $count = 0;
     /**
+     * Instance counter.
+     */
+    private int $instCount = 0;
+    /**
      * Coverage output path.
      */
     private string $coverageOutput;
+    /**
+     * Code coverage instance.
+     */
+    private ?CodeCoverage $coverage = null;
     /**
      * Run phabel.
      *
@@ -70,7 +78,33 @@ class TraverserTask implements Task
         $this->output = $output;
 
         $prefix .= self::$count++;
-        $this->coverageOutput = __DIR__."/../coverage/$prefix.php";
+        $this->coverageOutput = __DIR__."/../coverage/$prefix";
+    }
+    private function startCoverage(): void
+    {
+        try {
+            $filter = new Filter;
+            $filter->includeDirectory(\realpath(__DIR__.'/../src'));
+
+            $this->coverage = new CodeCoverage(
+                (new Selector)->forLineCoverage($filter),
+                $filter
+            );
+            $this->coverage->start('phabel');
+        } catch (\Throwable $e) {
+        }
+    }
+    private function stopCoverage(): void
+    {
+        if ($this->coverage) {
+            $this->coverage->stop();
+            $output = $this->coverageOutput;
+            $output .= "_";
+            $output .= $this->instCount++;
+            $output .= ".php";
+            (new ReportPHP)->process($this->coverage, $output);
+            $this->coverage = null;
+        }
     }
     /**
      * Runs the task inside the caller's context.
@@ -83,24 +117,29 @@ class TraverserTask implements Task
      */
     public function run(Environment $environment)
     {
-        $coverage = null;
         try {
-            $filter = new Filter;
-            $filter->includeDirectory(\realpath(__DIR__.'/../src'));
+            if (!\file_exists($this->output)) {
+                \mkdir($this->output, 0777, true);
+            }
 
-            $coverage = new CodeCoverage(
-                (new Selector)->forLineCoverage($filter),
-                $filter
-            );
-            $coverage->start('phabel');
-        } catch (\Throwable $e) {
-        }
-
-        try {
-            $result = Traverser::run($this->plugins, $this->input, $this->output);
-            if ($coverage) {
-                $coverage->stop();
-                (new ReportPHP)->process($coverage, $this->coverageOutput);
+            $it = new \RecursiveDirectoryIterator($this->input, \RecursiveDirectoryIterator::SKIP_DOTS);
+            $ri = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::SELF_FIRST);
+            /** @var \SplFileInfo $file */
+            foreach ($ri as $file) {
+                $targetPath = $this->output.DIRECTORY_SEPARATOR.$ri->getSubPathname();
+                if ($file->isDir()) {
+                    if (!\file_exists($targetPath)) {
+                        \mkdir($targetPath, 0777, true);
+                    }
+                } elseif ($file->isFile()) {
+                    if ($file->getExtension() == 'php') {
+                        $this->startCoverage();
+                        $result = Traverser::run($this->plugins, $file->getRealPath(), $targetPath);
+                        $this->stopCoverage();
+                    } elseif (\realpath($targetPath) !== $file->getRealPath()) {
+                        \copy($file->getRealPath(), $targetPath);
+                    }
+                }
             }
             return $result;
         } catch (\Throwable $e) {

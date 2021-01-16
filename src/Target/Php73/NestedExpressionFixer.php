@@ -5,8 +5,14 @@ namespace Phabel\Target\Php73;
 use Phabel\Plugin;
 use Phabel\Plugin\NestedExpressionFixer as fixer;
 
+/**
+ * Expression fixer for PHP 73.
+ */
 class NestedExpressionFixer extends Plugin
 {
+    /**
+     * {@inheritDoc}
+     */
     public static function next(array $config): array
     {
         return [

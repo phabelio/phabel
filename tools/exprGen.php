@@ -8,6 +8,7 @@
  * @license MIT
  */
 
+use Composer\Util\Filesystem;
 use HaydenPierce\ClassFinder\ClassFinder;
 use Phabel\Plugin\IssetExpressionFixer;
 use Phabel\Plugin\NestedExpressionFixer;
@@ -125,7 +126,8 @@ class ExpressionGenerator
         'main' => [],     // Needs adaptation for nested expressions
         'isset' => [],    // Needs adaptation for nested expressions in isset
     ];
-    private $tests = [];
+    /** @psalm-var array<int, array<int, Node>> */
+    private array $tests = [];
     private $versionMap = [];
 
 
@@ -149,20 +151,7 @@ class ExpressionGenerator
             && !(\in_array($class, [UnaryPlus::class, UnaryMinus::class, BitwiseNot::class]) && $arg instanceof Array_)
             && !(\in_array($class, [Variable::class, StaticPropertyFetch::class, PropertyFetch::class]) && $arg instanceof Array_)
         ) {
-            $this->tests[] = (new Method("test".\count($this->tests)))
-                ->addStmt(
-                    new MethodCall(
-                        new Variable('this'),
-                        'assertTrue',
-                        [new Arg(new Identical(new LNumber(0), new LNumber(0)))]
-                    )
-                )
-                ->addStmt(
-                    new Expression(new ArrowFunction(
-                        ['expr' => $prev]
-                    ))
-                )
-                ->getNode();
+            $this->tests[] = $prev;
         }
 
         $code = $this->format(new Isset_([$prev]));
@@ -174,20 +163,7 @@ class ExpressionGenerator
         if ($curVersion
             && !(\in_array($class, [Variable::class, StaticPropertyFetch::class, PropertyFetch::class]) && $arg instanceof Array_)
         ) {
-            $this->tests[] = (new Method("test".\count($this->tests)))
-                ->addStmt(
-                    new MethodCall(
-                        new Variable('this'),
-                        'assertTrue',
-                        [new Arg(new Identical(new LNumber(0), new LNumber(0)))]
-                    )
-                )
-                ->addStmt(
-                    new Expression(new ArrowFunction(
-                        ['expr' => new Isset_([$prev])]
-                    ))
-                )
-                ->getNode();
+            $this->tests[] = new Isset_([$prev]);
         }
     }
 
@@ -436,22 +412,51 @@ PHP;
  * @license MIT
  */
 PHP;
-
-        $class = (new Class_("ExpressionTest"))
-            ->extend("TestCase")
-            ->setDocComment($comment)
-            ->addStmts($this->tests)
-            ->getNode();
-
-        $class = (new Namespace_(PhabelTest\Target::class))
-            ->addStmt(new Use_(\PHPUnit\Framework\TestCase::class, StmtUse_::TYPE_NORMAL))
-            ->addStmt($class)
-            ->getNode();
-
+        (new Filesystem())->remove("testsGenerated/Target");
+        \mkdir("testsGenerated/Target");
         $prettyPrinter = new PhpParser\PrettyPrinter\Standard(['shortArraySyntax' => true]);
-        $class = $prettyPrinter->prettyPrintFile([$class]);
 
-        \file_put_contents("testsGenerated/Target/ExpressionTest.php", $class);
+        foreach (array_chunk($this->tests, 100) as $stmts) {
+            $i = \hash('sha256', $prettyPrinter->prettyPrintFile($stmts))."Test";
+
+            $sortedStmts = [];
+            foreach ($stmts as $stmt) {
+                $method = 'test'.hash('sha256', $prettyPrinter->prettyPrintFile([$stmt]));
+                $sortedStmts[$method] = (new Method($method))
+                    ->addStmt(
+                        new MethodCall(
+                            new Variable('this'),
+                            'assertTrue',
+                            [new Arg(new Identical(new LNumber(0), new LNumber(0)))]
+                        )
+                    )
+                    ->addStmt(
+                        new Expression(new ArrowFunction(
+                            ['expr' => $stmt]
+                        ))
+                    )
+                    ->getNode();
+            }
+            ksort($sortedStmts);
+
+            $class = (new Class_("Expression$i"))
+                ->extend("TestCase")
+                ->setDocComment($comment)
+                ->addStmts(array_values($sortedStmts))
+                ->getNode();
+
+            $class = (new Namespace_(PhabelTest\Target::class))
+                ->addStmt(new Use_(\PHPUnit\Framework\TestCase::class, StmtUse_::TYPE_NORMAL))
+                ->addStmt($class)
+                ->getNode();
+
+            $class = $prettyPrinter->prettyPrintFile([$class]);
+
+            if (file_exists("testsGenerated/Target/Expression$i.php")) {
+                throw new \RuntimeException("Expression$i.php already exists!");
+            }
+            \file_put_contents("testsGenerated/Target/Expression$i.php", $class);
+        }
     }
 }
 
