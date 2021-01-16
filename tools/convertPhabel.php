@@ -30,7 +30,7 @@ foreach (['tools', 'src', 'bin'] as $dir) {
     if (!\file_exists($dir)) {
         continue;
     }
-    $packages += Traverser::run([Php::class => ['target' => $target]], $dir, "phabelConverted/$dir");
+    $packages += Traverser::run([Php::class => ['target' => $target]], $dir, $dir);
 }
 
 if (!empty($packages)) {
@@ -41,22 +41,14 @@ if (!empty($packages)) {
     \passthru($cmd);
 }
 
-$it = new \RecursiveDirectoryIterator("phabelConverted", \RecursiveDirectoryIterator::SKIP_DOTS);
-$ri = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::SELF_FIRST);
-/** @var \SplFileInfo $file */
-foreach ($ri as $file) {
-    if ($file->isFile()) {
-        \copy($file->getRealPath(), \str_replace("phabelConverted/", "", $file->getRealPath()));
-    }
-}
-
 $message = \trim(\shell_exec("git log -1 --pretty=%B"));
 $branch = \trim(\shell_exec("git rev-parse --abbrev-ref HEAD"));
+$oldHash = \trim(\shell_exec("git log -1 --pretty=%H"));
 
 \passthru("git add -A");
 \passthru("git commit -m ".\escapeshellarg($message));
 
 $hash = \trim(\shell_exec("git log -1 --pretty=%H"));
 \passthru("git push -f origin ".\escapeshellarg("$hash:refs/heads/{$branch}-{$target}"));
-\passthru("git reset HEAD~1");
+\passthru("git reset $oldHash");
 \passthru("git reset --hard");
