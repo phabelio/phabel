@@ -12,6 +12,8 @@ use function Amp\Promise\wait;
 require_once 'vendor/autoload.php';
 
 $fs = new Filesystem();
+$fs->remove("coverage");
+mkdir("coverage");
 
 $packages = [];
 $packagesSecondary = [];
@@ -49,7 +51,4 @@ if (!empty($packages)) {
     }
     echo("Running $cmd...".PHP_EOL);
     \passthru($cmd);
-}
-if ($coverage = TraverserTask::getCoverage()) {
-    (new ReportPHP)->process($coverage, $argv[1] ?? 'coverage/transpiler.php');
 }

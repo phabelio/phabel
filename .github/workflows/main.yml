@@ -38,7 +38,9 @@ jobs:
           restore-keys: ${{ matrix.os }}-composer-${{ matrix.php-versions }}-
 
       - name: Install dependencies
-        run: composer install --prefer-dist
+        run: |
+          composer install --prefer-dist
+          cp tests/Process.php vendor/amphp/parallel/lib/Context/Process.php
 
       - name: Run tests
         env:
