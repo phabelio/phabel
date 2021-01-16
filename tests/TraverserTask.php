@@ -62,6 +62,8 @@ class TraverserTask implements Task
                 \mkdir($output, 0777, true);
             }
 
+            $count = 0;
+
             $it = new \RecursiveDirectoryIterator($input, \RecursiveDirectoryIterator::SKIP_DOTS);
             $ri = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::SELF_FIRST);
             /** @var \SplFileInfo $file */
@@ -73,25 +75,26 @@ class TraverserTask implements Task
                     }
                 } elseif ($file->isFile()) {
                     if ($file->getExtension() == 'php') {
-                        $result []= enqueue(new self($plugins, $file->getRealPath(), $targetPath, $prefix));
+                        $promise = enqueue(new self($plugins, $file->getRealPath(), $targetPath, $prefix));
+                        $promise->onResolve(function ($e, $res) use (&$result) {
+                            if ($e) {
+                                throw $e;
+                            }
+                            if ($res instanceof ExceptionWrapper) {
+                                throw $res->getException();
+                            }
+                            $result = $res;
+                        });
+                        if (!($count++ % 10)) {
+                            yield $promise;
+                        }
                     } elseif (\realpath($targetPath) !== $file->getRealPath()) {
                         \copy($file->getRealPath(), $targetPath);
                     }
                 }
             }
-            foreach ($result as $r) {
-                $r->onResolve(function ($e, $result) {
-                    if ($e) {
-                        throw $e;
-                    }
-                    if ($result instanceof ExceptionWrapper) {
-                        throw $result->getException();
-                    }    
-                });
-            }
 
-            $result = yield $result;
-            return $result[0];
+            return $result;
         });
     }
     /**
