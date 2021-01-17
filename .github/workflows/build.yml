@@ -63,6 +63,7 @@ jobs:
       - name: Convert phabel
         if: ${{ env.shouldBuild }}
         run: |
+          php tools/configGit.php
           php tools/convertPhabel.php all
 
       - name: Convert phabel (dry run)
