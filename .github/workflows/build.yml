@@ -46,11 +46,11 @@ jobs:
           php vendor/bin/phpunit
 
       - name: Convert phabel
-        if: ${{ shouldBuild }}
+        if: ${{ env.shouldBuild }}
         run: |
           php tools/convertPhabel.php all
 
       - name: Convert phabel (dry run)
-        if: ${{ !shouldBuild }}
+        if: ${{ !env.shouldBuild }}
         run: |
           php tools/convertPhabel.php all
