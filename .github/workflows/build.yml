@@ -66,12 +66,12 @@ jobs:
           php vendor/bin/phpunit
 
       - name: Convert phabel
-        if: ${{ env.shouldBuild == "true" }}
+        if: ${{ env.shouldBuild == 'true' }}
         run: |
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "Github Actions"
 
       - name: Convert phabel (dry run)
-        if: ${{ env.shouldBuild == "false" }}
+        if: ${{ env.shouldBuild == 'false' }}
         run: |
           php tools/convertPhabel.php all dry
