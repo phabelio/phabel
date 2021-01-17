@@ -51,6 +51,8 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $target) {
         \passthru($cmd);
     }
 
+    passthru("composer cs-fix");
+    
     if (!$dry) {
         $branch = \trim(\shell_exec("git rev-parse --abbrev-ref HEAD"));
         $oldHash = \trim(\shell_exec("git log -1 --pretty=%H"));
