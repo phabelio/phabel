@@ -8,7 +8,6 @@
  * @license MIT
  */
 
-use Composer\Util\Filesystem;
 use HaydenPierce\ClassFinder\ClassFinder;
 use Phabel\Plugin\IssetExpressionFixer;
 use Phabel\Plugin\NestedExpressionFixer;
@@ -412,17 +411,17 @@ PHP;
  * @license MIT
  */
 PHP;
-        foreach (glob("testsGenerated/Target/Expression*") as $file) {
-            unlink($file);
+        foreach (\glob("testsGenerated/Target/Expression*") as $file) {
+            \unlink($file);
         }
         $prettyPrinter = new PhpParser\PrettyPrinter\Standard(['shortArraySyntax' => true]);
 
-        foreach (array_chunk($this->tests, 100) as $stmts) {
+        foreach (\array_chunk($this->tests, 100) as $stmts) {
             $i = \hash('sha256', $prettyPrinter->prettyPrintFile($stmts))."Test";
 
             $sortedStmts = [];
             foreach ($stmts as $stmt) {
-                $method = 'test'.hash('sha256', $prettyPrinter->prettyPrintFile([$stmt]));
+                $method = 'test'.\hash('sha256', $prettyPrinter->prettyPrintFile([$stmt]));
                 $sortedStmts[$method] = (new Method($method))
                     ->addStmt(
                         new MethodCall(
@@ -438,12 +437,12 @@ PHP;
                     )
                     ->getNode();
             }
-            ksort($sortedStmts);
+            \ksort($sortedStmts);
 
             $class = (new Class_("Expression$i"))
                 ->extend("TestCase")
                 ->setDocComment($comment)
-                ->addStmts(array_values($sortedStmts))
+                ->addStmts(\array_values($sortedStmts))
                 ->getNode();
 
             $class = (new Namespace_(PhabelTest\Target::class))
@@ -453,7 +452,7 @@ PHP;
 
             $class = $prettyPrinter->prettyPrintFile([$class]);
 
-            if (file_exists("testsGenerated/Target/Expression$i.php")) {
+            if (\file_exists("testsGenerated/Target/Expression$i.php")) {
                 throw new \RuntimeException("Expression$i.php already exists!");
             }
             \file_put_contents("testsGenerated/Target/Expression$i.php", $class);

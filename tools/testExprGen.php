@@ -57,7 +57,7 @@ foreach (Php::VERSIONS as $version) {
         ],
         'testsGenerated/Target',
         "testsGenerated/Target$version",
-        'expr'
+        "expr$version"
     );
     $promise->onResolve(function (?\Throwable $e, ?array $res) use ($version, &$packagesSecondary) {
         if ($e) {
@@ -69,7 +69,7 @@ foreach (Php::VERSIONS as $version) {
             ],
             "testsGenerated/Target$version",
             "testsGenerated/Target10$version",
-            'expr'
+            "expr10$version"
         );
     });
 }
@@ -96,7 +96,7 @@ foreach (\glob("testsGenerated/*/*.php") as $i => $test) {
     }
     echo $test.PHP_EOL;
 
-    \passthru("$binary vendor/bin/phpunit -c phpunit-expr.xml $test --coverage-php=coverage/transpilerExpr$i.php", $ret);
+    \passthru("$binary vendor/bin/phpunit -c phpunit-expr.xml $test --coverage-php=coverage/phpunitExpr$i.php", $ret);
     if ($ret) {
         die($ret);
     }

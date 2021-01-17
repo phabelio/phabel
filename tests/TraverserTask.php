@@ -29,21 +29,9 @@ class TraverserTask implements Task
      */
     private string $output;
     /**
-     * Static counter.
-     */
-    private static int $count = 0;
-    /**
-     * Instance counter.
-     */
-    private int $instCount = 0;
-    /**
      * Coverage output path.
      */
-    private string $coverageOutput;
-    /**
-     * Code coverage instance.
-     */
-    private ?CodeCoverage $coverage = null;
+    private string $coverage;
     /**
      * Run phabel.
      *
@@ -53,7 +41,7 @@ class TraverserTask implements Task
      * @param string $prefix Coverage prefix
      * @return Promise<array>
      */
-    public static function runAsync(array $plugins, string $input, string $output, string $prefix = 'transpiler'): Promise
+    public static function runAsync(array $plugins, string $input, string $output, string $prefix): Promise
     {
         return call(function () use ($plugins, $input, $output, $prefix) {
             $result = [];
@@ -75,7 +63,7 @@ class TraverserTask implements Task
                     }
                 } elseif ($file->isFile()) {
                     if ($file->getExtension() == 'php') {
-                        $promise = enqueue(new self($plugins, $file->getRealPath(), $targetPath, $prefix));
+                        $promise = enqueue(new self($plugins, $file->getRealPath(), $targetPath, "$prefix$count.php"));
                         $promise->onResolve(function ($e, $res) use (&$result) {
                             if ($e) {
                                 throw $e;
@@ -97,6 +85,7 @@ class TraverserTask implements Task
             return $result;
         });
     }
+    
     /**
      * Constructor.
      *
@@ -105,40 +94,12 @@ class TraverserTask implements Task
      * @param string $output
      * @param string $prefix
      */
-    private function __construct(array $plugins, string $input, string $output, string $prefix)
+    private function __construct(array $plugins, string $input, string $output, string $coverage)
     {
         $this->plugins = $plugins;
         $this->input = $input;
         $this->output = $output;
-
-        $prefix .= self::$count++;
-        $this->coverageOutput = __DIR__."/../coverage/$prefix";
-    }
-    private function startCoverage(): void
-    {
-        try {
-            $filter = new Filter;
-            $filter->includeDirectory(\realpath(__DIR__.'/../src'));
-
-            $this->coverage = new CodeCoverage(
-                (new Selector)->forLineCoverage($filter),
-                $filter
-            );
-            $this->coverage->start('phabel');
-        } catch (\Throwable $e) {
-        }
-    }
-    private function stopCoverage(): void
-    {
-        if ($this->coverage) {
-            $this->coverage->stop();
-            $output = $this->coverageOutput;
-            $output .= "_";
-            $output .= $this->instCount++;
-            $output .= ".php";
-            (new ReportPHP)->process($this->coverage, $output);
-            $this->coverage = null;
-        }
+        $this->coverage = $coverage;
     }
     /**
      * Runs the task inside the caller's context.
@@ -152,10 +113,7 @@ class TraverserTask implements Task
     public function run(Environment $environment)
     {
         try {
-            $this->startCoverage();
-            $result = Traverser::run($this->plugins, $this->input, $this->output);
-            $this->stopCoverage();
-            return $result;
+            return Traverser::run($this->plugins, $this->input, $this->output, $this->coverage);
         } catch (\Throwable $e) {
             return new ExceptionWrapper($e);
         }

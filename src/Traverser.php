@@ -7,6 +7,10 @@ use PhpParser\Node;
 use PhpParser\Parser;
 use PhpParser\ParserFactory;
 use PhpParser\PrettyPrinter\Standard;
+use SebastianBergmann\CodeCoverage\CodeCoverage;
+use SebastianBergmann\CodeCoverage\Driver\Selector;
+use SebastianBergmann\CodeCoverage\Filter;
+use SebastianBergmann\CodeCoverage\Report\PHP;
 use SplQueue;
 
 /**
@@ -59,18 +63,62 @@ class Traverser
         return new self($final);
     }
     /**
+     * Start code coverage.
+     *
+     * @param string $coveragePath Coverage path
+     *
+     * @return ?object
+     */
+    private static function startCoverage(string $coveragePath): ?object
+    {
+        $coveragePath = $coveragePath ?: \getenv('PHABEL_COVERAGE');
+        if (!$coveragePath || !\class_exists(CodeCoverage::class)) {
+            return null;
+        }
+        try {
+            $filter = new Filter;
+            $filter->includeDirectory(\realpath(__DIR__.'/../src'));
+
+            $coverage = new CodeCoverage(
+                (new Selector)->forLineCoverage($filter),
+                $filter
+            );
+            $coverage->start('phabel');
+
+            $close = static function () use ($coveragePath, $coverage): void {
+                $coverage->stop();
+                (new PHP)->process($coverage, $coveragePath);
+            };
+            return new class($close) {
+                private $callable;
+                public function __construct(callable $callable)
+                {
+                    $this->callable = $callable;
+                }
+                public function __destruct()
+                {
+                    ($this->callable)();
+                }
+            };
+        } catch (\Throwable $e) {
+        }
+        return null;
+    }
+    /**
      * Run phabel.
      *
-     * @param array $plugins Plugins
-     * @param string $input  Input file/directory
-     * @param string $output Output file/directory
+     * @param array $plugins   Plugins
+     * @param string $input    Input file/directory
+     * @param string $output   Output file/directory
+     * @param string $coverage Coverage path
      *
      * @psalm-param array<class-string<PluginInterface>, array> $plugins
      *
      * @return array<string, string>
      */
-    public static function run(array $plugins, string $input, string $output): array
+    public static function run(array $plugins, string $input, string $output, string $coverage = ''): array
     {
+        $_ = self::startCoverage($coverage);
         \set_error_handler(
             function (int $errno = 0, string $errstr = '', string $errfile = '', int $errline = -1): bool {
                 // If error is suppressed with @, don't throw an exception

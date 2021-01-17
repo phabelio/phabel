@@ -82,8 +82,8 @@ foreach ($SCALARS as $scalar => $val) {
         ...$nextVal,
     ];
 }
-foreach (glob("testsGenerated/Target/TypeHintReplacer*") as $file) {
-    unlink($file);
+foreach (\glob("testsGenerated/Target/TypeHintReplacer*") as $file) {
+    \unlink($file);
 }
 
 $closures = [];
@@ -135,7 +135,7 @@ foreach ($SCALARS as $scalar => $vals) {
         if (!($count++ % 5)) {
             $i = ($count-1) / 5;
             $i .= "Test";
-            
+
             $provider = "[\n".\implode(",\n", $closures)."];\n";
             $providerRet = "[\n".\implode(",\n", $closuresRet)."];\n";
 
@@ -187,7 +187,7 @@ foreach ($SCALARS as $scalar => $vals) {
             }
             EOF;
 
-            $template = str_replace("TypeHintReplacerTest", "TypeHintReplacer$i", $template);
+            $template = \str_replace("TypeHintReplacerTest", "TypeHintReplacer$i", $template);
             $classFuncs = '';
             $funcs = '';
             $closures = [];

@@ -1,7 +1,5 @@
 name: Code coverage
-on:
-  pull_request:
-  push:
+on: [push, pull_request]
 jobs:
   run:
     runs-on: ${{ matrix.os }}
@@ -41,14 +39,29 @@ jobs:
         run: |
           composer install --prefer-dist
           cp tests/Process.php vendor/amphp/parallel/lib/Context/Process.php
+          sudo sed -i 's/^disable_function.*//g' /etc/php/*/phpdbg/php.ini
 
       - name: Run tests
         env:
           PHP_CS_FIXER_IGNORE_ENV: 1
+          PHABEL_COVERAGE: coverage/convertPhabel
         run: |
-          sudo sed -i 's/^disable_function.*//g' /etc/php/*/phpdbg/php.ini
+          composer cs
           php vendor/bin/phpunit --coverage-php=coverage/phpunit.php
           php tools/testExprGen.php
+
+      - name: Convert phabel (dry run)
+        env:
+          PHP_CS_FIXER_IGNORE_ENV: 1
+          PHABEL_COVERAGE: coverage/convertPhabel
+        run: |
+          php tools/convertPhabel.php all dry
+
+      - name: Merge coverage
+        env:
+          PHP_CS_FIXER_IGNORE_ENV: 1
+          PHABEL_COVERAGE: coverage/convertPhabel
+        run: |
           composer coverage
 
       - name: Upload coverage to Codecov
