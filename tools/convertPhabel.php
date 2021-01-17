@@ -43,6 +43,7 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $target) {
         $packages += Traverser::run([Php::class => ['target' => $target]], $dir, $dir, $coverage);
     }
 
+    $packages["php"] = ">=${target[0]}.${target[1]}";
     if (!empty($packages)) {
         $cmd = "composer require ";
         foreach ($packages as $package => $constraint) {
@@ -64,12 +65,7 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $target) {
         \passthru("git commit -m ".\escapeshellarg("phabel.io: transpile to $target"));
 
         \passthru("git push -f origin ".\escapeshellarg("phabel_tmp:{$branch}-{$target}"));
-        if ($tag = getenv('shouldTag')) {
-            $tag .= ".$target";
-            $commit = \trim(\shell_exec("git log -1 --pretty=%H"));
-            passthru("git tag ".escapeshellarg("{$branch}-{$target}")." ".escapeshellarg($commit));
-            passthru("git push origin ".escapeshellarg($tag));
-        }
+
         \passthru("git checkout ".\escapeshellarg($branch));
         \passthru("git branch -D phabel_tmp");
     }
