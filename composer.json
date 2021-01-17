@@ -5,7 +5,7 @@
     "require": {
         "nikic/php-parser": "dev-master#f00092bfee14fa77db6e026721128d1d23560985 as 4.10.1",
         "composer-plugin-api": "^2.0",
-        "php": ">=5.6",
+        "php": ">=7.0",
         "symfony/polyfill-php70": "*",
         "symfony/polyfill-php71": "*",
         "symfony/polyfill-php72": "*",
