@@ -9,7 +9,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-          token: ''
           ssh-key: ${{ secrets.DEPLOY_KEY }}
       
       - name: Setup PHP
@@ -33,7 +32,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-          token: ''
           ssh-key: ${{ secrets.DEPLOY_KEY }}
 
       - name: Setup PHP
