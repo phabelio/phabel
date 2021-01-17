@@ -10,7 +10,6 @@ use Composer\Package\Package;
 use Composer\Package\PackageInterface;
 use Composer\Repository\PlatformRepository;
 use Composer\Semver\Constraint\Constraint as ComposerConstraint;
-
 use Composer\Semver\VersionParser;
 use Phabel\PluginGraph\Graph;
 use Phabel\Target\Php;
@@ -21,11 +20,7 @@ use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 
 class Transformer
 {
-    const PHABEL = "
-<bold>＊＊＊＊＊＊＊＊＊</>
-<bold>＊</bold><phabel> Ｐｈａｂｅｌ </><bold>＊</bold>
-<bold>＊＊＊＊＊＊＊＊＊</>
-";
+    const PHABEL = "\n<bold>＊＊＊＊＊＊＊＊＊</>\n<bold>＊</bold><phabel> Ｐｈａｂｅｌ </><bold>＊</bold>\n<bold>＊＊＊＊＊＊＊＊＊</>\n";
     const HEADER = 'phabel/transpiler';
     const SEPARATOR = '/';
     /**
@@ -36,7 +31,6 @@ class Transformer
      * IO interface.
      */
     private OutputFormatter $outputFormatter;
-
     /**
      * Version parser.
      */
@@ -75,14 +69,9 @@ class Transformer
     private function __construct(IOInterface $io)
     {
         $this->io = $io;
-        $this->versionParser = new VersionParser;
-
-        $this->outputFormatter = new OutputFormatter(true, [
-            'bold' => new OutputFormatterStyle('white', 'default', ['bold']),
-            'phabel' => new OutputFormatterStyle('blue', 'default', ['bold'])
-        ]);
+        $this->versionParser = new VersionParser();
+        $this->outputFormatter = new OutputFormatter(true, ['bold' => new OutputFormatterStyle('white', 'default', ['bold']), 'phabel' => new OutputFormatterStyle('blue', 'default', ['bold'])]);
     }
-
     /**
      * Log text.
      *
@@ -92,10 +81,9 @@ class Transformer
      */
     public function log(string $text, $format = true): void
     {
-        $blue = $this->outputFormatter->format($format ? "<phabel>$text</phabel>" : $text);
+        $blue = $this->outputFormatter->format($format ? "<phabel>{$text}</phabel>" : $text);
         $this->io->writeError($blue);
     }
-
     /**
      * Prepare package for phabel tree injection.
      *
@@ -128,7 +116,7 @@ class Transformer
         }
         if (!$havePhabel) {
             if ($target === Php::TARGET_IGNORE) {
-                $this->io->debug("Skipping ".$package->getName()."=$newName");
+                $this->io->debug("Skipping " . $package->getName() . "={$newName}");
                 return;
             }
             $myTarget = $target;
@@ -136,41 +124,21 @@ class Transformer
             $myTarget = Php::normalizeVersion($myTarget);
             $myTarget = \min($myTarget, $target);
         }
-
-        $this->io->debug("Applying ".$package->getName()."=$newName");
-
+        $this->io->debug("Applying " . $package->getName() . "={$newName}");
         $this->processed = true;
         $this->processedRequires = $this->requires;
         $requires = $this->requires;
         foreach ($config['require'] ?? [] as $name => $constraint) {
             $requires[$this->injectTarget($name, $myTarget)] = $constraint;
         }
-
         if ($newName !== $package->getName() && \method_exists($package, 'setProvides')) {
-            $package->setProvides(\array_merge(
-                $package->getProvides(),
-                [$package->getName() => new Link(
-                    $newName,
-                    $package->getName(),
-                    new ComposerConstraint('=', $package->getVersion()),
-                    Link::TYPE_PROVIDE,
-                    $package->getVersion()
-                )]
-            ));
+            $package->setProvides(\array_merge($package->getProvides(), [$package->getName() => new Link($newName, $package->getName(), new ComposerConstraint('=', $package->getVersion()), Link::TYPE_PROVIDE, $package->getVersion())]));
         }
-
         $base = new ReflectionClass(BasePackage::class);
         $method = $base->getMethod('__construct');
         $method->invokeArgs($package, [$newName]);
-
-        $this->processRequires(
-            $package,
-            $myTarget,
-            $requires,
-            $havePhabel,
-        );
+        $this->processRequires($package, $myTarget, $requires, $havePhabel);
     }
-
     /**
      * Add phabel config to all requires.
      *
@@ -188,34 +156,16 @@ class Transformer
             if (PlatformRepository::isPlatformPackage($link->getTarget())) {
                 if ($link->getTarget() === 'php') {
                     $constraint = new ComposerConstraint('>=', Php::unnormalizeVersion($target));
-                    $links[$name]= new Link(
-                        $package->getName(),
-                        $link->getTarget(),
-                        $constraint,
-                        $link->getDescription(),
-                        $constraint->getPrettyString()
-                    );
+                    $links[$name] = new Link($package->getName(), $link->getTarget(), $constraint, $link->getDescription(), $constraint->getPrettyString());
                 } else {
                     $links[$name] = $link;
                 }
                 continue;
             }
-            $links [$name]= new Link(
-                $package->getName(),
-                $havePhabel ? $link->getTarget() : $this->injectTarget($link->getTarget(), $target),
-                $link->getConstraint(),
-                $link->getDescription(),
-                $link->getPrettyConstraint()
-            );
+            $links[$name] = new Link($package->getName(), $havePhabel ? $link->getTarget() : $this->injectTarget($link->getTarget(), $target), $link->getConstraint(), $link->getDescription(), $link->getPrettyConstraint());
         }
         foreach ($requires as $name => $version) {
-            $links[$name] = new Link(
-                $package->getName(),
-                $name,
-                $this->versionParser->parseConstraints($version),
-                Link::TYPE_REQUIRE,
-                $version
-            );
+            $links[$name] = new Link($package->getName(), $name, $this->versionParser->parseConstraints($version), Link::TYPE_REQUIRE, $version);
         }
         if ($package instanceof Package) {
             $package->setRequires($links);
@@ -223,7 +173,6 @@ class Transformer
             $this->processRequires($package->getAliasOf(), $target, $requires, $havePhabel);
         }
     }
-
     /**
      * Inject target into package name.
      *
@@ -234,9 +183,8 @@ class Transformer
     private function injectTarget(string $package, int $target): string
     {
         [$package] = $this->extractTarget($package);
-        return self::HEADER.$target.self::SEPARATOR.$package;
+        return self::HEADER . $target . self::SEPARATOR . $package;
     }
-
     /**
      * Look for phabel configuration parameters in constraint.
      *
@@ -246,13 +194,12 @@ class Transformer
      */
     public function extractTarget(string $package): array
     {
-        if (str_starts_with($package, self::HEADER)) {
+        if (\str_starts_with($package, self::HEADER)) {
             [$version, $package] = \explode(self::SEPARATOR, \substr($package, \strlen(self::HEADER)), 2);
             return [$package, $version];
         }
         return [$package, Php::TARGET_IGNORE];
     }
-
     /**
      * Transform dependencies.
      *
@@ -266,7 +213,6 @@ class Transformer
             $printed = true;
             $this->log(self::PHABEL, false);
         }
-
         $this->log("Creating plugin graph...");
         $byName = [];
         foreach ($packages as $package) {
@@ -300,8 +246,7 @@ class Transformer
                 }
             }
         } while ($changed);
-
-        $graph = new Graph;
+        $graph = new Graph();
         foreach ($byName as $name => $package) {
             $ctx = $graph->getPackageContext();
             $ctx->addPackage($name);
@@ -310,31 +255,25 @@ class Transformer
                 $graph->addPlugin(Php::class, $config + $target, $ctx);
             }
         }
-
         [$plugins, $this->requires] = $graph->flatten();
         $traverser = new Traverser($plugins);
-
         if (!$this->processedRequires()) {
             return false;
         }
-
         $this->log("Applying transforms...");
         foreach ($byName as $name => $package) {
             $traverser->setPackage($name);
-
-            $it = new \RecursiveDirectoryIterator("vendor/".$package['name']);
+            $it = new \RecursiveDirectoryIterator("vendor/" . $package['name']);
             foreach (new \RecursiveIteratorIterator($it) as $file) {
                 if ($file->isFile() && $file->getExtension() == 'php') {
-                    $this->io->debug("Transforming ".$file->getRealPath());
+                    $this->io->debug("Transforming " . $file->getRealPath());
                     $traverser->traverse($file->getRealPath(), $file->getRealPath());
                 }
             }
         }
         $this->log("Done!");
-
         return true;
     }
-
     /**
      * Get whether we processed any dependencies.
      *
@@ -344,7 +283,6 @@ class Transformer
     {
         return $this->processed && $this->processedRequires === $this->requires;
     }
-
     /**
      * Get IO interface.
      *

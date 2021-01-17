@@ -19,7 +19,6 @@ class Plugins
      * @var array<class-string<PluginInterface>, array[]>
      */
     private array $plugins = [];
-
     /**
      * Constructor.
      *
@@ -30,7 +29,6 @@ class Plugins
     {
         $this->plugins[$plugin] = [$config];
     }
-
     /**
      * Merge with other plugins.
      *
@@ -48,7 +46,6 @@ class Plugins
             }
         }
     }
-
     /**
      * Enqueue plugins.
      *
@@ -60,7 +57,7 @@ class Plugins
     {
         foreach ($this->plugins as $plugin => $configs) {
             foreach ($plugin::mergeConfigs(...$configs) as $config) {
-                $pluginObj = new $plugin;
+                $pluginObj = new $plugin();
                 $pluginObj->setConfigArray($config);
                 $pluginObj->setPackageContext($ctx);
                 $queue->enqueue($pluginObj);

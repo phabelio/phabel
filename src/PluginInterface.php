@@ -53,7 +53,6 @@ interface PluginInterface
      * @psalm-return class-string<PluginInterface>[]|array<class-string<PluginInterface>, array>
      */
     public static function withNext(array $config): array;
-
     /**
      * Specify a list of composer dependencies.
      *
@@ -107,7 +106,6 @@ interface PluginInterface
      * @return mixed
      */
     public function getConfig(string $key, $default);
-
     /**
      * Set configuration key.
      *
@@ -117,7 +115,6 @@ interface PluginInterface
      * @return void
      */
     public function setConfig(string $key, $value): void;
-
     /**
      * Merge multiple configurations into one (or more).
      *

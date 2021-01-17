@@ -23,7 +23,7 @@ class Graph
      */
     public function __construct()
     {
-        $this->graph = new GraphInternal;
+        $this->graph = new GraphInternal();
     }
     /**
      * Get new package context.
@@ -34,7 +34,6 @@ class Graph
     {
         return $this->graph->getPackageContext();
     }
-
     /**
      * Add plugin.
      *
@@ -63,16 +62,12 @@ class Graph
             foreach ($queue as $plugin) {
                 foreach ($plugin->getComposerRequires() as $package => $constraint) {
                     $requires[$package] ??= [];
-                    $requires[$package][]= $constraint;
+                    $requires[$package][] = $constraint;
                 }
             }
         }
-        return [
-            $plugins,
-            \array_map(fn (array $constraints): string => \implode(':', \array_unique($constraints)), $requires)
-        ];
+        return [$plugins, \array_map(fn (array $constraints): string => \implode(':', \array_unique($constraints)), $requires)];
     }
-
     /**
      * Returns graph debug information.
      *

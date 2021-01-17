@@ -65,7 +65,7 @@ class TypeHintReplacer extends Plugin
     public function __construct()
     {
         /** @psalm-var SplStack<array{0: self::IGNORE_RETURN|self::VOID_RETURN}|array{0: self::TYPE_RETURN, 1: Node, 2: bool, 3: bool, 4: Node, 5: BooleanNot}> */
-        $this->stack = new SplStack;
+        $this->stack = new SplStack();
     }
     /**
      * Resolve special class name.
@@ -78,12 +78,7 @@ class TypeHintReplacer extends Plugin
     private function resolveClassName($type, ?Expr $className): Expr
     {
         $string = $type instanceof Identifier ? $type->toString() : $type->toCodeString();
-        return $type->isSpecialClassName() ?
-            (
-                $string === 'self' && $className
-                ? $className
-                : new ClassConstFetch(new Name($string), new Identifier('class'))
-            ) : new String_($type->toString());
+        return $type->isSpecialClassName() ? $string === 'self' && $className ? $className : new ClassConstFetch(new Name($string), new Identifier('class')) : new String_($type->toString());
     }
     /**
      * Generate.
@@ -121,32 +116,29 @@ class TypeHintReplacer extends Plugin
                     case 'resource':
                     case 'null':
                         $stringType = new String_($typeName);
-                        $conditions []= Plugin::call("is_$typeName", $var);
+                        $conditions[] = Plugin::call("is_{$typeName}", $var);
                         if (\in_array($typeName, ['object', 'callable'])) {
-                            $oopNames []= $stringType;
+                            $oopNames[] = $stringType;
                         } else {
-                            $typeNames []= $stringType;
+                            $typeNames[] = $stringType;
                         }
                         break;
                     case 'iterable':
                         $stringType = new String_('iterable');
-                        $conditions []= new BooleanOr(
-                            Plugin::call("is_array", $var),
-                            new Instanceof_($var, new FullyQualified(\Traversable::class))
-                        );
-                        $oopNames []= $stringType;
+                        $conditions[] = new BooleanOr(Plugin::call("is_array", $var), new Instanceof_($var, new FullyQualified(\Traversable::class)));
+                        $oopNames[] = $stringType;
                         break;
                     default:
                         $noOopTypes = false;
                         $stringType = $this->resolveClassName($type, $className);
-                        $conditions []= new Instanceof_($var, new Name($typeName));
-                        $oopNames []= $stringType;
+                        $conditions[] = new Instanceof_($var, new Name($typeName));
+                        $oopNames[] = $stringType;
                 }
             } else {
                 $noOopTypes = false;
                 $stringType = $this->resolveClassName($type, $className);
-                $conditions []= new Instanceof_($var, $type);
-                $oopNames []= $stringType;
+                $conditions[] = new Instanceof_($var, $type);
+                $oopNames[] = $stringType;
             }
         }
         if (\count($typeNames) + \count($oopNames) > 1) {
@@ -159,14 +151,10 @@ class TypeHintReplacer extends Plugin
         }
         if ($fromNullable) {
             $stringType = new Concat(new String_('?'), $stringType);
-            $conditions []= Plugin::call("is_null", $var);
+            $conditions[] = Plugin::call("is_null", $var);
         }
         $initial = \array_shift($conditions);
-        $condition = new BooleanNot(
-            empty($conditions)
-            ? $initial
-            : \array_reduce($conditions, fn (Expr $a, Expr $b): BooleanOr => new BooleanOr($a, $b), $initial)
-        );
+        $condition = new BooleanNot(empty($conditions) ? $initial : \array_reduce($conditions, fn (Expr $a, Expr $b): BooleanOr => (new BooleanOr($a, $b)), $initial));
         return [$noOopTypes, $stringType, $condition];
     }
     /**
@@ -249,37 +237,31 @@ class TypeHintReplacer extends Plugin
         }
         $stmts = [];
         foreach ($func->getParams() as $index => $param) {
-            if (!$condition = $this->strip($param->variadic ? new Variable('phabelVariadic') : $param->var, $param->type, $className)) {
+            if (!($condition = $this->strip($param->variadic ? new Variable('phabelVariadic') : $param->var, $param->type, $className))) {
                 continue;
             }
             $index++;
-
             $param->type = null;
             [$noOop, $string, $condition] = $condition;
-            $start = $param->variadic
-                ? new Concat(new String_("(): Argument #"), new Plus(new LNumber($index), new Variable('phabelVariadicIndex')))
-                : new String_("(): Argument #$index ($".$param->var->name.")");
+            $start = $param->variadic ? new Concat(new String_("(): Argument #"), new Plus(new LNumber($index), new Variable('phabelVariadicIndex'))) : new String_("(): Argument #{$index} (\$" . $param->var->name . ")");
             $start = new Concat($start, new String_(" must be of type "));
             $start = new Concat($start, $string);
             $start = new Concat($start, new String_(", "));
             $start = new Concat($start, self::callPoly('getDebugType', $param->var));
             $start = new Concat($start, new String_(" given, called in "));
             $start = new Concat($start, self::callPoly('trace'));
-
             $start = new Concat($functionName, $start);
-
             $if = new If_($condition, ['stmts' => [new Throw_(new New_(new FullyQualified(\TypeError::class), [new Arg($start)]))]]);
             if ($param->variadic) {
-                $stmts []= new Foreach_($param->var, new Variable('phabelVariadic'), ['keyVar' => new Variable('phabelVariadicIndex'), 'stmts' => [$if]]);
+                $stmts[] = new Foreach_($param->var, new Variable('phabelVariadic'), ['keyVar' => new Variable('phabelVariadicIndex'), 'stmts' => [$if]]);
             } else {
-                $stmts []= $if;
+                $stmts[] = $if;
             }
         }
         if ($stmts) {
             $ctx->toClosure($func);
             $func->stmts = \array_merge($stmts, $func->getStmts() ?? []);
         }
-
         if ($this->getConfig('void', $this->getConfig('return', false)) && $func->getReturnType() instanceof Identifier && $func->getReturnType()->toLowerString() === 'void') {
             $ctx->toClosure($func);
             $this->stack->push([self::VOID_RETURN]);
@@ -287,7 +269,7 @@ class TypeHintReplacer extends Plugin
             return $func;
         }
         $var = new Variable('phabelReturn');
-        if (!$condition = $this->strip($var, $func->getReturnType(), $className, $this->getConfig('return', false))) {
+        if (!($condition = $this->strip($var, $func->getReturnType(), $className, $this->getConfig('return', false)))) {
             $this->stack->push([self::IGNORE_RETURN]);
             return null;
         }
@@ -298,21 +280,17 @@ class TypeHintReplacer extends Plugin
         }
         $ctx->toClosure($func);
         $this->stack->push([self::TYPE_RETURN, $functionName, $func->returnsByRef(), ...$condition]);
-
         $stmts = $func->getStmts();
         $final = \end($stmts);
         if (!$final instanceof Return_) {
             [, $string, $condition] = $condition;
-
             $start = new Concat($functionName, new String_("(): Return value must be of type "));
             $start = new Concat($start, $string);
             $start = new Concat($start, new String_(", none returned in "));
             $start = new Concat($start, self::callPoly('trace'));
-
             $throw = new Throw_(new New_(new FullyQualified(\TypeError::class), [new Arg($start)]));
-            $func->stmts []= $throw;
+            $func->stmts[] = $throw;
         }
-
         return $func;
     }
     public function enterReturn(Return_ $return, Context $ctx): ?Node
@@ -332,23 +310,17 @@ class TypeHintReplacer extends Plugin
             return null;
         }
         [, $functionName, $byRef, $noOop, $string, $condition] = $current;
-
         $var = new Variable('phabelReturn');
         $assign = new Expression($byRef && $return->expr ? new AssignRef($var, $return->expr) : new Assign($var, $return->expr ?? BuilderHelpers::normalizeValue(null)));
-
         $start = new Concat($functionName, new String_("(): Return value must be of type "));
         $start = new Concat($start, $string);
         $start = new Concat($start, new String_(", "));
         $start = new Concat($start, self::callPoly('getDebugType', $var));
         $start = new Concat($start, new String_(" returned in "));
         $start = new Concat($start, self::callPoly('trace'));
-
         $if = new If_($condition, ['stmts' => [new Throw_(new New_(new FullyQualified(\TypeError::class), [new Arg($start)]))]]);
-
         $return->expr = $var;
-
         $ctx->insertBefore($return, $assign, $if);
-
         return null;
     }
     public function leaveFunc(FunctionLike $func): void
@@ -363,7 +335,7 @@ class TypeHintReplacer extends Plugin
     public static function trace()
     {
         $trace = \debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1)[0];
-        return ($trace['file'] ?? '').' on line '.($trace['line'] ?? '');
+        return ($trace['file'] ?? '') . ' on line ' . ($trace['line'] ?? '');
     }
     /**
      * Get debug type.
@@ -376,9 +348,8 @@ class TypeHintReplacer extends Plugin
         if (\is_object($value) && $value instanceof AnonymousClassInterface) {
             return $value::getPhabelOriginalName();
         }
-        return get_debug_type($value);
+        return \get_debug_type($value);
     }
-
     public static function next(array $config): array
     {
         return [StringConcatOptimizer::class];

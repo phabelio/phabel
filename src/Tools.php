@@ -67,10 +67,7 @@ abstract class Tools
             $nodeNew->setAttributes($node->getAttributes());
             return $nodeNew;
         }
-        return new $class(...[
-            ...\array_map(fn (string $name) => $node->{$name}, $node->getSubNodeNames()),
-            $node->getAttributes()
-        ]);
+        return new $class(...[...\array_map(fn (string $name) => $node->{$name}, $node->getSubNodeNames()), $node->getAttributes()]);
     }
     /**
      * Replace type in-place.
@@ -100,12 +97,7 @@ abstract class Tools
      */
     public static function assign(Variable $name, Expr $expression): Expression
     {
-        return new Expression(
-            new Assign(
-                $name,
-                $expression
-            )
-        );
+        return new Expression(new Assign($name, $expression));
     }
     /**
      * Call function.
@@ -122,10 +114,8 @@ abstract class Tools
      */
     public static function call($name, ...$parameters)
     {
-        $parameters = \array_map(fn ($data) => $data instanceof Arg ? $data : new Arg($data), $parameters);
-        return \is_array($name)
-            ? new StaticCall(new FullyQualified($name[0]), $name[1], $parameters)
-            : new FuncCall(new FullyQualified($name), $parameters);
+        $parameters = \array_map(fn ($data) => ($data instanceof Arg ? $data : new Arg($data)), $parameters);
+        return \is_array($name) ? new StaticCall(new FullyQualified($name[0]), $name[1], $parameters) : new FuncCall(new FullyQualified($name), $parameters);
     }
     /**
      * Call method of object.
@@ -138,7 +128,7 @@ abstract class Tools
      */
     public static function callMethod(Expr $name, string $method, ...$parameters): MethodCall
     {
-        $parameters = \array_map(fn ($data) => $data instanceof Arg ? $data : new Arg($data), $parameters);
+        $parameters = \array_map(fn ($data) => ($data instanceof Arg ? $data : new Arg($data)), $parameters);
         return new MethodCall($name, $method, $parameters);
     }
     /**
@@ -150,7 +140,7 @@ abstract class Tools
      */
     public static function toLiteral($data): Node
     {
-        return self::toNode(\var_export($data, true).';');
+        return self::toNode(\var_export($data, true) . ';');
     }
     /**
      * Convert code to node.
@@ -163,13 +153,12 @@ abstract class Tools
      */
     public static function toNode(string $code): Node
     {
-        $res = (new ParserFactory)->create(ParserFactory::PREFER_PHP7)->parse('<?php '.$code);
+        $res = (new ParserFactory())->create(ParserFactory::PREFER_PHP7)->parse('<?php ' . $code);
         if ($res === null || empty($res) || !$res[0] instanceof Expression || !isset($res[0]->expr)) {
             throw new \RuntimeException('Invalid code was provided!');
         }
         return $res[0]->expr;
     }
-
     /**
      * Check if this node or any child node have any side effects (like calling other methods, or assigning variables).
      *
@@ -182,31 +171,7 @@ abstract class Tools
         if (!$node) {
             return false;
         }
-        if ($node->hasAttribute('hasSideEffects')
-            || $node instanceof String_       // __toString
-            || $node instanceof ArrayDimFetch // offsetSet/offsetGet
-            || $node instanceof Assign
-            || $node instanceof AssignOp
-            || $node instanceof AssignRef
-            || $node instanceof Clone_        // __clone
-            || $node instanceof Eval_
-            || $node instanceof FuncCall
-            || $node instanceof Include_
-            || $node instanceof List_         // offsetGet/offsetSet
-            || $node instanceof MethodCall
-            || $node instanceof New_
-            || $node instanceof NullsafeMethodCall
-            || $node instanceof NullsafePropertyFetch
-            || $node instanceof PostDec
-            || $node instanceof PostInc
-            || $node instanceof PreDec
-            || $node instanceof PreInc
-            || $node instanceof PropertyFetch
-            || $node instanceof StaticCall
-            || $node instanceof Yield_
-            || $node instanceof YieldFrom
-            || $node instanceof ShellExec
-            ) {
+        if ($node->hasAttribute('hasSideEffects') || $node instanceof String_ || $node instanceof ArrayDimFetch || $node instanceof Assign || $node instanceof AssignOp || $node instanceof AssignRef || $node instanceof Clone_ || $node instanceof Eval_ || $node instanceof FuncCall || $node instanceof Include_ || $node instanceof List_ || $node instanceof MethodCall || $node instanceof New_ || $node instanceof NullsafeMethodCall || $node instanceof NullsafePropertyFetch || $node instanceof PostDec || $node instanceof PostInc || $node instanceof PreDec || $node instanceof PreInc || $node instanceof PropertyFetch || $node instanceof StaticCall || $node instanceof Yield_ || $node instanceof YieldFrom || $node instanceof ShellExec) {
             $node->setAttribute('hasSideEffects', true);
             return true;
         }
@@ -229,7 +194,6 @@ abstract class Tools
         }
         return false;
     }
-
     /**
      * Create a new object extended from this object, with the specified additional trait + interface.
      *
@@ -247,33 +211,23 @@ abstract class Tools
         static $count = 0;
         /** @psalm-var array<string, class-string<T>> $memoized */
         static $memoized = [];
-
         $reflect = new ReflectionClass($obj);
-
-
         $r = $reflect;
         while ($r && $r->isAnonymous()) {
             $r = $r->getParentClass();
         }
-
-        $extend = "extends \\".$r->getName();
-        if (isset($memoized["$trait $extend"])) {
+        $extend = "extends \\" . $r->getName();
+        if (isset($memoized["{$trait} {$extend}"])) {
             /** @psalm-suppress MixedMethodCall */
-            $newObj = new $memoized["$trait $extend"];
+            $newObj = ($phabel_f4436a511eb771f2 = $memoized["{$trait} {$extend}"]) || 1 ? new $phabel_f4436a511eb771f2() : 0;
         } else {
-            $memoized["$trait $extend"] = "phabelTmpClass$count";
-            $eval = "class phabelTmpClass$count $extend {
-                use \\$trait;
-                public function __construct() {}
-            }
-            return new phabelTmpClass$count;";
+            $memoized["{$trait} {$extend}"] = "phabelTmpClass{$count}";
+            $eval = "class phabelTmpClass{$count} {$extend} {\n                use \\{$trait};\n                public function __construct() {}\n            }\n            return new phabelTmpClass{$count};";
             $count++;
             /** @var object */
             $newObj = eval($eval);
         }
-
         $reflectNew = new ReflectionClass($newObj);
-
         do {
             if ($tmp = $reflectNew->getParentClass()) {
                 $reflectNew = $tmp;
@@ -287,10 +241,8 @@ abstract class Tools
                 }
             }
         } while ($reflect = $reflect->getParentClass());
-
         return $newObj;
     }
-
     /**
      * Checks private property exists in an object.
      *
@@ -308,13 +260,9 @@ abstract class Tools
      */
     public static function hasVar(object $obj, string $var): bool
     {
-        return \Closure::bind(
-            function () use ($var): bool {
-                return isset($this->{$var});
-            },
-            $obj,
-            \get_class($obj)
-        )->__invoke();
+        return \Closure::bind(function () use ($var): bool {
+            return isset($this->{$var});
+        }, $obj, \get_class($obj))->__invoke();
     }
     /**
      * Accesses a private variable from an object.
@@ -333,7 +281,7 @@ abstract class Tools
     {
         return \Closure::bind(
             /** @return mixed */
-            function & () use ($var) {
+            function &() use ($var) {
                 return $this->{$var};
             },
             $obj,
@@ -356,12 +304,8 @@ abstract class Tools
      */
     public static function setVar($obj, string $var, &$val): void
     {
-        \Closure::bind(
-            function () use ($var, &$val) {
-                $this->{$var} =& $val;
-            },
-            $obj,
-            \get_class($obj)
-        )->__invoke();
+        \Closure::bind(function () use ($var, &$val) {
+            $this->{$var} =& $val;
+        }, $obj, \get_class($obj))->__invoke();
     }
 }
