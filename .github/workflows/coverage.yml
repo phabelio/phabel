@@ -43,18 +43,11 @@ jobs:
 
       - name: Run tests
         env:
-          PHP_CS_FIXER_IGNORE_ENV: 1
           PHABEL_COVERAGE: coverage/convertPhabel
         run: |
           php vendor/bin/phpunit --coverage-php=coverage/phpunit.php
-          php tools/testExprGen.php
-
-      - name: Convert phabel (dry run)
-        env:
-          PHP_CS_FIXER_IGNORE_ENV: 1
-          PHABEL_COVERAGE: coverage/convertPhabel
-        run: |
           php tools/convertPhabel.php all dry
+          php tools/testExprGen.php
 
       - name: Merge coverage
         env:
