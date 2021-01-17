@@ -1,13 +1,9 @@
-name: Code coverage
+name: coverage
 on: [push, pull_request]
 jobs:
   run:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        php-versions: ["8.0"]
-    name: PHP ${{ matrix.php-versions }} Test on ${{ matrix.os }}
+    runs-on: ubuntu-latest
+    name: Coverage tests
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -15,7 +11,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php-versions }}
+          php-version: "8.0"
           extensions: mbstring, intl, sockets
           coverage: pcov
 
