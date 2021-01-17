@@ -28,43 +28,46 @@ if (!\file_exists('phabelConverted')) {
 }
 
 \passthru("git stash");
+$branch = \trim(\shell_exec("git rev-parse --abbrev-ref HEAD"));
 
-foreach ($target === 'all' ? Php::VERSIONS : [$target] as $target) {
-    $coverage = \getenv('PHABEL_COVERAGE') ?: '';
-    if ($coverage) {
-        $coverage .= "-$target";
-    }
-
-    $packages = [];
-    foreach (['tools', 'src', 'bin'] as $dir) {
-        if (!\file_exists($dir)) {
-            continue;
-        }
-        $packages += Traverser::run([Php::class => ['target' => $target]], $dir, $dir, $coverage);
-    }
-
-    $str = (string) $target;
-    $packages["php"] = ">=${str[0]}.${str[1]}";
-    if (!empty($packages)) {
-        $cmd = "composer require ";
-        foreach ($packages as $package => $constraint) {
-            $cmd .= \escapeshellarg("{$package}:{$constraint}")." ";
-        }
-        \passthru($cmd);
-    }
-
-    \passthru("composer cs-fix");
-
+foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
     if (!$dry) {
-        $branch = \trim(\shell_exec("git rev-parse --abbrev-ref HEAD"));
-
         \passthru("git branch -D phabel_tmp");
         \passthru("git branch phabel_tmp");
         \passthru("git checkout phabel_tmp");
+    }
+    foreach (['8.0', $realTarget] as $target) {
+        $coverage = \getenv('PHABEL_COVERAGE') ?: '';
+        if ($coverage) {
+            $coverage .= "-$target";
+        }
 
-        \passthru("git add -A");
-        \passthru("git commit -m ".\escapeshellarg("phabel.io: transpile to $target"));
+        $packages = [];
+        foreach (['tools', 'src', 'bin'] as $dir) {
+            if (!\file_exists($dir)) {
+                continue;
+            }
+            $packages += Traverser::run([Php::class => ['target' => $target]], $dir, $dir, $coverage);
+        }
 
+        $str = (string) $target;
+        $packages["php"] = ">=${str[0]}.${str[1]}";
+        if (!empty($packages)) {
+            $cmd = "composer require ";
+            foreach ($packages as $package => $constraint) {
+                $cmd .= \escapeshellarg("{$package}:{$constraint}")." ";
+            }
+            \passthru($cmd);
+        }
+
+        \passthru("composer cs-fix");
+
+        if (!$dry) {
+            \passthru("git add -A");
+            \passthru("git commit -m ".\escapeshellarg("phabel.io: transpile to $target"));
+        }
+    }
+    if (!$dry) {
         \passthru("git push -f origin ".\escapeshellarg("phabel_tmp:{$branch}-{$target}"));
 
         \passthru("git checkout ".\escapeshellarg($branch));
