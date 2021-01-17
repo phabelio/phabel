@@ -15,7 +15,7 @@ class VariableContext
      *
      * @var array<string, true>
      */
-    private array $variables;
+    private $variables;
     /**
      * Constructor.
      *
@@ -32,8 +32,11 @@ class VariableContext
      *
      * @return void
      */
-    public function addVar(string $var): void
+    public function addVar($var)
     {
+        if (!\is_string($var)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($var) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($var) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
         $this->variables[$var] = true;
     }
     /**
@@ -43,7 +46,7 @@ class VariableContext
      *
      * @return void
      */
-    public function addVars(array $vars): void
+    public function addVars(array $vars)
     {
         $this->variables += $vars;
     }
@@ -54,8 +57,11 @@ class VariableContext
      *
      * @return void
      */
-    public function removeVar(string $var): void
+    public function removeVar($var)
     {
+        if (!\is_string($var)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($var) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($var) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
         unset($this->variables[$var]);
     }
     /**
@@ -64,30 +70,45 @@ class VariableContext
      * @param string $var
      * @return boolean
      */
-    public function hasVar(string $var): bool
+    public function hasVar($var)
     {
-        return isset($this->variables[$var]);
+        if (!\is_string($var)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($var) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($var) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        $phabelReturn = isset($this->variables[$var]);
+        if (!\is_bool($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Get unused variable name.
      *
      * @return string
      */
-    public function getVar(): string
+    public function getVar()
     {
         do {
             $var = 'phabel_' . \bin2hex(\random_bytes(8));
         } while (isset($this->variables[$var]));
         $this->variables[$var] = true;
-        return $var;
+        $phabelReturn = $var;
+        if (!\is_string($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Get all variables currently defined.
      *
      * @return array
      */
-    public function getVars(): array
+    public function getVars()
     {
-        return $this->variables;
+        $phabelReturn = $this->variables;
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
 }

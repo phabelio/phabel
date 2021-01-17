@@ -19,7 +19,7 @@ class ArrayList extends Plugin
      *
      * @return void
      */
-    public function enterForeach(Foreach_ $node): void
+    public function enterForeach(Foreach_ $node)
     {
         if ($node->valueVar instanceof Array_) {
             self::replaceTypeInPlace($node->valueVar, List_::class);
@@ -32,7 +32,7 @@ class ArrayList extends Plugin
      *
      * @return void
      */
-    public function enterList(List_ $node): void
+    public function enterList(List_ $node)
     {
         foreach ($node->items as $item) {
             if ($item && $item->value instanceof Array_) {

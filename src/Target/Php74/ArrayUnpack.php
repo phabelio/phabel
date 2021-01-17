@@ -18,29 +18,45 @@ use PhpParser\Node\Stmt\Foreach_;
  */
 class ArrayUnpack extends Plugin
 {
-    public function enter(Array_ $array, Context $context): ?FuncCall
+    public function enter(Array_ $array, Context $context)
     {
         foreach ($context->parents as $parent) {
             if ($parent instanceof Array_) {
                 continue;
             }
             if ($parent instanceof List_) {
-                return null;
+                $phabelReturn = null;
+                if (!($phabelReturn instanceof FuncCall || \is_null($phabelReturn))) {
+                    throw new \TypeError(__METHOD__ . '(): Return value must be of type ?FuncCall, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                }
+                return $phabelReturn;
             }
             /** @var string */
             $key = $parent->getAttribute('currentNode');
             if ($parent instanceof Assign && $key === 'var') {
-                return null;
+                $phabelReturn = null;
+                if (!($phabelReturn instanceof FuncCall || \is_null($phabelReturn))) {
+                    throw new \TypeError(__METHOD__ . '(): Return value must be of type ?FuncCall, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                }
+                return $phabelReturn;
             }
             if ($parent instanceof Foreach_ && $key === 'valueVar') {
-                return null;
+                $phabelReturn = null;
+                if (!($phabelReturn instanceof FuncCall || \is_null($phabelReturn))) {
+                    throw new \TypeError(__METHOD__ . '(): Return value must be of type ?FuncCall, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                }
+                return $phabelReturn;
             }
             break;
         }
         $hasUnpack = false;
         foreach ($array->items as $item) {
             if (!$item) {
-                return null;
+                $phabelReturn = null;
+                if (!($phabelReturn instanceof FuncCall || \is_null($phabelReturn))) {
+                    throw new \TypeError(__METHOD__ . '(): Return value must be of type ?FuncCall, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                }
+                return $phabelReturn;
             }
             if ($item->unpack) {
                 $hasUnpack = true;
@@ -48,7 +64,11 @@ class ArrayUnpack extends Plugin
             }
         }
         if (!$hasUnpack) {
-            return null;
+            $phabelReturn = null;
+            if (!($phabelReturn instanceof FuncCall || \is_null($phabelReturn))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type ?FuncCall, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         }
         $args = [];
         $current = new Array_();
@@ -67,6 +87,10 @@ class ArrayUnpack extends Plugin
         if ($current->items) {
             $args[] = new Arg($current);
         }
-        return Plugin::call("array_merge", ...$args);
+        $phabelReturn = Plugin::call("array_merge", ...$args);
+        if (!($phabelReturn instanceof FuncCall || \is_null($phabelReturn))) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ?FuncCall, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
 }

@@ -11,8 +11,12 @@ use Phabel\Plugin\TypeHintReplacer;
  */
 class IterableHint extends Plugin
 {
-    public static function previous(array $config): array
+    public static function previous(array $config)
     {
-        return [TypeHintReplacer::class => ['types' => ['iterable']]];
+        $phabelReturn = [TypeHintReplacer::class => ['types' => ['iterable']]];
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
 }

@@ -19,7 +19,7 @@ class ReGenerator extends Plugin
     /**
      * Custom traverser.
      */
-    private Traverser $traverser;
+    private $traverser;
     public function __construct()
     {
         $this->traverser = Traverser::fromPlugin(new ReGeneratorInternal());
@@ -31,8 +31,12 @@ class ReGenerator extends Plugin
         }
         $this->traverser->traverseAst($function);
     }
-    public static function previous(array $config): array
+    public static function previous(array $config)
     {
-        return [ArrowClosure::class];
+        $phabelReturn = [ArrowClosure::class];
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
 }

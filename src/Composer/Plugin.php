@@ -21,9 +21,9 @@ use Symfony\Component\Console\Output\NullOutput;
  */
 class Plugin implements PluginInterface, EventSubscriberInterface
 {
-    private string $toRequire = '';
+    private $toRequire = '';
     /** @psalm-suppress MissingConstructor */
-    private Transformer $transformer;
+    private $transformer;
     /**
      * Apply plugin modifications to Composer.
      *
@@ -32,7 +32,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      *
      * @return void
      */
-    public function activate(Composer $composer, IOInterface $io): void
+    public function activate(Composer $composer, IOInterface $io)
     {
         $rootPackage = $composer->getPackage();
         $this->transformer = Transformer::getInstance($io);
@@ -84,20 +84,23 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     {
         return [ScriptEvents::POST_INSTALL_CMD => ['onInstall', 1], ScriptEvents::POST_UPDATE_CMD => ['onUpdate', 1]];
     }
-    public function onInstall(Event $event): void
+    public function onInstall(Event $event)
     {
         $this->run($event, false);
     }
-    public function onUpdate(Event $event): void
+    public function onUpdate(Event $event)
     {
         $this->run($event, true);
     }
-    private function run(Event $event, bool $isUpdate): void
+    private function run(Event $event, $isUpdate)
     {
-        if (!$this->transformer->transform(\json_decode(\file_get_contents('composer.lock'), true)['packages'] ?? [])) {
+        if (!\is_bool($isUpdate)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #2 ($isUpdate) must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($isUpdate) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        if (!$this->transformer->transform(null !== ($phabel_9b2945221cbc56be = \json_decode(\file_get_contents('composer.lock'), true)) && isset($phabel_9b2945221cbc56be['packages']) ? $phabel_9b2945221cbc56be['packages'] : [])) {
             \register_shutdown_function(function () use ($isUpdate) {
                 /** @var Application */
-                $application = ($GLOBALS['application'] ?? null) instanceof Application ? $GLOBALS['application'] : new Application();
+                $application = (isset($GLOBALS['application']) ? $GLOBALS['application'] : null) instanceof Application ? $GLOBALS['application'] : new Application();
                 $this->transformer->log("Loading additional dependencies...\n");
                 if (!$isUpdate) {
                     $require = $application->find('require');
@@ -116,7 +119,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      *
      * @return void
      */
-    public function onDependencySolve(InstallerEvent $event): void
+    public function onDependencySolve(InstallerEvent $event)
     {
     }
 }

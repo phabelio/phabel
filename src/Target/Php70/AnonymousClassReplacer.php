@@ -32,18 +32,25 @@ class AnonymousClassReplacer extends Plugin
     /**
      * Anonymous class count.
      */
-    private static int $count = 0;
+    private static $count = 0;
     /**
      * Current file name hash.
      */
-    private string $fileName = '';
+    private $fileName = '';
     /**
      * {@inheritDoc}
      */
-    public function shouldRunFile(string $file): bool
+    public function shouldRunFile($file)
     {
+        if (!\is_string($file)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($file) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($file) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
         $this->fileName = \hash('sha256', $file);
-        return parent::shouldRunFile($file);
+        $phabelReturn = parent::shouldRunFile($file);
+        if (!\is_bool($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Enter new.
@@ -53,7 +60,7 @@ class AnonymousClassReplacer extends Plugin
      *
      * @return void
      */
-    public function enterNew(New_ $node, Context $ctx): void
+    public function enterNew(New_ $node, Context $ctx)
     {
         $classNode = $node->class;
         if (!$classNode instanceof Node\Stmt\Class_) {
@@ -92,12 +99,20 @@ class AnonymousClassReplacer extends Plugin
             $ctx->insertBefore($node, $classNode);
         }
     }
-    public static function previous(array $config): array
+    public static function previous(array $config)
     {
-        return [ArrowClosure::class, ReturnTypeHints::class, NullableType::class, UnionTypeStripper::class];
+        $phabelReturn = [ArrowClosure::class, ReturnTypeHints::class, NullableType::class, UnionTypeStripper::class];
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
-    public static function next(array $config): array
+    public static function next(array $config)
     {
-        return [StringConcatOptimizer::class];
+        $phabelReturn = [StringConcatOptimizer::class];
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
 }

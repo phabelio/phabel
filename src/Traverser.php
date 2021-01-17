@@ -26,25 +26,25 @@ class Traverser
      *
      * @var SplQueue<SplQueue<PluginInterface>>
      */
-    private SplQueue $queue;
+    private $queue;
     /**
      * Parser instance.
      */
-    private Parser $parser;
+    private $parser;
     /**
      * Printer instance.
      */
-    private Standard $printer;
+    private $printer;
     /**
      * Plugin queue for specific package.
      *
      * @var SplQueue<SplQueue<PluginInterface>>|null
      */
-    private ?SplQueue $packageQueue = null;
+    private $packageQueue = null;
     /**
      * Current file.
      */
-    private string $file = '';
+    private $file = '';
     /**
      * Generate traverser from basic plugin instances.
      *
@@ -52,7 +52,7 @@ class Traverser
      *
      * @return self
      */
-    public static function fromPlugin(Plugin ...$plugin): self
+    public static function fromPlugin(Plugin ...$plugin)
     {
         $queue = new SplQueue();
         foreach ($plugin as $p) {
@@ -60,7 +60,11 @@ class Traverser
         }
         $final = new SplQueue();
         $final->enqueue($queue);
-        return new self($final);
+        $phabelReturn = new self($final);
+        if (!$phabelReturn instanceof self) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ' . self::class . ', ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Start code coverage.
@@ -69,35 +73,41 @@ class Traverser
      *
      * @return ?object
      */
-    private static function startCoverage(string $coveragePath): ?object
+    private static function startCoverage($coveragePath)
     {
+        if (!\is_string($coveragePath)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($coveragePath) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($coveragePath) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
         $coveragePath = $coveragePath ?: \getenv('PHABEL_COVERAGE');
         if (!$coveragePath || !\class_exists(CodeCoverage::class)) {
-            return null;
+            $phabelReturn = null;
+            if (!(\is_object($phabelReturn) || \is_null($phabelReturn))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type ?object, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         }
         try {
             $filter = new Filter();
             $filter->includeDirectory(\realpath(__DIR__ . '/../src'));
             $coverage = new CodeCoverage((new Selector())->forLineCoverage($filter), $filter);
             $coverage->start('phabel');
-            $close = static function () use ($coveragePath, $coverage): void {
+            $close = static function () use ($coveragePath, $coverage) {
                 $coverage->stop();
                 (new PHP())->process($coverage, $coveragePath);
             };
-            return new class($close) {
-                private $callable;
-                public function __construct(callable $callable)
-                {
-                    $this->callable = $callable;
-                }
-                public function __destruct()
-                {
-                    ($this->callable)();
-                }
-            };
-        } catch (\Throwable $e) {
+            $phabelReturn = new PhabelAnonymousClassf6a8739fd00697f7809a41cee22e1c016704f4f22d12739b12f967a15a32ec180($close);
+            if (!(\is_object($phabelReturn) || \is_null($phabelReturn))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type ?object, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
+        } catch (\Exception $e) {
+        } catch (\Error $e) {
         }
-        return null;
+        $phabelReturn = null;
+        if (!(\is_object($phabelReturn) || \is_null($phabelReturn))) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ?object, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Run phabel.
@@ -111,15 +121,41 @@ class Traverser
      *
      * @return array<string, string>
      */
-    public static function run(array $plugins, string $input, string $output, string $coverage = ''): array
+    public static function run(array $plugins, $input, $output, $coverage = '')
     {
+        if (!\is_string($input)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #2 ($input) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($input) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        if (!\is_string($output)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #3 ($output) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($output) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        if (!\is_string($coverage)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #4 ($coverage) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($coverage) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
         $_ = self::startCoverage($coverage);
-        \set_error_handler(function (int $errno = 0, string $errstr = '', string $errfile = '', int $errline = -1): bool {
+        \set_error_handler(function ($errno = 0, $errstr = '', $errfile = '', $errline = -1) {
+            if (!\is_int($errno)) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($errno) must be of type int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($errno) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            if (!\is_string($errstr)) {
+                throw new \TypeError(__METHOD__ . '(): Argument #2 ($errstr) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($errstr) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            if (!\is_string($errfile)) {
+                throw new \TypeError(__METHOD__ . '(): Argument #3 ($errfile) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($errfile) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            if (!\is_int($errline)) {
+                throw new \TypeError(__METHOD__ . '(): Argument #4 ($errline) must be of type int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($errline) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
             // If error is suppressed with @, don't throw an exception
             if (\error_reporting() === 0) {
-                return false;
+                $phabelReturn = false;
+                if (!\is_bool($phabelReturn)) {
+                    throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                }
+                return $phabelReturn;
             }
             throw new Exception($errstr, $errno, null, $errfile, $errline);
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, none returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
         });
         $graph = new Graph();
         foreach ($plugins as $plugin => $config) {
@@ -133,7 +169,11 @@ class Traverser
         if (\is_file($input)) {
             $it = $p->traverse($input, $output);
             echo "Transformed " . $input . " in {$it} iterations" . PHP_EOL;
-            return $packages;
+            $phabelReturn = $packages;
+            if (!\is_array($phabelReturn)) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         }
         if (!\file_exists($output)) {
             \mkdir($output, 0777, true);
@@ -156,7 +196,11 @@ class Traverser
                 }
             }
         }
-        return $packages;
+        $phabelReturn = $packages;
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * AST traverser.
@@ -166,7 +210,7 @@ class Traverser
     public function __construct(SplQueue $queue = null)
     {
         /** @var SplQueue<SplQueue<PluginInterface>> */
-        $this->queue = $queue ?? new SplQueue();
+        $this->queue = isset($queue) ? $queue : new SplQueue();
         $this->parser = (new ParserFactory())->create(ParserFactory::PREFER_PHP7);
         $this->printer = new Standard();
     }
@@ -177,8 +221,11 @@ class Traverser
      *
      * @return void
      */
-    public function setPackage(string $package): void
+    public function setPackage($package)
     {
+        if (!\is_string($package)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($package) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($package) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
         /** @var SplQueue<SplQueue<PluginInterface>> */
         $this->packageQueue = new SplQueue();
         /** @var SplQueue<PluginInterface> */
@@ -208,13 +255,19 @@ class Traverser
      *
      * @return int
      */
-    public function traverse(string $file, string $output): int
+    public function traverse($file, $output)
     {
+        if (!\is_string($file)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($file) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($file) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        if (!\is_string($output)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #2 ($output) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($output) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
         /** @var SplQueue<SplQueue<PluginInterface>> */
         $reducedQueue = new SplQueue();
         /** @var SplQueue<PluginInterface> */
         $newQueue = new SplQueue();
-        foreach ($this->packageQueue ?? $this->queue as $queue) {
+        foreach (isset($this->packageQueue) ? $this->packageQueue : $this->queue as $queue) {
             if ($newQueue->count()) {
                 $reducedQueue->enqueue($newQueue);
                 /** @var SplQueue<PluginInterface> */
@@ -230,11 +283,20 @@ class Traverser
         if ($newQueue->count()) {
             $reducedQueue->enqueue($newQueue);
         } elseif (!$reducedQueue->count()) {
-            return 0;
+            $phabelReturn = 0;
+            if (!\is_int($phabelReturn)) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         }
         try {
-            $ast = new RootNode($this->parser->parse(\file_get_contents($file)) ?? []);
-        } catch (\Throwable $e) {
+            $ast = new RootNode(null !== ($phabel_2cf2cdb87e802a79 = $this->parser->parse(\file_get_contents($file))) ? $phabel_2cf2cdb87e802a79 : []);
+        } catch (\Exception $e) {
+            $message = $e->getMessage();
+            $message .= " while processing ";
+            $message .= $file;
+            throw new Exception($message, (int) $e->getCode(), $e, $e->getFile(), $e->getLine());
+        } catch (\Error $e) {
             $message = $e->getMessage();
             $message .= " while processing ";
             $message .= $file;
@@ -243,7 +305,11 @@ class Traverser
         $this->file = $file;
         [$it, $result] = $this->traverseAstInternal($ast, $reducedQueue);
         \file_put_contents($output, $result);
-        return $it;
+        $phabelReturn = $it;
+        if (!\is_int($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Traverse AST.
@@ -256,11 +322,18 @@ class Traverser
      *
      * @return int
      */
-    public function traverseAst(Node &$node, SplQueue $pluginQueue = null, bool $allowMulti = true): int
+    public function traverseAst(Node &$node, SplQueue $pluginQueue = null, $allowMulti = true)
     {
+        if (!\is_bool($allowMulti)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #3 ($allowMulti) must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($allowMulti) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
         $this->file = '';
         $n = new RootNode([&$node]);
-        return $this->traverseAstInternal($n, $pluginQueue, $allowMulti)[0] ?? 0;
+        $phabelReturn = null !== ($phabel_6000952f5b7b69b5 = $this->traverseAstInternal($n, $pluginQueue, $allowMulti)) && isset($phabel_6000952f5b7b69b5[0]) ? $phabel_6000952f5b7b69b5[0] : 0;
+        if (!\is_int($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Traverse AST.
@@ -277,30 +350,52 @@ class Traverser
      * @return array{0: int, 1: string}|null
      * @psalm-return (T is true ? array{0: int, 1: string} : null)
      */
-    private function traverseAstInternal(RootNode &$node, SplQueue $pluginQueue = null, bool $allowMulti = true): ?array
+    private function traverseAstInternal(RootNode &$node, SplQueue $pluginQueue = null, $allowMulti = true)
     {
+        if (!\is_bool($allowMulti)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #3 ($allowMulti) must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($allowMulti) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
         $it = 0;
         $result = '';
         do {
             $context = null;
             try {
-                foreach ($pluginQueue ?? $this->packageQueue ?? $this->queue as $queue) {
+                foreach (isset($pluginQueue) ? $pluginQueue : (isset($this->packageQueue) ? $this->packageQueue : $this->queue) as $queue) {
                     $context = new Context();
                     $context->push($node);
                     $this->traverseNode($node, $queue, $context);
                     /** @var RootNode $node */
                 }
                 if (!$allowMulti) {
-                    return null;
+                    $phabelReturn = null;
+                    if (!(\is_array($phabelReturn) || \is_null($phabelReturn))) {
+                        throw new \TypeError(__METHOD__ . '(): Return value must be of type ?array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                    }
+                    return $phabelReturn;
                 }
-            } catch (\Throwable $e) {
+            } catch (\Exception $e) {
                 $message = $e->getMessage();
                 $message .= " while processing ";
                 $message .= $this->file;
                 $message .= ":";
                 try {
                     $message .= $context ? $context->getCurrentChild($context->parents[0])->getStartLine() : "-1";
-                } catch (\Throwable $e) {
+                } catch (\Exception $e) {
+                    $message .= "-1";
+                } catch (\Error $e) {
+                    $message .= "-1";
+                }
+                throw new Exception($message, (int) $e->getCode(), $e, $e->getFile(), $e->getLine());
+            } catch (\Error $e) {
+                $message = $e->getMessage();
+                $message .= " while processing ";
+                $message .= $this->file;
+                $message .= ":";
+                try {
+                    $message .= $context ? $context->getCurrentChild($context->parents[0])->getStartLine() : "-1";
+                } catch (\Exception $e) {
+                    $message .= "-1";
+                } catch (\Error $e) {
                     $message .= "-1";
                 }
                 throw new Exception($message, (int) $e->getCode(), $e, $e->getFile(), $e->getLine());
@@ -317,7 +412,11 @@ class Traverser
             while (\gc_collect_cycles()) {
             }
         } while ($result !== $oldResult);
-        return [$it, $result];
+        $phabelReturn = [$it, $result];
+        if (!(\is_array($phabelReturn) || \is_null($phabelReturn))) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ?array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Traverse node.
@@ -328,18 +427,18 @@ class Traverser
      *
      * @return void
      */
-    private function traverseNode(Node &$node, SplQueue $plugins, Context $context): void
+    private function traverseNode(Node &$node, SplQueue $plugins, Context $context)
     {
         foreach ($plugins as $plugin) {
             foreach (PluginCache::enterMethods(\get_class($plugin)) as $type => $methods) {
-                if (!$node instanceof $type) {
+                if (!\Phabel\Target\Php70\ThrowableReplacer::isInstanceofThrowable($node, $type)) {
                     continue;
                 }
                 foreach ($methods as $method) {
                     /** @var Node|null */
                     $result = $plugin->{$method}($node, $context);
                     if ($result instanceof Node) {
-                        if (!$result instanceof $node) {
+                        if (!\Phabel\Target\Php70\ThrowableReplacer::isInstanceofThrowable($result, $node)) {
                             $node = $result;
                             continue 2;
                         }
@@ -377,14 +476,14 @@ class Traverser
         $context->pop();
         foreach ($plugins as $plugin) {
             foreach (PluginCache::leaveMethods(\get_class($plugin)) as $type => $methods) {
-                if (!$node instanceof $type) {
+                if (!\Phabel\Target\Php70\ThrowableReplacer::isInstanceofThrowable($node, $type)) {
                     continue;
                 }
                 foreach ($methods as $method) {
                     /** @var Node|null */
                     $result = $plugin->{$method}($node, $context);
                     if ($result instanceof Node) {
-                        if (!$result instanceof $node) {
+                        if (!\Phabel\Target\Php70\ThrowableReplacer::isInstanceofThrowable($result, $node)) {
                             $node = $result;
                             continue 2;
                         }
@@ -392,6 +491,25 @@ class Traverser
                     }
                 }
             }
+        }
+    }
+}
+if (!\class_exists(PhabelAnonymousClassf6a8739fd00697f7809a41cee22e1c016704f4f22d12739b12f967a15a32ec180::class)) {
+    class PhabelAnonymousClassf6a8739fd00697f7809a41cee22e1c016704f4f22d12739b12f967a15a32ec180 implements \Phabel\Target\Php70\AnonymousClass\AnonymousClassInterface
+    {
+        private $callable;
+        public function __construct(callable $callable)
+        {
+            $this->callable = $callable;
+        }
+        public function __destruct()
+        {
+            $phabel_369707a9dfe0b863 = $this->callable;
+            $phabel_369707a9dfe0b863();
+        }
+        public static function getPhabelOriginalName()
+        {
+            return 'class@anonymous';
         }
     }
 }

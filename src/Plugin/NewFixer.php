@@ -22,18 +22,32 @@ use PhpParser\NodeFinder;
  */
 class NewFixer extends Plugin
 {
-    private NodeFinder $finder;
+    private $finder;
     public function __construct()
     {
         $this->finder = new NodeFinder();
     }
-    private function isParenthesised(Node $node): bool
+    private function isParenthesised(Node $node)
     {
-        return !($node instanceof Expr\Variable || $node instanceof Node\Name || $node instanceof Expr\ArrayDimFetch || $node instanceof Expr\PropertyFetch || $node instanceof Expr\NullsafePropertyFetch || $node instanceof Expr\StaticPropertyFetch || $node instanceof Expr\Array_ || $node instanceof Scalar\String_ || $node instanceof Expr\ConstFetch || $node instanceof Expr\ClassConstFetch);
+        $phabelReturn = !($node instanceof Expr\Variable || $node instanceof Node\Name || $node instanceof Expr\ArrayDimFetch || $node instanceof Expr\PropertyFetch || $node instanceof Expr\NullsafePropertyFetch || $node instanceof Expr\StaticPropertyFetch || $node instanceof Expr\Array_ || $node instanceof Scalar\String_ || $node instanceof Expr\ConstFetch || $node instanceof Expr\ClassConstFetch);
+        if (!\is_bool($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
-    private function hasParenthesised(Node $node): bool
+    private function hasParenthesised(Node $node)
     {
-        return $node instanceof Expr && $this->finder->findFirst($node, fn (Node $node): bool => $this->isParenthesised($node)) !== null;
+        $phabelReturn = $node instanceof Expr && $this->finder->findFirst($node, function (Node $node) {
+            $phabelReturn = $this->isParenthesised($node);
+            if (!\is_bool($phabelReturn)) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
+        }) !== null;
+        if (!\is_bool($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     public function enterNew(New_ $new, Context $context)
     {
@@ -56,8 +70,12 @@ class NewFixer extends Plugin
      *
      * @return boolean
      */
-    public static function instanceOf($a, $b): bool
+    public static function instanceOf($a, $b)
     {
-        return $a instanceof $b;
+        $phabelReturn = \Phabel\Target\Php70\ThrowableReplacer::isInstanceofThrowable($a, $b);
+        if (!\is_bool($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
 }

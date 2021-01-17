@@ -18,15 +18,18 @@ class Plugins
      *
      * @var array<class-string<PluginInterface>, array[]>
      */
-    private array $plugins = [];
+    private $plugins = [];
     /**
      * Constructor.
      *
      * @param class-string<PluginInterface> $plugin Plugin
      * @param array                         $config Config
      */
-    public function __construct(string $plugin, array $config)
+    public function __construct($plugin, array $config)
     {
+        if (!\is_string($plugin)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($plugin) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($plugin) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
         $this->plugins[$plugin] = [$config];
     }
     /**
@@ -36,7 +39,7 @@ class Plugins
      *
      * @return void
      */
-    public function merge(self $other): void
+    public function merge(self $other)
     {
         foreach ($other->plugins as $plugin => $configs) {
             if (isset($this->plugins[$plugin])) {
@@ -53,7 +56,7 @@ class Plugins
      *
      * @return void
      */
-    public function enqueue(SplQueue $queue, PackageContext $ctx): void
+    public function enqueue(SplQueue $queue, PackageContext $ctx)
     {
         foreach ($this->plugins as $plugin => $configs) {
             foreach ($plugin::mergeConfigs(...$configs) as $config) {

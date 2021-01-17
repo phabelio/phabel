@@ -19,7 +19,8 @@ try {
     $filter->includeDirectory(\realpath(__DIR__ . '/../src'));
     (new Selector())->forLineCoverage($filter);
     $canCoverage = true;
-} catch (\Throwable $e) {
+} catch (\Exception $e) {
+} catch (\Error $e) {
 }
 if ($canCoverage) {
     pool(new DefaultPool(\getenv('CI') ? 3 : \count(Php::VERSIONS) + 2));
@@ -40,7 +41,13 @@ foreach (Php::VERSIONS as $version) {
     $fs->remove("testsGenerated/Target{$version}");
     $fs->remove("testsGenerated/Target10{$version}");
     $packages[] = $promise = TraverserTask::runAsync([PhabelTestGenerator::class => ['target' => $version], TypeHintReplacer::class => ['union' => true, 'nullable' => true, 'return' => true, 'types' => $types]], 'testsGenerated/Target', "testsGenerated/Target{$version}", "expr{$version}");
-    $promise->onResolve(function (?\Throwable $e, ?array $res) use ($version, &$packagesSecondary) {
+    $promise->onResolve(function ($e, $res) use ($version, &$packagesSecondary) {
+        if (!($e instanceof \Exception || $e instanceof \Error || \is_null($e))) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($e) must be of type ?Throwable, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($e) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        if (!(\is_array($res) || \is_null($res))) {
+            throw new \TypeError(__METHOD__ . '(): Argument #2 ($res) must be of type ?array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($res) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
         if ($e) {
             throw $e;
         }

@@ -19,7 +19,7 @@ class MultipleCatchReplacer extends Plugin
      *
      * @return void
      */
-    public function leave(TryCatch $node): void
+    public function leave(TryCatch $node)
     {
         $catches = [];
         foreach ($node->catches as $catch) {

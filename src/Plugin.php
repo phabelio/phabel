@@ -19,18 +19,18 @@ abstract class Plugin extends Tools implements PluginInterface
     /**
      * Configuration array.
      */
-    private array $config = [];
+    private $config = [];
     /**
      * Package context.
      */
-    private PackageContext $ctx;
+    private $ctx;
     /**
      * Set configuration array.
      *
      * @param array $config
      * @return void
      */
-    public function setConfigArray(array $config): void
+    public function setConfigArray(array $config)
     {
         $this->config = $config;
     }
@@ -39,9 +39,13 @@ abstract class Plugin extends Tools implements PluginInterface
      *
      * @return array
      */
-    public function getConfigArray(): array
+    public function getConfigArray()
     {
-        return $this->config;
+        $phabelReturn = $this->config;
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Set package context.
@@ -50,7 +54,7 @@ abstract class Plugin extends Tools implements PluginInterface
      *
      * @return void
      */
-    public function setPackageContext(PackageContext $ctx): void
+    public function setPackageContext(PackageContext $ctx)
     {
         $this->ctx = $ctx;
     }
@@ -59,9 +63,13 @@ abstract class Plugin extends Tools implements PluginInterface
      *
      * @return PackageContext
      */
-    public function getPackageContext(): PackageContext
+    public function getPackageContext()
     {
-        return $this->ctx;
+        $phabelReturn = $this->ctx;
+        if (!$phabelReturn instanceof PackageContext) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type PackageContext, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Check if plugin should run.
@@ -70,9 +78,16 @@ abstract class Plugin extends Tools implements PluginInterface
      *
      * @return boolean
      */
-    public function shouldRun(string $package): bool
+    public function shouldRun($package)
     {
-        return $this->ctx->has($package);
+        if (!\is_string($package)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($package) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($package) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        $phabelReturn = $this->ctx->has($package);
+        if (!\is_bool($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Check if plugin should run.
@@ -81,9 +96,16 @@ abstract class Plugin extends Tools implements PluginInterface
      *
      * @return boolean
      */
-    public function shouldRunFile(string $file): bool
+    public function shouldRunFile($file)
     {
-        return true;
+        if (!\is_string($file)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($file) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($file) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        $phabelReturn = true;
+        if (!\is_bool($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Call polyfill function from current plugin.
@@ -93,28 +115,41 @@ abstract class Plugin extends Tools implements PluginInterface
      *
      * @return StaticCall
      */
-    protected static function callPoly(string $name, ...$parameters): StaticCall
+    protected static function callPoly($name, ...$parameters)
     {
-        return self::call([static::class, $name], ...$parameters);
+        if (!\is_string($name)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($name) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($name) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        $phabelReturn = self::call([static::class, $name], ...$parameters);
+        if (!$phabelReturn instanceof StaticCall) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type StaticCall, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * {@inheritDoc}
      */
-    public function getConfig(string $key, $default)
+    public function getConfig($key, $default)
     {
-        return $this->config[$key] ?? $default;
+        if (!\is_string($key)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($key) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($key) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return isset($this->config[$key]) ? $this->config[$key] : $default;
     }
     /**
      * {@inheritDoc}
      */
-    public function setConfig(string $key, $value): void
+    public function setConfig($key, $value)
     {
+        if (!\is_string($key)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($key) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($key) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
         $this->config[$key] = $value;
     }
     /**
      * {@inheritDoc}
      */
-    public static function mergeConfigs(array ...$configs): array
+    public static function mergeConfigs(array ...$configs)
     {
         $final = [];
         foreach (\array_unique($configs, SORT_REGULAR) as $config) {
@@ -126,48 +161,76 @@ abstract class Plugin extends Tools implements PluginInterface
             }
             $final[] = $config;
         }
-        return $final;
+        $phabelReturn = $final;
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * {@inheritDoc}
      */
-    public static function splitConfig(array $config): array
+    public static function splitConfig(array $config)
     {
-        return empty($config) ? [[]] : \array_chunk($config, 1, true);
+        $phabelReturn = empty($config) ? [[]] : \array_chunk($config, 1, true);
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * {@inheritDoc}
      */
-    public function getComposerRequires(): array
+    public function getComposerRequires()
     {
-        return [];
+        $phabelReturn = [];
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * {@inheritDoc}
      */
-    public static function next(array $config): array
+    public static function next(array $config)
     {
-        return [];
+        $phabelReturn = [];
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * {@inheritDoc}
      */
-    public static function previous(array $config): array
+    public static function previous(array $config)
     {
-        return [];
+        $phabelReturn = [];
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * {@inheritDoc}
      */
-    public static function withPrevious(array $config): array
+    public static function withPrevious(array $config)
     {
-        return [];
+        $phabelReturn = [];
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * {@inheritDoc}
      */
-    public static function withNext(array $config): array
+    public static function withNext(array $config)
     {
-        return [];
+        $phabelReturn = [];
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
 }

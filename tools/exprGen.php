@@ -63,7 +63,7 @@ foreach (Php::VERSIONS as $version) {
 }
 class ExpressionGenerator
 {
-    private Standard $printer;
+    private $printer;
     private function format(Node $code)
     {
         static $count = 0;
@@ -79,11 +79,17 @@ class ExpressionGenerator
         }
         return \substr($data, 0, -6);
     }
-    private array $robin = [];
-    private array $processes = [];
-    private array $pipes = [];
-    private function checkSyntaxVersion(int $version, string $code)
+    private $robin = [];
+    private $processes = [];
+    private $pipes = [];
+    private function checkSyntaxVersion($version, $code)
     {
+        if (!\is_int($version)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($version) must be of type int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($version) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        if (!\is_string($code)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #2 ($code) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($code) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
         $code = \str_replace(["\n", '<?php'], '', $code) . "\n";
         $x = $this->robin[$version];
         $this->robin[$version]++;
@@ -95,8 +101,14 @@ class ExpressionGenerator
         //var_dump($code, "Result for $version is: $result");
         return \strlen($result) === 0;
     }
-    private function checkSyntax(string $code, int $startFrom = 56)
+    private function checkSyntax($code, $startFrom = 56)
     {
+        if (!\is_string($code)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($code) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($code) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        if (!\is_int($startFrom)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #2 ($startFrom) must be of type int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($startFrom) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
         if (!$startFrom) {
             return $startFrom;
         }
@@ -116,11 +128,11 @@ class ExpressionGenerator
         'isset' => [],
     ];
     /** @psalm-var array<int, array<int, Node>> */
-    private array $tests = [];
+    private $tests = [];
     private $versionMap = [];
     private function checkPossibleValue($arg, $name, $key, $class, $baseArgs, $isArray)
     {
-        $subVersion = \max($this->versionMap[\get_debug_type($arg)] ?? 0, $this->versionMap[$class]);
+        $subVersion = \max(isset($this->versionMap[\get_debug_type($arg)]) ? $this->versionMap[\get_debug_type($arg)] : 0, $this->versionMap[$class]);
         $arguments = $baseArgs;
         $arguments[$key] = $isArray ? [$arg] : $arg;
         $code = $this->format($prev = new $class(...$arguments));
@@ -215,7 +227,7 @@ class ExpressionGenerator
                         $arguments[] = new Name('self');
                         break;
                     case 'array':
-                        if (\in_array('Expr[]', $types[$param->getName()] ?? [])) {
+                        if (\in_array('Expr[]', isset($types[$param->getName()]) ? $types[$param->getName()] : [])) {
                             $argTypes[$key] = [true, [Expr::class]];
                             $arguments[] = [new Variable('test')];
                         } else {
@@ -271,7 +283,9 @@ PHP;
         $wait = [];
         foreach ($instanceArgTypes as $class => $argTypes) {
             $baseArgs = $instanceArgs[$class];
-            foreach ($argTypes as $key => [$isArray, $types]) {
+            foreach ($argTypes as $key => $phabel_5de245909f12a604) {
+                $isArray = $phabel_5de245909f12a604[0];
+                $types = $phabel_5de245909f12a604[1];
                 $name = $instanceArgNames[$class][$key];
                 $possibleValues = [];
                 foreach ($types as $type) {

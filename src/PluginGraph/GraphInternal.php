@@ -20,19 +20,19 @@ class GraphInternal
      *
      * @var array<class-string<PluginInterface>, array<string, Node>>
      */
-    private array $plugins = [];
+    private $plugins = [];
     /**
      * Package contexts.
      *
      * @var PackageContext[]
      */
-    private array $packageContexts = [];
+    private $packageContexts = [];
     /**
      * Stores list of Nodes that are not required by any other node.
      *
      * @var SplObjectStorage<Node, null>
      */
-    private SplObjectStorage $unlinkedNodes;
+    private $unlinkedNodes;
     /**
      * Constructor.
      */
@@ -43,11 +43,15 @@ class GraphInternal
     /**
      * Get new package context.
      */
-    public function getPackageContext(): PackageContext
+    public function getPackageContext()
     {
         $packageContext = new PackageContext();
         $this->packageContexts[] = $packageContext;
-        return $packageContext;
+        $phabelReturn = $packageContext;
+        if (!$phabelReturn instanceof PackageContext) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type PackageContext, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Add plugin.
@@ -60,9 +64,22 @@ class GraphInternal
      *
      * @return Node[]
      */
-    public function addPlugin(string $plugin, array $config, PackageContext $ctx): array
+    public function addPlugin($plugin, array $config, PackageContext $ctx)
     {
-        return \array_map(fn (array $config): Node => $this->addPluginInternal($plugin, $config, $ctx), $plugin::splitConfig($config));
+        if (!\is_string($plugin)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($plugin) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($plugin) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        $phabelReturn = \array_map(function (array $config) use ($plugin, $ctx) {
+            $phabelReturn = $this->addPluginInternal($plugin, $config, $ctx);
+            if (!$phabelReturn instanceof Node) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type Node, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
+        }, $plugin::splitConfig($config));
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Add plugin.
@@ -73,20 +90,31 @@ class GraphInternal
      *
      * @psalm-param class-string<PluginInterface> $plugin Plugin name
      */
-    private function addPluginInternal(string $plugin, array $config, PackageContext $ctx): Node
+    private function addPluginInternal($plugin, array $config, PackageContext $ctx)
     {
+        if (!\is_string($plugin)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($plugin) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($plugin) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
         $configStr = \var_export($config, true);
         if (isset($this->plugins[$plugin][$configStr])) {
-            return $this->plugins[$plugin][$configStr]->addPackages($ctx);
+            $phabelReturn = $this->plugins[$plugin][$configStr]->addPackages($ctx);
+            if (!$phabelReturn instanceof Node) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type Node, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         }
         $this->plugins[$plugin][$configStr] = $node = new Node($this, $ctx);
         $this->unlinkedNodes->attach($node);
-        return $node->init($plugin, $config);
+        $phabelReturn = $node->init($plugin, $config);
+        if (!$phabelReturn instanceof Node) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type Node, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Set unlinked node as linked.
      */
-    public function linkNode(Node $node): void
+    public function linkNode(Node $node)
     {
         if ($this->unlinkedNodes->contains($node)) {
             $this->unlinkedNodes->detach($node);
@@ -97,11 +125,15 @@ class GraphInternal
      *
      * @return SplQueue<SplQueue<PluginInterface>>
      */
-    public function flatten(): SplQueue
+    public function flatten()
     {
         if (!$this->plugins) {
+            $phabelReturn = new SplQueue();
+            if (!$phabelReturn instanceof SplQueue) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type SplQueue, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
             /** @psalm-var SplQueue<SplQueue<PluginInterface>> */
-            return new SplQueue();
+            return $phabelReturn;
         }
         if ($this->unlinkedNodes->count()) {
             /** @var Node|null $initNode */
@@ -115,16 +147,24 @@ class GraphInternal
             }
             $this->unlinkedNodes = new SplObjectStorage();
             $this->unlinkedNodes->attach($initNode);
-            return $initNode->circular()->flatten();
+            $phabelReturn = $initNode->circular()->flatten();
+            if (!$phabelReturn instanceof SplQueue) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type SplQueue, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         }
-        return \array_values(\array_values($this->plugins)[0])[0]->circular()->flatten();
+        $phabelReturn = \array_values(\array_values($this->plugins)[0])[0]->circular()->flatten();
+        if (!$phabelReturn instanceof SplQueue) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type SplQueue, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Returns graph debug information.
      *
      * @return array
      */
-    public function __debugInfo(): array
+    public function __debugInfo()
     {
         $res = [];
         foreach ($this->flatten() as $queue) {
@@ -134,6 +174,10 @@ class GraphInternal
             }
             $res[] = $cur;
         }
-        return $res;
+        $phabelReturn = $res;
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
 }

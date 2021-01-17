@@ -11,7 +11,7 @@ use PhpParser\Node\Stmt\Property;
  */
 class TypedProperty extends Plugin
 {
-    public function enter(Class_ $class): void
+    public function enter(Class_ $class)
     {
         foreach ($class->stmts as $stmt) {
             if ($stmt instanceof Property && $stmt->type) {

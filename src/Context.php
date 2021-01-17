@@ -31,7 +31,6 @@ use PhpParser\Node\Stmt\Expression;
 use PhpParser\Node\Stmt\If_;
 use PhpParser\NodeVisitor\NameResolver;
 use PhpParser\PrettyPrinter\Standard;
-use PhpParser\PrettyPrinterAbstract;
 use SplStack;
 
 /**
@@ -47,27 +46,27 @@ class Context
      *
      * @var SplStack<Node>
      */
-    public SplStack $parents;
+    public $parents;
     /**
      * Declared variables stack.
      *
      * @var SplStack<VariableContext>
      */
-    public SplStack $variables;
+    public $variables;
     /**
      * Name resolver.
      *
      * @var NameResolver
      */
-    public NameResolver $nameResolver;
+    public $nameResolver;
     /**
      * Pretty printer.
      */
-    public PrettyPrinterAbstract $prettyPrinter;
+    public $prettyPrinter;
     /**
      * Arrow closure converter.
      */
-    private ArrowClosure $converter;
+    private $converter;
     /**
      * Constructor.
      */
@@ -89,7 +88,7 @@ class Context
      *
      * @return void
      */
-    public function push(Node $node): void
+    public function push(Node $node)
     {
         $this->parents->push($node);
         if ($node instanceof RootNode) {
@@ -98,7 +97,13 @@ class Context
             $this->nameResolver->enterNode($node);
         }
         if ($node instanceof FunctionLike) {
-            $variables = \array_fill_keys(\array_map(fn (Param $param): string => $param->var->name, $node->getParams()), true);
+            $variables = \array_fill_keys(\array_map(function (Param $param) {
+                $phabelReturn = $param->var->name;
+                if (!\is_string($phabelReturn)) {
+                    throw new \TypeError(__METHOD__ . '(): Return value must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                }
+                return $phabelReturn;
+            }, $node->getParams()), true);
             if ($node instanceof Closure) {
                 foreach ($node->uses as $use) {
                     $variables[$use->var->name] = true;
@@ -135,7 +140,7 @@ class Context
      *
      * @return void
      */
-    public function pop(): void
+    public function pop()
     {
         $popped = $this->parents->pop();
         if ($popped instanceof RootNode || $popped instanceof FunctionLike) {
@@ -150,9 +155,13 @@ class Context
      *
      * @return Variable
      */
-    public function getVariable(): Variable
+    public function getVariable()
     {
-        return new Variable($this->variables->top()->getVar());
+        $phabelReturn = new Variable($this->variables->top()->getVar());
+        if (!$phabelReturn instanceof Variable) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type Variable, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Get child currently being iterated on.
@@ -160,9 +169,13 @@ class Context
      * @param Node $node
      * @return Node
      */
-    public static function getCurrentChild(Node $node): Node
+    public static function getCurrentChild(Node $node)
     {
-        return self::getCurrentChildByRef($node);
+        $phabelReturn = self::getCurrentChildByRef($node);
+        if (!$phabelReturn instanceof Node) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type Node, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Get child currently being iterated on, by reference.
@@ -170,16 +183,24 @@ class Context
      * @param Node $node
      * @return Node
      */
-    public static function &getCurrentChildByRef(Node $node): Node
+    public static function &getCurrentChildByRef(Node $node)
     {
         if (!($subNode = $node->getAttribute('currentNode'))) {
             throw new \RuntimeException('Node is not a part of the current AST stack!');
         }
         $child =& $node->{$subNode};
         if (null !== ($index = $node->getAttribute('currentNodeIndex'))) {
-            return $child[$index];
+            $phabelReturn =& $child[$index];
+            if (!$phabelReturn instanceof Node) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type Node, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         }
-        return $child;
+        $phabelReturn =& $child;
+        if (!$phabelReturn instanceof Node) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type Node, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Insert nodes before node.
@@ -188,7 +209,7 @@ class Context
      * @param Node ...$insert Nodes to insert
      * @return void
      */
-    public function insertBefore(Node $node, Node ...$insert): void
+    public function insertBefore(Node $node, Node ...$insert)
     {
         if (empty($insert)) {
             return;
@@ -230,24 +251,24 @@ class Context
         //
         if ($parent instanceof BooleanOr && $parentKey === 'right' && Tools::hasSideEffects($parent->right)) {
             $result = $this->getVariable();
-            $insert = new If_($parent->left, ['stmts' => [new Assign($result, BuilderHelpers::normalizeValue(true))], 'else' => new Else_([...$insert, new Assign($result, new Bool_($parent->right))])]);
+            $insert = new If_($parent->left, ['stmts' => [new Assign($result, BuilderHelpers::normalizeValue(true))], 'else' => new Else_(\array_merge($insert, [new Assign($result, new Bool_($parent->right))]))]);
             $parent = $result;
         } elseif ($parent instanceof BooleanAnd && $parentKey === 'right' && Tools::hasSideEffects($parent->right)) {
             $result = $this->getVariable();
-            $insert = new If_($parent->left, ['stmts' => [...$insert, new Assign($result, new Bool_($parent->right))], 'else' => new Else_([new Assign($result, BuilderHelpers::normalizeValue(false))])]);
+            $insert = new If_($parent->left, ['stmts' => \array_merge($insert, [new Assign($result, new Bool_($parent->right))]), 'else' => new Else_([new Assign($result, BuilderHelpers::normalizeValue(false))])]);
             $parent = $result;
         } elseif ($parent instanceof Ternary && $parentKey !== 'cond' && (Tools::hasSideEffects($parent->if) || Tools::hasSideEffects($parent->else))) {
             $result = $this->getVariable();
             if (!$parent->if) {
                 // ?:
-                $insert = new If_(new BooleanNot(new Assign($result, $parent->cond)), ['stmts' => [...$insert, new Assign($result, $parent->else)]]);
+                $insert = new If_(new BooleanNot(new Assign($result, $parent->cond)), ['stmts' => \array_merge($insert, [new Assign($result, $parent->else)])]);
             } else {
-                $insert = new If_($parent->cond, ['stmts' => [...$parentKey === 'left' ? $insert : [], new Assign($result, $parent->if)], 'else' => new Else_([...$parentKey === 'right' ? $insert : [], new Assign($result, $parent->else)])]);
+                $insert = new If_($parent->cond, ['stmts' => \array_merge($parentKey === 'left' ? $insert : [], [new Assign($result, $parent->if)]), 'else' => new Else_(\array_merge($parentKey === 'right' ? $insert : [], [new Assign($result, $parent->else)]))]);
             }
             $parent = $result;
         } elseif ($parent instanceof Coalesce && $parentKey === 'right' && Tools::hasSideEffects($parent->right)) {
             $result = $this->getVariable();
-            $insert = new If_(Plugin::call('is_null', new Assign($result, $parent->left)), ['stmts' => [...$insert, new Assign($result, $parent->right)]]);
+            $insert = new If_(Plugin::call('is_null', new Assign($result, $parent->left)), ['stmts' => \array_merge($insert, [new Assign($result, $parent->right)])]);
             $parent = $result;
         }
         $this->insertBefore($parent, ...\is_array($insert) ? $insert : [$insert]);
@@ -259,7 +280,7 @@ class Context
      * @param Node ...$nodes Nodes to insert
      * @return void
      */
-    public function insertAfter(Node $node, Node ...$nodes): void
+    public function insertAfter(Node $node, Node ...$nodes)
     {
         if (empty($nodes)) {
             return;
@@ -283,31 +304,43 @@ class Context
      *
      * @return NameContext
      */
-    public function getNameContext(): NameContext
+    public function getNameContext()
     {
-        return $this->nameResolver->getNameContext();
+        $phabelReturn = $this->nameResolver->getNameContext();
+        if (!$phabelReturn instanceof NameContext) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type NameContext, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Check if the parent node is a statement.
      *
      * @return bool
      */
-    public function isParentStmt(): bool
+    public function isParentStmt()
     {
         $parent = $this->parents[0];
-        return $parent instanceof Expression || $parent->getAttribute('currentNode') === 'stmts';
+        $phabelReturn = $parent instanceof Expression || $parent->getAttribute('currentNode') === 'stmts';
+        if (!\is_bool($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Dumps AST.
      */
-    public function dumpAst(Node $stmt): string
+    public function dumpAst(Node $stmt)
     {
-        return $this->prettyPrinter->prettyPrint($stmt instanceof RootNode ? $stmt->stmts : [$stmt]);
+        $phabelReturn = $this->prettyPrinter->prettyPrint($stmt instanceof RootNode ? $stmt->stmts : [$stmt]);
+        if (!\is_string($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Convert a function to a closure.
      */
-    public function toClosure(FunctionLike &$func): void
+    public function toClosure(FunctionLike &$func)
     {
         if ($func instanceof ArrowFunction) {
             $func = $this->converter->enter($func, $this);

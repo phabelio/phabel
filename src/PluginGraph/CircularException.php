@@ -17,7 +17,7 @@ class CircularException extends \Exception
      *
      * @var class-string<PluginInterface>[]
      */
-    private array $plugins = [];
+    private $plugins = [];
     /**
      * Constructor.
      *
@@ -34,8 +34,12 @@ class CircularException extends \Exception
      *
      * @return class-string<PluginInterface>[]
      */
-    public function getPlugins(): array
+    public function getPlugins()
     {
-        return $this->plugins;
+        $phabelReturn = $this->plugins;
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
 }

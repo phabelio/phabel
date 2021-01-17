@@ -17,7 +17,7 @@ class Graph
     /**
      * Graph instance.
      */
-    private GraphInternal $graph;
+    private $graph;
     /**
      * Constructr.
      */
@@ -30,9 +30,13 @@ class Graph
      *
      * @return PackageContext
      */
-    public function getPackageContext(): PackageContext
+    public function getPackageContext()
     {
-        return $this->graph->getPackageContext();
+        $phabelReturn = $this->graph->getPackageContext();
+        if (!$phabelReturn instanceof PackageContext) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type PackageContext, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Add plugin.
@@ -45,36 +49,57 @@ class Graph
      *
      * @return Node[]
      */
-    public function addPlugin(string $plugin, array $config, PackageContext $ctx): array
+    public function addPlugin($plugin, array $config, PackageContext $ctx)
     {
-        return $this->graph->addPlugin($plugin, $config, $ctx);
+        if (!\is_string($plugin)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($plugin) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($plugin) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        $phabelReturn = $this->graph->addPlugin($plugin, $config, $ctx);
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Flatten graph.
      *
      * @return array{0: SplQueue<SplQueue<PluginInterface>>, 1: array<string, string>}
      */
-    public function flatten(): array
+    public function flatten()
     {
         $plugins = $this->graph->flatten();
         $requires = [];
         foreach ($plugins as $queue) {
             foreach ($queue as $plugin) {
                 foreach ($plugin->getComposerRequires() as $package => $constraint) {
-                    $requires[$package] ??= [];
+                    $requires[$package] = isset($requires[$package]) ? $requires[$package] : [];
                     $requires[$package][] = $constraint;
                 }
             }
         }
-        return [$plugins, \array_map(fn (array $constraints): string => \implode(':', \array_unique($constraints)), $requires)];
+        $phabelReturn = [$plugins, \array_map(function (array $constraints) {
+            $phabelReturn = \implode(':', \array_unique($constraints));
+            if (!\is_string($phabelReturn)) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
+        }, $requires)];
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Returns graph debug information.
      *
      * @return array
      */
-    public function __debugInfo(): array
+    public function __debugInfo()
     {
-        return $this->graph->__debugInfo();
+        $phabelReturn = $this->graph->__debugInfo();
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
 }

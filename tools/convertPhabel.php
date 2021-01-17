@@ -20,7 +20,7 @@ EOF;
     die(1);
 }
 $target = $argv[1];
-$dry = (bool) ($argv[2] ?? '');
+$dry = (bool) (isset($argv[2]) ? $argv[2] : '');
 if (!\file_exists('phabelConverted')) {
     \mkdir('phabelConverted');
 }

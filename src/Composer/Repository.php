@@ -38,21 +38,21 @@ trait Repository
         $transformInfo = [];
         foreach ($packageNameMap as $key => $constraint) {
             [$package, $target] = $this->phabelTransformer->extractTarget($key);
-            $newPackageNameMap[$target] ??= [];
+            $newPackageNameMap[$target] = isset($newPackageNameMap[$target]) ? $newPackageNameMap[$target] : [];
             $newPackageNameMap[$target][$package] = $constraint;
-            $transformInfo[$target] ??= [];
+            $transformInfo[$target] = isset($transformInfo[$target]) ? $transformInfo[$target] : [];
             $transformInfo[$target][$package] = $key;
         }
         foreach ($alreadyLoaded as $key => $versions) {
             [$package, $target] = $this->phabelTransformer->extractTarget($key);
-            $newAlreadyLoaded[$target] ??= [];
+            $newAlreadyLoaded[$target] = isset($newAlreadyLoaded[$target]) ? $newAlreadyLoaded[$target] : [];
             $newAlreadyLoaded[$target][$package] = $versions;
         }
         $finalNamesFound = [];
         $finalPackages = [];
         foreach ($newPackageNameMap as $target => $map) {
             $t = $transformInfo[$target];
-            $packages = parent::loadPackages($map, $acceptableStabilities, $stabilityFlags, $newAlreadyLoaded[$target] ?? []);
+            $packages = parent::loadPackages($map, $acceptableStabilities, $stabilityFlags, isset($newAlreadyLoaded[$target]) ? $newAlreadyLoaded[$target] : []);
             foreach ($packages['namesFound'] as $package) {
                 $finalNamesFound[] = $t[$package];
             }
@@ -129,9 +129,13 @@ trait Repository
      *
      * @return self
      */
-    public function setPhabelTransformer(Transformer $phabelTransformer): self
+    public function setPhabelTransformer(Transformer $phabelTransformer)
     {
         $this->phabelTransformer = $phabelTransformer;
-        return $this;
+        $phabelReturn = $this;
+        if (!$phabelReturn instanceof self) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ' . self::class . ', ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
 }

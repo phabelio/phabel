@@ -25,9 +25,16 @@ class ThrowableReplacer extends Plugin
      *
      * @return boolean
      */
-    private static function isThrowable(string $type): bool
+    private static function isThrowable($type)
     {
-        return $type === \Throwable::class || $type === '\\Throwable';
+        if (!\is_string($type)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($type) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($type) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        $phabelReturn = $type === \Throwable::class || $type === '\\Throwable';
+        if (!\is_bool($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Check if is a throwable.
@@ -36,12 +43,20 @@ class ThrowableReplacer extends Plugin
      * @param mixed $class
      * @return boolean
      */
-    public static function isInstanceofThrowable($obj, $class): bool
+    public static function isInstanceofThrowable($obj, $class)
     {
         if (\is_string($class) && self::isThrowable($class)) {
-            return $obj instanceof \Exception || $obj instanceof \Error;
+            $phabelReturn = $obj instanceof \Exception || $obj instanceof \Error;
+            if (!\is_bool($phabelReturn)) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         }
-        return $obj instanceof $class;
+        $phabelReturn = \Phabel\Target\Php70\ThrowableReplacer::isInstanceofThrowable($obj, $class);
+        if (!\is_bool($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Split instance of \Throwable.
@@ -67,7 +82,7 @@ class ThrowableReplacer extends Plugin
      *
      * @return void
      */
-    public function enterTryCatch(TryCatch $node): void
+    public function enterTryCatch(TryCatch $node)
     {
         foreach ($node->catches as $catch) {
             $alreadyHasError = false;
@@ -86,8 +101,12 @@ class ThrowableReplacer extends Plugin
             }
         }
     }
-    public static function withPrevious(array $config): array
+    public static function withPrevious(array $config)
     {
-        return [TypeHintReplacer::class => ['type' => [\Throwable::class]], MultipleCatchReplacer::class => []];
+        $phabelReturn = [TypeHintReplacer::class => ['type' => [\Throwable::class]], MultipleCatchReplacer::class => []];
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
 }
