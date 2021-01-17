@@ -9,7 +9,7 @@ if (!\file_exists('composer.json')) {
 }
 require 'vendor/autoload.php';
 
-if ($argc !== 2) {
+if ($argc < 2) {
     $help = <<<EOF
 Usage: {$argv[0]} target [ dry ]
 
