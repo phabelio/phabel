@@ -46,7 +46,6 @@ jobs:
           PHP_CS_FIXER_IGNORE_ENV: 1
           PHABEL_COVERAGE: coverage/convertPhabel
         run: |
-          composer cs
           php vendor/bin/phpunit --coverage-php=coverage/phpunit.php
           php tools/testExprGen.php
 
