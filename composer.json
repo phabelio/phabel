@@ -3,7 +3,7 @@
     "description": "Write and deploy modern PHP 8 code, today.",
     "type": "composer-plugin",
     "require": {
-        "nikic/php-parser": "dev-master#f00092bfee14fa77db6e026721128d1d23560985 as 4.10.1",
+        "phabel/php-parser": "^94.10",
         "composer-plugin-api": "^2.0",
         "php": ">=8.0"
     },
