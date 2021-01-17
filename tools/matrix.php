@@ -1,7 +1,7 @@
 <?php
 
 $os = ['ubuntu-latest', 'windows-latest', 'macos-latest'];
-$php = [56, 70, 71, 72, 73, 80];
+$php = [56, 70, 71, 72, 73, 74, 80];
 
 $commit = \trim(\shell_exec("git log -1 --pretty=%H"));
 $branch = \trim(\shell_exec("git rev-parse --abbrev-ref HEAD"));
