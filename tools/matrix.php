@@ -29,7 +29,7 @@ if (!$final) {
 $matrix = [
     'os' => $os,
     'php' => $final,
-    'shouldBuild' => [$doBuild],
+    'shouldBuild' => [$doBuild ? 'yes' : 'no'],
     'shouldTag' => [$tag]
 ];
 $matrix = \json_encode($matrix);
