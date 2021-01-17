@@ -43,7 +43,8 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $target) {
         $packages += Traverser::run([Php::class => ['target' => $target]], $dir, $dir, $coverage);
     }
 
-    $packages["php"] = ">=${target[0]}.${target[1]}";
+    $str = (string) $target;
+    $packages["php"] = ">=${str[0]}.${str[1]}";
     if (!empty($packages)) {
         $cmd = "composer require ";
         foreach ($packages as $package => $constraint) {
