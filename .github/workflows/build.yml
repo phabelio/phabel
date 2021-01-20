@@ -67,6 +67,7 @@ jobs:
 
       - name: Run tests
         run: |
+          php tools/testGen.php
           php vendor/bin/phpunit
 
       - name: Convert phabel
