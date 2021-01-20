@@ -3,6 +3,8 @@
 use Phabel\Target\Php;
 use PhabelTest\TraverserTask;
 
+use function Amp\Promise\wait;
+
 require 'vendor/autoload.php';
 require 'functions.php';
 
@@ -14,7 +16,7 @@ foreach (Php::VERSIONS as $version) {
     }
 }
 
-$packages = TraverserTask::runAsync([Php::class => ['target' => $version]], 'vendor', 'vendor', 'coverage/convertVendor');
+$packages = wait(TraverserTask::runAsync([Php::class => ['target' => $version]], 'vendor', 'vendor', 'coverage/convertVendor'));
 
 if (!empty($packages)) {
     $cmd = "composer require --dev ";
