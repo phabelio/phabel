@@ -76,4 +76,4 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
     r("git reset --hard");
 }
 
-r("git stash pop");
+\passthru("git stash pop");

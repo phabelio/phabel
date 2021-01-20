@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Run command, exiting with error code if it fails
+ * Run command, exiting with error code if it fails.
  *
  * @param string $cmd
  * @return void

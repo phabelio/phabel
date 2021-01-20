@@ -25,7 +25,7 @@ $packages = Traverser::run(
     ],
     $argv[1],
     $argv[2],
-    getenv('PHABEL_COVERAGE') ?: ''
+    \getenv('PHABEL_COVERAGE') ?: ''
 );
 
 if (!empty($packages)) {
