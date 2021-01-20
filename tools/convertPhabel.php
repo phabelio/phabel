@@ -8,6 +8,7 @@ if (!\file_exists('composer.json')) {
     die(1);
 }
 require 'vendor/autoload.php';
+require 'ci/functions.php';
 
 if ($argc < 2) {
     $help = <<<EOF
