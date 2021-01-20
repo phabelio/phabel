@@ -34,14 +34,12 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ steps.composercache.outputs.dir }}
-          key: ${{ matrix.os }}-composer-${{ matrix.php-versions }}-${{ hashFiles('**/composer.lock') }}
-          restore-keys: ${{ matrix.os }}-composer-${{ matrix.php-versions }}-
+          key: ${{ matrix.os }}-composer-8.0-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ matrix.os }}-composer-8.0-
 
       - name: Install dependencies
         run: |
-          composer install --prefer-dist
-          cp tests/Process.php vendor/amphp/parallel/lib/Context/Process.php
-          sudo sed -i 's/^disable_function.*//g' /etc/php/*/phpdbg/php.ini
+          php tools/ci/prepareDeps.php
 
       - name: Run tests
         env:
@@ -52,16 +50,13 @@ jobs:
           php tools/testExprGen.php
 
       - name: Merge coverage
-        env:
-          PHP_CS_FIXER_IGNORE_ENV: 1
-          PHABEL_COVERAGE: coverage/convertPhabel
         run: |
           composer coverage
 
       - name: Upload coverage to Codecov
         env: 
           OS: ${{ matrix.os }}
-          PHP: ${{ matrix.php-versions }}
+          PHP: "8.0"
         uses: codecov/codecov-action@v1
         with:
            file: coverage/clover.xml

@@ -66,7 +66,7 @@
         "cs": "php-cs-fixer fix -v --diff --dry-run",
         "cs-fix": "php-cs-fixer fix -v --diff",
         "phpunit": "@php vendor/bin/phpunit --coverage-php=coverage/phpunit.php",
-        "coverage": "@php tools/coverageMerge.php",
+        "coverage": "@php tools/ci/coverageMerge.php",
         "phpunitExpr": "@php tools/testExprGen.php"
     },
     "config": {

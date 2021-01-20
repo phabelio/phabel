@@ -71,7 +71,7 @@ class Traverser
      */
     private static function startCoverage(string $coveragePath): ?object
     {
-        $coveragePath = $coveragePath ?: \getenv('PHABEL_COVERAGE');
+        $coveragePath = $coveragePath;
         if (!$coveragePath || !\class_exists(CodeCoverage::class)) {
             return null;
         }

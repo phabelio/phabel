@@ -18,7 +18,7 @@ jobs:
           coverage: none
 
       - id: set-matrix
-        run: php tools/matrix.php
+        run: php tools/ci/matrix.php
   run:
     needs: prepare
     runs-on: ${{ matrix.os }}
@@ -59,8 +59,11 @@ jobs:
           restore-keys: ${{ matrix.os }}-composer-${{ matrix.php }}-
 
       - name: Install dependencies
+        env:
+          PHABEL_TARGET: ${{ matrix.php }}
         run: |
-          composer install --prefer-dist
+          composer install --prefer-dist --ignore-platform-reqs
+          php src/phabel.php vendor vendor
 
       - name: Run tests
         run: |
