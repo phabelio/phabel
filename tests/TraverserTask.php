@@ -6,10 +6,6 @@ use Amp\Parallel\Worker\Environment;
 use Amp\Parallel\Worker\Task;
 use Amp\Promise;
 use Phabel\Traverser;
-use SebastianBergmann\CodeCoverage\CodeCoverage;
-use SebastianBergmann\CodeCoverage\Driver\Selector;
-use SebastianBergmann\CodeCoverage\Filter;
-use SebastianBergmann\CodeCoverage\Report\PHP as ReportPHP;
 
 use function Amp\call;
 use function Amp\Parallel\Worker\enqueue;
@@ -64,18 +60,14 @@ class TraverserTask implements Task
                     }
                 } elseif ($file->isFile()) {
                     if ($file->getExtension() == 'php') {
-                        $promise = enqueue(new self($plugins, $file->getRealPath(), $targetPath, "$prefix$count.php"));
-                        $promises[$count] = $promise;
-                        $promise->onResolve(function ($e, $res) use (&$result, &$promises, $count) {
-                            if ($e) {
-                                throw $e;
-                            }
-                            if ($res instanceof ExceptionWrapper) {
-                                throw $res->getException();
+                        $promise = call(function () use ($plugins, $file, $targetPath, $prefix, $count, &$result, &$promises) {
+                            $result = yield enqueue(new self($plugins, $file->getRealPath(), $targetPath, "$prefix$count.php"));
+                            if ($result instanceof ExceptionWrapper) {
+                                throw $result->getException();
                             }
                             unset($promises[$count]);
-                            $result = $res;
                         });
+                        $promises[$count] = $promise;
                         if (!($count++ % 10)) {
                             yield $promise;
                         }
@@ -90,7 +82,7 @@ class TraverserTask implements Task
             return $result;
         });
     }
-    
+
     /**
      * Constructor.
      *
