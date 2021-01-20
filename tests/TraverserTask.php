@@ -51,6 +51,7 @@ class TraverserTask implements Task
             }
 
             $count = 0;
+            $promises = [];
 
             $it = new \RecursiveDirectoryIterator($input, \RecursiveDirectoryIterator::SKIP_DOTS);
             $ri = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::SELF_FIRST);
@@ -64,13 +65,15 @@ class TraverserTask implements Task
                 } elseif ($file->isFile()) {
                     if ($file->getExtension() == 'php') {
                         $promise = enqueue(new self($plugins, $file->getRealPath(), $targetPath, "$prefix$count.php"));
-                        $promise->onResolve(function ($e, $res) use (&$result) {
+                        $promises[$count] = $promise;
+                        $promise->onResolve(function ($e, $res) use (&$result, &$promises, $count) {
                             if ($e) {
                                 throw $e;
                             }
                             if ($res instanceof ExceptionWrapper) {
                                 throw $res->getException();
                             }
+                            unset($promises[$count]);
                             $result = $res;
                         });
                         if (!($count++ % 10)) {
@@ -81,6 +84,8 @@ class TraverserTask implements Task
                     }
                 }
             }
+
+            yield $promises;
 
             return $result;
         });
