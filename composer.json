@@ -22,6 +22,9 @@
         "amphp/parallel": "^1.4",
         "phpunit/php-code-coverage": "*"
     },
+    "provide": {
+        "phabelio/phabel": "self.version"
+    },
     "license": "MIT",
     "authors": [{
         "name": "Daniil Gentili",
