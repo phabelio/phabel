@@ -52,7 +52,7 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
         }
 
         $packages["php"] = ">=".Php::unnormalizeVersion(Php::normalizeVersion($target));
-        if (!empty($packages)) {
+        if (!empty($packages) && !$dry) {
             $cmd = "composer require ";
             foreach ($packages as $package => $constraint) {
                 $cmd .= \escapeshellarg("{$package}:{$constraint}")." ";
