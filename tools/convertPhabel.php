@@ -27,14 +27,14 @@ if (!\file_exists('phabelConverted')) {
     \mkdir('phabelConverted');
 }
 
-\passthru("git stash");
+r("git stash");
 $branch = \trim(\shell_exec("git rev-parse --abbrev-ref HEAD"));
 
 foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
     if (!$dry) {
         \passthru("git branch -D phabel_tmp");
-        \passthru("git branch phabel_tmp");
-        \passthru("git checkout phabel_tmp");
+        r("git branch phabel_tmp");
+        r("git checkout phabel_tmp");
     }
     foreach (['8.0', $realTarget] as $target) {
         $coverage = \getenv('PHABEL_COVERAGE') ?: '';
@@ -57,23 +57,23 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
             foreach ($packages as $package => $constraint) {
                 $cmd .= \escapeshellarg("{$package}:{$constraint}")." ";
             }
-            \passthru($cmd);
+            r($cmd);
         }
 
-        \passthru("composer cs-fix");
+        r("composer cs-fix");
 
         if (!$dry) {
-            \passthru("git add -A");
-            \passthru("git commit -m ".\escapeshellarg("phabel.io: transpile to $target"));
+            r("git add -A");
+            r("git commit -m ".\escapeshellarg("phabel.io: transpile to $target"));
         }
     }
     if (!$dry) {
-        \passthru("git push -f origin ".\escapeshellarg("phabel_tmp:{$branch}-{$target}"));
+        r("git push -f origin ".\escapeshellarg("phabel_tmp:{$branch}-{$target}"));
 
-        \passthru("git checkout ".\escapeshellarg($branch));
-        \passthru("git branch -D phabel_tmp");
+        r("git checkout ".\escapeshellarg($branch));
+        r("git branch -D phabel_tmp");
     }
-    \passthru("git reset --hard");
+    r("git reset --hard");
 }
 
-\passthru("git stash pop");
+r("git stash pop");
