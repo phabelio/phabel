@@ -99,7 +99,7 @@ class Php extends Plugin
                 if (\substr($file, -4) !== '.php') {
                     continue;
                 }
-                if (str_ends_with($file, 'ExpressionFixer.php')) {
+                if (\str_ends_with($file, 'ExpressionFixer.php')) {
                     continue;
                 }
                 /** @var class-string<PluginInterface> */

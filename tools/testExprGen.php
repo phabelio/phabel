@@ -5,7 +5,6 @@ use Composer\Util\Filesystem;
 use Phabel\Plugin\PhabelTestGenerator;
 use Phabel\Plugin\TypeHintReplacer;
 use Phabel\Target\Php;
-use PhabelTest\TraverserTask;
 use SebastianBergmann\CodeCoverage\Driver\Selector;
 use SebastianBergmann\CodeCoverage\Filter;
 
@@ -50,7 +49,7 @@ foreach (Php::VERSIONS as $version) {
     }
     $fs->remove("testsGenerated/Target$version");
     $fs->remove("testsGenerated/Target10$version");
-    $packages []= $promise = TraverserTask::runAsync(
+    $packages []= $promise = Traverser::runAsync(
         [
             PhabelTestGenerator::class => ['target' => $version],
             TypeHintReplacer::class => ['union' => true, 'nullable' => true, 'return' => true, 'types' => $types]
@@ -63,7 +62,7 @@ foreach (Php::VERSIONS as $version) {
         if ($e) {
             throw $e;
         }
-        $packagesSecondary []= TraverserTask::runAsync(
+        $packagesSecondary []= Traverser::runAsync(
             [
                 PhabelTestGenerator::class => ['target' => 1000+$version]
             ],

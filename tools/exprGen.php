@@ -80,7 +80,7 @@ class ExpressionGenerator
     private function readUntilPrompt($resource)
     {
         $data = \fread($resource, 6);
-        while (!str_ends_with($data, "php > ")) {
+        while (!\str_ends_with($data, "php > ")) {
             $data .= \fread($resource, 1);
         }
         return \substr($data, 0, -6);

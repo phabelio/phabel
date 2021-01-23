@@ -7,6 +7,7 @@ use Phabel\Plugin;
 use Phabel\Plugin\StringConcatOptimizer;
 use Phabel\Target\Php70\AnonymousClass\AnonymousClassInterface;
 use Phabel\Target\Php71\NullableType;
+use Phabel\Target\Php72\TypeRestrictionWidening;
 use Phabel\Target\Php74\ArrowClosure;
 use Phabel\Target\Php80\UnionTypeStripper;
 use PhpParser\Builder\Method;
@@ -111,6 +112,6 @@ class AnonymousClassReplacer extends Plugin
 
     public static function next(array $config): array
     {
-        return [StringConcatOptimizer::class];
+        return [StringConcatOptimizer::class, TypeRestrictionWidening::class];
     }
 }

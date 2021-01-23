@@ -21,6 +21,10 @@ abstract class Plugin extends Tools implements PluginInterface
      */
     private array $config = [];
     /**
+     * Current file.
+     */
+    private string $file;
+    /**
      * Package context.
      */
     private PackageContext $ctx;
@@ -83,6 +87,7 @@ abstract class Plugin extends Tools implements PluginInterface
      */
     public function shouldRunFile(string $file): bool
     {
+        $this->file = $file;
         return true;
     }
     /**
@@ -170,5 +175,15 @@ abstract class Plugin extends Tools implements PluginInterface
     public static function withNext(array $config): array
     {
         return [];
+    }
+
+    /**
+     * Get current file.
+     *
+     * @return string
+     */
+    public function getFile(): string
+    {
+        return $this->file;
     }
 }

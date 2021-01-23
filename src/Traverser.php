@@ -2,6 +2,7 @@
 
 namespace Phabel;
 
+use Amp\Promise;
 use Phabel\PluginGraph\Graph;
 use PhpParser\Node;
 use PhpParser\Parser;
@@ -12,6 +13,9 @@ use SebastianBergmann\CodeCoverage\Driver\Selector;
 use SebastianBergmann\CodeCoverage\Filter;
 use SebastianBergmann\CodeCoverage\Report\PHP;
 use SplQueue;
+
+use function Amp\call;
+use function Amp\Parallel\Worker\enqueueCallable;
 
 /**
  * AST traverser.
@@ -46,6 +50,13 @@ class Traverser
      */
     private string $file = '';
     /**
+     * Persistent context.
+     *
+     * @var array
+     * @psalm-var array<class-string<PersistentContextInterface>, PersistentContextInterface>
+     */
+    private array $persistent = [];
+    /**
      * Generate traverser from basic plugin instances.
      *
      * @param Plugin ...$plugin Plugins
@@ -71,7 +82,6 @@ class Traverser
      */
     private static function startCoverage(string $coveragePath): ?object
     {
-        $coveragePath = $coveragePath;
         if (!$coveragePath || !\class_exists(CodeCoverage::class)) {
             return null;
         }
@@ -85,19 +95,21 @@ class Traverser
             );
             $coverage->start('phabel');
 
-            $close = static function () use ($coveragePath, $coverage): void {
-                $coverage->stop();
-                (new PHP)->process($coverage, $coveragePath);
-            };
-            return new class($close) {
-                private $callable;
-                public function __construct(callable $callable)
+            return new class($coverage, $coveragePath) {
+                private string $coveragePath;
+                private CodeCoverage $coverage;
+                public function __construct(CodeCoverage $coverage, string $coveragePath)
                 {
-                    $this->callable = $callable;
+                    $this->coverage = $coverage;
+                    $this->coveragePath = $coveragePath;
                 }
                 public function __destruct()
                 {
-                    ($this->callable)();
+                    $this->coverage->stop();
+                    if (\file_exists($this->coveragePath)) {
+                        $this->coverage->merge(require $this->coveragePath);
+                    }
+                    (new PHP)->process($this->coverage, $this->coveragePath);
                 }
             };
         } catch (\Throwable $e) {
@@ -117,6 +129,26 @@ class Traverser
      * @return array<string, string>
      */
     public static function run(array $plugins, string $input, string $output, string $coverage = ''): array
+    {
+        [$persistent, $packages] = self::runInternal($plugins, $input, $output, $coverage);
+        foreach ($persistent as $p) {
+            $p->finish();
+        }
+        return $packages;
+    }
+    /**
+     * Run phabel.
+     *
+     * @param array $plugins   Plugins
+     * @param string $input    Input file/directory
+     * @param string $output   Output file/directory
+     * @param string $coverage Coverage path
+     *
+     * @psalm-param array<class-string<PluginInterface>, array> $plugins
+     *
+     * @return array{0: array<class-string<PersistentContextInterface>, PersistentContextInterface>, 1: array<string, string>}
+     */
+    private static function runInternal(array $plugins, string $input, string $output, string $coverage = ''): array
     {
         $_ = self::startCoverage($coverage);
         \set_error_handler(
@@ -144,7 +176,7 @@ class Traverser
         if (\is_file($input)) {
             $it = $p->traverse($input, $output);
             echo("Transformed ".$input." in $it iterations".PHP_EOL);
-            return $packages;
+            return [$p->persistent, $packages];
         }
 
         if (!\file_exists($output)) {
@@ -162,6 +194,7 @@ class Traverser
                 }
             } elseif ($file->isFile()) {
                 if ($file->getExtension() == 'php') {
+                    $_ = self::startCoverage($coverage);
                     $it = $p->traverse($file->getRealPath(), $targetPath);
                     echo("Transformed ".$file->getRealPath()." in $it iterations".PHP_EOL);
                 } elseif (\realpath($targetPath) !== $file->getRealPath()) {
@@ -170,8 +203,108 @@ class Traverser
             }
         }
 
-        return $packages;
+        return [$p->persistent, $packages];
     }
+
+    /**
+     * Run phabel.
+     *
+     * @param array $plugins Plugins
+     * @param string $input  Input file/directory
+     * @param string $output Output file/directory
+     * @param string $prefix Coverage prefix
+     * @return Promise<array>
+     */
+    public static function runAsync(array $plugins, string $input, string $output, string $prefix): Promise
+    {
+        if (!\interface_exists(Promise::class)) {
+            throw new Exception("amphp/parallel must be installed to parallelize transforms!");
+        }
+        return call(function () use ($plugins, $input, $output, $prefix) {
+            $result = [];
+
+            if (!\file_exists($output)) {
+                \mkdir($output, 0777, true);
+            }
+
+            $count = 0;
+            $promises = [];
+            /** @var PersistentContextInterface[] */
+            $persistent = [];
+
+            $it = new \RecursiveDirectoryIterator($input, \RecursiveDirectoryIterator::SKIP_DOTS);
+            $ri = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::SELF_FIRST);
+            /** @var \SplFileInfo $file */
+            foreach ($ri as $file) {
+                $targetPath = $output.DIRECTORY_SEPARATOR.$ri->getSubPathname();
+                if ($file->isDir()) {
+                    if (!\file_exists($targetPath)) {
+                        \mkdir($targetPath, 0777, true);
+                    }
+                } elseif ($file->isFile()) {
+                    if ($file->getExtension() == 'php') {
+                        $promise = call(function () use ($plugins, $file, $targetPath, $prefix, $count, &$result, &$promises, &$persistent) {
+                            $res = yield enqueueCallable(
+                                [self::class, 'runAsyncInternal'],
+                                $plugins,
+                                $file->getRealPath(),
+                                $targetPath,
+                                "$prefix$count.php"
+                            );
+                            if ($res instanceof ExceptionWrapper) {
+                                throw $res->getException();
+                            }
+                            [$persist, $result] = $res;
+                            foreach ($persist as $class => $obj) {
+                                if (isset($persistent[$class])) {
+                                    $persistent[$class]->merge($obj);
+                                } else {
+                                    $persistent[$class] = $obj;
+                                }
+                            }
+                            unset($promises[$count]);
+                        });
+                        $promises[$count] = $promise;
+                        if (!($count++ % 10)) {
+                            yield $promise;
+                        }
+                    } elseif (\realpath($targetPath) !== $file->getRealPath()) {
+                        \copy($file->getRealPath(), $targetPath);
+                    }
+                }
+            }
+
+            yield $promises;
+
+            foreach ($persistent as $p) {
+                $p->finish();
+            }
+
+            return $result;
+        });
+    }
+
+    /**
+     * Run phabel.
+     *
+     * @param array $plugins   Plugins
+     * @param string $input    Input file/directory
+     * @param string $output   Output file/directory
+     * @param string $coverage Coverage path
+     *
+     * @psalm-param array<class-string<PluginInterface>, array> $plugins
+     *
+     * @return array<string, string>|ExceptionWrapper
+     */
+    public static function runAsyncInternal(array $plugins, string $input, string $output, string $coverage = '')
+    {
+        try {
+            return Traverser::runInternal($plugins, $input, $output, $coverage);
+        } catch (\Throwable $e) {
+            return new ExceptionWrapper($e);
+        }
+    }
+
     /**
      * AST traverser.
      *
@@ -302,7 +435,8 @@ class Traverser
             $context = null;
             try {
                 foreach ($pluginQueue ?? $this->packageQueue ?? $this->queue as $queue) {
-                    $context = new Context();
+                    $context = new Context($this->persistent);
+                    $context->setFile($this->file);
                     $context->push($node);
                     $this->traverseNode($node, $queue, $context);
                     /** @var RootNode $node */
@@ -325,12 +459,6 @@ class Traverser
             $oldResult = $result;
             $result = $this->printer->prettyPrintFile($node->stmts);
             $it++;
-            /*if ($oldResult) {
-                \file_put_contents('/tmp/old', $oldResult);
-                \file_put_contents('/tmp/new', $result);
-                \passthru("diff --color /tmp/old /tmp/new");
-            }
-            echo "Running...\n";*/
             while (\gc_collect_cycles());
         } while ($result !== $oldResult);
         return [$it, $result];

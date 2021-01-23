@@ -1,8 +1,7 @@
 <?php
 
-namespace PhabelTest;
+namespace Phabel;
 
-use Phabel\Exception;
 use SplStack;
 
 final class ExceptionWrapper

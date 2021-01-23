@@ -3,7 +3,7 @@
 use Composer\Util\Filesystem;
 use Phabel\Plugin\PhabelTestGenerator;
 use Phabel\Target\Php;
-use PhabelTest\TraverserTask;
+use Phabel\Traverser;
 
 use function Amp\Promise\all;
 use function Amp\Promise\wait;
@@ -19,7 +19,7 @@ $packagesSecondary = [];
 foreach (Php::VERSIONS as $version) {
     $fs->remove("tests/Target$version");
     $fs->remove("tests/Target10$version");
-    $packages []= $promise = TraverserTask::runAsync(
+    $packages []= $promise = Traverser::runAsync(
         [
             PhabelTestGenerator::class => ['target' => $version]
         ],
@@ -31,7 +31,7 @@ foreach (Php::VERSIONS as $version) {
         if ($e) {
             throw $e;
         }
-        $packagesSecondary []= TraverserTask::runAsync(
+        $packagesSecondary []= Traverser::runAsync(
             [
                 PhabelTestGenerator::class => ['target' => 1000+$version]
             ],

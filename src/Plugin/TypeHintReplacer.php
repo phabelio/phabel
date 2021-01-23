@@ -376,7 +376,7 @@ class TypeHintReplacer extends Plugin
         if (\is_object($value) && $value instanceof AnonymousClassInterface) {
             return $value::getPhabelOriginalName();
         }
-        return get_debug_type($value);
+        return \get_debug_type($value);
     }
 
     public static function next(array $config): array
