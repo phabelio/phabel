@@ -16,7 +16,6 @@ use PhpParser\Node\Expr\BooleanNot;
 use PhpParser\Node\Expr\ClassConstFetch;
 use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Identifier;
-use PhpParser\Node\Name;
 use PhpParser\Node\Name\FullyQualified;
 use PhpParser\Node\Scalar\String_;
 use PhpParser\Node\Stmt\Class_;
@@ -33,19 +32,6 @@ class AnonymousClassReplacer extends Plugin
      * Anonymous class count.
      */
     private static int $count = 0;
-    /**
-     * Current file name hash.
-     */
-    private string $fileName = '';
-
-    /**
-     * {@inheritDoc}
-     */
-    public function shouldRunFile(string $file): bool
-    {
-        $this->fileName = \hash('sha256', $file);
-        return parent::shouldRunFile($file);
-    }
 
     /**
      * Enter new.
@@ -77,7 +63,7 @@ class AnonymousClassReplacer extends Plugin
             $className = new String_('class@anonymous');
         }
 
-        $name = 'PhabelAnonymousClass'.$this->fileName.(self::$count++);
+        $name = 'PhabelAnonymousClass'.\hash('sha256', $ctx->getFile()).(self::$count++);
         $classNode->stmts []= (new Method('getPhabelOriginalName'))
             ->makePublic()
             ->makeStatic()

@@ -99,7 +99,7 @@ class PluginCache
      */
     public static function previous(string $plugin, array $config): array
     {
-        $pluginConfig = $plugin.\json_encode($config);
+        $pluginConfig = $plugin.\var_export($config, true);
         /** @var array<class-string<PluginInterface>, array<class-string<PluginInterface>, array>> */
         static $cache = [];
         if (isset($cache[$pluginConfig])) {
@@ -118,7 +118,7 @@ class PluginCache
      */
     public static function next(string $plugin, array $config): array
     {
-        $pluginConfig = $plugin.\json_encode($config);
+        $pluginConfig = $plugin.\var_export($config, true);
         /** @var array<class-string<PluginInterface>, array<class-string<PluginInterface>, array>> */
         static $cache = [];
         if (isset($cache[$pluginConfig])) {
@@ -137,7 +137,7 @@ class PluginCache
      */
     public static function withPrevious(string $plugin, array $config): array
     {
-        $pluginConfig = $plugin.\json_encode($config);
+        $pluginConfig = $plugin.\var_export($config, true);
         /** @var array<class-string<PluginInterface>, array<class-string<PluginInterface>, array>> */
         static $cache = [];
         if (isset($cache[$pluginConfig])) {
@@ -156,7 +156,7 @@ class PluginCache
      */
     public static function withNext(string $plugin, array $config): array
     {
-        $pluginConfig = $plugin.\json_encode($config);
+        $pluginConfig = $plugin.\var_export($config, true);
         /** @var array<class-string<PluginInterface>, array<class-string<PluginInterface>, array>> */
         static $cache = [];
         if (isset($cache[$pluginConfig])) {

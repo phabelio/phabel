@@ -2,8 +2,11 @@
 
 namespace Phabel\PluginGraph;
 
+use Phabel\ClassStorage;
 use Phabel\Plugin;
+use Phabel\Plugin\ClassStoragePlugin;
 use Phabel\PluginInterface;
+use RuntimeException;
 use SplQueue;
 
 /**
@@ -53,11 +56,12 @@ class Graph
     /**
      * Flatten graph.
      *
-     * @return array{0: SplQueue<SplQueue<PluginInterface>>, 1: array<string, string>}
+     * @return array{0: SplQueue<SplQueue<PluginInterface>>, 1: ?ClassStoragePlugin, 2: array<string, string>}
      */
     public function flatten(): array
     {
         $plugins = $this->graph->flatten();
+        $storage = null;
         $requires = [];
         foreach ($plugins as $queue) {
             foreach ($queue as $plugin) {
@@ -65,10 +69,17 @@ class Graph
                     $requires[$package] ??= [];
                     $requires[$package][]= $constraint;
                 }
+                if ($plugin instanceof ClassStoragePlugin) {
+                    if ($storage) {
+                        throw new RuntimeException('Multiple class storages detected');
+                    }
+                    $storage = $plugin;
+                }
             }
         }
         return [
             $plugins,
+            $storage,
             \array_map(fn (array $constraints): string => \implode(':', \array_unique($constraints)), $requires)
         ];
     }

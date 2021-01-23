@@ -73,6 +73,10 @@ class Context
      */
     private string $file;
     /**
+     * Current output file.
+     */
+    private string $outputFile;
+    /**
      * Constructor.
      */
     public function __construct()
@@ -87,6 +91,16 @@ class Context
         $this->nameResolver->beforeTraverse([]);
     }
     /**
+     * Push node to name resolver
+     *
+     * @param Node $node
+     * @return void
+     */
+    public function pushResolve(Node $node): void
+    {
+        $this->nameResolver->enterNode($node);
+    }
+    /**
      * Push node.
      *
      * @param Node $node Node
@@ -98,8 +112,6 @@ class Context
         $this->parents->push($node);
         if ($node instanceof RootNode) {
             $this->variables->push(new VariableContext);
-        } else {
-            $this->nameResolver->enterNode($node);
         }
         if ($node instanceof FunctionLike) {
             $variables = \array_fill_keys(
@@ -401,6 +413,30 @@ class Context
     public function setFile(string $file): self
     {
         $this->file = $file;
+
+        return $this;
+    }
+
+    /**
+     * Get current output file.
+     *
+     * @return string
+     */
+    public function getOutputFile(): string
+    {
+        return $this->outputFile;
+    }
+
+    /**
+     * Set current output file.
+     *
+     * @param string $outputFile Current output file.
+     *
+     * @return self
+     */
+    public function setOutputFile(string $outputFile): self
+    {
+        $this->outputFile = $outputFile;
 
         return $this;
     }

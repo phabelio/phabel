@@ -50,11 +50,9 @@ class Traverser
      */
     private string $file = '';
     /**
-     * Class storage.
-     *
-     * @var ClassStorage
+     * Current output file.
      */
-    private ClassStorage $classStorage;
+    private string $outputFile = '';
     /**
      * Generate traverser from basic plugin instances.
      *
@@ -130,7 +128,9 @@ class Traverser
     public static function run(array $plugins, string $input, string $output, string $coverage = ''): array
     {
         [$classStorage, $packages] = self::runInternal($plugins, $input, $output, $coverage);
-        $classStorage->finish();
+        if ($classStorage) {
+            $classStorage->finish();
+        }
         return $packages;
     }
     /**
@@ -143,7 +143,7 @@ class Traverser
      *
      * @psalm-param array<class-string<PluginInterface>, array> $plugins
      *
-     * @return array{0: ClassStorage, 1: array<string, string>}
+     * @return array{0: ?ClassStoragePlugin, 1: array<string, string>}
      */
     private static function runInternal(array $plugins, string $input, string $output, string $coverage = ''): array
     {
@@ -163,7 +163,7 @@ class Traverser
             $graph->addPlugin($plugin, $config, $graph->getPackageContext());
         }
 
-        [$plugins, $packages] = $graph->flatten();
+        [$plugins, $storage, $packages] = $graph->flatten();
         $p = new Traverser($plugins);
 
         if (!\file_exists($input)) {
@@ -173,7 +173,7 @@ class Traverser
         if (\is_file($input)) {
             $it = $p->traverse($input, $output);
             echo("Transformed ".$input." in $it iterations".PHP_EOL);
-            return [$p->classStorage, $packages];
+            return [$storage, $packages];
         }
 
         if (!\file_exists($output)) {
@@ -200,7 +200,7 @@ class Traverser
             }
         }
 
-        return [$p->classStorage, $packages];
+        return [$storage, $packages];
     }
 
     /**
@@ -226,7 +226,7 @@ class Traverser
 
             $count = 0;
             $promises = [];
-            $classStorage = new ClassStorage;
+            $classStorage = null;
 
             $it = new \RecursiveDirectoryIterator($input, \RecursiveDirectoryIterator::SKIP_DOTS);
             $ri = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::SELF_FIRST);
@@ -251,7 +251,11 @@ class Traverser
                                 throw $res->getException();
                             }
                             [$classes, $result] = $res;
-                            $classStorage->merge($classes);
+                            if ($classStorage) {
+                                $classStorage->merge($classes);
+                            } else {
+                                $classStorage = $classes;
+                            }
                             unset($promises[$count]);
                         });
                         $promises[$count] = $promise;
@@ -266,7 +270,9 @@ class Traverser
 
             yield $promises;
 
-            $classStorage->finish();
+            if ($classStorage) {
+                $classStorage->finish();
+            }
 
             return $result;
         });
@@ -304,7 +310,6 @@ class Traverser
         $this->queue = $queue ?? new SplQueue;
         $this->parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
         $this->printer = new Standard();
-        $this->classStorage = new ClassStorage;
     }
     /**
      * Set package name.
@@ -379,6 +384,7 @@ class Traverser
         }
 
         $this->file = $file;
+        $this->outputFile = $output;
         [$it, $result] = $this->traverseAstInternal($ast, $reducedQueue);
         \file_put_contents($output, $result);
 
@@ -398,6 +404,7 @@ class Traverser
     public function traverseAst(Node &$node, SplQueue $pluginQueue = null, bool $allowMulti = true): int
     {
         $this->file = '';
+        $this->outputFile = '';
         $n = new RootNode([&$node]);
         return $this->traverseAstInternal($n, $pluginQueue, $allowMulti)[0] ?? 0;
     }
@@ -426,6 +433,7 @@ class Traverser
                 foreach ($pluginQueue ?? $this->packageQueue ?? $this->queue as $queue) {
                     $context = new Context;
                     $context->setFile($this->file);
+                    $context->setOutputFile($this->outputFile);
                     $context->push($node);
                     $this->traverseNode($node, $queue, $context);
                     /** @var RootNode $node */
@@ -463,6 +471,7 @@ class Traverser
      */
     private function traverseNode(Node &$node, SplQueue $plugins, Context $context): void
     {
+        $context->pushResolve($node);
         foreach ($plugins as $plugin) {
             foreach (PluginCache::enterMethods(\get_class($plugin)) as $type => $methods) {
                 if (!$node instanceof $type) {

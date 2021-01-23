@@ -82,7 +82,7 @@ class GraphInternal
      */
     private function addPluginInternal(string $plugin, array $config, PackageContext $ctx): Node
     {
-        $configStr = \json_encode($config);
+        $configStr = \var_export($config, true);
         if (isset($this->plugins[$plugin][$configStr])) {
             return $this->plugins[$plugin][$configStr]->addPackages($ctx);
         }

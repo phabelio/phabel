@@ -107,7 +107,6 @@ interface PluginInterface
      * @return mixed
      */
     public function getConfig(string $key, $default);
-
     /**
      * Set configuration key.
      *
@@ -117,6 +116,14 @@ interface PluginInterface
      * @return void
      */
     public function setConfig(string $key, $value): void;
+    /**
+     * Check if has configuration key.
+     *
+     * @param string $key     Key
+     *
+     * @return mixed
+     */
+    public function hasConfig(string $key): bool;
 
     /**
      * Merge multiple configurations into one (or more).
