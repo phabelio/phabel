@@ -73,20 +73,9 @@ class Context
      */
     private string $file;
     /**
-     * Persistent context.
-     *
-     * @var array
-     * @psalm-var array<class-string<PersistentContextInterface>, PersistentContextInterface>
-     */
-    private array $persistent = [];
-    /**
      * Constructor.
-     *
-     * @param array &$persistent Persistent data
-     * @psalm-var array<class-string<PersistentContextInterface>, PersistentContextInterface> $persistent
-     *
      */
-    public function __construct(array &$persistent)
+    public function __construct()
     {
         /** @var SplStack<Node> */
         $this->parents = new SplStack;
@@ -94,7 +83,6 @@ class Context
         $this->variables = new SplStack;
         $this->converter = new ArrowClosure;
         $this->prettyPrinter = new Standard();
-        $this->persistent = &$persistent;
         $this->nameResolver = new NameResolver(new Throwing, ['replaceNodes' => false]);
         $this->nameResolver->beforeTraverse([]);
     }
@@ -391,30 +379,6 @@ class Context
         if ($func instanceof ArrowFunction) {
             $func = $this->converter->enter($func, $this);
         }
-    }
-    /**
-     * Get persistent context.
-     *
-     * @template T as PersistentContextInterface
-     *
-     * @param string $class
-     * @psalm-param class-string<T> $class
-     *
-     * @return PersistentContextInterface
-     * @psalm-return T
-     */
-    public function getPersistent(string $class): PersistentContextInterface
-    {
-        return $this->persistent[$class] ??= new $class;
-    }
-    /**
-     * Export persistent objects.
-     *
-     * @return array
-     */
-    public function exportPersistent(): array
-    {
-        return $this->persistent;
     }
 
     /**

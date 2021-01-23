@@ -213,7 +213,7 @@ class TypeHintReplacer extends Plugin
         if ($func instanceof ClassMethod) {
             /** @var ClassLike */
             $parent = $ctx->parents->top();
-            if ($parent instanceof Interface_) {
+            if ($parent instanceof Interface_ || $func->getStmts() === null) {
                 foreach ($func->getParams() as $param) {
                     if ($this->strip(new Variable('phabelVariadic'), $param->type, null)) {
                         $param->type = null;
