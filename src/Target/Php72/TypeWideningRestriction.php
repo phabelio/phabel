@@ -14,6 +14,6 @@ class TypeWideningRestriction extends Plugin
 {
     public static function previous(array $config): array
     {
-        return ClassStoragePlugin::enable(T::class);
+        return [ClassStoragePlugin::class => [T::class => true]];
     }
 }

@@ -3,6 +3,7 @@
 namespace Phabel\Plugin;
 
 use Phabel\ClassStorage;
+use Phabel\ClassStorage\Class_;
 use Phabel\Context;
 use Phabel\Plugin;
 use PhpParser\Node\Stmt\ClassLike;
@@ -113,24 +114,13 @@ final class ClassStoragePlugin extends Plugin
             /** @var ClassLike */
             foreach ($classes as $name => $class) {
                 if ($class instanceof Trait_) {
-
+                    $traits[$class->namespacedName] = new Class_($class);
+                } else {
+                    $classes[$class->namespacedName] = new Class_($class);
                 }
-                \var_dump($name);
             }
         }
-        return \array_map(fn () => [ClassStorage::class => $this], $this->finalPlugins);
-    }
-
-    /**
-     * Enable plugin.
-     *
-     * @param string $target
-     * @psalm-param class-string<ClassStorageProvider> $target
-     *
-     * @return array
-     */
-    public static function enable(string $target): array
-    {
-        return [ClassStoragePlugin::class => [$target => true]];
+        $storage = new ClassStorage($classes, $traits);
+        return \array_map(fn () => [ClassStorage::class => $storage], $this->finalPlugins);
     }
 }
