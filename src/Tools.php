@@ -231,6 +231,25 @@ abstract class Tools
     }
 
     /**
+     * Get fully qualified name
+     *
+     * @param Node $node
+     * @return string
+     */
+    public static function getFqdn(Node $node): string
+    {
+        if ($node instanceof FullyQualified) {
+            return (string) $node;
+        }
+        if (isset($node->namespacedName)) {
+            return (string) $node->namespacedName;
+        }
+        if (!$node->getAttribute('nameResolved')) {
+            throw new \RuntimeException('Cannot obtain FQDN from unresolved name!');
+        }
+        return (string) $node->getAttribute('resolvedName', $node->getAttribute('namespacedName'));
+    }
+    /**
      * Create a new object extended from this object, with the specified additional trait + interface.
      *
      * @param object $obj

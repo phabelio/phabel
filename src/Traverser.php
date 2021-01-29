@@ -163,8 +163,8 @@ class Traverser
             $graph->addPlugin($plugin, $config, $graph->getPackageContext());
         }
 
-        [$plugins, $storage, $packages] = $graph->flatten();
-        $p = new Traverser($plugins);
+        $graph = $graph->flatten();
+        $p = new Traverser($graph->getPlugins());
 
         if (!\file_exists($input)) {
             throw new \RuntimeException("File $input does not exist!");
@@ -173,7 +173,7 @@ class Traverser
         if (\is_file($input)) {
             $it = $p->traverse($input, $output);
             echo("Transformed ".$input." in $it iterations".PHP_EOL);
-            return [$storage, $packages];
+            return [$graph->getClassStorage(), $graph->getPackages()];
         }
 
         if (!\file_exists($output)) {
@@ -200,7 +200,7 @@ class Traverser
             }
         }
 
-        return [$storage, $packages];
+        return [$graph->getClassStorage(), $graph->getPackages()];
     }
 
     /**

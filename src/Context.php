@@ -24,6 +24,7 @@ use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\Ternary;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\FunctionLike;
+use PhpParser\Node\Name\FullyQualified;
 use PhpParser\Node\Param;
 use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\Node\Stmt\Else_;
@@ -87,18 +88,27 @@ class Context
         $this->variables = new SplStack;
         $this->converter = new ArrowClosure;
         $this->prettyPrinter = new Standard();
-        $this->nameResolver = new NameResolver(new Throwing, ['replaceNodes' => false]);
+        $this->nameResolver = new NameResolver(
+            new Throwing, 
+            [
+                'preserveOriginalNames' => false,
+                'replaceNodes' => false,
+            ]
+        );
         $this->nameResolver->beforeTraverse([]);
     }
     /**
-     * Push node to name resolver
+     * Push node to name resolver.
      *
      * @param Node $node
      * @return void
      */
     public function pushResolve(Node $node): void
     {
-        $this->nameResolver->enterNode($node);
+        if (!$node->getAttribute('nameResolved', false)) {
+            $this->nameResolver->enterNode($node);
+            $node->setAttribute('nameResolved', true);
+        }
     }
     /**
      * Push node.

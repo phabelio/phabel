@@ -311,9 +311,10 @@ class Transformer
             }
         }
 
-        [$plugins, $this->requires] = $graph->flatten();
-        $traverser = new Traverser($plugins);
+        $graph = $graph->flatten();
+        $traverser = new Traverser($graph->getPlugins());
 
+        $this->requires = $graph->getPackages();
         if (!$this->processedRequires()) {
             return false;
         }

@@ -2,8 +2,13 @@
 
 namespace Phabel;
 
+use PhpParser\Node\Stmt\ClassLike;
+
 class ClassStorageProvider extends Plugin
 {
+    public function enterClassStorage(ClassLike $classLike, Context $context)
+    {
+    }
     /**
      * Get class storage.
      *

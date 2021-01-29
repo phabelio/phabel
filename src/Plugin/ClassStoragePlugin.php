@@ -3,7 +3,8 @@
 namespace Phabel\Plugin;
 
 use Phabel\ClassStorage;
-use Phabel\ClassStorage\Class_;
+use Phabel\ClassStorage\Builder;
+use Phabel\ClassStorage\Storage;
 use Phabel\Context;
 use Phabel\Plugin;
 use PhpParser\Node\Stmt\ClassLike;
@@ -19,7 +20,7 @@ final class ClassStoragePlugin extends Plugin
      */
     private array $storage = [];
     /**
-     * Input-output file map
+     * Input-output file map.
      */
     private array $fileMap;
     /**
@@ -59,7 +60,7 @@ final class ClassStoragePlugin extends Plugin
     {
         $file = $context->getFile();
         if ($class->name) {
-            $name = (string) $class->namespacedName;
+            $name = (string) self::getFqdn($class);
         } else {
             $name = "class@anonymous$file".self::$count++;
         }
@@ -113,14 +114,16 @@ final class ClassStoragePlugin extends Plugin
             $file = $this->fileMap[$file] ?: $file;
             /** @var ClassLike */
             foreach ($classes as $name => $class) {
+                $class->setAttribute(ClassStorage::FILE_KEY, $file);
                 if ($class instanceof Trait_) {
-                    $traits[$class->namespacedName] = new Class_($class);
+                    $traits[$name] = new Builder($class);
                 } else {
-                    $classes[$class->namespacedName] = new Class_($class);
+                    $classes[$name] = new Builder($class);
                 }
             }
         }
         $storage = new ClassStorage($classes, $traits);
+        var_dump($storage);die;
         return \array_map(fn () => [ClassStorage::class => $storage], $this->finalPlugins);
     }
 }
