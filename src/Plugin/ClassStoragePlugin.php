@@ -123,7 +123,6 @@ final class ClassStoragePlugin extends Plugin
             }
         }
         $storage = new ClassStorage($classes, $traits);
-        var_dump($storage);die;
         return \array_map(fn () => [ClassStorage::class => $storage], $this->finalPlugins);
     }
 }

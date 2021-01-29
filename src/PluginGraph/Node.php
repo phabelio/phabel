@@ -289,8 +289,6 @@ class Node
             $requiredBy->enqueue($prevNode);
         }
 
-
-
         foreach ($extendedBy as $node) {
             $node->extends->detach($this);
             if (\count($node->extends) + \count($node->requires) === 0) {
@@ -300,7 +298,9 @@ class Node
         foreach ($requiredBy as $node) {
             $node->requires->detach($this);
             if (\count($node->extends) + \count($node->requires) === 0) {
-                $queueOfQueues->enqueue(new SplQueue);
+                if (!$queue->isEmpty()) {
+                    $queueOfQueues->enqueue(new SplQueue);
+                }
                 $node->flattenInternal($queueOfQueues);
             }
         }

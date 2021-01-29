@@ -42,6 +42,18 @@ final class ClassStorage
     }
 
     /**
+     * Get class or trait or null.
+     *
+     * @param string $class Class or trait name
+     * @psalm-param class-string|trait-string $class Class or trait name
+     *
+     * @return Storage|null
+     */
+    public function getClassOrTrait(string $class): ?Storage
+    {
+        return $this->classes[$class] ?? $this->traits[$class] ?? null;
+    }
+    /**
      * Get class.
      *
      * @param string $class Class name

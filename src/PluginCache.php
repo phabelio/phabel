@@ -65,6 +65,18 @@ class PluginCache
         return empty(self::$leaveMethods[$plugin]);
     }
     /**
+     * Return whether this plugin is empty.
+     *
+     * @param class-string<PluginInterface> $plugin Plugin
+     *
+     * @return boolean
+     */
+    public static function isEmpty(string $plugin): bool
+    {
+        self::cacheMethods($plugin);
+        return empty(self::$leaveMethods[$plugin]) && empty(self::$enterMethods[$plugin]);
+    }
+    /**
      * Get enter methods array.
      *
      * @param class-string<PluginInterface> $plugin Plugin name
@@ -99,7 +111,7 @@ class PluginCache
      */
     public static function previous(string $plugin, array $config): array
     {
-        $pluginConfig = $plugin.\var_export($config, true);
+        $pluginConfig = $plugin.\json_encode($config);
         /** @var array<class-string<PluginInterface>, array<class-string<PluginInterface>, array>> */
         static $cache = [];
         if (isset($cache[$pluginConfig])) {
@@ -118,7 +130,7 @@ class PluginCache
      */
     public static function next(string $plugin, array $config): array
     {
-        $pluginConfig = $plugin.\var_export($config, true);
+        $pluginConfig = $plugin.\json_encode($config);
         /** @var array<class-string<PluginInterface>, array<class-string<PluginInterface>, array>> */
         static $cache = [];
         if (isset($cache[$pluginConfig])) {
@@ -137,7 +149,7 @@ class PluginCache
      */
     public static function withPrevious(string $plugin, array $config): array
     {
-        $pluginConfig = $plugin.\var_export($config, true);
+        $pluginConfig = $plugin.\json_encode($config);
         /** @var array<class-string<PluginInterface>, array<class-string<PluginInterface>, array>> */
         static $cache = [];
         if (isset($cache[$pluginConfig])) {
@@ -156,7 +168,7 @@ class PluginCache
      */
     public static function withNext(string $plugin, array $config): array
     {
-        $pluginConfig = $plugin.\var_export($config, true);
+        $pluginConfig = $plugin.\json_encode($config);
         /** @var array<class-string<PluginInterface>, array<class-string<PluginInterface>, array>> */
         static $cache = [];
         if (isset($cache[$pluginConfig])) {

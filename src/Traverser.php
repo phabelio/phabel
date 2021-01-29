@@ -129,7 +129,7 @@ class Traverser
     {
         [$classStorage, $packages] = self::runInternal($plugins, $input, $output, $coverage);
         if ($classStorage) {
-            $classStorage->finish();
+            self::run($classStorage->finish(), $output, $output, $coverage);
         }
         return $packages;
     }
@@ -271,7 +271,7 @@ class Traverser
             yield $promises;
 
             if ($classStorage) {
-                $classStorage->finish();
+                yield from self::runAsync($classStorage->finish(), $output, $output, $prefix);
             }
 
             return $result;

@@ -13,6 +13,8 @@ class TypeWideningRestriction extends ClassStorageProvider
 {
     public function enter(ClassMethod $method): void
     {
-        $storage = $this->getClassStorage();
+        if (!$storage = $this->getClassStorage()) {
+            return;
+        }
     }
 }
