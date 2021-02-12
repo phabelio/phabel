@@ -2,38 +2,55 @@
 
 namespace Phabel\ClassStorage;
 
+use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
+use RecursiveArrayIterator;
+use RecursiveIteratorIterator;
 
 /**
  * Stores information about a class.
  */
 class Storage
 {
+    private const MODIFIER_NORMAL = 64;
     const STORAGE_KEY = 'Storage:instance';
     /**
      * Method list.
      *
-     * @psalm-var array<string, ClassMethod>
+     * @psalm-var array<string, ClassMethod[]>
      */
     private array $methods = [];
     /**
      * Abstract method list.
      *
-     * @psalm-var array<string, ClassMethod>
+     * @psalm-var array<string, ClassMethod[]>
      */
     private array $abstractMethods = [];
 
     /**
+     * Removed method list.
+     *
+     * @var array<string, true>
+     */
+    private array $removedMethods = [];
+
+    /**
+     * Removed abstract method list.
+     *
+     * @var array<string, true>
+     */
+    private array $removedAbstractMethods = [];
+    /**
      * Classes/interfaces to extend.
      *
-     * @var array<class-string, Storage>
+     * @var array<class-string, Storage[]>
      */
     private array $extends = [];
 
     /**
      * Classes/interfaces that extend us.
      *
-     * @var array<class-string, Storage>
+     * @var array<class-string, Storage[]>
      */
     private array $extendedBy = [];
 
@@ -46,9 +63,9 @@ class Storage
      * Constructor.
      *
      * @param string                       $name
-     * @param array<string, ClassMethod>   $methods
-     * @param array<string, ClassMethod>   $abstractMethods
-     * @param array<class-string, Builder> $extends
+     * @param array<string, ClassMethod[]>   $methods
+     * @param array<string, ClassMethod[]>   $abstractMethods
+     * @param array<class-string, Builder[]> $extends
      */
     public function build(string $name, array $methods, array $abstractMethods, array $extends)
     {
@@ -56,24 +73,27 @@ class Storage
         $this->methods = $methods;
         $this->abstractMethods = $abstractMethods;
 
-        foreach ($methods as $method) {
+        foreach (new RecursiveIteratorIterator(new RecursiveArrayIterator($methods)) as $method) {
             if ($method->hasAttribute(Builder::STORAGE_KEY)) {
                 $method->setAttribute(self::STORAGE_KEY, $method->getAttribute(Builder::STORAGE_KEY)->build());
                 $method->setAttribute(Builder::STORAGE_KEY, null);
             }
+            $method->flags |= self::MODIFIER_NORMAL;
         }
-        foreach ($abstractMethods as $method) {
+        foreach (new RecursiveIteratorIterator(new RecursiveArrayIterator($abstractMethods)) as $method) {
             if ($method->hasAttribute(Builder::STORAGE_KEY)) {
                 $method->setAttribute(self::STORAGE_KEY, $method->getAttribute(Builder::STORAGE_KEY)->build());
                 $method->setAttribute(Builder::STORAGE_KEY, null);
             }
         }
 
-        foreach ($extends as $name => $class) {
-            $this->extends[$name] = $class->build();
+        foreach ($extends as $name => $classes) {
+            foreach ($classes as $class) {
+                $this->extends[$name][] = $class->build();
+            }
         }
-        foreach ($this->extends as $class) {
-            $class->extendedBy[$this->name] = $this;
+        foreach (new RecursiveIteratorIterator(new RecursiveArrayIterator($this->extends)) as $class) {
+            $class->extendedBy[$this->name][] = $this;
         }
     }
 
@@ -90,20 +110,125 @@ class Storage
     /**
      * Get method list.
      *
-     * @return ClassMethod[]
+     * @param int-mask<Class_::MODIFIER_*> $typeMask Mask
+     * @param int-mask<Class_::MODIFIER_*> $visibilityMask Mask
+     *
+     * @return \Generator<string, ClassMethod, null, void>
      */
-    public function getMethods(): array
+    public function getMethods(int $typeMask = ~Class_::VISIBILITY_MODIFIER_MASK, int $visibilityMask = Class_::VISIBILITY_MODIFIER_MASK): array
     {
-        return $this->methods;
+        if ($typeMask & Class_::MODIFIER_ABSTRACT) {
+            foreach (new RecursiveIteratorIterator(new RecursiveArrayIterator($this->abstractMethods)) as $name => $method) {
+                if ($method->flags & $typeMask && $method->flags & $visibilityMask) {
+                    yield $name => $method;
+                }
+            }
+        } elseif ($typeMask & self::MODIFIER_NORMAL) {
+            foreach (new RecursiveIteratorIterator(new RecursiveArrayIterator($this->methods)) as $name => $method) {
+                if ($method->flags & $typeMask && $method->flags & $visibilityMask) {
+                    yield $name => $method;
+                }
+            }
+        }
     }
 
     /**
-     * Get abstract method list.
+     * Get classes which extend this class.
      *
-     * @return ClassMethod[]
+     * @return array<class-string, Storage[]>
      */
-    public function getAbstractMethods(): array
+    public function getExtendedBy(): array
     {
-        return $this->abstractMethods;
+        return $this->extendedBy;
+    }
+
+    /**
+     * Get classes which this class extends.
+     *
+     * @return array<class-string, Storage[]>
+     */
+    public function getExtends(): array
+    {
+        return $this->extends;
+    }
+
+    /**
+     * Get all child classes.
+     *
+     * @return \Generator<void, Storage, null, void>
+     */
+    public function getAllChildren(): \Generator
+    {
+        foreach ($this->extendedBy as $classes) {
+            foreach ($classes as $class) {
+                yield $class;
+                yield from $class->getAllChildren();
+            }
+        }
+    }
+
+    /**
+     * Get all parent classes.
+     *
+     * @return \Generator<void, Storage, null, void>
+     */
+    public function getAllParents(): \Generator
+    {
+        foreach ($this->extends as $classes) {
+            foreach ($classes as $class) {
+                yield $class;
+                yield from $class->getAllParents();
+            }
+        }
+    }
+
+    /**
+     * Get all methods which override the specified method in child classes.
+     *
+     * @param string $method Method
+     * @param int-mask<Class_::MODIFIER_*> $typeMask Mask
+     * @param int-mask<Class_::MODIFIER_*> $visibilityMask Mask
+     *
+     * @return \Generator<void, ClassMethod, null, void>
+     */
+    public function getOverriddenMethods(string $name, int $typeMask = ~Class_::VISIBILITY_MODIFIER_MASK, int $visibilityMask = Class_::VISIBILITY_MODIFIER_MASK): \Generator
+    {
+        foreach ($this->getAllChildren() as $child) {
+            $methods = [];
+            if (isset($child->abstractMethods[$name])) {
+                $methods = $child->abstractMethods[$name];
+            }
+            if (isset($child->methods[$name])) {
+                $methods = $child->methods[$name];
+            }
+            foreach ($methods as $method) {
+                $flags = $method->flags;
+                if ($flags & $typeMask && $flags & $visibilityMask) {
+                    yield $method;
+                }
+            }
+        }
+    }
+
+    /**
+     * Remove method.
+     *
+     * @param ClassMethod $method Removed method
+     *
+     * @return self
+     */
+    public function removeMethod(ClassMethod $method): self
+    {
+        if ($method->stmts !== null) {
+            if (isset($this->methods[$method->name])) {
+                $this->removedMethods[$method->name] = true;
+                unset($this->methods[$method->name]);
+            }
+        } elseif (isset($this->abstractMethods[$method->name])) {
+            $this->removedAbstractMethods[$method->name] = true;
+            unset($this->abstractMethods[$method->name]);
+        }
+
+        return $this;
     }
 }

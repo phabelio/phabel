@@ -3,6 +3,9 @@
 namespace Phabel;
 
 use Phabel\ClassStorage\Storage;
+use Phabel\Plugin\ClassStoragePlugin;
+use RecursiveArrayIterator;
+use RecursiveIteratorIterator;
 
 final class ClassStorage
 {
@@ -11,48 +14,63 @@ final class ClassStorage
     /**
      * Classes.
      *
-     * @var array<class-string, Storage>
+     * @var array<class-string, array<string, Storage[]>>
      */
     private array $classes = [];
     /**
      * Traits.
      *
-     * @var array<trait-string, Storage>
+     * @var array<class-string, array<string, Storage[]>>
      */
     private array $traits = [];
 
     /**
-     * Constructor.
+     * Root classes.
+     *
+     * @var array<class-string, []Storage>
      */
-    public function __construct(array $classes, array $traits)
-    {
-        foreach ($traits as $name => $trait) {
-            $trait->resolve($classes, $traits);
-        }
-        foreach ($classes as $name => $class) {
-            $class->resolve($classes, $traits);
-        }
-
-        foreach ($traits as $name => $trait) {
-            $this->traits[$name] = $trait->build();
-        }
-        foreach ($classes as $name => $class) {
-            $this->classes[$name] = $class->build();
-        }
-    }
+    private array $rootClasses;
 
     /**
-     * Get class or trait or null.
-     *
-     * @param string $class Class or trait name
-     * @psalm-param class-string|trait-string $class Class or trait name
-     *
-     * @return Storage|null
+     * Constructor.
      */
-    public function getClassOrTrait(string $class): ?Storage
+    public function __construct(ClassStoragePlugin $plugin)
     {
-        return $this->classes[$class] ?? $this->traits[$class] ?? null;
+        foreach (new RecursiveIteratorIterator(new RecursiveArrayIterator($plugin->traits)) as $trait) {
+            $trait->resolve($plugin);
+        }
+        foreach (new RecursiveIteratorIterator(new RecursiveArrayIterator($plugin->classes)) as $class) {
+            $class->resolve($plugin);
+        }
+
+        foreach ($plugin->traits as $name => $fileTraits) {
+            foreach ($fileTraits as $file => $idxTraits) {
+                foreach ($idxTraits as $trait) {
+                    $trait = $trait->build();
+                    $this->traits[$name][$file][] = $trait;
+                }
+            }
+        }
+        foreach ($plugin->classes as $name => $fileClasses) {
+            foreach ($fileClasses as $file => $idxClasses) {
+                foreach ($idxClasses as $class) {
+                    $class = $class->build();
+                    $this->classes[$name][$file][] = $class;
+                }
+            }
+        }
+
+        foreach ($this->classes as $name => $fileClasses) {
+            foreach ($fileClasses as $file => $idxClasses) {
+                foreach ($idxClasses as $class) {
+                    if (!$class->getExtends() && !$class->getExtendedBy()) {
+                        $this->rootClasses[$name][] = $class;
+                    }
+                }
+            }
+        }
     }
+
     /**
      * Get class.
      *
@@ -61,9 +79,9 @@ final class ClassStorage
      *
      * @return Storage
      */
-    public function getClass(string $class): Storage
+    public function getClass(string $class, int $idx): Storage
     {
-        return $this->classes[$class];
+        return $this->classes[$class][$idx];
     }
     /**
      * Get trait.
@@ -73,7 +91,7 @@ final class ClassStorage
      *
      * @return Storage
      */
-    public function getTrait(string $class): Storage
+    public function getTrait(string $class, int $idx): Storage
     {
         return $this->traits[$class];
     }
@@ -85,7 +103,7 @@ final class ClassStorage
      *
      * @return bool
      */
-    public function hasClass($class): bool
+    public function hasClass(string $class, int $idx): bool
     {
         return isset($this->classes[$class]);
     }
@@ -96,8 +114,28 @@ final class ClassStorage
      *
      * @return bool
      */
-    public function hasTrait($trait): bool
+    public function hasTrait(string $trait, int $idx): bool
     {
         return isset($this->traits[$trait]);
+    }
+
+    /**
+     * Get storage
+     *
+     * @return RecursiveIteratorIterator
+     */
+    public function getClasses(): RecursiveIteratorIterator
+    {
+        return new RecursiveIteratorIterator(new RecursiveArrayIterator($this->classes));
+    }
+
+    /**
+     * Get root classes
+     *
+     * @return array<class-string, Storage[]>
+     */
+    public function getRootClasses(): array
+    {
+        return $this->rootClasses;
     }
 }

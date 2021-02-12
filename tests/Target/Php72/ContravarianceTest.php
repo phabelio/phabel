@@ -2,12 +2,13 @@
 
 namespace PhabelTest\Target\Php72;
 
+use PhabelTest\Target\Php72\Contravariance\Cls;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Tests type restriction and widening
  */
-class TypeRestrictionWideningTest extends TestCase
+class ContravarianceTest extends TestCase
 {
     public function test()
     {

@@ -22,4 +22,8 @@ class TypeHintTest extends TestCase
     public function voidPony(): void
     {
     }
+
+    public function generatorPony(): \Generator
+    {
+    }
 }

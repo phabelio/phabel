@@ -6,20 +6,29 @@ use JsonSerializable;
 use Phabel\ClassStorage\Storage;
 use PhpParser\Node\Stmt\ClassLike;
 
-class ClassStorageProvider extends Plugin implements JsonSerializable
+abstract class ClassStorageProvider extends Plugin implements JsonSerializable
 {
     /**
-     * Class storage
+     * Class count
      */
-    private ?Storage $storage = null;
+    private array $count = [];
+
     /**
-     * Get current class storage.
+     * Process class graph
      *
-     * @return ?Storage
+     * @param ClassStorage $storage
+     * @return bool
      */
-    protected function getClassStorage(): ?Storage
+    abstract public static function processClassGraph(ClassStorage $storage): bool;
+    /**
+     * Enter file
+     *
+     * @param RootNode $_
+     * @return void
+     */
+    public function enterRoot(RootNode $_, Context $context): void
     {
-        return $this->storage;
+        $this->count[$context->getFile()] = [];
     }
     /**
      * Populate class storage
@@ -27,16 +36,23 @@ class ClassStorageProvider extends Plugin implements JsonSerializable
      * @param ClassLike $classLike
      * @return void
      */
-    public function enterClassStorage(ClassLike $classLike): void
+    public function enterClassStorage(ClassLike $class, Context $context): void
     {
-        $this->storage = $this->getGlobalClassStorage()->getClassOrTrait(self::getFqdn($classLike));
+        $file = $context->getFile();
+        if ($class->name) {
+            $name = (string) self::getFqdn($class);
+        } else {
+            $name = "class@anonymous$file";
+        }
+        $name .= "@".$this->count[$file][$name]++;
+        $this->storage = $this->getGlobalClassStorage()->getClassOrTrait($name);
     }
     /**
      * Get global class storage.
      *
      * @return ClassStorage
      */
-    protected function getGlobalClassStorage(): ClassStorage
+    private function getGlobalClassStorage(): ClassStorage
     {
         return $this->getConfig(ClassStorage::class, null);
     }

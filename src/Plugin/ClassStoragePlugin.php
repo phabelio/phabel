@@ -7,6 +7,7 @@ use Phabel\ClassStorage\Builder;
 use Phabel\ClassStorage\Storage;
 use Phabel\Context;
 use Phabel\Plugin;
+use Phabel\RootNode;
 use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Trait_;
@@ -16,27 +17,25 @@ final class ClassStoragePlugin extends Plugin
     /**
      * Storage.
      *
-     * @psalm-var array<string, array<class-string, ClassLike>>
+     * @var array<class-string, array<string, Builder[]>>
      */
-    private array $storage = [];
+    public array $classes = [];
+    /**
+     * Storage.
+     *
+     * @var array<class-string, array<string, Builder[]>>
+     */
+    public array $traits = [];
     /**
      * Input-output file map.
      */
     private array $fileMap;
     /**
-     * Anonymous class count.
-     */
-    private static int $count = 0;
-    /**
      * Plugins to call during final iteration.
      *
-     * @psalm-var array<class-string<PluginInterface>, true>
+     * @var array<class-string<PluginInterface>, true>
      */
     private array $finalPlugins = [];
-    /**
-     * Previous file.
-     */
-    private string $previousFile = '';
 
     /**
      * Set configuration array.
@@ -50,6 +49,28 @@ final class ClassStoragePlugin extends Plugin
     }
 
     /**
+     * Enter file.
+     *
+     * @param RootNode $_
+     * @return void
+     */
+    public function enterRoot(RootNode $_, Context $context): void
+    {
+        $file = $context->getFile();
+        $this->count[$file] = [];
+        $this->fileMap[$file] = $context->getOutputFile();
+        foreach ($this->traits as $trait => $traits) {
+            if (isset($traits[$file])) {
+                unset($this->traits[$trait][$file]);
+            }
+        }
+        foreach ($this->classes as $class => $classes) {
+            if (isset($classes[$file])) {
+                unset($this->classes[$class][$file]);
+            }
+        }
+    }
+    /**
      * Add method.
      *
      * @param ClassLike $class
@@ -59,11 +80,13 @@ final class ClassStoragePlugin extends Plugin
     public function enter(ClassLike $class, Context $context): void
     {
         $file = $context->getFile();
+        $file = $this->fileMap[$file] ?: $file;
         if ($class->name) {
             $name = (string) self::getFqdn($class);
         } else {
-            $name = "class@anonymous$file".self::$count++;
+            $name = "class@anonymous";
         }
+
         $class = clone $class;
         $stmts = [];
         foreach ($class->stmts as $stmt) {
@@ -76,13 +99,13 @@ final class ClassStoragePlugin extends Plugin
             $stmts []= $stmt;
         }
         $class->stmts = $stmts;
+        $class->setAttribute(ClassStorage::FILE_KEY, $file);
 
-        if ($file !== $this->previousFile) {
-            $this->previousFile = $file;
-            $this->storage[$file] = [];
-            $this->fileMap[$file] = $context->getOutputFile();
+        if ($class instanceof Trait_) {
+            $this->traits[$file][$name][] = new Builder($class);
+        } else {
+            $this->classes[$file][$name][] = new Builder($class);
         }
-        $this->storage[$file][$name] = $class;
     }
 
     /**
@@ -93,10 +116,7 @@ final class ClassStoragePlugin extends Plugin
      */
     public function merge($other): void
     {
-        foreach ($other->storage as $file => $classes) {
-            $this->storage[$file] ??= [];
-            $this->storage[$file] += $classes;
-        }
+        $this->storage = array_merge_recursive($this->storage, $other->storage);
         $this->finalPlugins += $other->finalPlugins;
         $this->fileMap += $other->fileMap;
     }
@@ -108,21 +128,15 @@ final class ClassStoragePlugin extends Plugin
      */
     public function finish(): array
     {
-        $traits = [];
-        $classes = [];
-        foreach ($this->storage as $file => $classes) {
-            $file = $this->fileMap[$file] ?: $file;
-            /** @var ClassLike */
-            foreach ($classes as $name => $class) {
-                $class->setAttribute(ClassStorage::FILE_KEY, $file);
-                if ($class instanceof Trait_) {
-                    $traits[$name] = new Builder($class);
-                } else {
-                    $classes[$name] = new Builder($class);
+        $storage = new ClassStorage($this);
+        do {
+            $changed = false;
+            foreach ($this->finalPlugins as $class => $_) {
+                if ($class::processClassGraph($storage)) {
+                    $changed = true;
                 }
             }
-        }
-        $storage = new ClassStorage($classes, $traits);
+        } while ($changed);
         return \array_map(fn () => [ClassStorage::class => $storage], $this->finalPlugins);
     }
 }

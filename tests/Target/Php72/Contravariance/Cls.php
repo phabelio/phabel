@@ -1,6 +1,6 @@
 <?php
 
-namespace PhabelTest\Target\Php72;
+namespace PhabelTest\Target\Php72\Contravariance;
 
 class Cls extends Abstr
 {

@@ -2,6 +2,7 @@
 
 namespace Phabel\ClassStorage;
 
+use Phabel\Plugin\ClassStoragePlugin;
 use Phabel\PluginGraph\CircularException;
 use Phabel\Tools;
 use PhpParser\Node\Stmt\Class_ as StmtClass_;
@@ -11,6 +12,8 @@ use PhpParser\Node\Stmt\Interface_;
 use PhpParser\Node\Stmt\TraitUse;
 use PhpParser\Node\Stmt\TraitUseAdaptation\Alias;
 use PhpParser\Node\Stmt\TraitUseAdaptation\Precedence;
+use RecursiveArrayIterator;
+use RecursiveIteratorIterator;
 
 /**
  * Builds information about a class.
@@ -21,26 +24,26 @@ class Builder
     /**
      * Method list.
      *
-     * @psalm-var array<string, ClassMethod>
+     * @psalm-var array<string, ClassMethod[]>
      */
     private array $methods = [];
     /**
      * Abstract method list.
      *
-     * @psalm-var array<string, ClassMethod>
+     * @psalm-var array<string, ClassMethod[]>
      */
     private array $abstractMethods = [];
 
     /**
      * Extended classes/interfaces.
      *
-     * @var array<class-string, Builder|true>
+     * @var array<class-string, Builder[]|true>
      */
     private array $extended = [];
     /**
      * Used classes/interfaces.
      *
-     * @var array<trait-string, Builder|true>
+     * @var array<trait-string, Builder[]|true>
      */
     private array $use = [];
 
@@ -138,11 +141,8 @@ class Builder
 
     /**
      * Resolve class tree.
-     *
-     * @param array<class-string, Builder> $classes
-     * @param array<trait-string, Builder> $traits
      */
-    public function resolve(array $classes, array $traits): self
+    public function resolve(ClassStoragePlugin $plugin): self
     {
         if ($this->resolved) {
             return $this;
@@ -159,34 +159,37 @@ class Builder
         }
         $this->resolving = true;
         foreach ($this->use as $trait => $_) {
-            if (!isset($traits[$trait])) {
+            if (!isset($plugin->traits[$trait])) {
                 continue;
             }
-            $resolved = $traits[$trait]->resolve($classes, $traits);
-            foreach (\array_merge($resolved->methods, $resolved->abstractMethods) as $name => $method) {
+            $resolved = array_values($plugin->traits[$trait])[0][0]->resolve($plugin);
+            foreach (new RecursiveIteratorIterator(new RecursiveArrayIterator([$resolved->methods, $resolved->abstractMethods])) as $name => $method) {
                 if (isset($this->useAlias[$trait][$name])) {
                     [$newTrait, $name] = $this->useAlias[$trait][$name];
-                    if (!isset($traits[$newTrait])) {
+                    if (!isset($plugin->traits[$newTrait])) {
                         continue;
                     }
-                    $newTrait = $traits[$newTrait]->resolve($classes, $traits);
+                    $newTrait = array_values($plugin->traits[$newTrait])[0][0]->resolve($plugin);
                     if (isset($newTrait->methods[$name])) {
-                        $this->methods[$name] = $newTrait->methods[$name];
+                        $this->methods[$name][] = $newTrait->methods[$name];
                     } elseif (isset($newTrait->abstractMethods[$name])) {
-                        $this->abstractMethods[$name] = $newTrait->methods[$name];
+                        $this->abstractMethods[$name][] = $newTrait->methods[$name];
                     }
                     continue;
                 }
                 if ($method->stmts === null) {
-                    $this->abstractMethods[$name] = $method;
+                    $this->abstractMethods[$name][] = $method;
                 } else {
-                    $this->methods[$name] = $method;
+                    $this->methods[$name][] = $method;
                 }
             }
         }
         foreach ($this->extended as $class => &$res) {
-            if (isset($classes[$class])) {
-                $res = $classes[$class]->resolve($classes, $traits);
+            if (isset($plugin->classes[$class])) {
+                $res = [];
+                foreach (new RecursiveIteratorIterator(new RecursiveArrayIterator($plugin->classes[$class])) as $class) {
+                    $res []= $class->resolve($plugin);
+                }
             }
         }
         $this->resolving = false;

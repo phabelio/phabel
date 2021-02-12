@@ -49,6 +49,11 @@ use SplStack;
  */
 class TypeHintReplacer extends Plugin
 {
+    /**
+     * Force removal of specific typehint via node attribute
+     */
+    private const FORCE_ATTRIBUTE = 'TypeHintReplacer:force';
+
     private const IGNORE_RETURN = 0;
     private const VOID_RETURN = 1;
     private const TYPE_RETURN = 2;
@@ -66,6 +71,27 @@ class TypeHintReplacer extends Plugin
     {
         /** @psalm-var SplStack<array{0: self::IGNORE_RETURN|self::VOID_RETURN}|array{0: self::TYPE_RETURN, 1: Node, 2: bool, 3: bool, 4: Node, 5: BooleanNot}> */
         $this->stack = new SplStack;
+    }
+    /**
+     * Replace typehint
+     *
+     * @param null|Identifier|Name|NullableType|UnionType $type Type
+     * 
+     * @return void
+     */
+    public static function replace(?Node $type): void
+    {
+        $type->setAttribute(self::FORCE_ATTRIBUTE, true);
+    }
+    /**
+     * Check if we should replace a void return type
+     *
+     * @param Node|null $returnType
+     * @return bool
+     */
+    private function checkVoid(?Node $returnType): bool
+    {
+        return $returnType instanceof Identifier && $returnType->toLowerString() === 'void' && $this->getConfig('void', $this->getConfig('return', $returnType->getAttribute(self::FORCE_ATTRIBUTE)));
     }
     /**
      * Resolve special class name.
@@ -90,7 +116,7 @@ class TypeHintReplacer extends Plugin
      *
      * @param Variable            $var          Variable to check
      * @param (Name|Identifier)[] $types        Types to check
-     * @param ?Expr               $className   Whether the current class is anonymous
+     * @param ?Expr               $className    Whether the current class is anonymous
      * @param boolean             $fromNullable Whether this type is nullable
      *
      * @return array{0: bool, 1: Node, 2: BooleanNot} Whether the polyfilled gettype should be used, the error message, the condition
@@ -172,10 +198,10 @@ class TypeHintReplacer extends Plugin
     /**
      * Strip typehint.
      *
-     * @param Variable                                    $var        Variable
-     * @param null|Identifier|Name|NullableType|UnionType $type       Type
-     * @param ?Expr                                        $className Whether the current class is anonymous
-     * @param bool                                        $force      Whether to force strip
+     * @param Variable                                    $var       Variable
+     * @param null|Identifier|Name|NullableType|UnionType $type      Type
+     * @param ?Expr                                       $className Whether the current class is anonymous
+     * @param bool                                        $force     Whether to force strip
      *
      * @return null|array{0: bool, 1: Node, 2: BooleanNot} Whether the polyfilled gettype should be used, the error message, the condition
      */
@@ -184,6 +210,7 @@ class TypeHintReplacer extends Plugin
         if (!$type) {
             return null;
         }
+        $force = $force || $type->getAttribute(self::FORCE_ATTRIBUTE, false);
         if ($type instanceof UnionType) {
             if (!$this->getConfig('union', $force)) {
                 return null;
@@ -210,6 +237,7 @@ class TypeHintReplacer extends Plugin
     {
         $functionName = new Method();
         $className = null;
+        $returnType = $func->getReturnType();
         if ($func instanceof ClassMethod) {
             /** @var ClassLike */
             $parent = $ctx->parents->top();
@@ -219,10 +247,10 @@ class TypeHintReplacer extends Plugin
                         $param->type = null;
                     }
                 }
-                if ($this->getConfig('void', $this->getConfig('return', false)) && $func->getReturnType() instanceof Identifier && $func->getReturnType()->toLowerString() === 'void') {
+                if ($this->checkVoid($returnType)) {
                     $func->returnType = null;
                 }
-                if ($this->strip(new Variable('phabelReturn'), $func->getReturnType(), null, $this->getConfig('return', false))) {
+                if ($this->strip(new Variable('phabelReturn'), $returnType, null, $this->getConfig('return', false))) {
                     $func->returnType = null;
                 }
                 $this->stack->push([self::IGNORE_RETURN]);
@@ -280,14 +308,14 @@ class TypeHintReplacer extends Plugin
             $func->stmts = \array_merge($stmts, $func->getStmts() ?? []);
         }
 
-        if ($this->getConfig('void', $this->getConfig('return', false)) && $func->getReturnType() instanceof Identifier && $func->getReturnType()->toLowerString() === 'void') {
+        if ($this->checkVoid($returnType)) {
             $ctx->toClosure($func);
             $this->stack->push([self::VOID_RETURN]);
             $func->returnType = null;
             return $func;
         }
         $var = new Variable('phabelReturn');
-        if (!$condition = $this->strip($var, $func->getReturnType(), $className, $this->getConfig('return', false))) {
+        if (!$condition = $this->strip($var, $returnType, $className, $this->getConfig('return', false))) {
             $this->stack->push([self::IGNORE_RETURN]);
             return null;
         }
