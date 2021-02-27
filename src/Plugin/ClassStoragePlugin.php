@@ -17,19 +17,24 @@ final class ClassStoragePlugin extends Plugin
     /**
      * Storage.
      *
-     * @var array<class-string, array<string, Builder[]>>
+     * @var array<string, array<string, Builder>>
      */
     public array $classes = [];
     /**
      * Storage.
      *
-     * @var array<class-string, array<string, Builder[]>>
+     * @var array<string, array<string, Builder>>
      */
     public array $traits = [];
     /**
      * Input-output file map.
      */
-    private array $fileMap;
+    private array $fileMap = [];
+
+    /**
+     * Count
+     */
+    private array $count = [];
     /**
      * Plugins to call during final iteration.
      *
@@ -82,9 +87,10 @@ final class ClassStoragePlugin extends Plugin
         $file = $context->getFile();
         $file = $this->fileMap[$file] ?: $file;
         if ($class->name) {
-            $name = (string) self::getFqdn($class);
+            $name = self::getFqdn($class);
         } else {
-            $name = "class@anonymous";
+            $name = "class@anonymous$file";
+            $name .= "@".$this->count[$file][$name]++;
         }
 
         $class = clone $class;
@@ -102,9 +108,9 @@ final class ClassStoragePlugin extends Plugin
         $class->setAttribute(ClassStorage::FILE_KEY, $file);
 
         if ($class instanceof Trait_) {
-            $this->traits[$file][$name][] = new Builder($class);
+            $this->traits[$file][$name] = new Builder($class);
         } else {
-            $this->classes[$file][$name][] = new Builder($class);
+            $this->classes[$file][$name] = new Builder($class);
         }
     }
 

@@ -24,26 +24,26 @@ class Builder
     /**
      * Method list.
      *
-     * @psalm-var array<string, ClassMethod[]>
+     * @psalm-var array<string, ClassMethod>
      */
     private array $methods = [];
     /**
      * Abstract method list.
      *
-     * @psalm-var array<string, ClassMethod[]>
+     * @psalm-var array<string, ClassMethod>
      */
     private array $abstractMethods = [];
 
     /**
      * Extended classes/interfaces.
      *
-     * @var array<class-string, Builder[]|true>
+     * @var array<class-string, Builder|true>
      */
     private array $extended = [];
     /**
      * Used classes/interfaces.
      *
-     * @var array<trait-string, Builder[]|true>
+     * @var array<trait-string, Builder|true>
      */
     private array $use = [];
 
@@ -162,34 +162,32 @@ class Builder
             if (!isset($plugin->traits[$trait])) {
                 continue;
             }
-            $resolved = array_values($plugin->traits[$trait])[0][0]->resolve($plugin);
+            $resolved = \array_values($plugin->traits[$trait])[0]->resolve($plugin);
             foreach (new RecursiveIteratorIterator(new RecursiveArrayIterator([$resolved->methods, $resolved->abstractMethods])) as $name => $method) {
                 if (isset($this->useAlias[$trait][$name])) {
                     [$newTrait, $name] = $this->useAlias[$trait][$name];
                     if (!isset($plugin->traits[$newTrait])) {
                         continue;
                     }
-                    $newTrait = array_values($plugin->traits[$newTrait])[0][0]->resolve($plugin);
+                    $newTrait = \array_values($plugin->traits[$newTrait])[0]->resolve($plugin);
                     if (isset($newTrait->methods[$name])) {
-                        $this->methods[$name][] = $newTrait->methods[$name];
+                        $this->methods[$name] = $newTrait->methods[$name];
                     } elseif (isset($newTrait->abstractMethods[$name])) {
-                        $this->abstractMethods[$name][] = $newTrait->methods[$name];
+                        $this->abstractMethods[$name] = $newTrait->methods[$name];
                     }
                     continue;
                 }
                 if ($method->stmts === null) {
-                    $this->abstractMethods[$name][] = $method;
+                    $this->abstractMethods[$name] = $method;
                 } else {
-                    $this->methods[$name][] = $method;
+                    $this->methods[$name] = $method;
                 }
             }
         }
         foreach ($this->extended as $class => &$res) {
-            if (isset($plugin->classes[$class])) {
-                $res = [];
-                foreach (new RecursiveIteratorIterator(new RecursiveArrayIterator($plugin->classes[$class])) as $class) {
-                    $res []= $class->resolve($plugin);
-                }
+            $res = [];
+            foreach ($plugin->classes[$class] ?? [] as $class) {
+                $res []= $class->resolve($plugin);
             }
         }
         $this->resolving = false;

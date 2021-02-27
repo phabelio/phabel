@@ -17,13 +17,13 @@ class Storage
     /**
      * Method list.
      *
-     * @psalm-var array<string, ClassMethod[]>
+     * @psalm-var array<string, ClassMethod>
      */
     private array $methods = [];
     /**
      * Abstract method list.
      *
-     * @psalm-var array<string, ClassMethod[]>
+     * @psalm-var array<string, ClassMethod>
      */
     private array $abstractMethods = [];
 
@@ -33,13 +33,7 @@ class Storage
      * @var array<string, true>
      */
     private array $removedMethods = [];
-
-    /**
-     * Removed abstract method list.
-     *
-     * @var array<string, true>
-     */
-    private array $removedAbstractMethods = [];
+    
     /**
      * Classes/interfaces to extend.
      *
@@ -63,8 +57,8 @@ class Storage
      * Constructor.
      *
      * @param string                       $name
-     * @param array<string, ClassMethod[]>   $methods
-     * @param array<string, ClassMethod[]>   $abstractMethods
+     * @param array<string, ClassMethod>   $methods
+     * @param array<string, ClassMethod>   $abstractMethods
      * @param array<class-string, Builder[]> $extends
      */
     public function build(string $name, array $methods, array $abstractMethods, array $extends)
@@ -73,14 +67,14 @@ class Storage
         $this->methods = $methods;
         $this->abstractMethods = $abstractMethods;
 
-        foreach (new RecursiveIteratorIterator(new RecursiveArrayIterator($methods)) as $method) {
+        foreach ($methods as $method) {
             if ($method->hasAttribute(Builder::STORAGE_KEY)) {
                 $method->setAttribute(self::STORAGE_KEY, $method->getAttribute(Builder::STORAGE_KEY)->build());
                 $method->setAttribute(Builder::STORAGE_KEY, null);
             }
             $method->flags |= self::MODIFIER_NORMAL;
         }
-        foreach (new RecursiveIteratorIterator(new RecursiveArrayIterator($abstractMethods)) as $method) {
+        foreach ($abstractMethods as $method) {
             if ($method->hasAttribute(Builder::STORAGE_KEY)) {
                 $method->setAttribute(self::STORAGE_KEY, $method->getAttribute(Builder::STORAGE_KEY)->build());
                 $method->setAttribute(Builder::STORAGE_KEY, null);
@@ -115,16 +109,16 @@ class Storage
      *
      * @return \Generator<string, ClassMethod, null, void>
      */
-    public function getMethods(int $typeMask = ~Class_::VISIBILITY_MODIFIER_MASK, int $visibilityMask = Class_::VISIBILITY_MODIFIER_MASK): array
+    public function getMethods(int $typeMask = ~Class_::VISIBILITY_MODIFIER_MASK, int $visibilityMask = Class_::VISIBILITY_MODIFIER_MASK): \Generator
     {
         if ($typeMask & Class_::MODIFIER_ABSTRACT) {
-            foreach (new RecursiveIteratorIterator(new RecursiveArrayIterator($this->abstractMethods)) as $name => $method) {
+            foreach ($this->abstractMethods as $name => $method) {
                 if ($method->flags & $typeMask && $method->flags & $visibilityMask) {
                     yield $name => $method;
                 }
             }
         } elseif ($typeMask & self::MODIFIER_NORMAL) {
-            foreach (new RecursiveIteratorIterator(new RecursiveArrayIterator($this->methods)) as $name => $method) {
+            foreach ($this->methods as $name => $method) {
                 if ($method->flags & $typeMask && $method->flags & $visibilityMask) {
                     yield $name => $method;
                 }
@@ -196,10 +190,10 @@ class Storage
         foreach ($this->getAllChildren() as $child) {
             $methods = [];
             if (isset($child->abstractMethods[$name])) {
-                $methods = $child->abstractMethods[$name];
+                $methods []= $child->abstractMethods[$name];
             }
             if (isset($child->methods[$name])) {
-                $methods = $child->methods[$name];
+                $methods []= $child->methods[$name];
             }
             foreach ($methods as $method) {
                 $flags = $method->flags;
@@ -219,16 +213,39 @@ class Storage
      */
     public function removeMethod(ClassMethod $method): self
     {
+        $name = $method->name->name;
         if ($method->stmts !== null) {
-            if (isset($this->methods[$method->name])) {
-                $this->removedMethods[$method->name] = true;
-                unset($this->methods[$method->name]);
+            if (isset($this->methods[$name])) {
+                $this->removedMethods[$name] = true;
+                unset($this->methods[$name]);
             }
-        } elseif (isset($this->abstractMethods[$method->name])) {
-            $this->removedAbstractMethods[$method->name] = true;
-            unset($this->abstractMethods[$method->name]);
+        } elseif (isset($this->abstractMethods[$name])) {
+            $this->removedMethods[$name] = true;
+            unset($this->abstractMethods[$name]);
         }
 
         return $this;
+    }
+
+    /**
+     * Process method from AST
+     *
+     * @return bool
+     */
+    public function process(ClassMethod $method): bool
+    {
+        $name = $method->name->name;
+        if (isset($this->removedMethods[$name])) {
+            return true;
+        }
+        $myMethod = $this->methods[$name] ?? $this->abstractMethods[$name];
+        foreach ($myMethod->getSubNodeNames() as $name) {
+            if ($name === 'stmts') {
+                continue;
+            }
+            $method->{$name} = $myMethod->{$name};
+        }
+        $method->setAttributes($myMethod->getAttributes() + $method->getAttributes());
+        return false;
     }
 }

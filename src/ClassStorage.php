@@ -4,6 +4,10 @@ namespace Phabel;
 
 use Phabel\ClassStorage\Storage;
 use Phabel\Plugin\ClassStoragePlugin;
+use PhpParser\Node\Identifier;
+use PhpParser\Node\Name;
+use PhpParser\Node\NullableType;
+use PhpParser\Node\UnionType;
 use RecursiveArrayIterator;
 use RecursiveIteratorIterator;
 
@@ -14,22 +18,22 @@ final class ClassStorage
     /**
      * Classes.
      *
-     * @var array<class-string, array<string, Storage[]>>
+     * @var array<string, array<string, Storage>>
      */
     private array $classes = [];
     /**
      * Traits.
      *
-     * @var array<class-string, array<string, Storage[]>>
+     * @var array<string, array<string, Storage>>
      */
     private array $traits = [];
 
     /**
      * Root classes.
      *
-     * @var array<class-string, []Storage>
+     * @var array<class-string, Storage>
      */
-    private array $rootClasses;
+    private array $rootClasses = [];
 
     /**
      * Constructor.
@@ -44,28 +48,22 @@ final class ClassStorage
         }
 
         foreach ($plugin->traits as $name => $fileTraits) {
-            foreach ($fileTraits as $file => $idxTraits) {
-                foreach ($idxTraits as $trait) {
-                    $trait = $trait->build();
-                    $this->traits[$name][$file][] = $trait;
-                }
+            foreach ($fileTraits as $file => $trait) {
+                $trait = $trait->build();
+                $this->traits[$name][$file] = $trait;
             }
         }
         foreach ($plugin->classes as $name => $fileClasses) {
-            foreach ($fileClasses as $file => $idxClasses) {
-                foreach ($idxClasses as $class) {
-                    $class = $class->build();
-                    $this->classes[$name][$file][] = $class;
-                }
+            foreach ($fileClasses as $file => $class) {
+                $class = $class->build();
+                $this->classes[$name][$file] = $class;
             }
         }
 
         foreach ($this->classes as $name => $fileClasses) {
-            foreach ($fileClasses as $file => $idxClasses) {
-                foreach ($idxClasses as $class) {
-                    if (!$class->getExtends() && !$class->getExtendedBy()) {
-                        $this->rootClasses[$name][] = $class;
-                    }
+            foreach ($fileClasses as $file => $class) {
+                if (!$class->getExtends() && !$class->getExtendedBy()) {
+                    $this->rootClasses[$name] = $class;
                 }
             }
         }
@@ -74,55 +72,43 @@ final class ClassStorage
     /**
      * Get class.
      *
-     * @param string $class Class name
-     * @psalm-param class-string $class Class name
+     * @param string $file File name
+     * @param string $name Compound name
      *
      * @return Storage
      */
-    public function getClass(string $class, int $idx): Storage
+    public function getClass(string $file, string $name): Storage
     {
-        return $this->classes[$class][$idx];
+        return $this->classes[$name][$file];
     }
     /**
      * Get trait.
      *
-     * @param string $class Class name
-     * @psalm-param trait-string $class Class name
+     * @param string $file File name
+     * @param string $name Compound name
      *
      * @return Storage
      */
-    public function getTrait(string $class, int $idx): Storage
+    public function getTrait(string $file, string $name): Storage
     {
-        return $this->traits[$class];
+        return $this->traits[$name][$file];
+    }
+    /**
+     * Get class by class name.
+     *
+     * @param class-string $class Class name
+     *
+     * @return ?Storage
+     */
+    public function getClassByName(string $class): ?Storage
+    {
+        return \array_values($this->classes[$class] ?? [])[0] ?? null;
     }
 
     /**
-     * Check whether we have a class.
+     * Get storage.
      *
-     * @param string $class Class name
-     *
-     * @return bool
-     */
-    public function hasClass(string $class, int $idx): bool
-    {
-        return isset($this->classes[$class]);
-    }
-    /**
-     * Check whether we have a trait.
-     *
-     * @param string $trait Trait name
-     *
-     * @return bool
-     */
-    public function hasTrait(string $trait, int $idx): bool
-    {
-        return isset($this->traits[$trait]);
-    }
-
-    /**
-     * Get storage
-     *
-     * @return RecursiveIteratorIterator
+     * @return RecursiveIteratorIterator<Storage>
      */
     public function getClasses(): RecursiveIteratorIterator
     {
@@ -130,12 +116,61 @@ final class ClassStorage
     }
 
     /**
-     * Get root classes
+     * Get root classes.
      *
-     * @return array<class-string, Storage[]>
+     * @return array<class-string, Storage>
      */
     public function getRootClasses(): array
     {
         return $this->rootClasses;
+    }
+
+
+    private static function typeArray(null|Identifier|Name|NullableType|UnionType $type): array
+    {
+        $types = [];
+        if ($type instanceof NullableType) {
+            $types = [$type->type, new Identifier('null')];
+        } elseif ($type instanceof UnionType) {
+            $types = $type->types;
+        } elseif ($type) {
+            $types = [$type];
+        }
+        return $types;
+    }
+    /**
+     * Compare two types.
+     *
+     * @param null|Identifier|Name|NullableType|UnionType $typeA
+     * @param null|Identifier|Name|NullableType|UnionType $typeB
+     * @return integer
+     */
+    public function compare(null|Identifier|Name|NullableType|UnionType $typeA, null|Identifier|Name|NullableType|UnionType $typeB): int
+    {
+        $typeA = self::typeArray($typeA);
+        $typeB = self::typeArray($typeB);
+        if (\count($typeA) !== \count($typeB)) {
+            return \count($typeA) <=> \count($typeB);
+        }
+        if (\count($typeA) + \count($typeB) === 2) {
+            $typeA = $typeA[1];
+            $typeB = $typeB[1];
+            if ($typeA instanceof Name && $typeB instanceof Name
+                && ($classA = $this->getClassByName(Tools::getFqdn($typeA)))
+                && ($classB = $this->getClassByName(Tools::getFqdn($typeB)))
+            ) {
+                foreach ($classA->getAllChildren() as $child) {
+                    if ($child === $classB) {
+                        return 1;
+                    }
+                }
+                foreach ($classB->getAllChildren() as $child) {
+                    if ($child === $classA) {
+                        return -1;
+                    }
+                }
+            }
+        }
+        return 0;
     }
 }

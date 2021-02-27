@@ -5,23 +5,24 @@ namespace Phabel;
 use JsonSerializable;
 use Phabel\ClassStorage\Storage;
 use PhpParser\Node\Stmt\ClassLike;
+use PhpParser\Node\Stmt\ClassMethod;
 
 abstract class ClassStorageProvider extends Plugin implements JsonSerializable
 {
     /**
-     * Class count
+     * Class count.
      */
     private array $count = [];
 
     /**
-     * Process class graph
+     * Process class graph.
      *
      * @param ClassStorage $storage
      * @return bool
      */
     abstract public static function processClassGraph(ClassStorage $storage): bool;
     /**
-     * Enter file
+     * Enter file.
      *
      * @param RootNode $_
      * @return void
@@ -31,7 +32,7 @@ abstract class ClassStorageProvider extends Plugin implements JsonSerializable
         $this->count[$context->getFile()] = [];
     }
     /**
-     * Populate class storage
+     * Populate class storage.
      *
      * @param ClassLike $classLike
      * @return void
@@ -40,29 +41,34 @@ abstract class ClassStorageProvider extends Plugin implements JsonSerializable
     {
         $file = $context->getFile();
         if ($class->name) {
-            $name = (string) self::getFqdn($class);
+            $name = self::getFqdn($class);
         } else {
             $name = "class@anonymous$file";
+            $name .= "@".$this->count[$file][$name]++;
         }
-        $name .= "@".$this->count[$file][$name]++;
-        $this->storage = $this->getGlobalClassStorage()->getClassOrTrait($name);
+        $storage = $this->getGlobalClassStorage()->getClass($file, $name);
+        foreach ($class->stmts as $k => $stmt) {
+            if ($stmt instanceof ClassMethod && $storage->process($stmt)) {
+                unset($class->stmts[$k]);
+            }
+        }
     }
     /**
      * Get global class storage.
      *
      * @return ClassStorage
      */
-    private function getGlobalClassStorage(): ClassStorage
+    public function getGlobalClassStorage(): ClassStorage
     {
         return $this->getConfig(ClassStorage::class, null);
     }
     /**
-     * JSON representation
+     * JSON representation.
      *
      * @return string
      */
     public function jsonSerialize(): string
     {
-        return spl_object_hash($this);
+        return \spl_object_hash($this);
     }
 }

@@ -234,7 +234,7 @@ abstract class Tools
      * Get fully qualified name
      *
      * @param Node $node
-     * @return string
+     * @return class-string
      */
     public static function getFqdn(Node $node): string
     {
