@@ -456,7 +456,6 @@ class Traverser
             $oldResult = $result;
             $result = $this->printer->prettyPrintFile($node->stmts);
             $it++;
-            while (\gc_collect_cycles());
         } while ($result !== $oldResult);
         return [$it, $result];
     }

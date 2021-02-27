@@ -244,7 +244,7 @@ abstract class Tools
         if (isset($node->namespacedName)) {
             return (string) $node->namespacedName;
         }
-        if (!$node->getAttribute('nameResolved')) {
+        if (!$node->getAttribute('resolvedName')) {
             throw new \RuntimeException('Cannot obtain FQDN from unresolved name!');
         }
         return (string) $node->getAttribute('resolvedName', $node->getAttribute('namespacedName'));

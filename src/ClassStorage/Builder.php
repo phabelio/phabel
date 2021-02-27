@@ -2,6 +2,7 @@
 
 namespace Phabel\ClassStorage;
 
+use Phabel\Exception;
 use Phabel\Plugin\ClassStoragePlugin;
 use Phabel\PluginGraph\CircularException;
 use Phabel\Tools;
@@ -68,7 +69,7 @@ class Builder
     /**
      * Storage.
      */
-    private Storage $storage;
+    private ?Storage $storage = null;
 
     /**
      * Class name.
@@ -185,10 +186,7 @@ class Builder
             }
         }
         foreach ($this->extended as $class => &$res) {
-            $res = [];
-            foreach ($plugin->classes[$class] ?? [] as $class) {
-                $res []= $class->resolve($plugin);
-            }
+            $res = array_values($plugin->classes[$class])[0];
         }
         $this->resolving = false;
         $this->resolved = true;
@@ -203,6 +201,9 @@ class Builder
      */
     public function build(): Storage
     {
+        if (!$this->resolved) {
+            throw new Exception("Trying to build an unresolved class!");
+        }
         if (!isset($this->storage)) {
             $this->storage = new Storage;
             $this->storage->build($this->name, $this->methods, $this->abstractMethods, $this->extended);

@@ -32,7 +32,7 @@ final class ClassStoragePlugin extends Plugin
     private array $fileMap = [];
 
     /**
-     * Count
+     * Count.
      */
     private array $count = [];
     /**
@@ -90,7 +90,7 @@ final class ClassStoragePlugin extends Plugin
             $name = self::getFqdn($class);
         } else {
             $name = "class@anonymous$file";
-            $name .= "@".$this->count[$file][$name]++;
+            $name .= "@".$this->count[$name][$file]++;
         }
 
         $class = clone $class;
@@ -99,18 +99,15 @@ final class ClassStoragePlugin extends Plugin
             if (!$stmt instanceof ClassMethod) {
                 continue;
             }
-            if (\is_array($stmt->stmts)) {
-                $stmt->stmts = [];
-            }
             $stmts []= $stmt;
         }
         $class->stmts = $stmts;
         $class->setAttribute(ClassStorage::FILE_KEY, $file);
 
         if ($class instanceof Trait_) {
-            $this->traits[$file][$name] = new Builder($class);
+            $this->traits[$name][$file] = new Builder($class);
         } else {
-            $this->classes[$file][$name] = new Builder($class);
+            $this->classes[$name][$file] = new Builder($class);
         }
     }
 
@@ -122,7 +119,7 @@ final class ClassStoragePlugin extends Plugin
      */
     public function merge($other): void
     {
-        $this->storage = array_merge_recursive($this->storage, $other->storage);
+        $this->storage = \array_merge_recursive($this->storage, $other->storage);
         $this->finalPlugins += $other->finalPlugins;
         $this->fileMap += $other->fileMap;
     }
@@ -135,14 +132,12 @@ final class ClassStoragePlugin extends Plugin
     public function finish(): array
     {
         $storage = new ClassStorage($this);
-        do {
-            $changed = false;
-            foreach ($this->finalPlugins as $class => $_) {
-                if ($class::processClassGraph($storage)) {
-                    $changed = true;
-                }
+        $changed = false;
+        foreach ($this->finalPlugins as $class => $_) {
+            if ($class::processClassGraph($storage)) {
+                $changed = true;
             }
-        } while ($changed);
+        }
         return \array_map(fn () => [ClassStorage::class => $storage], $this->finalPlugins);
     }
 }

@@ -317,12 +317,12 @@ class TypeHintReplacer extends Plugin
         $var = new Variable('phabelReturn');
         if (!$condition = $this->strip($var, $returnType, $className, $this->getConfig('return', false))) {
             $this->stack->push([self::IGNORE_RETURN]);
-            return null;
+            return $func;
         }
         $func->returnType = null;
         if ($func->getAttribute(GeneratorDetector::IS_GENERATOR, false)) {
             $this->stack->push([self::IGNORE_RETURN]);
-            return null;
+            return $func;
         }
         $ctx->toClosure($func);
         $this->stack->push([self::TYPE_RETURN, $functionName, $func->returnsByRef(), ...$condition]);

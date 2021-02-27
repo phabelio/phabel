@@ -8,8 +8,6 @@ use PhpParser\Node\Identifier;
 use PhpParser\Node\Name;
 use PhpParser\Node\NullableType;
 use PhpParser\Node\UnionType;
-use RecursiveArrayIterator;
-use RecursiveIteratorIterator;
 
 final class ClassStorage
 {
@@ -40,11 +38,15 @@ final class ClassStorage
      */
     public function __construct(ClassStoragePlugin $plugin)
     {
-        foreach (new RecursiveIteratorIterator(new RecursiveArrayIterator($plugin->traits)) as $trait) {
-            $trait->resolve($plugin);
+        foreach ($plugin->traits as $traits) {
+            foreach ($traits as $trait) {
+                $trait->resolve($plugin);
+            }
         }
-        foreach (new RecursiveIteratorIterator(new RecursiveArrayIterator($plugin->classes)) as $class) {
-            $class->resolve($plugin);
+        foreach ($plugin->classes as $classes) {
+            foreach ($classes as $class) {
+                $class->resolve($plugin);
+            }
         }
 
         foreach ($plugin->traits as $name => $fileTraits) {
@@ -108,11 +110,15 @@ final class ClassStorage
     /**
      * Get storage.
      *
-     * @return RecursiveIteratorIterator<Storage>
+     * @return \Generator
      */
-    public function getClasses(): RecursiveIteratorIterator
+    public function getClasses(): \Generator
     {
-        return new RecursiveIteratorIterator(new RecursiveArrayIterator($this->classes));
+        foreach ($this->classes as $class => $classes) {
+            foreach ($classes as $file => $storage) {
+                yield $class => $storage;
+            }
+        }
     }
 
     /**
@@ -153,8 +159,8 @@ final class ClassStorage
             return \count($typeA) <=> \count($typeB);
         }
         if (\count($typeA) + \count($typeB) === 2) {
-            $typeA = $typeA[1];
-            $typeB = $typeB[1];
+            $typeA = $typeA[0];
+            $typeB = $typeB[0];
             if ($typeA instanceof Name && $typeB instanceof Name
                 && ($classA = $this->getClassByName(Tools::getFqdn($typeA)))
                 && ($classB = $this->getClassByName(Tools::getFqdn($typeB)))

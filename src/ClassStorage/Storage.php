@@ -4,8 +4,6 @@ namespace Phabel\ClassStorage;
 
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
-use RecursiveArrayIterator;
-use RecursiveIteratorIterator;
 
 /**
  * Stores information about a class.
@@ -33,18 +31,18 @@ class Storage
      * @var array<string, true>
      */
     private array $removedMethods = [];
-    
+
     /**
      * Classes/interfaces to extend.
      *
-     * @var array<class-string, Storage[]>
+     * @var array<class-string, Storage>
      */
     private array $extends = [];
 
     /**
      * Classes/interfaces that extend us.
      *
-     * @var array<class-string, Storage[]>
+     * @var array<class-string, Storage>
      */
     private array $extendedBy = [];
 
@@ -59,7 +57,7 @@ class Storage
      * @param string                       $name
      * @param array<string, ClassMethod>   $methods
      * @param array<string, ClassMethod>   $abstractMethods
-     * @param array<class-string, Builder[]> $extends
+     * @param array<class-string, Builder> $extends
      */
     public function build(string $name, array $methods, array $abstractMethods, array $extends)
     {
@@ -81,13 +79,11 @@ class Storage
             }
         }
 
-        foreach ($extends as $name => $classes) {
-            foreach ($classes as $class) {
-                $this->extends[$name][] = $class->build();
-            }
+        foreach ($extends as $name => $class) {
+            $this->extends[$name] = $class->build();
         }
-        foreach (new RecursiveIteratorIterator(new RecursiveArrayIterator($this->extends)) as $class) {
-            $class->extendedBy[$this->name][] = $this;
+        foreach ($this->extends as $name => $class) {
+            $class->extendedBy[$this->name] = $this;
         }
     }
 
@@ -117,7 +113,8 @@ class Storage
                     yield $name => $method;
                 }
             }
-        } elseif ($typeMask & self::MODIFIER_NORMAL) {
+        }
+        if ($typeMask & self::MODIFIER_NORMAL) {
             foreach ($this->methods as $name => $method) {
                 if ($method->flags & $typeMask && $method->flags & $visibilityMask) {
                     yield $name => $method;
@@ -129,7 +126,7 @@ class Storage
     /**
      * Get classes which extend this class.
      *
-     * @return array<class-string, Storage[]>
+     * @return array<class-string, Storage>
      */
     public function getExtendedBy(): array
     {
@@ -139,7 +136,7 @@ class Storage
     /**
      * Get classes which this class extends.
      *
-     * @return array<class-string, Storage[]>
+     * @return array<class-string, Storage>
      */
     public function getExtends(): array
     {
@@ -153,11 +150,9 @@ class Storage
      */
     public function getAllChildren(): \Generator
     {
-        foreach ($this->extendedBy as $classes) {
-            foreach ($classes as $class) {
-                yield $class;
-                yield from $class->getAllChildren();
-            }
+        foreach ($this->extendedBy as $class) {
+            yield $class;
+            yield from $class->getAllChildren();
         }
     }
 
@@ -168,11 +163,9 @@ class Storage
      */
     public function getAllParents(): \Generator
     {
-        foreach ($this->extends as $classes) {
-            foreach ($classes as $class) {
-                yield $class;
-                yield from $class->getAllParents();
-            }
+        foreach ($this->extends as $class) {
+            yield $class;
+            yield from $class->getAllParents();
         }
     }
 
@@ -228,7 +221,7 @@ class Storage
     }
 
     /**
-     * Process method from AST
+     * Process method from AST.
      *
      * @return bool
      */
@@ -245,7 +238,11 @@ class Storage
             }
             $method->{$name} = $myMethod->{$name};
         }
-        $method->setAttributes($myMethod->getAttributes() + $method->getAttributes());
+        foreach ($myMethod->getAttributes() as $key => $attribute) {
+            if (\str_contains($key, ':')) {
+                $method->setAttribute($key, $attribute);
+            }
+        }
         return false;
     }
 }
