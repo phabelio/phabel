@@ -84,18 +84,6 @@ final class ClassStorage
         return $this->classes[$name][$file] ?? $this->traits[$name][$file];
     }
     /**
-     * Get trait.
-     *
-     * @param string $file File name
-     * @param string $name Compound name
-     *
-     * @return Storage
-     */
-    public function getTrait(string $file, string $name): Storage
-    {
-        return $this->traits[$name][$file];
-    }
-    /**
      * Get class by class name.
      *
      * @param class-string $class Class name
