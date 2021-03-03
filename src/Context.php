@@ -24,7 +24,6 @@ use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\Ternary;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\FunctionLike;
-use PhpParser\Node\Name\FullyQualified;
 use PhpParser\Node\Param;
 use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\Node\Stmt\Else_;
@@ -89,7 +88,7 @@ class Context
         $this->converter = new ArrowClosure;
         $this->prettyPrinter = new Standard();
         $this->nameResolver = new NameResolver(
-            new Throwing, 
+            new Throwing,
             [
                 'preserveOriginalNames' => false,
                 'replaceNodes' => false,

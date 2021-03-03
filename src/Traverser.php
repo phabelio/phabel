@@ -271,7 +271,7 @@ class Traverser
             yield $promises;
 
             if ($classStorage) {
-                yield from self::runAsync($classStorage->finish(), $output, $output, $prefix);
+                yield self::runAsync($classStorage->finish(), $output, $output, $prefix);
             }
 
             return $result;

@@ -9,6 +9,7 @@ use PhpParser\Node\Stmt\ClassMethod;
 
 abstract class ClassStorageProvider extends Plugin implements JsonSerializable
 {
+    private const PROCESSED = 'ClassStorageProvider:processed';
     /**
      * Class count.
      */
@@ -39,6 +40,11 @@ abstract class ClassStorageProvider extends Plugin implements JsonSerializable
      */
     public function enterClassStorage(ClassLike $class, Context $context): void
     {
+        if ($class->hasAttribute(self::PROCESSED)) {
+            return;
+        }
+        $class->setAttribute(self::PROCESSED, true);
+
         $file = $context->getFile();
         if ($class->name) {
             $name = self::getFqdn($class);

@@ -50,7 +50,7 @@ use SplStack;
 class TypeHintReplacer extends Plugin
 {
     /**
-     * Force removal of specific typehint via node attribute
+     * Force removal of specific typehint via node attribute.
      */
     private const FORCE_ATTRIBUTE = 'TypeHintReplacer:force';
 
@@ -73,10 +73,10 @@ class TypeHintReplacer extends Plugin
         $this->stack = new SplStack;
     }
     /**
-     * Replace typehint
+     * Replace typehint.
      *
      * @param null|Identifier|Name|NullableType|UnionType $type Type
-     * 
+     *
      * @return void
      */
     public static function replace(?Node $type): void
@@ -84,7 +84,7 @@ class TypeHintReplacer extends Plugin
         $type->setAttribute(self::FORCE_ATTRIBUTE, true);
     }
     /**
-     * Check if we should replace a void return type
+     * Check if we should replace a void return type.
      *
      * @param Node|null $returnType
      * @return bool

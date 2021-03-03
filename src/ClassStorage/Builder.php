@@ -186,7 +186,7 @@ class Builder
             }
         }
         foreach ($this->extended as $class => &$res) {
-            $res = array_values($plugin->classes[$class])[0];
+            $res = \array_values($plugin->classes[$class])[0];
         }
         $this->resolving = false;
         $this->resolved = true;

@@ -5,6 +5,7 @@ namespace Phabel\Plugin;
 use Phabel\ClassStorage;
 use Phabel\ClassStorage\Builder;
 use Phabel\ClassStorage\Storage;
+use Phabel\ClassStorageProvider;
 use Phabel\Context;
 use Phabel\Plugin;
 use Phabel\RootNode;
@@ -38,7 +39,7 @@ final class ClassStoragePlugin extends Plugin
     /**
      * Plugins to call during final iteration.
      *
-     * @var array<class-string<PluginInterface>, true>
+     * @var array<class-string<ClassStorageProvider>, true>
      */
     private array $finalPlugins = [];
 
@@ -119,7 +120,8 @@ final class ClassStoragePlugin extends Plugin
      */
     public function merge($other): void
     {
-        $this->storage = \array_merge_recursive($this->storage, $other->storage);
+        $this->classes = \array_merge_recursive($this->classes, $other->classes);
+        $this->traits = \array_merge_recursive($this->traits, $other->traits);
         $this->finalPlugins += $other->finalPlugins;
         $this->fileMap += $other->fileMap;
     }
@@ -138,6 +140,10 @@ final class ClassStoragePlugin extends Plugin
                 $changed = true;
             }
         }
-        return \array_map(fn () => [ClassStorage::class => $storage], $this->finalPlugins);
+        $result = array_fill_keys(array_keys($this->finalPlugins), [ClassStorage::class => $storage]);
+        if ($changed) {
+            $result[self::class] = $this->finalPlugins;
+        }
+        return $result;
     }
 }

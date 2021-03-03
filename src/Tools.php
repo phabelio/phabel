@@ -231,7 +231,7 @@ abstract class Tools
     }
 
     /**
-     * Get fully qualified name
+     * Get fully qualified name.
      *
      * @param Node $node
      * @return class-string
