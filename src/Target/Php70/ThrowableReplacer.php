@@ -19,6 +19,17 @@ use PhpParser\Node\Stmt\TryCatch;
 class ThrowableReplacer extends Plugin
 {
     /**
+     * Check if plugin should run.
+     *
+     * @param string $file File name
+     *
+     * @return boolean
+     */
+    public function shouldRunFile(string $file): bool
+    {
+        return !str_ends_with($file, 'src/Target/Php70/ThrowableReplacer.php');
+    }
+    /**
      * Check if type string is \Throwable or Throwable.
      *
      * @param string $type Type string
