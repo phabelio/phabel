@@ -27,10 +27,6 @@ final class ClassStoragePlugin extends Plugin
      * @var array<string, array<string, Builder>>
      */
     public array $traits = [];
-    /**
-     * Input-output file map.
-     */
-    private array $fileMap = [];
 
     /**
      * Count.
@@ -62,9 +58,8 @@ final class ClassStoragePlugin extends Plugin
      */
     public function enterRoot(RootNode $_, Context $context): void
     {
-        $file = $context->getFile();
+        $file = $context->getOutputFile();
         $this->count[$file] = [];
-        $this->fileMap[$file] = $context->getOutputFile();
         foreach ($this->traits as $trait => $traits) {
             if (isset($traits[$file])) {
                 unset($this->traits[$trait][$file]);
@@ -85,13 +80,13 @@ final class ClassStoragePlugin extends Plugin
      */
     public function enter(ClassLike $class, Context $context): void
     {
-        $file = $context->getFile();
-        $file = $this->fileMap[$file] ?: $file;
+        $file = $context->getOutputFile();
         if ($class->name) {
             $name = self::getFqdn($class);
         } else {
             $name = "class@anonymous$file";
-            $name .= "@".$this->count[$name][$file]++;
+            $this->count[$file][$name] ??= 0;
+            $name .= "@".$this->count[$file][$name]++;
         }
 
         $class = clone $class;
@@ -108,7 +103,7 @@ final class ClassStoragePlugin extends Plugin
         if ($class instanceof Trait_) {
             $this->traits[$name][$file] = new Builder($class);
         } else {
-            $this->classes[$name][$file] = new Builder($class);
+            $this->classes[$name][$file] = new Builder($class, $name);
         }
     }
 
@@ -123,7 +118,6 @@ final class ClassStoragePlugin extends Plugin
         $this->classes = \array_merge_recursive($this->classes, $other->classes);
         $this->traits = \array_merge_recursive($this->traits, $other->traits);
         $this->finalPlugins += $other->finalPlugins;
-        $this->fileMap += $other->fileMap;
     }
 
     /**

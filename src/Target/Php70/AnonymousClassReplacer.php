@@ -73,6 +73,8 @@ class AnonymousClassReplacer extends Plugin
         $classNode->name = new Identifier($name);
         $node->class = new Node\Name($name);
 
+        $ctx->nameResolver->enterNode($classNode);
+
         $classNode = new If_(
             new BooleanNot(self::call('class_exists', new ClassConstFetch($node->class, new Identifier('class')))),
             ['stmts' => [$classNode]]

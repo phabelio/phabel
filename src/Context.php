@@ -104,10 +104,7 @@ class Context
      */
     public function pushResolve(Node $node): void
     {
-        if (!$node->getAttribute('nameResolved', false)) {
-            $this->nameResolver->enterNode($node);
-            $node->setAttribute('nameResolved', true);
-        }
+        $this->nameResolver->enterNode($node);
     }
     /**
      * Push node.

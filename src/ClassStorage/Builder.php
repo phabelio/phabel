@@ -81,9 +81,9 @@ class Builder
      *
      * @param ClassLike $class Class or trait
      */
-    public function __construct(ClassLike $class)
+    public function __construct(ClassLike $class, string $customName = '')
     {
-        $this->name = Tools::getFqdn($class);
+        $this->name = Tools::getFqdn($class, $customName);
         if ($class instanceof Interface_ || $class instanceof StmtClass_) {
             foreach (
                 \is_array($class->extends)
@@ -186,7 +186,11 @@ class Builder
             }
         }
         foreach ($this->extended as $class => &$res) {
-            $res = \array_values($plugin->classes[$class])[0];
+            if (isset($plugin->classes[$class])) {
+                $res = \array_values($plugin->classes[$class])[0];
+            } else {
+                unset($this->extended[$class]);
+            }
         }
         $this->resolving = false;
         $this->resolved = true;

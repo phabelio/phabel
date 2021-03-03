@@ -10,6 +10,7 @@ if (!\class_exists(a::class)) {
     }
 }
 (fn (a|callable $a) => null)(new a);
+(fn (a $a) => null)(clone new class extends a{});
 
 /**
  * @author Daniil Gentili <daniil@daniil.it>

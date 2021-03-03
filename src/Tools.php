@@ -234,9 +234,11 @@ abstract class Tools
      * Get fully qualified name.
      *
      * @param Node $node
+     * @param class-string $alt Alternative name
+     * 
      * @return class-string
      */
-    public static function getFqdn(Node $node): string
+    public static function getFqdn(Node $node, string $alt = ''): string
     {
         if ($node instanceof FullyQualified) {
             return (string) $node;
@@ -245,7 +247,10 @@ abstract class Tools
             return (string) $node->namespacedName;
         }
         if (!$node->getAttribute('resolvedName')) {
-            throw new \RuntimeException('Cannot obtain FQDN from unresolved name!');
+            if ($alt) {
+                return $alt;
+            }
+            throw new UnresolvedNameException();
         }
         return (string) $node->getAttribute('resolvedName', $node->getAttribute('namespacedName'));
     }
