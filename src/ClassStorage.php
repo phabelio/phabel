@@ -81,10 +81,7 @@ final class ClassStorage
      */
     public function getClass(string $file, string $name): Storage
     {
-        if (!isset($this->classes[$name][$file])) {
-            var_dump(array_keys($this->classes[$name]));
-        }
-        return $this->classes[$name][$file];
+        return $this->classes[$name][$file] ?? $this->traits[$name][$file];
     }
     /**
      * Get trait.
