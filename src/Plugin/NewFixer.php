@@ -51,10 +51,10 @@ class NewFixer extends Plugin
             return new Ternary(
                 new BooleanOr(
                     new Assign($new->class = $context->getVariable(), $valueCopy),
-                    new LNumber(1)
+                    self::fromLiteral(true)
                 ),
                 $new,
-                new LNumber(0)
+                self::fromLiteral(false)
             );
         }
     }

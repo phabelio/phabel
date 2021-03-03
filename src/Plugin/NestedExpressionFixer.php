@@ -85,10 +85,10 @@ class NestedExpressionFixer extends Plugin
                     return new Ternary(
                         new BooleanOr(
                             new Assign($value = $context->getVariable(), $valueCopy),
-                            new LNumber(1)
+                            self::fromLiteral(true)
                         ),
                         $expr,
-                        new LNumber(0)
+                        self::fromLiteral(false)
                     );
                 case StaticCall::class:
                 case StaticPropertyFetch::class:

@@ -56,7 +56,7 @@ class NullCoalesceReplacer extends Plugin
         }
         $valueCopy = $workVar;
         $check = new NotIdentical(
-            Tools::toLiteral(null),
+            Tools::fromLiteral(null),
             new Assign($workVar = $ctx->getVariable(), $valueCopy)
         );
         return new Ternary(

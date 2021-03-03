@@ -148,7 +148,7 @@ abstract class Tools
      *
      * @return Node
      */
-    public static function toLiteral($data): Node
+    public static function fromLiteral($data): Node
     {
         return self::toNode(\var_export($data, true).';');
     }

@@ -12,6 +12,7 @@ use HaydenPierce\ClassFinder\ClassFinder;
 use Phabel\Plugin\IssetExpressionFixer;
 use Phabel\Plugin\NestedExpressionFixer;
 use Phabel\Target\Php;
+use Phabel\Tools;
 use PhpParser\Builder\Class_;
 use PhpParser\Builder\Method;
 use PhpParser\Builder\Namespace_;
@@ -427,7 +428,7 @@ PHP;
                         new MethodCall(
                             new Variable('this'),
                             'assertTrue',
-                            [new Arg(new Identical(new LNumber(0), new LNumber(0)))]
+                            [new Arg(Tools::fromLiteral(true))]
                         )
                     )
                     ->addStmt(

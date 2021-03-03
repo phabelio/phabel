@@ -54,8 +54,8 @@ class IssetExpressionFixer extends Plugin
                 'returnMe',
                 new Ternary(
                     $node,
-                    self::toLiteral([0]),
-                    self::toLiteral([]),
+                    self::fromLiteral([0]),
+                    self::fromLiteral([]),
                 )
             ),
             new LNumber(0)
@@ -96,7 +96,7 @@ class IssetExpressionFixer extends Plugin
                         'staticExists',
                         $workVar->class,
                         $workVar->name instanceof VarLikeIdentifier ? new String_($workVar->name->name) : $workVar->name,
-                        new LNumber(1)
+                        self::fromLiteral(true)
                     ));
                     break;
                 case ClassConstFetch::class:
@@ -104,7 +104,7 @@ class IssetExpressionFixer extends Plugin
                         'staticExists',
                         $workVar->class,
                         new String_($workVar->name->name),
-                        new LNumber(0)
+                        self::fromLiteral(false)
                     ));
                     break;
                 case Variable::class:
