@@ -48,13 +48,7 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
             if (!\file_exists($dir)) {
                 continue;
             }
-            if ($dir === 'src') {
-                `cp -a vendor src`;
-            }
             $packages += Traverser::run([Php::class => ['target' => $target]], $dir, $dir, $coverage);
-            if ($dir === 'src') {
-                `rm -rf src/vendor`;
-            }
         }
 
         $packages["php"] = ">=".Php::unnormalizeVersion(Php::normalizeVersion($target));
