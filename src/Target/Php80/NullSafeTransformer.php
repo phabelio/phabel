@@ -30,7 +30,6 @@ class NullSafeTransformer extends Plugin
     {
         return new PropertyFetch(new Coalesce($fetch->var, new StaticPropertyFetch(new FullyQualified(NullSafe::class), 'singleton')), $fetch->name);
     }
-
     /**
      * Method call.
      *
@@ -41,7 +40,6 @@ class NullSafeTransformer extends Plugin
     {
         return new MethodCall(new Coalesce($fetch->var, new StaticPropertyFetch(new FullyQualified(NullSafe::class), 'singleton')), $fetch->name, $fetch->args);
     }
-
     public static function previous(array $config): array
     {
         return [NestedExpressionFixer::class => [New_::class => ['class' => [NullsafePropertyFetch::class => true, NullsafeMethodCall::class => true]]]];

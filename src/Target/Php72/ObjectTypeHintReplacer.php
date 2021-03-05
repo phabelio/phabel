@@ -13,10 +13,6 @@ class ObjectTypeHintReplacer extends Plugin
 {
     public static function previous(array $config): array
     {
-        return [
-            TypeHintReplacer::class => [
-                'types' => ['object']
-            ]
-        ];
+        return [TypeHintReplacer::class => ['types' => ['object']]];
     }
 }

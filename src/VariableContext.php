@@ -76,7 +76,7 @@ class VariableContext
     public function getVar(): string
     {
         do {
-            $var = 'phabel_'.\bin2hex(\random_bytes(8));
+            $var = 'phabel_' . \bin2hex(\random_bytes(8));
         } while (isset($this->variables[$var]));
         $this->variables[$var] = true;
         return $var;
