@@ -16,14 +16,13 @@ use PhpParser\Builder\FunctionLike;
 class ReGenerator extends Plugin
 {
     const SHOULD_ATTRIBUTE = 'shouldRegenerate';
-
     /**
      * Custom traverser.
      */
     private Traverser $traverser;
     public function __construct()
     {
-        $this->traverser = Traverser::fromPlugin(new ReGeneratorInternal);
+        $this->traverser = Traverser::fromPlugin(new ReGeneratorInternal());
     }
     public function enter(FunctionLike $function)
     {
