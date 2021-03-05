@@ -17,7 +17,13 @@ foreach (Php::VERSIONS as $version) {
     $fs->remove("tests/Target{$version}");
     $fs->remove("tests/Target10{$version}");
     $packages[] = $promise = Traverser::runAsync([PhabelTestGenerator::class => ['target' => $version]], 'tests/Target', "tests/Target{$version}", "test{$version}");
-    $promise->onResolve(function (?\Throwable $e, ?array $res) use ($version, &$packagesSecondary) {
+    $promise->onResolve(function ($e, $res) use ($version, &$packagesSecondary) {
+        if (!($e instanceof \Exception || $e instanceof \Error || \is_null($e))) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($e) must be of type ?Throwable, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($e) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        if (!(\is_array($res) || \is_null($res))) {
+            throw new \TypeError(__METHOD__ . '(): Argument #2 ($res) must be of type ?array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($res) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
         if ($e) {
             throw $e;
         }

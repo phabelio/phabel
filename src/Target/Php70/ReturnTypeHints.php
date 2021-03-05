@@ -11,8 +11,12 @@ use Phabel\Plugin\TypeHintReplacer;
  */
 class ReturnTypeHints extends Plugin
 {
-    public static function previous(array $config): array
+    public static function previous(array $config)
     {
-        return [TypeHintReplacer::class => ['return' => true]];
+        $phabelReturn = [TypeHintReplacer::class => ['return' => true]];
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
 }

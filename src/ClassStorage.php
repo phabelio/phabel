@@ -17,19 +17,19 @@ final class ClassStorage
      *
      * @var array<string, array<string, Storage>>
      */
-    private array $classes = [];
+    private $classes = [];
     /**
      * Traits.
      *
      * @var array<string, array<string, Storage>>
      */
-    private array $traits = [];
+    private $traits = [];
     /**
      * Root classes.
      *
      * @var array<class-string, Storage>
      */
-    private array $rootClasses = [];
+    private $rootClasses = [];
     /**
      * Constructor.
      */
@@ -73,9 +73,19 @@ final class ClassStorage
      *
      * @return Storage
      */
-    public function getClass(string $file, string $name): Storage
+    public function getClass($file, $name)
     {
-        return $this->classes[$name][$file] ?? $this->traits[$name][$file];
+        if (!\is_string($file)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($file) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($file) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        if (!\is_string($name)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #2 ($name) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($name) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        $phabelReturn = isset($this->classes[$name][$file]) ? $this->classes[$name][$file] : $this->traits[$name][$file];
+        if (!$phabelReturn instanceof Storage) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type Storage, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Get class by class name.
@@ -84,16 +94,23 @@ final class ClassStorage
      *
      * @return ?Storage
      */
-    public function getClassByName(string $class): ?Storage
+    public function getClassByName($class)
     {
-        return \array_values($this->classes[$class] ?? [])[0] ?? null;
+        if (!\is_string($class)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($class) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($class) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        $phabelReturn = null !== ($phabel_2be9a200c014bed1 = \array_values(isset($this->classes[$class]) ? $this->classes[$class] : [])) && isset($phabel_2be9a200c014bed1[0]) ? $phabel_2be9a200c014bed1[0] : null;
+        if (!($phabelReturn instanceof Storage || \is_null($phabelReturn))) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ?Storage, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Get storage.
      *
      * @return \Generator
      */
-    public function getClasses(): \Generator
+    public function getClasses()
     {
         foreach ($this->classes as $class => $classes) {
             foreach ($classes as $file => $storage) {
@@ -106,12 +123,19 @@ final class ClassStorage
      *
      * @return array<class-string, Storage>
      */
-    public function getRootClasses(): array
+    public function getRootClasses()
     {
-        return $this->rootClasses;
+        $phabelReturn = $this->rootClasses;
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
-    private static function typeArray(null|Identifier|Name|NullableType|UnionType $type): array
+    private static function typeArray($type)
     {
+        if (!(\is_null($type) || $type instanceof Identifier || $type instanceof Name || $type instanceof NullableType || $type instanceof UnionType)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($type) must be of type Identifier|Name|NullableType|UnionType|null, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($type) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
         $types = [];
         if ($type instanceof NullableType) {
             $types = [$type->type, new Identifier('null')];
@@ -120,7 +144,11 @@ final class ClassStorage
         } elseif ($type) {
             $types = [$type];
         }
-        return $types;
+        $phabelReturn = $types;
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Compare two types.
@@ -129,12 +157,22 @@ final class ClassStorage
      * @param null|Identifier|Name|NullableType|UnionType $typeB
      * @return integer
      */
-    public function compare(null|Identifier|Name|NullableType|UnionType $typeA, null|Identifier|Name|NullableType|UnionType $typeB): int
+    public function compare($typeA, $typeB)
     {
+        if (!(\is_null($typeA) || $typeA instanceof Identifier || $typeA instanceof Name || $typeA instanceof NullableType || $typeA instanceof UnionType)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($typeA) must be of type Identifier|Name|NullableType|UnionType|null, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($typeA) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        if (!(\is_null($typeB) || $typeB instanceof Identifier || $typeB instanceof Name || $typeB instanceof NullableType || $typeB instanceof UnionType)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #2 ($typeB) must be of type Identifier|Name|NullableType|UnionType|null, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($typeB) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
         $typeA = self::typeArray($typeA);
         $typeB = self::typeArray($typeB);
         if (\count($typeA) !== \count($typeB)) {
-            return \count($typeA) <=> \count($typeB);
+            $phabelReturn = \Phabel\Target\Php70\SpaceshipOperatorReplacer::spaceship(\count($typeA), \count($typeB));
+            if (!\is_int($phabelReturn)) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         }
         if (\count($typeA) + \count($typeB) === 2) {
             $typeA = $typeA[0];
@@ -142,16 +180,28 @@ final class ClassStorage
             if ($typeA instanceof Name && $typeB instanceof Name && ($classA = $this->getClassByName(Tools::getFqdn($typeA))) && ($classB = $this->getClassByName(Tools::getFqdn($typeB)))) {
                 foreach ($classA->getAllChildren() as $child) {
                     if ($child === $classB) {
-                        return 1;
+                        $phabelReturn = 1;
+                        if (!\is_int($phabelReturn)) {
+                            throw new \TypeError(__METHOD__ . '(): Return value must be of type int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                        }
+                        return $phabelReturn;
                     }
                 }
                 foreach ($classB->getAllChildren() as $child) {
                     if ($child === $classA) {
-                        return -1;
+                        $phabelReturn = -1;
+                        if (!\is_int($phabelReturn)) {
+                            throw new \TypeError(__METHOD__ . '(): Return value must be of type int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                        }
+                        return $phabelReturn;
                     }
                 }
             }
         }
-        return 0;
+        $phabelReturn = 0;
+        if (!\is_int($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
 }

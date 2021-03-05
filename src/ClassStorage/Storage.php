@@ -10,42 +10,42 @@ use PhpParser\Node\Stmt\ClassMethod;
  */
 class Storage
 {
-    private const MODIFIER_NORMAL = 64;
+    const MODIFIER_NORMAL = 64;
     const STORAGE_KEY = 'Storage:instance';
     /**
      * Method list.
      *
      * @psalm-var array<string, ClassMethod>
      */
-    private array $methods = [];
+    private $methods = [];
     /**
      * Abstract method list.
      *
      * @psalm-var array<string, ClassMethod>
      */
-    private array $abstractMethods = [];
+    private $abstractMethods = [];
     /**
      * Removed method list.
      *
      * @var array<string, true>
      */
-    private array $removedMethods = [];
+    private $removedMethods = [];
     /**
      * Classes/interfaces to extend.
      *
      * @var array<class-string, Storage>
      */
-    private array $extends = [];
+    private $extends = [];
     /**
      * Classes/interfaces that extend us.
      *
      * @var array<class-string, Storage>
      */
-    private array $extendedBy = [];
+    private $extendedBy = [];
     /**
      * Class name.
      */
-    private string $name;
+    private $name;
     /**
      * Constructor.
      *
@@ -54,8 +54,11 @@ class Storage
      * @param array<string, ClassMethod>   $abstractMethods
      * @param array<class-string, Builder> $extends
      */
-    public function build(string $name, array $methods, array $abstractMethods, array $extends)
+    public function build($name, array $methods, array $abstractMethods, array $extends)
     {
+        if (!\is_string($name)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($name) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($name) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
         $this->name = $name;
         $this->methods = $methods;
         $this->abstractMethods = $abstractMethods;
@@ -84,9 +87,13 @@ class Storage
      *
      * @return string
      */
-    public function getName(): string
+    public function getName()
     {
-        return $this->name;
+        $phabelReturn = $this->name;
+        if (!\is_string($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Get method list.
@@ -96,8 +103,14 @@ class Storage
      *
      * @return \Generator<string, ClassMethod, null, void>
      */
-    public function getMethods(int $typeMask = ~Class_::VISIBILITY_MODIFIER_MASK, int $visibilityMask = Class_::VISIBILITY_MODIFIER_MASK): \Generator
+    public function getMethods($typeMask = ~Class_::VISIBILITY_MODIFIER_MASK, $visibilityMask = Class_::VISIBILITY_MODIFIER_MASK)
     {
+        if (!\is_int($typeMask)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($typeMask) must be of type int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($typeMask) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        if (!\is_int($visibilityMask)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #2 ($visibilityMask) must be of type int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($visibilityMask) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
         if ($typeMask & Class_::MODIFIER_ABSTRACT) {
             foreach ($this->abstractMethods as $name => $method) {
                 if ($method->flags & $typeMask && $method->flags & $visibilityMask) {
@@ -118,25 +131,33 @@ class Storage
      *
      * @return array<class-string, Storage>
      */
-    public function getExtendedBy(): array
+    public function getExtendedBy()
     {
-        return $this->extendedBy;
+        $phabelReturn = $this->extendedBy;
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Get classes which this class extends.
      *
      * @return array<class-string, Storage>
      */
-    public function getExtends(): array
+    public function getExtends()
     {
-        return $this->extends;
+        $phabelReturn = $this->extends;
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Get all child classes.
      *
      * @return \Generator<void, Storage, null, void>
      */
-    public function getAllChildren(): \Generator
+    public function getAllChildren()
     {
         foreach ($this->extendedBy as $class) {
             (yield $class);
@@ -148,7 +169,7 @@ class Storage
      *
      * @return \Generator<void, Storage, null, void>
      */
-    public function getAllParents(): \Generator
+    public function getAllParents()
     {
         foreach ($this->extends as $class) {
             (yield $class);
@@ -164,8 +185,17 @@ class Storage
      *
      * @return \Generator<void, ClassMethod, null, void>
      */
-    public function getOverriddenMethods(string $name, int $typeMask = ~Class_::VISIBILITY_MODIFIER_MASK, int $visibilityMask = Class_::VISIBILITY_MODIFIER_MASK): \Generator
+    public function getOverriddenMethods($name, $typeMask = ~Class_::VISIBILITY_MODIFIER_MASK, $visibilityMask = Class_::VISIBILITY_MODIFIER_MASK)
     {
+        if (!\is_string($name)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($name) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($name) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        if (!\is_int($typeMask)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #2 ($typeMask) must be of type int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($typeMask) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        if (!\is_int($visibilityMask)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #3 ($visibilityMask) must be of type int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($visibilityMask) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
         foreach ($this->getAllChildren() as $child) {
             $methods = [];
             if (isset($child->abstractMethods[$name])) {
@@ -189,7 +219,7 @@ class Storage
      *
      * @return self
      */
-    public function removeMethod(ClassMethod $method): self
+    public function removeMethod(ClassMethod $method)
     {
         $name = $method->name->name;
         if ($method->stmts !== null) {
@@ -201,20 +231,28 @@ class Storage
             $this->removedMethods[$name] = true;
             unset($this->abstractMethods[$name]);
         }
-        return $this;
+        $phabelReturn = $this;
+        if (!$phabelReturn instanceof self) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ' . self::class . ', ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Process method from AST.
      *
      * @return bool
      */
-    public function process(ClassMethod $method): bool
+    public function process(ClassMethod $method)
     {
         $name = $method->name->name;
         if (isset($this->removedMethods[$name])) {
-            return true;
+            $phabelReturn = true;
+            if (!\is_bool($phabelReturn)) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         }
-        $myMethod = $this->methods[$name] ?? $this->abstractMethods[$name];
+        $myMethod = isset($this->methods[$name]) ? $this->methods[$name] : $this->abstractMethods[$name];
         foreach ($myMethod->getSubNodeNames() as $name) {
             if ($name === 'stmts') {
                 continue;
@@ -226,6 +264,10 @@ class Storage
                 $method->setAttribute($key, $attribute);
             }
         }
-        return false;
+        $phabelReturn = false;
+        if (!\is_bool($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
 }

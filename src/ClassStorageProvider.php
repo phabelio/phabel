@@ -9,25 +9,25 @@ use PhpParser\Node\Stmt\ClassMethod;
 
 abstract class ClassStorageProvider extends Plugin implements JsonSerializable
 {
-    private const PROCESSED = 'ClassStorageProvider:processed';
+    const PROCESSED = 'ClassStorageProvider:processed';
     /**
      * Class count.
      */
-    private array $count = [];
+    private $count = [];
     /**
      * Process class graph.
      *
      * @param ClassStorage $storage
      * @return bool
      */
-    abstract public static function processClassGraph(ClassStorage $storage): bool;
+    abstract public static function processClassGraph(ClassStorage $storage);
     /**
      * Enter file.
      *
      * @param RootNode $_
      * @return void
      */
-    public function enterRoot(RootNode $_, Context $context): void
+    public function enterRoot(RootNode $_, Context $context)
     {
         $this->count[$context->getFile()] = [];
     }
@@ -37,7 +37,7 @@ abstract class ClassStorageProvider extends Plugin implements JsonSerializable
      * @param ClassLike $classLike
      * @return void
      */
-    public function enterClassStorage(ClassLike $class, Context $context): void
+    public function enterClassStorage(ClassLike $class, Context $context)
     {
         if ($class->hasAttribute(self::PROCESSED)) {
             return;
@@ -48,7 +48,7 @@ abstract class ClassStorageProvider extends Plugin implements JsonSerializable
             $name = self::getFqdn($class);
         } else {
             $name = "class@anonymous{$file}";
-            $this->count[$file][$name] ??= 0;
+            $this->count[$file][$name] = isset($this->count[$file][$name]) ? $this->count[$file][$name] : 0;
             $name .= "@" . $this->count[$file][$name]++;
         }
         $storage = $this->getGlobalClassStorage()->getClass($file, $name);
@@ -63,17 +63,25 @@ abstract class ClassStorageProvider extends Plugin implements JsonSerializable
      *
      * @return ClassStorage
      */
-    public function getGlobalClassStorage(): ClassStorage
+    public function getGlobalClassStorage()
     {
-        return $this->getConfig(ClassStorage::class, null);
+        $phabelReturn = $this->getConfig(ClassStorage::class, null);
+        if (!$phabelReturn instanceof ClassStorage) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ClassStorage, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * JSON representation.
      *
      * @return string
      */
-    public function jsonSerialize(): string
+    public function jsonSerialize()
     {
-        return \spl_object_hash($this);
+        $phabelReturn = \spl_object_hash($this);
+        if (!\is_string($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
 }

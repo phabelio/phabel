@@ -13,7 +13,7 @@ use SplStack;
  */
 class TypeContracovariance extends ClassStorageProvider
 {
-    public static function processClassGraph(ClassStorage $storage): bool
+    public static function processClassGraph(ClassStorage $storage)
     {
         $changed = false;
         foreach ($storage->getClasses() as $class) {
@@ -50,13 +50,21 @@ class TypeContracovariance extends ClassStorageProvider
                 }
             }
         }
-        return $changed;
+        $phabelReturn = $changed;
+        if (!\is_bool($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * {@inheritDoc}
      */
-    public static function next(array $config): array
+    public static function next(array $config)
     {
-        return [TypeHintReplacer::class];
+        $phabelReturn = [TypeHintReplacer::class];
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
 }

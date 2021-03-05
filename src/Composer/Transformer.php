@@ -26,40 +26,44 @@ class Transformer
     /**
      * IO interface.
      */
-    private IOInterface $io;
+    private $io;
     /**
      * IO interface.
      */
-    private OutputFormatter $outputFormatter;
+    private $outputFormatter;
     /**
      * Version parser.
      */
-    private VersionParser $versionParser;
+    private $versionParser;
     /**
      * Requires.
      */
-    private array $requires = [];
+    private $requires = [];
     /**
      * Whether we processed requirements.
      */
-    private array $processedRequires = [];
+    private $processedRequires = [];
     /**
      * Whether we processed any dependencies.
      */
-    private bool $processed = false;
+    private $processed = false;
     /**
      * Instance.
      */
-    private static self $instance;
+    private static $instance;
     /**
      * Get singleton.
      *
      * @return self
      */
-    public static function getInstance(IOInterface $io): self
+    public static function getInstance(IOInterface $io)
     {
-        self::$instance ??= new self($io);
-        return self::$instance;
+        self::$instance = isset(self::$instance) ? self::$instance : new self($io);
+        $phabelReturn = self::$instance;
+        if (!$phabelReturn instanceof self) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ' . self::class . ', ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Constructor.
@@ -79,8 +83,11 @@ class Transformer
      * @param bool $format
      * @return void
      */
-    public function log(string $text, $format = true): void
+    public function log($text, $format = true)
     {
+        if (!\is_string($text)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($text) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($text) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
         $blue = $this->outputFormatter->format($format ? "<phabel>{$text}</phabel>" : $text);
         $this->io->writeError($blue);
     }
@@ -93,14 +100,20 @@ class Transformer
      *
      * @return void
      */
-    public function preparePackage(PackageInterface &$package, string $newName, int $target = Php::TARGET_IGNORE): void
+    public function preparePackage(PackageInterface &$package, $newName, $target = Php::TARGET_IGNORE)
     {
+        if (!\is_string($newName)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #2 ($newName) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($newName) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        if (!\is_int($target)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #3 ($target) must be of type int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($target) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
         /**
          * Phabel configuration of current package.
          * @var array
          */
-        $config = $package->getExtra()['phabel'] ?? [];
-        $myTarget = Php::normalizeVersion($config['target'] ?? Php::DEFAULT_TARGET);
+        $config = null !== ($phabel_c0be67b5ed033ca9 = $package->getExtra()) && isset($phabel_c0be67b5ed033ca9['phabel']) ? $phabel_c0be67b5ed033ca9['phabel'] : [];
+        $myTarget = Php::normalizeVersion(isset($config['target']) ? $config['target'] : Php::DEFAULT_TARGET);
         $havePhabel = false;
         foreach ($package->getRequires() as $link) {
             [$name] = $this->extractTarget($link->getTarget());
@@ -128,7 +141,7 @@ class Transformer
         $this->processed = true;
         $this->processedRequires = $this->requires;
         $requires = $this->requires;
-        foreach ($config['require'] ?? [] as $name => $constraint) {
+        foreach (isset($config['require']) ? $config['require'] : [] as $name => $constraint) {
             $requires[$this->injectTarget($name, $myTarget)] = $constraint;
         }
         if ($newName !== $package->getName() && \method_exists($package, 'setProvides')) {
@@ -149,8 +162,14 @@ class Transformer
      *
      * @return void
      */
-    private function processRequires(PackageInterface $package, int $target, array $requires, bool $havePhabel)
+    private function processRequires(PackageInterface $package, $target, array $requires, $havePhabel)
     {
+        if (!\is_int($target)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #2 ($target) must be of type int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($target) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        if (!\is_bool($havePhabel)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #4 ($havePhabel) must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($havePhabel) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
         $links = [];
         foreach ($package->getRequires() as $name => $link) {
             if (PlatformRepository::isPlatformPackage($link->getTarget())) {
@@ -180,10 +199,20 @@ class Transformer
      * @param int $target
      * @return string
      */
-    private function injectTarget(string $package, int $target): string
+    private function injectTarget($package, $target)
     {
+        if (!\is_string($package)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($package) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($package) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        if (!\is_int($target)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #2 ($target) must be of type int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($target) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
         [$package] = $this->extractTarget($package);
-        return self::HEADER . $target . self::SEPARATOR . $package;
+        $phabelReturn = self::HEADER . $target . self::SEPARATOR . $package;
+        if (!\is_string($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Look for phabel configuration parameters in constraint.
@@ -192,13 +221,24 @@ class Transformer
      *
      * @return array{0: string, 1: int}
      */
-    public function extractTarget(string $package): array
+    public function extractTarget($package)
     {
+        if (!\is_string($package)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($package) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($package) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
         if (\str_starts_with($package, self::HEADER)) {
             [$version, $package] = \explode(self::SEPARATOR, \substr($package, \strlen(self::HEADER)), 2);
-            return [$package, $version];
+            $phabelReturn = [$package, $version];
+            if (!\is_array($phabelReturn)) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         }
-        return [$package, Php::TARGET_IGNORE];
+        $phabelReturn = [$package, Php::TARGET_IGNORE];
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Transform dependencies.
@@ -206,7 +246,7 @@ class Transformer
      * @param array $packages
      * @return bool Whether no more packages should be updated
      */
-    public function transform(array $packages): bool
+    public function transform(array $packages)
     {
         static $printed = false;
         if (!$printed) {
@@ -221,7 +261,7 @@ class Transformer
                 continue;
             }
             $package['phabelTarget'] = (int) $target;
-            $package['phabelConfig'] = [$package['extra']['phabel'] ?? []];
+            $package['phabelConfig'] = [isset($package['extra']['phabel']) ? $package['extra']['phabel'] : []];
             unset($package['phabelConfig'][0]['target']);
             $byName[$name] = $package;
         }
@@ -229,7 +269,7 @@ class Transformer
             $changed = false;
             foreach ($byName as $name => $package) {
                 $parentConfigs = $package['phabelConfig'];
-                foreach ($package['require'] ?? [] as $subName => $constraint) {
+                foreach (isset($package['require']) ? $package['require'] : [] as $subName => $constraint) {
                     if (PlatformRepository::isPlatformPackage($subName)) {
                         continue;
                     }
@@ -259,7 +299,11 @@ class Transformer
         $traverser = new Traverser($graph->getPlugins());
         $this->requires = $graph->getPackages();
         if (!$this->processedRequires()) {
-            return false;
+            $phabelReturn = false;
+            if (!\is_bool($phabelReturn)) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         }
         $this->log("Applying transforms...");
         foreach ($byName as $name => $package) {
@@ -273,24 +317,36 @@ class Transformer
             }
         }
         $this->log("Done!");
-        return true;
+        $phabelReturn = true;
+        if (!\is_bool($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Get whether we processed any dependencies.
      *
      * @return bool
      */
-    public function processedRequires(): bool
+    public function processedRequires()
     {
-        return $this->processed && $this->processedRequires === $this->requires;
+        $phabelReturn = $this->processed && $this->processedRequires === $this->requires;
+        if (!\is_bool($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Get IO interface.
      *
      * @return IOInterface
      */
-    public function getIo(): IOInterface
+    public function getIo()
     {
-        return $this->io;
+        $phabelReturn = $this->io;
+        if (!$phabelReturn instanceof IOInterface) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type IOInterface, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
 }

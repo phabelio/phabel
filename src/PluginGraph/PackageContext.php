@@ -15,7 +15,7 @@ class PackageContext
      *
      * @var array<string, null>
      */
-    private array $packages = [];
+    private $packages = [];
     /**
      * Add package.
      *
@@ -23,8 +23,11 @@ class PackageContext
      *
      * @return void
      */
-    public function addPackage(string $package): void
+    public function addPackage($package)
     {
+        if (!\is_string($package)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($package) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($package) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
         $this->packages[$package] = true;
     }
     /**
@@ -34,10 +37,14 @@ class PackageContext
      *
      * @return self New context
      */
-    public function merge(self $other): self
+    public function merge(self $other)
     {
         $this->packages += $other->packages;
-        return $this;
+        $phabelReturn = $this;
+        if (!$phabelReturn instanceof self) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ' . self::class . ', ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Check if a package is present in the package context.
@@ -46,17 +53,28 @@ class PackageContext
      *
      * @return boolean
      */
-    public function has(string $package): bool
+    public function has($package)
     {
-        return isset($this->packages[$package]);
+        if (!\is_string($package)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($package) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($package) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        $phabelReturn = isset($this->packages[$package]);
+        if (!\is_bool($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Get package list.
      *
      * @return array
      */
-    public function getPackages(): array
+    public function getPackages()
     {
-        return \array_values($this->packages);
+        $phabelReturn = \array_values($this->packages);
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
 }

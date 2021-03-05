@@ -13,8 +13,12 @@ use PhpParser\Node\Expr\BinaryOp\Coalesce as BinaryOpCoalesce;
  */
 class NullCoalesceAssignment extends Plugin
 {
-    public function enter(Coalesce $coalesce): Assign
+    public function enter(Coalesce $coalesce)
     {
-        return new Assign($coalesce->var, new BinaryOpCoalesce($coalesce->var, $coalesce->expr), $coalesce->getAttributes());
+        $phabelReturn = new Assign($coalesce->var, new BinaryOpCoalesce($coalesce->var, $coalesce->expr), $coalesce->getAttributes());
+        if (!$phabelReturn instanceof Assign) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type Assign, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
 }

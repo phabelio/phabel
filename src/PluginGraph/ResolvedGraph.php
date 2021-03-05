@@ -19,17 +19,17 @@ final class ResolvedGraph
      *
      * @psalm-var SplQueue<SplQueue<PluginInterface>>
      */
-    private SplQueue $plugins;
+    private $plugins;
     /**
      * Packages.
      *
      * @var array<string, string>
      */
-    private array $packages = [];
+    private $packages = [];
     /**
      * Class storage.
      */
-    private ?ClassStoragePlugin $classStorage = null;
+    private $classStorage = null;
     /**
      * Constructor.
      *
@@ -43,7 +43,7 @@ final class ResolvedGraph
         foreach ($plugins as $queue) {
             foreach ($queue as $plugin) {
                 foreach ($plugin->getComposerRequires() as $package => $constraint) {
-                    $requires[$package] ??= [];
+                    $requires[$package] = isset($requires[$package]) ? $requires[$package] : [];
                     $requires[$package][] = $constraint;
                 }
                 if ($plugin instanceof ClassStoragePlugin) {
@@ -54,7 +54,13 @@ final class ResolvedGraph
                 }
             }
         }
-        $this->packages = \array_map(fn (array $constraints): string => \implode(':', \array_unique($constraints)), $requires);
+        $this->packages = \array_map(function (array $constraints) {
+            $phabelReturn = \implode(':', \array_unique($constraints));
+            if (!\is_string($phabelReturn)) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
+        }, $requires);
     }
     /**
      * Get plugins.
@@ -62,9 +68,13 @@ final class ResolvedGraph
      * @return SplQueue
      * @psalm-return SplQueue<SplQueue<PluginInterface>>
      */
-    public function getPlugins(): SplQueue
+    public function getPlugins()
     {
-        return $this->plugins;
+        $phabelReturn = $this->plugins;
+        if (!$phabelReturn instanceof SplQueue) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type SplQueue, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Get packages.
@@ -72,17 +82,25 @@ final class ResolvedGraph
      * @return array
      * @psalm-return array<string, string>
      */
-    public function getPackages(): array
+    public function getPackages()
     {
-        return $this->packages;
+        $phabelReturn = $this->packages;
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Get class storage.
      *
      * @return ?ClassStoragePlugin
      */
-    public function getClassStorage(): ?ClassStoragePlugin
+    public function getClassStorage()
     {
-        return $this->classStorage;
+        $phabelReturn = $this->classStorage;
+        if (!($phabelReturn instanceof ClassStoragePlugin || \is_null($phabelReturn))) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ?ClassStoragePlugin, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
 }

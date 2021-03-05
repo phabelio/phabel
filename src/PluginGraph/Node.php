@@ -20,55 +20,55 @@ class Node
      *
      * @var Plugins
      */
-    private Plugins $plugin;
+    private $plugin;
     /**
      * Original plugin name.
      *
      * @var class-string<PluginInterface>
      */
-    private string $name;
+    private $name;
     /**
      * Associated package context.
      *
      * @var PackageContext
      */
-    private PackageContext $packageContext;
+    private $packageContext;
     /**
      * Nodes that this node requires.
      *
      * @var SplObjectStorage<Node, null>
      */
-    private SplObjectStorage $requires;
+    private $requires;
     /**
      * Nodes that this node extends.
      *
      * @var SplObjectStorage<Node, null>
      */
-    private SplObjectStorage $extends;
+    private $extends;
     /**
      * Nodes that require this node.
      *
      * @var SplObjectStorage<Node, null>
      */
-    private SplObjectStorage $requiredBy;
+    private $requiredBy;
     /**
      * Nodes that extend this node.
      *
      * @var SplObjectStorage<Node, null>
      */
-    private SplObjectStorage $extendedBy;
+    private $extendedBy;
     /**
      * Graph instance.
      */
-    private GraphInternal $graph;
+    private $graph;
     /**
      * Whether this node was visited when looking for circular requirements.
      */
-    private bool $visitedCircular = false;
+    private $visitedCircular = false;
     /**
      * Whether this node can be required, or only extended.
      */
-    private bool $canBeRequired = true;
+    private $canBeRequired = true;
     /**
      * Constructor.
      *
@@ -94,8 +94,11 @@ class Node
      *
      * @return self
      */
-    public function init(string $plugin, array $pluginConfig): self
+    public function init($plugin, array $pluginConfig)
     {
+        if (!\is_string($plugin)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($plugin) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($plugin) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
         $this->name = $plugin;
         $this->plugin = new Plugins($plugin, $pluginConfig);
         $this->canBeRequired = PluginCache::canBeRequired($plugin);
@@ -119,7 +122,11 @@ class Node
                 $this->extend($node);
             }
         }
-        return $this;
+        $phabelReturn = $this;
+        if (!$phabelReturn instanceof self) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ' . self::class . ', ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Make node require another node.
@@ -128,7 +135,7 @@ class Node
      *
      * @return void
      */
-    private function require(self $node): void
+    private function require(self $node)
     {
         if (!$node->canBeRequired) {
             $this->extend($node);
@@ -149,7 +156,7 @@ class Node
      *
      * @return void
      */
-    private function extend(self $node): void
+    private function extend(self $node)
     {
         if ($this->requires->contains($node) || $node->requiredBy->contains($this)) {
             return;
@@ -165,7 +172,7 @@ class Node
      *
      * @return Node
      */
-    public function merge(self $other): Node
+    public function merge(self $other)
     {
         $this->packageContext->merge($other->packageContext);
         $this->plugin->merge($other->plugin);
@@ -177,14 +184,18 @@ class Node
             $that->extend($this);
             $that->extends->detach($other);
         }
-        return $this;
+        $phabelReturn = $this;
+        if (!$phabelReturn instanceof Node) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type Node, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Flatten tree.
      *
      * @return SplQueue<SplQueue<PluginInterface>>
      */
-    public function flatten(): SplQueue
+    public function flatten()
     {
         /** @var SplQueue<PluginInterface> */
         $initQueue = new SplQueue();
@@ -192,14 +203,18 @@ class Node
         $queue = new SplQueue();
         $queue->enqueue($initQueue);
         $this->flattenInternal($queue);
-        return $queue;
+        $phabelReturn = $queue;
+        if (!$phabelReturn instanceof SplQueue) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type SplQueue, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Look for circular references, while merging package contexts.
      *
      * @return self
      */
-    public function circular(): self
+    public function circular()
     {
         if ($this->visitedCircular) {
             $plugins = [$this->name];
@@ -219,7 +234,11 @@ class Node
             $this->packageContext->merge($that->circular()->packageContext);
         }
         $this->visitedCircular = false;
-        return $this;
+        $phabelReturn = $this;
+        if (!$phabelReturn instanceof self) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ' . self::class . ', ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Internal flattening.
@@ -228,7 +247,7 @@ class Node
      *
      * @return void
      */
-    private function flattenInternal(SplQueue $queueOfQueues): void
+    private function flattenInternal(SplQueue $queueOfQueues)
     {
         $queue = $queueOfQueues->top();
         $this->plugin->enqueue($queue, $this->packageContext);
@@ -287,9 +306,13 @@ class Node
      *
      * @return self
      */
-    public function addPackages(PackageContext $ctx): self
+    public function addPackages(PackageContext $ctx)
     {
         $this->packageContext->merge($ctx);
-        return $this;
+        $phabelReturn = $this;
+        if (!$phabelReturn instanceof self) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ' . self::class . ', ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
 }

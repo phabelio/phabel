@@ -23,7 +23,7 @@ class ArrowClosure extends Plugin
      *
      * @return Closure
      */
-    public function enter(ArrowFunction $func, Context $context): Closure
+    public function enter(ArrowFunction $func, Context $context)
     {
         /** @var array<string, mixed> */
         $nodes = [];
@@ -36,13 +36,17 @@ class ArrowClosure extends Plugin
         /** @var array<string, true> */
         $params = [];
         /** @var Param */
-        foreach ($nodes['params'] ?? [] as $param) {
+        foreach (isset($nodes['params']) ? $nodes['params'] : [] as $param) {
             if ($param->var instanceof Variable) {
                 /** @var string $param->var->name */
                 $params[$param->var->name] = true;
             }
         }
         $nodes['uses'] = \array_values(\array_intersect_key(\array_diff_key(VariableFinder::find($func->expr), $params), $context->variables->top()->getVars()));
-        return new Closure($nodes, $func->getAttributes());
+        $phabelReturn = new Closure($nodes, $func->getAttributes());
+        if (!$phabelReturn instanceof Closure) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type Closure, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
 }

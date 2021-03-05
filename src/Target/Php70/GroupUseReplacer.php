@@ -21,10 +21,16 @@ class GroupUseReplacer extends Plugin
      *
      * @return Use_[]
      */
-    public function leave(GroupUse $node): array
+    public function leave(GroupUse $node)
     {
         $nodePrefixParts = $node->prefix->parts;
-        return \array_map(fn (UseUse $useNode) => $this->createUseNode($nodePrefixParts, $useNode), $node->uses);
+        $phabelReturn = \array_map(function (UseUse $useNode) use ($nodePrefixParts) {
+            return $this->createUseNode($nodePrefixParts, $useNode);
+        }, $node->uses);
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Create separate use node.
@@ -34,10 +40,14 @@ class GroupUseReplacer extends Plugin
      *
      * @return Use_ New use node
      */
-    protected function createUseNode(array $nodePrefixParts, UseUse $useNode): Use_
+    protected function createUseNode(array $nodePrefixParts, UseUse $useNode)
     {
         $nodePrefixParts[] = $useNode->name;
         $nameNode = new Node\Name($nodePrefixParts);
-        return new Use_([new UseUse($nameNode, $useNode->alias)], $useNode->type);
+        $phabelReturn = new Use_([new UseUse($nameNode, $useNode->alias)], $useNode->type);
+        if (!$phabelReturn instanceof Use_) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type Use_, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
 }

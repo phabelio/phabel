@@ -46,8 +46,11 @@ class DefineArrayReplacer extends Plugin
      * @param array $value
      * @return void
      */
-    public static function defineMe(string $name, array $value): void
+    public static function defineMe($name, array $value)
     {
+        if (!\is_string($name)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($name) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($name) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
         $name = \preg_replace("/[^A-Za-z0-9_]/", '', $name);
         $value = \var_export($value, true);
         eval("const {$name} = {$value};");

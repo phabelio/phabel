@@ -19,7 +19,7 @@ class GeneratorDetector extends Plugin
      * Whether this function is a generator.
      */
     const IS_GENERATOR = 'isGenerator';
-    public function enterYield(Yield_ $node, Context $ctx): void
+    public function enterYield(Yield_ $node, Context $ctx)
     {
         foreach ($ctx->parents as $parent) {
             if ($parent instanceof FunctionLike) {
@@ -28,7 +28,7 @@ class GeneratorDetector extends Plugin
             }
         }
     }
-    public function enterYieldFrom(YieldFrom $node, Context $ctx): void
+    public function enterYieldFrom(YieldFrom $node, Context $ctx)
     {
         foreach ($ctx->parents as $parent) {
             if ($parent instanceof FunctionLike) {

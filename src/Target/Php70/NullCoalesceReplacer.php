@@ -30,15 +30,27 @@ class NullCoalesceReplacer extends Plugin
      * @param Expr $var
      * @return Expr
      */
-    private static function &extractWorkVar(Expr &$var): Expr
+    private static function &extractWorkVar(Expr &$var)
     {
         if ($var instanceof ArrayDimFetch) {
-            return self::extractWorkVar($var->var);
+            $phabelReturn =& self::extractWorkVar($var->var);
+            if (!$phabelReturn instanceof Expr) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type Expr, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         }
         if ($var instanceof PropertyFetch) {
-            return self::extractWorkVar($var->var);
+            $phabelReturn =& self::extractWorkVar($var->var);
+            if (!$phabelReturn instanceof Expr) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type Expr, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         }
-        return $var;
+        $phabelReturn =& $var;
+        if (!$phabelReturn instanceof Expr) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type Expr, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Replace null coalesce.
@@ -47,17 +59,29 @@ class NullCoalesceReplacer extends Plugin
      *
      * @return Ternary
      */
-    public function enter(Coalesce $node, Context $ctx): Ternary
+    public function enter(Coalesce $node, Context $ctx)
     {
         if (!Tools::hasSideEffects($workVar =& self::extractWorkVar($node->left)) && !isset(DisallowedExpressions::EXPRESSIONS[\get_class($node->left)])) {
-            return new Ternary(new Isset_([$node->left]), $node->left, $node->right);
+            $phabelReturn = new Ternary(new Isset_([$node->left]), $node->left, $node->right);
+            if (!$phabelReturn instanceof Ternary) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type Ternary, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         }
         $valueCopy = $workVar;
         $check = new NotIdentical(Tools::fromLiteral(null), new Assign($workVar = $ctx->getVariable(), $valueCopy));
-        return new Ternary($node->left === $workVar ? $check : new BooleanAnd($check, new Isset_([$node->left])), $node->left, $node->right);
+        $phabelReturn = new Ternary($node->left === $workVar ? $check : new BooleanAnd($check, new Isset_([$node->left])), $node->left, $node->right);
+        if (!$phabelReturn instanceof Ternary) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type Ternary, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
-    public static function withPrevious(array $config): array
+    public static function withPrevious(array $config)
     {
-        return [NullCoalesceAssignment::class, NullSafeTransformer::class];
+        $phabelReturn = [NullCoalesceAssignment::class, NullSafeTransformer::class];
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
 }
