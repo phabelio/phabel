@@ -171,7 +171,7 @@ class Traverser
         }
 
         if (\is_file($input)) {
-            $it = $p->traverse(realpath($input), $output);
+            $it = $p->traverse(\realpath($input), $output);
             echo("Transformed ".$input." in $it iterations".PHP_EOL);
             return [$graph->getClassStorage(), $graph->getPackages()];
         }
@@ -179,7 +179,7 @@ class Traverser
         if (!\file_exists($output)) {
             \mkdir($output, 0777, true);
         }
-        $output = realpath($output);
+        $output = \realpath($output);
 
         $it = new \RecursiveDirectoryIterator($input, \RecursiveDirectoryIterator::SKIP_DOTS);
         $ri = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::SELF_FIRST);
@@ -224,7 +224,7 @@ class Traverser
             if (!\file_exists($output)) {
                 \mkdir($output, 0777, true);
             }
-            $output = realpath($output);
+            $output = \realpath($output);
 
             $count = 0;
             $promises = [];

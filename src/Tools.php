@@ -235,7 +235,7 @@ abstract class Tools
      *
      * @param Node $node
      * @param class-string $alt Alternative name
-     * 
+     *
      * @return class-string
      */
     public static function getFqdn(Node $node, string $alt = ''): string

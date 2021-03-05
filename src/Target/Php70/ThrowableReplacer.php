@@ -27,7 +27,7 @@ class ThrowableReplacer extends Plugin
      */
     public function shouldRunFile(string $file): bool
     {
-        return !str_ends_with($file, 'src/Target/Php70/ThrowableReplacer.php');
+        return !\str_ends_with($file, 'src/Target/Php70/ThrowableReplacer.php');
     }
     /**
      * Check if type string is \Throwable or Throwable.

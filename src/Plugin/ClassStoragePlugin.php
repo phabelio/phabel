@@ -134,7 +134,7 @@ final class ClassStoragePlugin extends Plugin
                 $changed = true;
             }
         }
-        $result = array_fill_keys(array_keys($this->finalPlugins), [ClassStorage::class => $storage]);
+        $result = \array_fill_keys(\array_keys($this->finalPlugins), [ClassStorage::class => $storage]);
         if ($changed) {
             $result[self::class] = $this->finalPlugins;
         }

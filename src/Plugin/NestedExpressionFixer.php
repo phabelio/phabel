@@ -19,7 +19,6 @@ use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\StaticPropertyFetch;
 use PhpParser\Node\Expr\Ternary;
 use PhpParser\Node\Expr\Throw_;
-use PhpParser\Node\Scalar\LNumber;
 
 /**
  * Fix nested expressions.

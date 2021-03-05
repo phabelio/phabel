@@ -12,7 +12,6 @@ use PhpParser\Node\Expr\Instanceof_;
 use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Expr\Ternary;
 use PhpParser\Node\Scalar;
-use PhpParser\Node\Scalar\LNumber;
 use PhpParser\NodeFinder;
 
 /**
