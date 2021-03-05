@@ -17,11 +17,11 @@ class VariableFinder extends Plugin
     /**
      * Singleton.
      */
-    private static self $singleton;
+    private static $singleton;
     /**
      * Traverser.
      */
-    private static Traverser $singletonTraverser;
+    private static $singletonTraverser;
     /**
      * Get found closure uses.
      *
@@ -51,7 +51,7 @@ class VariableFinder extends Plugin
      *
      * @var array<string, ClosureUse>
      */
-    private array $found = [];
+    private $found = [];
     /**
      * Enter variable.
      *

@@ -29,29 +29,29 @@ class Traverser
      *
      * @var SplQueue<SplQueue<PluginInterface>>
      */
-    private SplQueue $queue;
+    private $queue;
     /**
      * Parser instance.
      */
-    private Parser $parser;
+    private $parser;
     /**
      * Printer instance.
      */
-    private Standard $printer;
+    private $printer;
     /**
      * Plugin queue for specific package.
      *
      * @var SplQueue<SplQueue<PluginInterface>>|null
      */
-    private ?SplQueue $packageQueue = null;
+    private $packageQueue = null;
     /**
      * Current file.
      */
-    private string $file = '';
+    private $file = '';
     /**
      * Current output file.
      */
-    private string $outputFile = '';
+    private $outputFile = '';
     /**
      * Generate traverser from basic plugin instances.
      *
@@ -76,19 +76,23 @@ class Traverser
      *
      * @return ?object
      */
-    private static function startCoverage(string $coveragePath): ?object
+    private static function startCoverage(string $coveragePath)
     {
         if (!$coveragePath || !\class_exists(CodeCoverage::class)) {
-            return null;
+            $phabelReturn = null;
+            if (!(\is_object($phabelReturn) || \is_null($phabelReturn))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type ?object, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         }
         try {
             $filter = new Filter();
             $filter->includeDirectory(\realpath(__DIR__ . '/../src'));
             $coverage = new CodeCoverage((new Selector())->forLineCoverage($filter), $filter);
             $coverage->start('phabel');
-            return new class($coverage, $coveragePath) {
-                private string $coveragePath;
-                private CodeCoverage $coverage;
+            $phabelReturn = new class($coverage, $coveragePath) {
+                private $coveragePath;
+                private $coverage;
                 public function __construct(CodeCoverage $coverage, string $coveragePath)
                 {
                     $this->coverage = $coverage;
@@ -103,9 +107,17 @@ class Traverser
                     (new PHP())->process($this->coverage, $this->coveragePath);
                 }
             };
+            if (!(\is_object($phabelReturn) || \is_null($phabelReturn))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type ?object, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         } catch (\Throwable $e) {
         }
-        return null;
+        $phabelReturn = null;
+        if (!(\is_object($phabelReturn) || \is_null($phabelReturn))) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ?object, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Run phabel.

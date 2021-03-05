@@ -21,9 +21,9 @@ use Symfony\Component\Console\Output\NullOutput;
  */
 class Plugin implements PluginInterface, EventSubscriberInterface
 {
-    private string $toRequire = '';
+    private $toRequire = '';
     /** @psalm-suppress MissingConstructor */
-    private Transformer $transformer;
+    private $transformer;
     /**
      * Apply plugin modifications to Composer.
      *

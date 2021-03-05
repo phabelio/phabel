@@ -15,7 +15,7 @@ class PackageContext
      *
      * @var array<string, null>
      */
-    private array $packages = [];
+    private $packages = [];
     /**
      * Add package.
      *

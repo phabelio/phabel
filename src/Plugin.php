@@ -19,11 +19,11 @@ abstract class Plugin extends Tools implements PluginInterface
     /**
      * Configuration array.
      */
-    private array $config = [];
+    private $config = [];
     /**
      * Package context.
      */
-    private PackageContext $ctx;
+    private $ctx;
     /**
      * Set configuration array.
      *
