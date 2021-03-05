@@ -15,7 +15,7 @@ class VariableContext
      *
      * @var array<string, true>
      */
-    private array $variables;
+    private $variables;
     /**
      * Constructor.
      *
