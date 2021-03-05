@@ -22,7 +22,7 @@ class Graph
      */
     public function __construct()
     {
-        $this->graph = new GraphInternal;
+        $this->graph = new GraphInternal();
     }
     /**
      * Get new package context.
@@ -33,7 +33,6 @@ class Graph
     {
         return $this->graph->getPackageContext();
     }
-
     /**
      * Add plugin.
      *
@@ -58,7 +57,6 @@ class Graph
     {
         return new ResolvedGraph($this->graph->flatten());
     }
-
     /**
      * Returns graph debug information.
      *

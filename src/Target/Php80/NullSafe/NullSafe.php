@@ -38,5 +38,4 @@ class NullSafe
     {
     }
 }
-
-NullSafe::$singleton = new NullSafe;
+NullSafe::$singleton = new NullSafe();
