@@ -37,7 +37,7 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
         r("git branch phabel_tmp");
         r("git checkout phabel_tmp");
     }
-    foreach (['8.0', $realTarget] as $target) {
+    foreach ([Php::VERSIONS[count(Php::VERSIONS)-1], $realTarget] as $target) {
         $coverage = \getenv('PHABEL_COVERAGE') ?: '';
         if ($coverage) {
             $coverage .= "-$target";
