@@ -27,7 +27,6 @@ final class ClassStoragePlugin extends Plugin
      * @var array<string, array<string, Builder>>
      */
     public array $traits = [];
-
     /**
      * Count.
      */
@@ -38,7 +37,6 @@ final class ClassStoragePlugin extends Plugin
      * @var array<class-string<ClassStorageProvider>, true>
      */
     private array $finalPlugins = [];
-
     /**
      * Set configuration array.
      *
@@ -49,7 +47,6 @@ final class ClassStoragePlugin extends Plugin
     {
         $this->finalPlugins += $config;
     }
-
     /**
      * Enter file.
      *
@@ -84,29 +81,26 @@ final class ClassStoragePlugin extends Plugin
         if ($class->name) {
             $name = self::getFqdn($class);
         } else {
-            $name = "class@anonymous$file";
+            $name = "class@anonymous{$file}";
             $this->count[$file][$name] ??= 0;
-            $name .= "@".$this->count[$file][$name]++;
+            $name .= "@" . $this->count[$file][$name]++;
         }
-
         $class = clone $class;
         $stmts = [];
         foreach ($class->stmts as $stmt) {
             if (!$stmt instanceof ClassMethod) {
                 continue;
             }
-            $stmts []= $stmt;
+            $stmts[] = $stmt;
         }
         $class->stmts = $stmts;
         $class->setAttribute(ClassStorage::FILE_KEY, $file);
-
         if ($class instanceof Trait_) {
             $this->traits[$name][$file] = new Builder($class);
         } else {
             $this->classes[$name][$file] = new Builder($class, $name);
         }
     }
-
     /**
      * Merge storage with another.
      *
@@ -119,7 +113,6 @@ final class ClassStoragePlugin extends Plugin
         $this->traits = \array_merge_recursive($this->traits, $other->traits);
         $this->finalPlugins += $other->finalPlugins;
     }
-
     /**
      * Resolve all classes, optionally fixing up a few methods.
      *
@@ -134,7 +127,7 @@ final class ClassStoragePlugin extends Plugin
                 $changed = true;
             }
         }
-        $result = array_fill_keys(array_keys($this->finalPlugins), [ClassStorage::class => $storage]);
+        $result = \array_fill_keys(\array_keys($this->finalPlugins), [ClassStorage::class => $storage]);
         if ($changed) {
             $result[self::class] = $this->finalPlugins;
         }

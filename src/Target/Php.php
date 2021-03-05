@@ -20,19 +20,11 @@ class Php extends Plugin
      *
      * @var int[]
      */
-    const VERSIONS = [
-        56,
-        70,
-        71,
-        72,
-        73,
-        74,
-        80,
-    ];
+    const VERSIONS = [56, 70, 71, 72, 73, 74, 80];
     /**
      * Default target.
      */
-    const DEFAULT_TARGET = PHP_MAJOR_VERSION.PHP_MINOR_VERSION;
+    const DEFAULT_TARGET = PHP_MAJOR_VERSION . PHP_MINOR_VERSION;
     /**
      * Ignore target.
      */
@@ -48,7 +40,7 @@ class Php extends Plugin
         if ($target === 'auto') {
             return (int) self::DEFAULT_TARGET;
         }
-        if (\preg_match(":^\D*(\d+\.\d+)\..*:", $target, $matches)) {
+        if (\preg_match(":^\\D*(\\d+\\.\\d+)\\..*:", $target, $matches)) {
             $target = $matches[1];
         }
         $target = \str_replace('.', '', $target);
@@ -63,7 +55,7 @@ class Php extends Plugin
     public static function unnormalizeVersion(int $target): string
     {
         $target = (string) $target;
-        return $target[0].'.'.$target[1];
+        return $target[0] . '.' . $target[1];
     }
     /**
      * Get PHP version range to target.
@@ -74,25 +66,17 @@ class Php extends Plugin
     private static function getRange(int $target): array
     {
         $key = \array_search($target, self::VERSIONS);
-        return $key === false
-            ? self::getRange((int) self::DEFAULT_TARGET)
-            : \array_slice(
-                self::VERSIONS,
-                1 + $key
-            );
+        return $key === false ? self::getRange((int) self::DEFAULT_TARGET) : \array_slice(self::VERSIONS, 1 + $key);
     }
     public function getComposerRequires(): array
     {
-        return \array_fill_keys(
-            \array_map(fn (int $version): string => "symfony/polyfill-php$version", self::getRange((int) $this->getConfig('target', self::DEFAULT_TARGET))),
-            '*'
-        );
+        return \array_fill_keys(\array_map(fn (int $version): string => ("symfony/polyfill-php{$version}"), self::getRange((int) $this->getConfig('target', self::DEFAULT_TARGET))), '*');
     }
     public static function previous(array $config): array
     {
         $classes = [];
         foreach (self::getRange((int) ($config['target'] ?? self::DEFAULT_TARGET)) as $version) {
-            if (!\file_exists($dir = __DIR__."/Php$version")) {
+            if (!\file_exists($dir = __DIR__ . "/Php{$version}")) {
                 continue;
             }
             foreach (\scandir($dir) as $file) {
@@ -103,7 +87,7 @@ class Php extends Plugin
                     continue;
                 }
                 /** @var class-string<PluginInterface> */
-                $class = self::class.$version.'\\'.\basename($file, '.php');
+                $class = self::class . $version . '\\' . \basename($file, '.php');
                 /** @var array */
                 $classes[$class] = $config[$class] ?? [];
             }
@@ -112,17 +96,14 @@ class Php extends Plugin
     }
     public static function next(array $config): array
     {
-        $classes = [
-            StmtExprWrapper::class => $config[StmtExprWrapper::class] ?? [],
-            NewFixer::class => []
-        ];
+        $classes = [StmtExprWrapper::class => $config[StmtExprWrapper::class] ?? [], NewFixer::class => []];
         foreach (self::getRange((int) ($config['target'] ?? self::DEFAULT_TARGET)) as $version) {
-            if (!\file_exists($dir = __DIR__."/Php$version")) {
+            if (!\file_exists($dir = __DIR__ . "/Php{$version}")) {
                 continue;
             }
             foreach (['Nested', 'Isset'] as $t) {
                 /** @var class-string<PluginInterface> */
-                $class = self::class.$version."\\$t"."ExpressionFixer";
+                $class = self::class . $version . "\\{$t}" . "ExpressionFixer";
                 /** @var array */
                 $classes[$class] = $config[$class] ?? [];
             }

@@ -22,7 +22,7 @@ class TypeContracovariance extends ClassStorageProvider
             foreach ($class->getMethods() as $name => $method) {
                 $actReturn = false;
                 $act = \array_fill(0, \count($method->params), false);
-                $parentMethods = new SplStack;
+                $parentMethods = new SplStack();
                 $parentMethods->push($method);
                 foreach ($class->getOverriddenMethods($name) as $childMethod) {
                     foreach ($childMethod->params as $k => $param) {
@@ -52,7 +52,6 @@ class TypeContracovariance extends ClassStorageProvider
         }
         return $changed;
     }
-
     /**
      * {@inheritDoc}
      */

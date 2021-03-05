@@ -36,7 +36,6 @@ class Exception extends \Exception
         }
         parent::__construct($message, $code, $previous);
     }
-
     /**
      * Set the value of trace.
      *
@@ -47,7 +46,6 @@ class Exception extends \Exception
     public function setTrace(?string $trace): self
     {
         $this->trace = $trace;
-
         return $this;
     }
 }

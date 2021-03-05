@@ -24,33 +24,28 @@ class Storage
      * @psalm-var array<string, ClassMethod>
      */
     private array $abstractMethods = [];
-
     /**
      * Removed method list.
      *
      * @var array<string, true>
      */
     private array $removedMethods = [];
-
     /**
      * Classes/interfaces to extend.
      *
      * @var array<class-string, Storage>
      */
     private array $extends = [];
-
     /**
      * Classes/interfaces that extend us.
      *
      * @var array<class-string, Storage>
      */
     private array $extendedBy = [];
-
     /**
      * Class name.
      */
     private string $name;
-
     /**
      * Constructor.
      *
@@ -64,7 +59,6 @@ class Storage
         $this->name = $name;
         $this->methods = $methods;
         $this->abstractMethods = $abstractMethods;
-
         foreach ($methods as $method) {
             if ($method->hasAttribute(Builder::STORAGE_KEY)) {
                 $method->setAttribute(self::STORAGE_KEY, $method->getAttribute(Builder::STORAGE_KEY)->build());
@@ -78,7 +72,6 @@ class Storage
                 $method->setAttribute(Builder::STORAGE_KEY, null);
             }
         }
-
         foreach ($extends as $name => $class) {
             $this->extends[$name] = $class->build();
         }
@@ -86,7 +79,6 @@ class Storage
             $class->extendedBy[$this->name] = $this;
         }
     }
-
     /**
      * Get name.
      *
@@ -96,7 +88,6 @@ class Storage
     {
         return $this->name;
     }
-
     /**
      * Get method list.
      *
@@ -110,19 +101,18 @@ class Storage
         if ($typeMask & Class_::MODIFIER_ABSTRACT) {
             foreach ($this->abstractMethods as $name => $method) {
                 if ($method->flags & $typeMask && $method->flags & $visibilityMask) {
-                    yield $name => $method;
+                    (yield $name => $method);
                 }
             }
         }
         if ($typeMask & self::MODIFIER_NORMAL) {
             foreach ($this->methods as $name => $method) {
                 if ($method->flags & $typeMask && $method->flags & $visibilityMask) {
-                    yield $name => $method;
+                    (yield $name => $method);
                 }
             }
         }
     }
-
     /**
      * Get classes which extend this class.
      *
@@ -132,7 +122,6 @@ class Storage
     {
         return $this->extendedBy;
     }
-
     /**
      * Get classes which this class extends.
      *
@@ -142,7 +131,6 @@ class Storage
     {
         return $this->extends;
     }
-
     /**
      * Get all child classes.
      *
@@ -151,11 +139,10 @@ class Storage
     public function getAllChildren(): \Generator
     {
         foreach ($this->extendedBy as $class) {
-            yield $class;
+            (yield $class);
             yield from $class->getAllChildren();
         }
     }
-
     /**
      * Get all parent classes.
      *
@@ -164,11 +151,10 @@ class Storage
     public function getAllParents(): \Generator
     {
         foreach ($this->extends as $class) {
-            yield $class;
+            (yield $class);
             yield from $class->getAllParents();
         }
     }
-
     /**
      * Get all methods which override the specified method in child classes.
      *
@@ -183,20 +169,19 @@ class Storage
         foreach ($this->getAllChildren() as $child) {
             $methods = [];
             if (isset($child->abstractMethods[$name])) {
-                $methods []= $child->abstractMethods[$name];
+                $methods[] = $child->abstractMethods[$name];
             }
             if (isset($child->methods[$name])) {
-                $methods []= $child->methods[$name];
+                $methods[] = $child->methods[$name];
             }
             foreach ($methods as $method) {
                 $flags = $method->flags;
                 if ($flags & $typeMask && $flags & $visibilityMask) {
-                    yield $method;
+                    (yield $method);
                 }
             }
         }
     }
-
     /**
      * Remove method.
      *
@@ -216,10 +201,8 @@ class Storage
             $this->removedMethods[$name] = true;
             unset($this->abstractMethods[$name]);
         }
-
         return $this;
     }
-
     /**
      * Process method from AST.
      *

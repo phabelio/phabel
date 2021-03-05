@@ -30,7 +30,6 @@ final class ResolvedGraph
      * Class storage.
      */
     private ?ClassStoragePlugin $classStorage = null;
-
     /**
      * Constructor.
      *
@@ -45,7 +44,7 @@ final class ResolvedGraph
             foreach ($queue as $plugin) {
                 foreach ($plugin->getComposerRequires() as $package => $constraint) {
                     $requires[$package] ??= [];
-                    $requires[$package][]= $constraint;
+                    $requires[$package][] = $constraint;
                 }
                 if ($plugin instanceof ClassStoragePlugin) {
                     if ($this->classStorage) {
@@ -55,10 +54,7 @@ final class ResolvedGraph
                 }
             }
         }
-        $this->packages = \array_map(
-            fn (array $constraints): string => \implode(':', \array_unique($constraints)),
-            $requires
-        );
+        $this->packages = \array_map(fn (array $constraints): string => \implode(':', \array_unique($constraints)), $requires);
     }
     /**
      * Get plugins.
@@ -70,7 +66,6 @@ final class ResolvedGraph
     {
         return $this->plugins;
     }
-
     /**
      * Get packages.
      *
@@ -81,7 +76,6 @@ final class ResolvedGraph
     {
         return $this->packages;
     }
-
     /**
      * Get class storage.
      *
