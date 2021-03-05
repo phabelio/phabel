@@ -19,7 +19,7 @@ class Plugins
      *
      * @var array<class-string<PluginInterface>, array[]>
      */
-    private array $plugins = [];
+    private $plugins = [];
     /**
      * Constructor.
      *

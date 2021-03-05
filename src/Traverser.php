@@ -29,29 +29,29 @@ class Traverser
      *
      * @var SplQueue<SplQueue<PluginInterface>>
      */
-    private SplQueue $queue;
+    private $queue;
     /**
      * Parser instance.
      */
-    private Parser $parser;
+    private $parser;
     /**
      * Printer instance.
      */
-    private Standard $printer;
+    private $printer;
     /**
      * Plugin queue for specific package.
      *
      * @var SplQueue<SplQueue<PluginInterface>>|null
      */
-    private ?SplQueue $packageQueue = null;
+    private $packageQueue = null;
     /**
      * Current file.
      */
-    private string $file = '';
+    private $file = '';
     /**
      * Current output file.
      */
-    private string $outputFile = '';
+    private $outputFile = '';
     /**
      * Generate traverser from basic plugin instances.
      *
@@ -87,8 +87,8 @@ class Traverser
             $coverage = new CodeCoverage((new Selector())->forLineCoverage($filter), $filter);
             $coverage->start('phabel');
             return new class($coverage, $coveragePath) {
-                private string $coveragePath;
-                private CodeCoverage $coverage;
+                private $coveragePath;
+                private $coverage;
                 public function __construct(CodeCoverage $coverage, string $coveragePath)
                 {
                     $this->coverage = $coverage;

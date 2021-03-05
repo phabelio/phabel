@@ -62,7 +62,7 @@ foreach (Php::VERSIONS as $version) {
 }
 class ExpressionGenerator
 {
-    private Standard $printer;
+    private $printer;
     private function format(Node $code)
     {
         static $count = 0;
@@ -78,9 +78,9 @@ class ExpressionGenerator
         }
         return \substr($data, 0, -6);
     }
-    private array $robin = [];
-    private array $processes = [];
-    private array $pipes = [];
+    private $robin = [];
+    private $processes = [];
+    private $pipes = [];
     private function checkSyntaxVersion(int $version, string $code)
     {
         $code = \str_replace(["\n", '<?php'], '', $code) . "\n";
@@ -115,7 +115,7 @@ class ExpressionGenerator
         'isset' => [],
     ];
     /** @psalm-var array<int, array<int, Node>> */
-    private array $tests = [];
+    private $tests = [];
     private $versionMap = [];
     private function checkPossibleValue($arg, $name, $key, $class, $baseArgs, $isArray)
     {

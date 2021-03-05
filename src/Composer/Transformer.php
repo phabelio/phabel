@@ -26,31 +26,31 @@ class Transformer
     /**
      * IO interface.
      */
-    private IOInterface $io;
+    private $io;
     /**
      * IO interface.
      */
-    private OutputFormatter $outputFormatter;
+    private $outputFormatter;
     /**
      * Version parser.
      */
-    private VersionParser $versionParser;
+    private $versionParser;
     /**
      * Requires.
      */
-    private array $requires = [];
+    private $requires = [];
     /**
      * Whether we processed requirements.
      */
-    private array $processedRequires = [];
+    private $processedRequires = [];
     /**
      * Whether we processed any dependencies.
      */
-    private bool $processed = false;
+    private $processed = false;
     /**
      * Instance.
      */
-    private static self $instance;
+    private static $instance;
     /**
      * Get singleton.
      *
@@ -58,7 +58,7 @@ class Transformer
      */
     public static function getInstance(IOInterface $io): self
     {
-        self::$instance ??= new self($io);
+        self::$instance = self::$instance ?? new self($io);
         return self::$instance;
     }
     /**

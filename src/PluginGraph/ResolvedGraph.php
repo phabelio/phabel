@@ -19,17 +19,17 @@ final class ResolvedGraph
      *
      * @psalm-var SplQueue<SplQueue<PluginInterface>>
      */
-    private SplQueue $plugins;
+    private $plugins;
     /**
      * Packages.
      *
      * @var array<string, string>
      */
-    private array $packages = [];
+    private $packages = [];
     /**
      * Class storage.
      */
-    private ?ClassStoragePlugin $classStorage = null;
+    private $classStorage = null;
     /**
      * Constructor.
      *
@@ -43,7 +43,7 @@ final class ResolvedGraph
         foreach ($plugins as $queue) {
             foreach ($queue as $plugin) {
                 foreach ($plugin->getComposerRequires() as $package => $constraint) {
-                    $requires[$package] ??= [];
+                    $requires[$package] = $requires[$package] ?? [];
                     $requires[$package][] = $constraint;
                 }
                 if ($plugin instanceof ClassStoragePlugin) {
@@ -54,7 +54,9 @@ final class ResolvedGraph
                 }
             }
         }
-        $this->packages = \array_map(fn (array $constraints): string => \implode(':', \array_unique($constraints)), $requires);
+        $this->packages = \array_map(function (array $constraints): string {
+            return \implode(':', \array_unique($constraints));
+        }, $requires);
     }
     /**
      * Get plugins.

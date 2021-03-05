@@ -62,7 +62,7 @@ class TypeHintReplacer extends Plugin
      * @var SplStack
      * @psalm-var SplStack<array{0: self::IGNORE_RETURN|self::VOID_RETURN}|array{0: self::TYPE_RETURN, 1: Node, 2: bool, 3: bool, 4: Node, 5: BooleanNot}>
      */
-    private SplStack $stack;
+    private $stack;
     /**
      * Constructor.
      */
@@ -179,7 +179,9 @@ class TypeHintReplacer extends Plugin
             $conditions[] = Plugin::call("is_null", $var);
         }
         $initial = \array_shift($conditions);
-        $condition = new BooleanNot(empty($conditions) ? $initial : \array_reduce($conditions, fn (Expr $a, Expr $b): BooleanOr => (new BooleanOr($a, $b)), $initial));
+        $condition = new BooleanNot(empty($conditions) ? $initial : \array_reduce($conditions, function (Expr $a, Expr $b): BooleanOr {
+            return new BooleanOr($a, $b);
+        }, $initial));
         return [$noOopTypes, $stringType, $condition];
     }
     /**
@@ -306,7 +308,7 @@ class TypeHintReplacer extends Plugin
             return $func;
         }
         $ctx->toClosure($func);
-        $this->stack->push([self::TYPE_RETURN, $functionName, $func->returnsByRef(), ...$condition]);
+        $this->stack->push(\array_merge([self::TYPE_RETURN, $functionName, $func->returnsByRef()], $condition));
         $stmts = $func->getStmts();
         $final = \end($stmts);
         if (!$final instanceof Return_) {
