@@ -43,7 +43,6 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             }
             $this->toRequire = $link->getTarget();
         }
-
         $repoManager = $composer->getRepositoryManager();
         $repos = $repoManager->getRepositories();
         foreach (\array_reverse($repos) as $repo) {
@@ -54,7 +53,6 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             }
         }
     }
-
     /**
      * Remove any hooks from Composer.
      *
@@ -68,7 +66,6 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     public function deactivate(Composer $composer, IOInterface $io)
     {
     }
-
     /**
      * Prepare the plugin to be uninstalled.
      *
@@ -80,20 +77,13 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     public function uninstall(Composer $composer, IOInterface $io)
     {
     }
-
     /**
      * {@inheritdoc}
      */
     public static function getSubscribedEvents()
     {
-        return [
-            ScriptEvents::POST_INSTALL_CMD =>
-                ['onInstall', 1],
-            ScriptEvents::POST_UPDATE_CMD =>
-                ['onUpdate', 1]
-        ];
+        return [ScriptEvents::POST_INSTALL_CMD => ['onInstall', 1], ScriptEvents::POST_UPDATE_CMD => ['onUpdate', 1]];
     }
-
     public function onInstall(Event $event): void
     {
         $this->run($event, false);
@@ -107,11 +97,11 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         if (!$this->transformer->transform(\json_decode(\file_get_contents('composer.lock'), true)['packages'] ?? [])) {
             \register_shutdown_function(function () use ($isUpdate) {
                 /** @var Application */
-                $application = ($GLOBALS['application'] ?? null) instanceof Application ? $GLOBALS['application'] : new Application;
+                $application = ($GLOBALS['application'] ?? null) instanceof Application ? $GLOBALS['application'] : new Application();
                 $this->transformer->log("Loading additional dependencies...\n");
                 if (!$isUpdate) {
                     $require = $application->find('require');
-                    $require->run(new ArrayInput(['packages' => [$this->toRequire]]), new NullOutput);
+                    $require->run(new ArrayInput(['packages' => [$this->toRequire]]), new NullOutput());
                 } else {
                     $application->setAutoExit(false);
                     $application->run();
@@ -119,8 +109,6 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             });
         }
     }
-
-
     /**
      * Emitted before composer solves dependencies.
      *

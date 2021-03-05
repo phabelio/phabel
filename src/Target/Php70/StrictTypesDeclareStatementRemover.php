@@ -15,7 +15,7 @@ class StrictTypesDeclareStatementRemover extends Plugin
 {
     public function leave(Declare_ $node): ?Nop
     {
-        $node->declares = \array_filter($node->declares, fn (DeclareDeclare $declare) => $declare->key->name !== 'strict_types');
+        $node->declares = \array_filter($node->declares, fn (DeclareDeclare $declare) => ($declare->key->name !== 'strict_types'));
         if (empty($node->declares)) {
             return new Nop();
         }

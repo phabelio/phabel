@@ -12,7 +12,6 @@ use PhpParser\Node\UnionType;
 final class ClassStorage
 {
     const FILE_KEY = 'ClassStorage:file';
-
     /**
      * Classes.
      *
@@ -25,14 +24,12 @@ final class ClassStorage
      * @var array<string, array<string, Storage>>
      */
     private array $traits = [];
-
     /**
      * Root classes.
      *
      * @var array<class-string, Storage>
      */
     private array $rootClasses = [];
-
     /**
      * Constructor.
      */
@@ -48,7 +45,6 @@ final class ClassStorage
                 $class->resolve($plugin);
             }
         }
-
         foreach ($plugin->traits as $name => $fileTraits) {
             foreach ($fileTraits as $file => $trait) {
                 $trait = $trait->build();
@@ -61,7 +57,6 @@ final class ClassStorage
                 $this->classes[$name][$file] = $class;
             }
         }
-
         foreach ($this->classes as $name => $fileClasses) {
             foreach ($fileClasses as $file => $class) {
                 if (!$class->getExtends() && !$class->getExtendedBy()) {
@@ -70,7 +65,6 @@ final class ClassStorage
             }
         }
     }
-
     /**
      * Get class.
      *
@@ -94,7 +88,6 @@ final class ClassStorage
     {
         return \array_values($this->classes[$class] ?? [])[0] ?? null;
     }
-
     /**
      * Get storage.
      *
@@ -104,11 +97,10 @@ final class ClassStorage
     {
         foreach ($this->classes as $class => $classes) {
             foreach ($classes as $file => $storage) {
-                yield $class => $storage;
+                (yield $class => $storage);
             }
         }
     }
-
     /**
      * Get root classes.
      *
@@ -118,8 +110,6 @@ final class ClassStorage
     {
         return $this->rootClasses;
     }
-
-
     private static function typeArray(null|Identifier|Name|NullableType|UnionType $type): array
     {
         $types = [];
@@ -149,10 +139,7 @@ final class ClassStorage
         if (\count($typeA) + \count($typeB) === 2) {
             $typeA = $typeA[0];
             $typeB = $typeB[0];
-            if ($typeA instanceof Name && $typeB instanceof Name
-                && ($classA = $this->getClassByName(Tools::getFqdn($typeA)))
-                && ($classB = $this->getClassByName(Tools::getFqdn($typeB)))
-            ) {
+            if ($typeA instanceof Name && $typeB instanceof Name && ($classA = $this->getClassByName(Tools::getFqdn($typeA))) && ($classB = $this->getClassByName(Tools::getFqdn($typeB)))) {
                 foreach ($classA->getAllChildren() as $child) {
                     if ($child === $classB) {
                         return 1;
