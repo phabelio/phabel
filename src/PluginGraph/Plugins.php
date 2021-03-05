@@ -19,7 +19,7 @@ class Plugins
      *
      * @var array<class-string<PluginInterface>, array[]>
      */
-    private array $plugins = [];
+    private $plugins = [];
     /**
      * Constructor.
      *
@@ -37,7 +37,7 @@ class Plugins
      *
      * @return void
      */
-    public function merge(self $other): void
+    public function merge(self $other)
     {
         foreach ($other->plugins as $plugin => $configs) {
             if (isset($this->plugins[$plugin])) {
@@ -54,7 +54,7 @@ class Plugins
      *
      * @return void
      */
-    public function enqueue(SplQueue $queue, PackageContext $ctx): void
+    public function enqueue(SplQueue $queue, PackageContext $ctx)
     {
         foreach ($this->plugins as $plugin => $configs) {
             if (PluginCache::isEmpty($plugin)) {

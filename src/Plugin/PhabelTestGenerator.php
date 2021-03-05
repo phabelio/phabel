@@ -18,20 +18,36 @@ class PhabelTestGenerator extends Plugin
     {
         return \preg_replace("~PhabelTest(\\\\+)Target\\d*~", 'PhabelTest$1Target' . $this->getConfig('target', ''), $in);
     }
-    public function enter(Name $name): ?Name
+    public function enter(Name $name)
     {
         if (\preg_match("~PhabelTest\\\\+Target\\d*~", $name->toString())) {
             $class = \get_class($name);
-            return new $class($this->tryReplace($name->toString()));
+            $phabelReturn = new $class($this->tryReplace($name->toString()));
+            if (!($phabelReturn instanceof Name || \is_null($phabelReturn))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type ?Name, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         }
-        return null;
+        $phabelReturn = null;
+        if (!($phabelReturn instanceof Name || \is_null($phabelReturn))) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ?Name, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
-    public function enterLiteral(String_ $str): ?String_
+    public function enterLiteral(String_ $str)
     {
         if (\preg_match("~PhabelTest\\\\+Target\\d*~", $str->value)) {
-            return new String_($this->tryReplace($str->value));
+            $phabelReturn = new String_($this->tryReplace($str->value));
+            if (!($phabelReturn instanceof String_ || \is_null($phabelReturn))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type ?String_, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         }
-        return null;
+        $phabelReturn = null;
+        if (!($phabelReturn instanceof String_ || \is_null($phabelReturn))) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ?String_, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     public static function previous(array $config): array
     {

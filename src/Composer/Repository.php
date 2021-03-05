@@ -38,14 +38,14 @@ trait Repository
         $transformInfo = [];
         foreach ($packageNameMap as $key => $constraint) {
             [$package, $target] = $this->phabelTransformer->extractTarget($key);
-            $newPackageNameMap[$target] ??= [];
+            $newPackageNameMap[$target] = $newPackageNameMap[$target] ?? [];
             $newPackageNameMap[$target][$package] = $constraint;
-            $transformInfo[$target] ??= [];
+            $transformInfo[$target] = $transformInfo[$target] ?? [];
             $transformInfo[$target][$package] = $key;
         }
         foreach ($alreadyLoaded as $key => $versions) {
             [$package, $target] = $this->phabelTransformer->extractTarget($key);
-            $newAlreadyLoaded[$target] ??= [];
+            $newAlreadyLoaded[$target] = $newAlreadyLoaded[$target] ?? [];
             $newAlreadyLoaded[$target][$package] = $versions;
         }
         $finalNamesFound = [];

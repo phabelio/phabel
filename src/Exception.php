@@ -7,7 +7,7 @@ namespace Phabel;
  */
 class Exception extends \Exception
 {
-    private ?string $trace;
+    private $trace;
     /**
      * Get trace.
      *
@@ -43,8 +43,11 @@ class Exception extends \Exception
      *
      * @return self
      */
-    public function setTrace(?string $trace): self
+    public function setTrace($trace): self
     {
+        if (!(\is_string($trace) || \is_null($trace))) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($trace) must be of type ?string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($trace) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
         $this->trace = $trace;
         return $this;
     }

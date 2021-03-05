@@ -16,7 +16,7 @@ class Graph
     /**
      * Graph instance.
      */
-    private GraphInternal $graph;
+    private $graph;
     /**
      * Constructr.
      */

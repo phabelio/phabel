@@ -17,13 +17,13 @@ class PluginCache
      *
      * @var array<class-string<PluginInterface>, string[]>
      */
-    private static array $enterMethods = [];
+    private static $enterMethods = [];
     /**
      * Leave method names.
      *
      * @var array<class-string<PluginInterface>, string[]>
      */
-    private static array $leaveMethods = [];
+    private static $leaveMethods = [];
     /**
      * Cache method information.
      *
@@ -31,7 +31,7 @@ class PluginCache
      *
      * @return void
      */
-    private static function cacheMethods(string $plugin): void
+    private static function cacheMethods(string $plugin)
     {
         if (!isset(self::$enterMethods[$plugin])) {
             self::$enterMethods[$plugin] = [];

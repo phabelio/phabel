@@ -78,7 +78,7 @@ class ThrowableReplacer extends Plugin
      *
      * @return void
      */
-    public function enterTryCatch(TryCatch $node): void
+    public function enterTryCatch(TryCatch $node)
     {
         foreach ($node->catches as $catch) {
             $alreadyHasError = false;

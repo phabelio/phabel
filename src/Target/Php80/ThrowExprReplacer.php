@@ -15,7 +15,7 @@ class ThrowExprReplacer extends Plugin
     {
         return self::callPoly('throwMe', $throw->expr);
     }
-    public static function throwMe(\Throwable $expr): void
+    public static function throwMe(\Throwable $expr)
     {
         throw $expr;
     }

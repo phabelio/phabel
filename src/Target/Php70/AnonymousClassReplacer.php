@@ -31,7 +31,7 @@ class AnonymousClassReplacer extends Plugin
     /**
      * Anonymous class count.
      */
-    private static int $count = 0;
+    private static $count = 0;
     /**
      * Enter new.
      *
@@ -40,7 +40,7 @@ class AnonymousClassReplacer extends Plugin
      *
      * @return void
      */
-    public function enterNew(New_ $node, Context $ctx): void
+    public function enterNew(New_ $node, Context $ctx)
     {
         $classNode = $node->class;
         if (!$classNode instanceof Node\Stmt\Class_) {

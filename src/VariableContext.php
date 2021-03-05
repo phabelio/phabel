@@ -15,7 +15,7 @@ class VariableContext
      *
      * @var array<string, true>
      */
-    private array $variables;
+    private $variables;
     /**
      * Constructor.
      *
@@ -32,7 +32,7 @@ class VariableContext
      *
      * @return void
      */
-    public function addVar(string $var): void
+    public function addVar(string $var)
     {
         $this->variables[$var] = true;
     }
@@ -43,7 +43,7 @@ class VariableContext
      *
      * @return void
      */
-    public function addVars(array $vars): void
+    public function addVars(array $vars)
     {
         $this->variables += $vars;
     }
@@ -54,7 +54,7 @@ class VariableContext
      *
      * @return void
      */
-    public function removeVar(string $var): void
+    public function removeVar(string $var)
     {
         unset($this->variables[$var]);
     }

@@ -19,18 +19,18 @@ abstract class Plugin extends Tools implements PluginInterface
     /**
      * Configuration array.
      */
-    private array $config = [];
+    private $config = [];
     /**
      * Package context.
      */
-    private PackageContext $ctx;
+    private $ctx;
     /**
      * Set configuration array.
      *
      * @param array $config
      * @return void
      */
-    public function setConfigArray(array $config): void
+    public function setConfigArray(array $config)
     {
         $this->config = $config;
     }
@@ -50,7 +50,7 @@ abstract class Plugin extends Tools implements PluginInterface
      *
      * @return void
      */
-    public function setPackageContext(PackageContext $ctx): void
+    public function setPackageContext(PackageContext $ctx)
     {
         $this->ctx = $ctx;
     }
@@ -107,7 +107,7 @@ abstract class Plugin extends Tools implements PluginInterface
     /**
      * {@inheritDoc}
      */
-    public function setConfig(string $key, $value): void
+    public function setConfig(string $key, $value)
     {
         $this->config[$key] = $value;
     }

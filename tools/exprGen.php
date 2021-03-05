@@ -62,7 +62,7 @@ foreach (Php::VERSIONS as $version) {
 }
 class ExpressionGenerator
 {
-    private Standard $printer;
+    private $printer;
     private function format(Node $code)
     {
         static $count = 0;
@@ -78,9 +78,9 @@ class ExpressionGenerator
         }
         return \substr($data, 0, -6);
     }
-    private array $robin = [];
-    private array $processes = [];
-    private array $pipes = [];
+    private $robin = [];
+    private $processes = [];
+    private $pipes = [];
     private function checkSyntaxVersion(int $version, string $code)
     {
         $code = \str_replace(["\n", '<?php'], '', $code) . "\n";
@@ -115,7 +115,7 @@ class ExpressionGenerator
         'isset' => [],
     ];
     /** @psalm-var array<int, array<int, Node>> */
-    private array $tests = [];
+    private $tests = [];
     private $versionMap = [];
     private function checkPossibleValue($arg, $name, $key, $class, $baseArgs, $isArray)
     {
@@ -270,7 +270,9 @@ PHP;
         $wait = [];
         foreach ($instanceArgTypes as $class => $argTypes) {
             $baseArgs = $instanceArgs[$class];
-            foreach ($argTypes as $key => [$isArray, $types]) {
+            foreach ($argTypes as $key => $phabel_bfb07d3999b02035) {
+                $isArray = $phabel_bfb07d3999b02035[0];
+                $types = $phabel_bfb07d3999b02035[1];
                 $name = $instanceArgNames[$class][$key];
                 $possibleValues = [];
                 foreach ($types as $type) {

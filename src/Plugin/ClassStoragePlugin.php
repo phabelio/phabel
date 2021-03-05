@@ -20,30 +20,30 @@ final class ClassStoragePlugin extends Plugin
      *
      * @var array<string, array<string, Builder>>
      */
-    public array $classes = [];
+    public $classes = [];
     /**
      * Storage.
      *
      * @var array<string, array<string, Builder>>
      */
-    public array $traits = [];
+    public $traits = [];
     /**
      * Count.
      */
-    private array $count = [];
+    private $count = [];
     /**
      * Plugins to call during final iteration.
      *
      * @var array<class-string<ClassStorageProvider>, true>
      */
-    private array $finalPlugins = [];
+    private $finalPlugins = [];
     /**
      * Set configuration array.
      *
      * @param array $config
      * @return void
      */
-    public function setConfigArray(array $config): void
+    public function setConfigArray(array $config)
     {
         $this->finalPlugins += $config;
     }
@@ -53,7 +53,7 @@ final class ClassStoragePlugin extends Plugin
      * @param RootNode $_
      * @return void
      */
-    public function enterRoot(RootNode $_, Context $context): void
+    public function enterRoot(RootNode $_, Context $context)
     {
         $file = $context->getOutputFile();
         $this->count[$file] = [];
@@ -75,14 +75,14 @@ final class ClassStoragePlugin extends Plugin
      *
      * @return void
      */
-    public function enter(ClassLike $class, Context $context): void
+    public function enter(ClassLike $class, Context $context)
     {
         $file = $context->getOutputFile();
         if ($class->name) {
             $name = self::getFqdn($class);
         } else {
             $name = "class@anonymous{$file}";
-            $this->count[$file][$name] ??= 0;
+            $this->count[$file][$name] = $this->count[$file][$name] ?? 0;
             $name .= "@" . $this->count[$file][$name]++;
         }
         $class = clone $class;
@@ -107,7 +107,7 @@ final class ClassStoragePlugin extends Plugin
      * @param self $other
      * @return void
      */
-    public function merge($other): void
+    public function merge($other)
     {
         $this->classes = \array_merge_recursive($this->classes, $other->classes);
         $this->traits = \array_merge_recursive($this->traits, $other->traits);

@@ -17,19 +17,19 @@ final class ClassStorage
      *
      * @var array<string, array<string, Storage>>
      */
-    private array $classes = [];
+    private $classes = [];
     /**
      * Traits.
      *
      * @var array<string, array<string, Storage>>
      */
-    private array $traits = [];
+    private $traits = [];
     /**
      * Root classes.
      *
      * @var array<class-string, Storage>
      */
-    private array $rootClasses = [];
+    private $rootClasses = [];
     /**
      * Constructor.
      */
@@ -84,9 +84,13 @@ final class ClassStorage
      *
      * @return ?Storage
      */
-    public function getClassByName(string $class): ?Storage
+    public function getClassByName(string $class)
     {
-        return \array_values($this->classes[$class] ?? [])[0] ?? null;
+        $phabelReturn = \array_values($this->classes[$class] ?? [])[0] ?? null;
+        if (!($phabelReturn instanceof Storage || \is_null($phabelReturn))) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ?Storage, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Get storage.
@@ -110,8 +114,11 @@ final class ClassStorage
     {
         return $this->rootClasses;
     }
-    private static function typeArray(null|Identifier|Name|NullableType|UnionType $type): array
+    private static function typeArray($type): array
     {
+        if (!(\is_null($type) || $type instanceof Identifier || $type instanceof Name || $type instanceof NullableType || $type instanceof UnionType)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($type) must be of type Identifier|Name|NullableType|UnionType|null, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($type) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
         $types = [];
         if ($type instanceof NullableType) {
             $types = [$type->type, new Identifier('null')];
@@ -129,8 +136,14 @@ final class ClassStorage
      * @param null|Identifier|Name|NullableType|UnionType $typeB
      * @return integer
      */
-    public function compare(null|Identifier|Name|NullableType|UnionType $typeA, null|Identifier|Name|NullableType|UnionType $typeB): int
+    public function compare($typeA, $typeB): int
     {
+        if (!(\is_null($typeA) || $typeA instanceof Identifier || $typeA instanceof Name || $typeA instanceof NullableType || $typeA instanceof UnionType)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($typeA) must be of type Identifier|Name|NullableType|UnionType|null, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($typeA) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        if (!(\is_null($typeB) || $typeB instanceof Identifier || $typeB instanceof Name || $typeB instanceof NullableType || $typeB instanceof UnionType)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #2 ($typeB) must be of type Identifier|Name|NullableType|UnionType|null, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($typeB) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
         $typeA = self::typeArray($typeA);
         $typeB = self::typeArray($typeB);
         if (\count($typeA) !== \count($typeB)) {

@@ -6,7 +6,7 @@ use SplStack;
 
 final class ExceptionWrapper
 {
-    private SplStack $params;
+    private $params;
     public function __construct(\Throwable $e)
     {
         $this->params = new SplStack();
@@ -17,7 +17,12 @@ final class ExceptionWrapper
     public function getException(): Exception
     {
         $previous = null;
-        foreach ($this->params as [$message, $code, $file, $line, $trace]) {
+        foreach ($this->params as $phabel_180fa5d5de938cc1) {
+            $message = $phabel_180fa5d5de938cc1[0];
+            $code = $phabel_180fa5d5de938cc1[1];
+            $file = $phabel_180fa5d5de938cc1[2];
+            $line = $phabel_180fa5d5de938cc1[3];
+            $trace = $phabel_180fa5d5de938cc1[4];
             $previous = new Exception($message, $code, $previous, $file, $line);
             $previous->setTrace($trace);
         }

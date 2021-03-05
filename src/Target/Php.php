@@ -70,7 +70,9 @@ class Php extends Plugin
     }
     public function getComposerRequires(): array
     {
-        return \array_fill_keys(\array_map(fn (int $version): string => ("symfony/polyfill-php{$version}"), self::getRange((int) $this->getConfig('target', self::DEFAULT_TARGET))), '*');
+        return \array_fill_keys(\array_map(function (int $version): string {
+            return "symfony/polyfill-php{$version}";
+        }, self::getRange((int) $this->getConfig('target', self::DEFAULT_TARGET))), '*');
     }
     public static function previous(array $config): array
     {

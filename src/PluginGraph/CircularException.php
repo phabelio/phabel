@@ -17,7 +17,7 @@ class CircularException extends \Exception
      *
      * @var class-string<PluginInterface>[]
      */
-    private array $plugins = [];
+    private $plugins = [];
     /**
      * Constructor.
      *

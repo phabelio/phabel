@@ -29,29 +29,29 @@ class Traverser
      *
      * @var SplQueue<SplQueue<PluginInterface>>
      */
-    private SplQueue $queue;
+    private $queue;
     /**
      * Parser instance.
      */
-    private Parser $parser;
+    private $parser;
     /**
      * Printer instance.
      */
-    private Standard $printer;
+    private $printer;
     /**
      * Plugin queue for specific package.
      *
      * @var SplQueue<SplQueue<PluginInterface>>|null
      */
-    private ?SplQueue $packageQueue = null;
+    private $packageQueue = null;
     /**
      * Current file.
      */
-    private string $file = '';
+    private $file = '';
     /**
      * Current output file.
      */
-    private string $outputFile = '';
+    private $outputFile = '';
     /**
      * Generate traverser from basic plugin instances.
      *
@@ -76,19 +76,23 @@ class Traverser
      *
      * @return ?object
      */
-    private static function startCoverage(string $coveragePath): ?object
+    private static function startCoverage(string $coveragePath)
     {
         if (!$coveragePath || !\class_exists(CodeCoverage::class)) {
-            return null;
+            $phabelReturn = null;
+            if (!(\is_object($phabelReturn) || \is_null($phabelReturn))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type ?object, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         }
         try {
             $filter = new Filter();
             $filter->includeDirectory(\realpath(__DIR__ . '/../src'));
             $coverage = new CodeCoverage((new Selector())->forLineCoverage($filter), $filter);
             $coverage->start('phabel');
-            return new class($coverage, $coveragePath) {
-                private string $coveragePath;
-                private CodeCoverage $coverage;
+            $phabelReturn = new class($coverage, $coveragePath) {
+                private $coveragePath;
+                private $coverage;
                 public function __construct(CodeCoverage $coverage, string $coveragePath)
                 {
                     $this->coverage = $coverage;
@@ -103,9 +107,17 @@ class Traverser
                     (new PHP())->process($this->coverage, $this->coveragePath);
                 }
             };
+            if (!(\is_object($phabelReturn) || \is_null($phabelReturn))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type ?object, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         } catch (\Throwable $e) {
         }
-        return null;
+        $phabelReturn = null;
+        if (!(\is_object($phabelReturn) || \is_null($phabelReturn))) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ?object, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Run phabel.
@@ -290,7 +302,7 @@ class Traverser
      *
      * @return void
      */
-    public function setPackage(string $package): void
+    public function setPackage(string $package)
     {
         /** @var SplQueue<SplQueue<PluginInterface>> */
         $this->packageQueue = new SplQueue();
@@ -392,7 +404,7 @@ class Traverser
      * @return array{0: int, 1: string}|null
      * @psalm-return (T is true ? array{0: int, 1: string} : null)
      */
-    private function traverseAstInternal(RootNode &$node, SplQueue $pluginQueue = null, bool $allowMulti = true): ?array
+    private function traverseAstInternal(RootNode &$node, SplQueue $pluginQueue = null, bool $allowMulti = true)
     {
         $it = 0;
         $result = '';
@@ -408,7 +420,11 @@ class Traverser
                     /** @var RootNode $node */
                 }
                 if (!$allowMulti) {
-                    return null;
+                    $phabelReturn = null;
+                    if (!(\is_array($phabelReturn) || \is_null($phabelReturn))) {
+                        throw new \TypeError(__METHOD__ . '(): Return value must be of type ?array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                    }
+                    return $phabelReturn;
                 }
             } catch (\Throwable $e) {
                 $message = $e->getMessage();
@@ -426,7 +442,11 @@ class Traverser
             $result = $this->printer->prettyPrintFile($node->stmts);
             $it++;
         } while ($result !== $oldResult);
-        return [$it, $result];
+        $phabelReturn = [$it, $result];
+        if (!(\is_array($phabelReturn) || \is_null($phabelReturn))) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ?array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Traverse node.
@@ -437,7 +457,7 @@ class Traverser
      *
      * @return void
      */
-    private function traverseNode(Node &$node, SplQueue $plugins, Context $context): void
+    private function traverseNode(Node &$node, SplQueue $plugins, Context $context)
     {
         $context->pushResolve($node);
         foreach ($plugins as $plugin) {

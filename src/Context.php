@@ -31,7 +31,6 @@ use PhpParser\Node\Stmt\Expression;
 use PhpParser\Node\Stmt\If_;
 use PhpParser\NodeVisitor\NameResolver;
 use PhpParser\PrettyPrinter\Standard;
-use PhpParser\PrettyPrinterAbstract;
 use SplStack;
 
 /**
@@ -47,35 +46,35 @@ class Context
      *
      * @var SplStack<Node>
      */
-    public SplStack $parents;
+    public $parents;
     /**
      * Declared variables stack.
      *
      * @var SplStack<VariableContext>
      */
-    public SplStack $variables;
+    public $variables;
     /**
      * Name resolver.
      *
      * @var NameResolver
      */
-    public NameResolver $nameResolver;
+    public $nameResolver;
     /**
      * Pretty printer.
      */
-    public PrettyPrinterAbstract $prettyPrinter;
+    public $prettyPrinter;
     /**
      * Arrow closure converter.
      */
-    private ArrowClosure $converter;
+    private $converter;
     /**
      * Current file.
      */
-    private string $file;
+    private $file;
     /**
      * Current output file.
      */
-    private string $outputFile;
+    private $outputFile;
     /**
      * Constructor.
      */
@@ -96,7 +95,7 @@ class Context
      * @param Node $node
      * @return void
      */
-    public function pushResolve(Node $node): void
+    public function pushResolve(Node $node)
     {
         $this->nameResolver->enterNode($node);
     }
@@ -107,14 +106,16 @@ class Context
      *
      * @return void
      */
-    public function push(Node $node): void
+    public function push(Node $node)
     {
         $this->parents->push($node);
         if ($node instanceof RootNode) {
             $this->variables->push(new VariableContext());
         }
         if ($node instanceof FunctionLike) {
-            $variables = \array_fill_keys(\array_map(fn (Param $param): string => $param->var->name, $node->getParams()), true);
+            $variables = \array_fill_keys(\array_map(function (Param $param): string {
+                return $param->var->name;
+            }, $node->getParams()), true);
             if ($node instanceof Closure) {
                 foreach ($node->uses as $use) {
                     $variables[$use->var->name] = true;
@@ -151,7 +152,7 @@ class Context
      *
      * @return void
      */
-    public function pop(): void
+    public function pop()
     {
         $popped = $this->parents->pop();
         if ($popped instanceof RootNode || $popped instanceof FunctionLike) {
@@ -204,7 +205,7 @@ class Context
      * @param Node ...$insert Nodes to insert
      * @return void
      */
-    public function insertBefore(Node $node, Node ...$insert): void
+    public function insertBefore(Node $node, Node ...$insert)
     {
         if (empty($insert)) {
             return;
@@ -246,24 +247,24 @@ class Context
         //
         if ($parent instanceof BooleanOr && $parentKey === 'right' && Tools::hasSideEffects($parent->right)) {
             $result = $this->getVariable();
-            $insert = new If_($parent->left, ['stmts' => [new Assign($result, BuilderHelpers::normalizeValue(true))], 'else' => new Else_([...$insert, new Assign($result, new Bool_($parent->right))])]);
+            $insert = new If_($parent->left, ['stmts' => [new Assign($result, BuilderHelpers::normalizeValue(true))], 'else' => new Else_(\array_merge($insert, [new Assign($result, new Bool_($parent->right))]))]);
             $parent = $result;
         } elseif ($parent instanceof BooleanAnd && $parentKey === 'right' && Tools::hasSideEffects($parent->right)) {
             $result = $this->getVariable();
-            $insert = new If_($parent->left, ['stmts' => [...$insert, new Assign($result, new Bool_($parent->right))], 'else' => new Else_([new Assign($result, BuilderHelpers::normalizeValue(false))])]);
+            $insert = new If_($parent->left, ['stmts' => \array_merge($insert, [new Assign($result, new Bool_($parent->right))]), 'else' => new Else_([new Assign($result, BuilderHelpers::normalizeValue(false))])]);
             $parent = $result;
         } elseif ($parent instanceof Ternary && $parentKey !== 'cond' && (Tools::hasSideEffects($parent->if) || Tools::hasSideEffects($parent->else))) {
             $result = $this->getVariable();
             if (!$parent->if) {
                 // ?:
-                $insert = new If_(new BooleanNot(new Assign($result, $parent->cond)), ['stmts' => [...$insert, new Assign($result, $parent->else)]]);
+                $insert = new If_(new BooleanNot(new Assign($result, $parent->cond)), ['stmts' => \array_merge($insert, [new Assign($result, $parent->else)])]);
             } else {
-                $insert = new If_($parent->cond, ['stmts' => [...$parentKey === 'left' ? $insert : [], new Assign($result, $parent->if)], 'else' => new Else_([...$parentKey === 'right' ? $insert : [], new Assign($result, $parent->else)])]);
+                $insert = new If_($parent->cond, ['stmts' => \array_merge($parentKey === 'left' ? $insert : [], [new Assign($result, $parent->if)]), 'else' => new Else_(\array_merge($parentKey === 'right' ? $insert : [], [new Assign($result, $parent->else)]))]);
             }
             $parent = $result;
         } elseif ($parent instanceof Coalesce && $parentKey === 'right' && Tools::hasSideEffects($parent->right)) {
             $result = $this->getVariable();
-            $insert = new If_(Plugin::call('is_null', new Assign($result, $parent->left)), ['stmts' => [...$insert, new Assign($result, $parent->right)]]);
+            $insert = new If_(Plugin::call('is_null', new Assign($result, $parent->left)), ['stmts' => \array_merge($insert, [new Assign($result, $parent->right)])]);
             $parent = $result;
         }
         $this->insertBefore($parent, ...\is_array($insert) ? $insert : [$insert]);
@@ -275,7 +276,7 @@ class Context
      * @param Node ...$nodes Nodes to insert
      * @return void
      */
-    public function insertAfter(Node $node, Node ...$nodes): void
+    public function insertAfter(Node $node, Node ...$nodes)
     {
         if (empty($nodes)) {
             return;
@@ -323,7 +324,7 @@ class Context
     /**
      * Convert a function to a closure.
      */
-    public function toClosure(FunctionLike &$func): void
+    public function toClosure(FunctionLike &$func)
     {
         if ($func instanceof ArrowFunction) {
             $func = $this->converter->enter($func, $this);

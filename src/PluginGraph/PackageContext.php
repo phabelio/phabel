@@ -15,7 +15,7 @@ class PackageContext
      *
      * @var array<string, null>
      */
-    private array $packages = [];
+    private $packages = [];
     /**
      * Add package.
      *
@@ -23,7 +23,7 @@ class PackageContext
      *
      * @return void
      */
-    public function addPackage(string $package): void
+    public function addPackage(string $package)
     {
         $this->packages[$package] = true;
     }
