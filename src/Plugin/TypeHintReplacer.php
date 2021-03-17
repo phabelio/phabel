@@ -81,7 +81,9 @@ class TypeHintReplacer extends Plugin
      */
     public static function replace(?Node $type): void
     {
-        $type->setAttribute(self::FORCE_ATTRIBUTE, true);
+        if ($type) {
+            $type->setAttribute(self::FORCE_ATTRIBUTE, true);
+        }
     }
     /**
      * Check if we should replace a void return type.
