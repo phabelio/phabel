@@ -21,9 +21,6 @@ class TypeContravariance extends ClassStorageProvider
         foreach ($storage->getClasses() as $class) {
             // Can override abstract methods
             foreach ($class->getMethods(Class_::MODIFIER_ABSTRACT) as $name => $method) {
-                if ($name === '__construct') {
-                    continue;
-                }
                 $parentMethods = new SplStack;
                 $parentMethods->push($method);
                 foreach ($class->getOverriddenMethods($name, Class_::MODIFIER_ABSTRACT, $method->flags & Class_::VISIBILITY_MODIFIER_MASK) as $childMethod) {
@@ -62,7 +59,9 @@ class TypeContravariance extends ClassStorageProvider
                 $changed = true;
                 foreach ($parentMethods as $method) {
                     foreach ($act as $k) {
-                        TypeHintReplacer::replace($method->params[$k]->type);
+                        if (isset($method->params[$k])) {
+                            TypeHintReplacer::replace($method->params[$k]->type);
+                        }
                     }
                 }
             }

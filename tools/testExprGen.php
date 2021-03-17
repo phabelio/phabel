@@ -5,6 +5,7 @@ use Composer\Util\Filesystem;
 use Phabel\Plugin\PhabelTestGenerator;
 use Phabel\Plugin\TypeHintReplacer;
 use Phabel\Target\Php;
+use Phabel\Traverser;
 use SebastianBergmann\CodeCoverage\Driver\Selector;
 use SebastianBergmann\CodeCoverage\Filter;
 
