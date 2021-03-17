@@ -20,6 +20,9 @@ class TypeContracovariance extends ClassStorageProvider
             // Contravariance: a parameter type can be less specific (more types) in a child method
             // Covariance: a child method can return a more specific (less types) type
             foreach ($class->getMethods() as $name => $method) {
+                if ($name === '__construct') {
+                    continue;
+                }
                 $actReturn = false;
                 $act = \array_fill(0, \count($method->params), false);
                 $parentMethods = new SplStack;

@@ -24,6 +24,7 @@ use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\Ternary;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\FunctionLike;
+use PhpParser\Node\Name\FullyQualified;
 use PhpParser\Node\Param;
 use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\Node\Stmt\Else_;
@@ -104,7 +105,9 @@ class Context
      */
     public function pushResolve(Node $node): void
     {
-        $this->nameResolver->enterNode($node);
+        if (!$node instanceof FullyQualified) {
+            $this->nameResolver->enterNode($node);
+        }
     }
     /**
      * Push node.
