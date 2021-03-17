@@ -62,7 +62,7 @@ jobs:
         env:
           PHABEL_TARGET: ${{ matrix.php }}
         run: |
-          composer install --prefer-dist --ignore-platform-reqs
+          composer install --prefer-dist --ignore-platform-reqs --no-plugins
           php src/phabel.php vendor vendor
 
       - name: Run tests

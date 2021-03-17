@@ -1,6 +1,6 @@
 <?php
 
-$os = ['ubuntu-latest', 'macos-latest'];
+$os = ['ubuntu-latest'];
 $php = require 'versions.php';
 
 $commit = \trim(\shell_exec("git log -1 --pretty=%H"));
