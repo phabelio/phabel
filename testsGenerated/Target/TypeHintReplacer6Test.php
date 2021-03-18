@@ -4,16 +4,16 @@ namespace PhabelTest\Target;
 
 use PHPUnit\Framework\TestCase;
 
-function test26callablearray(callable|array $data): callable|array { return $data; }
-function testRet26callablearray($data): callable|array { return $data; }
-function test27callablearray(callable|array $data): callable|array { return $data; }
-function testRet27callablearray($data): callable|array { return $data; }
-function test28callablearray(callable|array $data): callable|array { return $data; }
-function testRet28callablearray($data): callable|array { return $data; }
-function test29callablearray(callable|array $data): callable|array { return $data; }
-function testRet29callablearray($data): callable|array { return $data; }
-function test30callablearray(callable|array $data): callable|array { return $data; }
-function testRet30callablearray($data): callable|array { return $data; }
+function test26object(object $data): object { return $data; }
+function testRet26object($data): object { return $data; }
+function test27string(string $data): string { return $data; }
+function testRet27string($data): string { return $data; }
+function test28string(string $data): string { return $data; }
+function testRet28string($data): string { return $data; }
+function test29string(string $data): string { return $data; }
+function testRet29string($data): string { return $data; }
+function test30string(string $data): string { return $data; }
+function testRet30string($data): string { return $data; }
 
 
 /**
@@ -34,31 +34,31 @@ class TypeHintReplacer6Test extends TestCase
     public function returnDataProvider(): array
     {
         return [
-[fn ($data): callable|array => $data, "is_null", new class{}, '~.*Return value must be of type callable\\|array, class@anonymous returned~'],
-[function ($data): callable|array { return $data; }, "is_null", new class{}, '~.*Return value must be of type callable\\|array, class@anonymous returned~'],
-[[$this, 'testRet26callablearray'], "is_null", new class{}, '~.*Return value must be of type callable\\|array, class@anonymous returned~'],
-[[self::class, 'testRet26callablearray'], "is_null", new class{}, '~.*Return value must be of type callable\\|array, class@anonymous returned~'],
-['PhabelTest\Target\testRet26callablearray', "is_null", new class{}, '~.*Return value must be of type callable\\|array, class@anonymous returned~'],
-[fn ($data): callable|array => $data, fn (): int => 0, new class{}, '~.*Return value must be of type callable\\|array, class@anonymous returned~'],
-[function ($data): callable|array { return $data; }, fn (): int => 0, new class{}, '~.*Return value must be of type callable\\|array, class@anonymous returned~'],
-[[$this, 'testRet27callablearray'], fn (): int => 0, new class{}, '~.*Return value must be of type callable\\|array, class@anonymous returned~'],
-[[self::class, 'testRet27callablearray'], fn (): int => 0, new class{}, '~.*Return value must be of type callable\\|array, class@anonymous returned~'],
-['PhabelTest\Target\testRet27callablearray', fn (): int => 0, new class{}, '~.*Return value must be of type callable\\|array, class@anonymous returned~'],
-[fn ($data): callable|array => $data, [$this, "noop"], new class{}, '~.*Return value must be of type callable\\|array, class@anonymous returned~'],
-[function ($data): callable|array { return $data; }, [$this, "noop"], new class{}, '~.*Return value must be of type callable\\|array, class@anonymous returned~'],
-[[$this, 'testRet28callablearray'], [$this, "noop"], new class{}, '~.*Return value must be of type callable\\|array, class@anonymous returned~'],
-[[self::class, 'testRet28callablearray'], [$this, "noop"], new class{}, '~.*Return value must be of type callable\\|array, class@anonymous returned~'],
-['PhabelTest\Target\testRet28callablearray', [$this, "noop"], new class{}, '~.*Return value must be of type callable\\|array, class@anonymous returned~'],
-[fn ($data): callable|array => $data, [self::class, "noop"], new class{}, '~.*Return value must be of type callable\\|array, class@anonymous returned~'],
-[function ($data): callable|array { return $data; }, [self::class, "noop"], new class{}, '~.*Return value must be of type callable\\|array, class@anonymous returned~'],
-[[$this, 'testRet29callablearray'], [self::class, "noop"], new class{}, '~.*Return value must be of type callable\\|array, class@anonymous returned~'],
-[[self::class, 'testRet29callablearray'], [self::class, "noop"], new class{}, '~.*Return value must be of type callable\\|array, class@anonymous returned~'],
-['PhabelTest\Target\testRet29callablearray', [self::class, "noop"], new class{}, '~.*Return value must be of type callable\\|array, class@anonymous returned~'],
-[fn ($data): callable|array => $data, ['lmao'], new class{}, '~.*Return value must be of type callable\\|array, class@anonymous returned~'],
-[function ($data): callable|array { return $data; }, ['lmao'], new class{}, '~.*Return value must be of type callable\\|array, class@anonymous returned~'],
-[[$this, 'testRet30callablearray'], ['lmao'], new class{}, '~.*Return value must be of type callable\\|array, class@anonymous returned~'],
-[[self::class, 'testRet30callablearray'], ['lmao'], new class{}, '~.*Return value must be of type callable\\|array, class@anonymous returned~'],
-['PhabelTest\Target\testRet30callablearray', ['lmao'], new class{}, '~.*Return value must be of type callable\\|array, class@anonymous returned~']];
+[fn ($data): object => $data, $this, 0, '~.*Return value must be of type object, int returned~'],
+[function ($data): object { return $data; }, $this, 0, '~.*Return value must be of type object, int returned~'],
+[[$this, 'testRet26object'], $this, 0, '~.*Return value must be of type object, int returned~'],
+[[self::class, 'testRet26object'], $this, 0, '~.*Return value must be of type object, int returned~'],
+['PhabelTest\Target\testRet26object', $this, 0, '~.*Return value must be of type object, int returned~'],
+[fn ($data): string => $data, 'lmao', new class{}, '~.*Return value must be of type string, class@anonymous returned~'],
+[function ($data): string { return $data; }, 'lmao', new class{}, '~.*Return value must be of type string, class@anonymous returned~'],
+[[$this, 'testRet27string'], 'lmao', new class{}, '~.*Return value must be of type string, class@anonymous returned~'],
+[[self::class, 'testRet27string'], 'lmao', new class{}, '~.*Return value must be of type string, class@anonymous returned~'],
+['PhabelTest\Target\testRet27string', 'lmao', new class{}, '~.*Return value must be of type string, class@anonymous returned~'],
+[fn ($data): string => $data, new class{public function __toString() { return "lmao"; }}, new class{}, '~.*Return value must be of type string, class@anonymous returned~'],
+[function ($data): string { return $data; }, new class{public function __toString() { return "lmao"; }}, new class{}, '~.*Return value must be of type string, class@anonymous returned~'],
+[[$this, 'testRet28string'], new class{public function __toString() { return "lmao"; }}, new class{}, '~.*Return value must be of type string, class@anonymous returned~'],
+[[self::class, 'testRet28string'], new class{public function __toString() { return "lmao"; }}, new class{}, '~.*Return value must be of type string, class@anonymous returned~'],
+['PhabelTest\Target\testRet28string', new class{public function __toString() { return "lmao"; }}, new class{}, '~.*Return value must be of type string, class@anonymous returned~'],
+[fn ($data): string => $data, 123, new class{}, '~.*Return value must be of type string, class@anonymous returned~'],
+[function ($data): string { return $data; }, 123, new class{}, '~.*Return value must be of type string, class@anonymous returned~'],
+[[$this, 'testRet29string'], 123, new class{}, '~.*Return value must be of type string, class@anonymous returned~'],
+[[self::class, 'testRet29string'], 123, new class{}, '~.*Return value must be of type string, class@anonymous returned~'],
+['PhabelTest\Target\testRet29string', 123, new class{}, '~.*Return value must be of type string, class@anonymous returned~'],
+[fn ($data): string => $data, -1, new class{}, '~.*Return value must be of type string, class@anonymous returned~'],
+[function ($data): string { return $data; }, -1, new class{}, '~.*Return value must be of type string, class@anonymous returned~'],
+[[$this, 'testRet30string'], -1, new class{}, '~.*Return value must be of type string, class@anonymous returned~'],
+[[self::class, 'testRet30string'], -1, new class{}, '~.*Return value must be of type string, class@anonymous returned~'],
+['PhabelTest\Target\testRet30string', -1, new class{}, '~.*Return value must be of type string, class@anonymous returned~']];
 ;
     }
     /**
@@ -73,45 +73,45 @@ class TypeHintReplacer6Test extends TestCase
     public function paramDataProvider(): array
     {
         return [
-[fn (callable|array $data): callable|array => $data, "is_null", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type callable\\|array, class@anonymous given, .*~'],
-[function (callable|array $data): callable|array { return $data; }, "is_null", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type callable\\|array, class@anonymous given, .*~'],
-[[$this, 'test26callablearray'], "is_null", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type callable\\|array, class@anonymous given, .*~'],
-[[self::class, 'test26callablearray'], "is_null", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type callable\\|array, class@anonymous given, .*~'],
-['PhabelTest\Target\test26callablearray', "is_null", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type callable\\|array, class@anonymous given, .*~'],
-[fn (callable|array $data): callable|array => $data, fn (): int => 0, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type callable\\|array, class@anonymous given, .*~'],
-[function (callable|array $data): callable|array { return $data; }, fn (): int => 0, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type callable\\|array, class@anonymous given, .*~'],
-[[$this, 'test27callablearray'], fn (): int => 0, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type callable\\|array, class@anonymous given, .*~'],
-[[self::class, 'test27callablearray'], fn (): int => 0, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type callable\\|array, class@anonymous given, .*~'],
-['PhabelTest\Target\test27callablearray', fn (): int => 0, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type callable\\|array, class@anonymous given, .*~'],
-[fn (callable|array $data): callable|array => $data, [$this, "noop"], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type callable\\|array, class@anonymous given, .*~'],
-[function (callable|array $data): callable|array { return $data; }, [$this, "noop"], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type callable\\|array, class@anonymous given, .*~'],
-[[$this, 'test28callablearray'], [$this, "noop"], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type callable\\|array, class@anonymous given, .*~'],
-[[self::class, 'test28callablearray'], [$this, "noop"], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type callable\\|array, class@anonymous given, .*~'],
-['PhabelTest\Target\test28callablearray', [$this, "noop"], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type callable\\|array, class@anonymous given, .*~'],
-[fn (callable|array $data): callable|array => $data, [self::class, "noop"], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type callable\\|array, class@anonymous given, .*~'],
-[function (callable|array $data): callable|array { return $data; }, [self::class, "noop"], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type callable\\|array, class@anonymous given, .*~'],
-[[$this, 'test29callablearray'], [self::class, "noop"], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type callable\\|array, class@anonymous given, .*~'],
-[[self::class, 'test29callablearray'], [self::class, "noop"], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type callable\\|array, class@anonymous given, .*~'],
-['PhabelTest\Target\test29callablearray', [self::class, "noop"], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type callable\\|array, class@anonymous given, .*~'],
-[fn (callable|array $data): callable|array => $data, ['lmao'], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type callable\\|array, class@anonymous given, .*~'],
-[function (callable|array $data): callable|array { return $data; }, ['lmao'], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type callable\\|array, class@anonymous given, .*~'],
-[[$this, 'test30callablearray'], ['lmao'], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type callable\\|array, class@anonymous given, .*~'],
-[[self::class, 'test30callablearray'], ['lmao'], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type callable\\|array, class@anonymous given, .*~'],
-['PhabelTest\Target\test30callablearray', ['lmao'], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type callable\\|array, class@anonymous given, .*~']];
+[fn (object $data): object => $data, $this, 0, '~.*Argument #1 \\(\\$data\\) must be of type object, int given, .*~'],
+[function (object $data): object { return $data; }, $this, 0, '~.*Argument #1 \\(\\$data\\) must be of type object, int given, .*~'],
+[[$this, 'test26object'], $this, 0, '~.*Argument #1 \\(\\$data\\) must be of type object, int given, .*~'],
+[[self::class, 'test26object'], $this, 0, '~.*Argument #1 \\(\\$data\\) must be of type object, int given, .*~'],
+['PhabelTest\Target\test26object', $this, 0, '~.*Argument #1 \\(\\$data\\) must be of type object, int given, .*~'],
+[fn (string $data): string => $data, 'lmao', new class{}, '~.*Argument #1 \\(\\$data\\) must be of type string, class@anonymous given, .*~'],
+[function (string $data): string { return $data; }, 'lmao', new class{}, '~.*Argument #1 \\(\\$data\\) must be of type string, class@anonymous given, .*~'],
+[[$this, 'test27string'], 'lmao', new class{}, '~.*Argument #1 \\(\\$data\\) must be of type string, class@anonymous given, .*~'],
+[[self::class, 'test27string'], 'lmao', new class{}, '~.*Argument #1 \\(\\$data\\) must be of type string, class@anonymous given, .*~'],
+['PhabelTest\Target\test27string', 'lmao', new class{}, '~.*Argument #1 \\(\\$data\\) must be of type string, class@anonymous given, .*~'],
+[fn (string $data): string => $data, new class{public function __toString() { return "lmao"; }}, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type string, class@anonymous given, .*~'],
+[function (string $data): string { return $data; }, new class{public function __toString() { return "lmao"; }}, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type string, class@anonymous given, .*~'],
+[[$this, 'test28string'], new class{public function __toString() { return "lmao"; }}, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type string, class@anonymous given, .*~'],
+[[self::class, 'test28string'], new class{public function __toString() { return "lmao"; }}, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type string, class@anonymous given, .*~'],
+['PhabelTest\Target\test28string', new class{public function __toString() { return "lmao"; }}, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type string, class@anonymous given, .*~'],
+[fn (string $data): string => $data, 123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type string, class@anonymous given, .*~'],
+[function (string $data): string { return $data; }, 123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type string, class@anonymous given, .*~'],
+[[$this, 'test29string'], 123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type string, class@anonymous given, .*~'],
+[[self::class, 'test29string'], 123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type string, class@anonymous given, .*~'],
+['PhabelTest\Target\test29string', 123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type string, class@anonymous given, .*~'],
+[fn (string $data): string => $data, -1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type string, class@anonymous given, .*~'],
+[function (string $data): string { return $data; }, -1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type string, class@anonymous given, .*~'],
+[[$this, 'test30string'], -1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type string, class@anonymous given, .*~'],
+[[self::class, 'test30string'], -1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type string, class@anonymous given, .*~'],
+['PhabelTest\Target\test30string', -1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type string, class@anonymous given, .*~']];
 ;
     }
     
     public static function noop() {}
     
-    private static function test26callablearray(callable|array $data): callable|array { return $data; }
-private static function testRet26callablearray($data): callable|array { return $data; }
-private static function test27callablearray(callable|array $data): callable|array { return $data; }
-private static function testRet27callablearray($data): callable|array { return $data; }
-private static function test28callablearray(callable|array $data): callable|array { return $data; }
-private static function testRet28callablearray($data): callable|array { return $data; }
-private static function test29callablearray(callable|array $data): callable|array { return $data; }
-private static function testRet29callablearray($data): callable|array { return $data; }
-private static function test30callablearray(callable|array $data): callable|array { return $data; }
-private static function testRet30callablearray($data): callable|array { return $data; }
+    private static function test26object(object $data): object { return $data; }
+private static function testRet26object($data): object { return $data; }
+private static function test27string(string $data): string { return $data; }
+private static function testRet27string($data): string { return $data; }
+private static function test28string(string $data): string { return $data; }
+private static function testRet28string($data): string { return $data; }
+private static function test29string(string $data): string { return $data; }
+private static function testRet29string($data): string { return $data; }
+private static function test30string(string $data): string { return $data; }
+private static function testRet30string($data): string { return $data; }
 
 }

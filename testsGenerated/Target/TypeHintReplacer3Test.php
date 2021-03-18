@@ -4,16 +4,16 @@ namespace PhabelTest\Target;
 
 use PHPUnit\Framework\TestCase;
 
-function test11float(float $data): float { return $data; }
-function testRet11float($data): float { return $data; }
-function test12float(float $data): float { return $data; }
-function testRet12float($data): float { return $data; }
-function test13object(object $data): object { return $data; }
-function testRet13object($data): object { return $data; }
-function test14object(object $data): object { return $data; }
-function testRet14object($data): object { return $data; }
-function test15string(string $data): string { return $data; }
-function testRet15string($data): string { return $data; }
+function test11bool(bool $data): bool { return $data; }
+function testRet11bool($data): bool { return $data; }
+function test12bool(bool $data): bool { return $data; }
+function testRet12bool($data): bool { return $data; }
+function test13bool(bool $data): bool { return $data; }
+function testRet13bool($data): bool { return $data; }
+function test14iterable(iterable $data): iterable { return $data; }
+function testRet14iterable($data): iterable { return $data; }
+function test15iterable(iterable $data): iterable { return $data; }
+function testRet15iterable($data): iterable { return $data; }
 
 
 /**
@@ -34,31 +34,31 @@ class TypeHintReplacer3Test extends TestCase
     public function returnDataProvider(): array
     {
         return [
-[fn ($data): float => $data, 123.123, new class{}, '~.*Return value must be of type float, class@anonymous returned~'],
-[function ($data): float { return $data; }, 123.123, new class{}, '~.*Return value must be of type float, class@anonymous returned~'],
-[[$this, 'testRet11float'], 123.123, new class{}, '~.*Return value must be of type float, class@anonymous returned~'],
-[[self::class, 'testRet11float'], 123.123, new class{}, '~.*Return value must be of type float, class@anonymous returned~'],
-['PhabelTest\Target\testRet11float', 123.123, new class{}, '~.*Return value must be of type float, class@anonymous returned~'],
-[fn ($data): float => $data, 1e3, new class{}, '~.*Return value must be of type float, class@anonymous returned~'],
-[function ($data): float { return $data; }, 1e3, new class{}, '~.*Return value must be of type float, class@anonymous returned~'],
-[[$this, 'testRet12float'], 1e3, new class{}, '~.*Return value must be of type float, class@anonymous returned~'],
-[[self::class, 'testRet12float'], 1e3, new class{}, '~.*Return value must be of type float, class@anonymous returned~'],
-['PhabelTest\Target\testRet12float', 1e3, new class{}, '~.*Return value must be of type float, class@anonymous returned~'],
-[fn ($data): object => $data, new class{}, 0, '~.*Return value must be of type object, int returned~'],
-[function ($data): object { return $data; }, new class{}, 0, '~.*Return value must be of type object, int returned~'],
-[[$this, 'testRet13object'], new class{}, 0, '~.*Return value must be of type object, int returned~'],
-[[self::class, 'testRet13object'], new class{}, 0, '~.*Return value must be of type object, int returned~'],
-['PhabelTest\Target\testRet13object', new class{}, 0, '~.*Return value must be of type object, int returned~'],
-[fn ($data): object => $data, $this, 0, '~.*Return value must be of type object, int returned~'],
-[function ($data): object { return $data; }, $this, 0, '~.*Return value must be of type object, int returned~'],
-[[$this, 'testRet14object'], $this, 0, '~.*Return value must be of type object, int returned~'],
-[[self::class, 'testRet14object'], $this, 0, '~.*Return value must be of type object, int returned~'],
-['PhabelTest\Target\testRet14object', $this, 0, '~.*Return value must be of type object, int returned~'],
-[fn ($data): string => $data, 'lmao', new class{}, '~.*Return value must be of type string, class@anonymous returned~'],
-[function ($data): string { return $data; }, 'lmao', new class{}, '~.*Return value must be of type string, class@anonymous returned~'],
-[[$this, 'testRet15string'], 'lmao', new class{}, '~.*Return value must be of type string, class@anonymous returned~'],
-[[self::class, 'testRet15string'], 'lmao', new class{}, '~.*Return value must be of type string, class@anonymous returned~'],
-['PhabelTest\Target\testRet15string', 'lmao', new class{}, '~.*Return value must be of type string, class@anonymous returned~']];
+[fn ($data): bool => $data, "1", new class{}, '~.*Return value must be of type bool, class@anonymous returned~'],
+[function ($data): bool { return $data; }, "1", new class{}, '~.*Return value must be of type bool, class@anonymous returned~'],
+[[$this, 'testRet11bool'], "1", new class{}, '~.*Return value must be of type bool, class@anonymous returned~'],
+[[self::class, 'testRet11bool'], "1", new class{}, '~.*Return value must be of type bool, class@anonymous returned~'],
+['PhabelTest\Target\testRet11bool', "1", new class{}, '~.*Return value must be of type bool, class@anonymous returned~'],
+[fn ($data): bool => $data, "", new class{}, '~.*Return value must be of type bool, class@anonymous returned~'],
+[function ($data): bool { return $data; }, "", new class{}, '~.*Return value must be of type bool, class@anonymous returned~'],
+[[$this, 'testRet12bool'], "", new class{}, '~.*Return value must be of type bool, class@anonymous returned~'],
+[[self::class, 'testRet12bool'], "", new class{}, '~.*Return value must be of type bool, class@anonymous returned~'],
+['PhabelTest\Target\testRet12bool', "", new class{}, '~.*Return value must be of type bool, class@anonymous returned~'],
+[fn ($data): bool => $data, "aaaa", new class{}, '~.*Return value must be of type bool, class@anonymous returned~'],
+[function ($data): bool { return $data; }, "aaaa", new class{}, '~.*Return value must be of type bool, class@anonymous returned~'],
+[[$this, 'testRet13bool'], "aaaa", new class{}, '~.*Return value must be of type bool, class@anonymous returned~'],
+[[self::class, 'testRet13bool'], "aaaa", new class{}, '~.*Return value must be of type bool, class@anonymous returned~'],
+['PhabelTest\Target\testRet13bool', "aaaa", new class{}, '~.*Return value must be of type bool, class@anonymous returned~'],
+[fn ($data): iterable => $data, ['lmao'], new class{}, '~.*Return value must be of type iterable, class@anonymous returned~'],
+[function ($data): iterable { return $data; }, ['lmao'], new class{}, '~.*Return value must be of type iterable, class@anonymous returned~'],
+[[$this, 'testRet14iterable'], ['lmao'], new class{}, '~.*Return value must be of type iterable, class@anonymous returned~'],
+[[self::class, 'testRet14iterable'], ['lmao'], new class{}, '~.*Return value must be of type iterable, class@anonymous returned~'],
+['PhabelTest\Target\testRet14iterable', ['lmao'], new class{}, '~.*Return value must be of type iterable, class@anonymous returned~'],
+[fn ($data): iterable => $data, array(), new class{}, '~.*Return value must be of type iterable, class@anonymous returned~'],
+[function ($data): iterable { return $data; }, array(), new class{}, '~.*Return value must be of type iterable, class@anonymous returned~'],
+[[$this, 'testRet15iterable'], array(), new class{}, '~.*Return value must be of type iterable, class@anonymous returned~'],
+[[self::class, 'testRet15iterable'], array(), new class{}, '~.*Return value must be of type iterable, class@anonymous returned~'],
+['PhabelTest\Target\testRet15iterable', array(), new class{}, '~.*Return value must be of type iterable, class@anonymous returned~']];
 ;
     }
     /**
@@ -73,45 +73,45 @@ class TypeHintReplacer3Test extends TestCase
     public function paramDataProvider(): array
     {
         return [
-[fn (float $data): float => $data, 123.123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type float, class@anonymous given, .*~'],
-[function (float $data): float { return $data; }, 123.123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type float, class@anonymous given, .*~'],
-[[$this, 'test11float'], 123.123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type float, class@anonymous given, .*~'],
-[[self::class, 'test11float'], 123.123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type float, class@anonymous given, .*~'],
-['PhabelTest\Target\test11float', 123.123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type float, class@anonymous given, .*~'],
-[fn (float $data): float => $data, 1e3, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type float, class@anonymous given, .*~'],
-[function (float $data): float { return $data; }, 1e3, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type float, class@anonymous given, .*~'],
-[[$this, 'test12float'], 1e3, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type float, class@anonymous given, .*~'],
-[[self::class, 'test12float'], 1e3, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type float, class@anonymous given, .*~'],
-['PhabelTest\Target\test12float', 1e3, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type float, class@anonymous given, .*~'],
-[fn (object $data): object => $data, new class{}, 0, '~.*Argument #1 \\(\\$data\\) must be of type object, int given, .*~'],
-[function (object $data): object { return $data; }, new class{}, 0, '~.*Argument #1 \\(\\$data\\) must be of type object, int given, .*~'],
-[[$this, 'test13object'], new class{}, 0, '~.*Argument #1 \\(\\$data\\) must be of type object, int given, .*~'],
-[[self::class, 'test13object'], new class{}, 0, '~.*Argument #1 \\(\\$data\\) must be of type object, int given, .*~'],
-['PhabelTest\Target\test13object', new class{}, 0, '~.*Argument #1 \\(\\$data\\) must be of type object, int given, .*~'],
-[fn (object $data): object => $data, $this, 0, '~.*Argument #1 \\(\\$data\\) must be of type object, int given, .*~'],
-[function (object $data): object { return $data; }, $this, 0, '~.*Argument #1 \\(\\$data\\) must be of type object, int given, .*~'],
-[[$this, 'test14object'], $this, 0, '~.*Argument #1 \\(\\$data\\) must be of type object, int given, .*~'],
-[[self::class, 'test14object'], $this, 0, '~.*Argument #1 \\(\\$data\\) must be of type object, int given, .*~'],
-['PhabelTest\Target\test14object', $this, 0, '~.*Argument #1 \\(\\$data\\) must be of type object, int given, .*~'],
-[fn (string $data): string => $data, 'lmao', new class{}, '~.*Argument #1 \\(\\$data\\) must be of type string, class@anonymous given, .*~'],
-[function (string $data): string { return $data; }, 'lmao', new class{}, '~.*Argument #1 \\(\\$data\\) must be of type string, class@anonymous given, .*~'],
-[[$this, 'test15string'], 'lmao', new class{}, '~.*Argument #1 \\(\\$data\\) must be of type string, class@anonymous given, .*~'],
-[[self::class, 'test15string'], 'lmao', new class{}, '~.*Argument #1 \\(\\$data\\) must be of type string, class@anonymous given, .*~'],
-['PhabelTest\Target\test15string', 'lmao', new class{}, '~.*Argument #1 \\(\\$data\\) must be of type string, class@anonymous given, .*~']];
+[fn (bool $data): bool => $data, "1", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type bool, class@anonymous given, .*~'],
+[function (bool $data): bool { return $data; }, "1", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type bool, class@anonymous given, .*~'],
+[[$this, 'test11bool'], "1", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type bool, class@anonymous given, .*~'],
+[[self::class, 'test11bool'], "1", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type bool, class@anonymous given, .*~'],
+['PhabelTest\Target\test11bool', "1", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type bool, class@anonymous given, .*~'],
+[fn (bool $data): bool => $data, "", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type bool, class@anonymous given, .*~'],
+[function (bool $data): bool { return $data; }, "", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type bool, class@anonymous given, .*~'],
+[[$this, 'test12bool'], "", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type bool, class@anonymous given, .*~'],
+[[self::class, 'test12bool'], "", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type bool, class@anonymous given, .*~'],
+['PhabelTest\Target\test12bool', "", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type bool, class@anonymous given, .*~'],
+[fn (bool $data): bool => $data, "aaaa", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type bool, class@anonymous given, .*~'],
+[function (bool $data): bool { return $data; }, "aaaa", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type bool, class@anonymous given, .*~'],
+[[$this, 'test13bool'], "aaaa", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type bool, class@anonymous given, .*~'],
+[[self::class, 'test13bool'], "aaaa", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type bool, class@anonymous given, .*~'],
+['PhabelTest\Target\test13bool', "aaaa", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type bool, class@anonymous given, .*~'],
+[fn (iterable $data): iterable => $data, ['lmao'], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable, class@anonymous given, .*~'],
+[function (iterable $data): iterable { return $data; }, ['lmao'], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable, class@anonymous given, .*~'],
+[[$this, 'test14iterable'], ['lmao'], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable, class@anonymous given, .*~'],
+[[self::class, 'test14iterable'], ['lmao'], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable, class@anonymous given, .*~'],
+['PhabelTest\Target\test14iterable', ['lmao'], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable, class@anonymous given, .*~'],
+[fn (iterable $data): iterable => $data, array(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable, class@anonymous given, .*~'],
+[function (iterable $data): iterable { return $data; }, array(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable, class@anonymous given, .*~'],
+[[$this, 'test15iterable'], array(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable, class@anonymous given, .*~'],
+[[self::class, 'test15iterable'], array(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable, class@anonymous given, .*~'],
+['PhabelTest\Target\test15iterable', array(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable, class@anonymous given, .*~']];
 ;
     }
     
     public static function noop() {}
     
-    private static function test11float(float $data): float { return $data; }
-private static function testRet11float($data): float { return $data; }
-private static function test12float(float $data): float { return $data; }
-private static function testRet12float($data): float { return $data; }
-private static function test13object(object $data): object { return $data; }
-private static function testRet13object($data): object { return $data; }
-private static function test14object(object $data): object { return $data; }
-private static function testRet14object($data): object { return $data; }
-private static function test15string(string $data): string { return $data; }
-private static function testRet15string($data): string { return $data; }
+    private static function test11bool(bool $data): bool { return $data; }
+private static function testRet11bool($data): bool { return $data; }
+private static function test12bool(bool $data): bool { return $data; }
+private static function testRet12bool($data): bool { return $data; }
+private static function test13bool(bool $data): bool { return $data; }
+private static function testRet13bool($data): bool { return $data; }
+private static function test14iterable(iterable $data): iterable { return $data; }
+private static function testRet14iterable($data): iterable { return $data; }
+private static function test15iterable(iterable $data): iterable { return $data; }
+private static function testRet15iterable($data): iterable { return $data; }
 
 }

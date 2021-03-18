@@ -8,12 +8,12 @@ function test6bool(bool $data): bool { return $data; }
 function testRet6bool($data): bool { return $data; }
 function test7bool(bool $data): bool { return $data; }
 function testRet7bool($data): bool { return $data; }
-function test8iterable(iterable $data): iterable { return $data; }
-function testRet8iterable($data): iterable { return $data; }
-function test9iterable(iterable $data): iterable { return $data; }
-function testRet9iterable($data): iterable { return $data; }
-function test10iterable(iterable $data): iterable { return $data; }
-function testRet10iterable($data): iterable { return $data; }
+function test8bool(bool $data): bool { return $data; }
+function testRet8bool($data): bool { return $data; }
+function test9bool(bool $data): bool { return $data; }
+function testRet9bool($data): bool { return $data; }
+function test10bool(bool $data): bool { return $data; }
+function testRet10bool($data): bool { return $data; }
 
 
 /**
@@ -44,21 +44,21 @@ class TypeHintReplacer2Test extends TestCase
 [[$this, 'testRet7bool'], false, new class{}, '~.*Return value must be of type bool, class@anonymous returned~'],
 [[self::class, 'testRet7bool'], false, new class{}, '~.*Return value must be of type bool, class@anonymous returned~'],
 ['PhabelTest\Target\testRet7bool', false, new class{}, '~.*Return value must be of type bool, class@anonymous returned~'],
-[fn ($data): iterable => $data, ['lmao'], new class{}, '~.*Return value must be of type iterable, class@anonymous returned~'],
-[function ($data): iterable { return $data; }, ['lmao'], new class{}, '~.*Return value must be of type iterable, class@anonymous returned~'],
-[[$this, 'testRet8iterable'], ['lmao'], new class{}, '~.*Return value must be of type iterable, class@anonymous returned~'],
-[[self::class, 'testRet8iterable'], ['lmao'], new class{}, '~.*Return value must be of type iterable, class@anonymous returned~'],
-['PhabelTest\Target\testRet8iterable', ['lmao'], new class{}, '~.*Return value must be of type iterable, class@anonymous returned~'],
-[fn ($data): iterable => $data, array(), new class{}, '~.*Return value must be of type iterable, class@anonymous returned~'],
-[function ($data): iterable { return $data; }, array(), new class{}, '~.*Return value must be of type iterable, class@anonymous returned~'],
-[[$this, 'testRet9iterable'], array(), new class{}, '~.*Return value must be of type iterable, class@anonymous returned~'],
-[[self::class, 'testRet9iterable'], array(), new class{}, '~.*Return value must be of type iterable, class@anonymous returned~'],
-['PhabelTest\Target\testRet9iterable', array(), new class{}, '~.*Return value must be of type iterable, class@anonymous returned~'],
-[fn ($data): iterable => $data, (fn (): \Generator => yield)(), new class{}, '~.*Return value must be of type iterable, class@anonymous returned~'],
-[function ($data): iterable { return $data; }, (fn (): \Generator => yield)(), new class{}, '~.*Return value must be of type iterable, class@anonymous returned~'],
-[[$this, 'testRet10iterable'], (fn (): \Generator => yield)(), new class{}, '~.*Return value must be of type iterable, class@anonymous returned~'],
-[[self::class, 'testRet10iterable'], (fn (): \Generator => yield)(), new class{}, '~.*Return value must be of type iterable, class@anonymous returned~'],
-['PhabelTest\Target\testRet10iterable', (fn (): \Generator => yield)(), new class{}, '~.*Return value must be of type iterable, class@anonymous returned~']];
+[fn ($data): bool => $data, 0, new class{}, '~.*Return value must be of type bool, class@anonymous returned~'],
+[function ($data): bool { return $data; }, 0, new class{}, '~.*Return value must be of type bool, class@anonymous returned~'],
+[[$this, 'testRet8bool'], 0, new class{}, '~.*Return value must be of type bool, class@anonymous returned~'],
+[[self::class, 'testRet8bool'], 0, new class{}, '~.*Return value must be of type bool, class@anonymous returned~'],
+['PhabelTest\Target\testRet8bool', 0, new class{}, '~.*Return value must be of type bool, class@anonymous returned~'],
+[fn ($data): bool => $data, 1, new class{}, '~.*Return value must be of type bool, class@anonymous returned~'],
+[function ($data): bool { return $data; }, 1, new class{}, '~.*Return value must be of type bool, class@anonymous returned~'],
+[[$this, 'testRet9bool'], 1, new class{}, '~.*Return value must be of type bool, class@anonymous returned~'],
+[[self::class, 'testRet9bool'], 1, new class{}, '~.*Return value must be of type bool, class@anonymous returned~'],
+['PhabelTest\Target\testRet9bool', 1, new class{}, '~.*Return value must be of type bool, class@anonymous returned~'],
+[fn ($data): bool => $data, "0", new class{}, '~.*Return value must be of type bool, class@anonymous returned~'],
+[function ($data): bool { return $data; }, "0", new class{}, '~.*Return value must be of type bool, class@anonymous returned~'],
+[[$this, 'testRet10bool'], "0", new class{}, '~.*Return value must be of type bool, class@anonymous returned~'],
+[[self::class, 'testRet10bool'], "0", new class{}, '~.*Return value must be of type bool, class@anonymous returned~'],
+['PhabelTest\Target\testRet10bool', "0", new class{}, '~.*Return value must be of type bool, class@anonymous returned~']];
 ;
     }
     /**
@@ -83,21 +83,21 @@ class TypeHintReplacer2Test extends TestCase
 [[$this, 'test7bool'], false, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type bool, class@anonymous given, .*~'],
 [[self::class, 'test7bool'], false, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type bool, class@anonymous given, .*~'],
 ['PhabelTest\Target\test7bool', false, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type bool, class@anonymous given, .*~'],
-[fn (iterable $data): iterable => $data, ['lmao'], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable, class@anonymous given, .*~'],
-[function (iterable $data): iterable { return $data; }, ['lmao'], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable, class@anonymous given, .*~'],
-[[$this, 'test8iterable'], ['lmao'], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable, class@anonymous given, .*~'],
-[[self::class, 'test8iterable'], ['lmao'], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable, class@anonymous given, .*~'],
-['PhabelTest\Target\test8iterable', ['lmao'], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable, class@anonymous given, .*~'],
-[fn (iterable $data): iterable => $data, array(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable, class@anonymous given, .*~'],
-[function (iterable $data): iterable { return $data; }, array(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable, class@anonymous given, .*~'],
-[[$this, 'test9iterable'], array(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable, class@anonymous given, .*~'],
-[[self::class, 'test9iterable'], array(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable, class@anonymous given, .*~'],
-['PhabelTest\Target\test9iterable', array(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable, class@anonymous given, .*~'],
-[fn (iterable $data): iterable => $data, (fn (): \Generator => yield)(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable, class@anonymous given, .*~'],
-[function (iterable $data): iterable { return $data; }, (fn (): \Generator => yield)(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable, class@anonymous given, .*~'],
-[[$this, 'test10iterable'], (fn (): \Generator => yield)(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable, class@anonymous given, .*~'],
-[[self::class, 'test10iterable'], (fn (): \Generator => yield)(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable, class@anonymous given, .*~'],
-['PhabelTest\Target\test10iterable', (fn (): \Generator => yield)(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable, class@anonymous given, .*~']];
+[fn (bool $data): bool => $data, 0, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type bool, class@anonymous given, .*~'],
+[function (bool $data): bool { return $data; }, 0, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type bool, class@anonymous given, .*~'],
+[[$this, 'test8bool'], 0, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type bool, class@anonymous given, .*~'],
+[[self::class, 'test8bool'], 0, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type bool, class@anonymous given, .*~'],
+['PhabelTest\Target\test8bool', 0, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type bool, class@anonymous given, .*~'],
+[fn (bool $data): bool => $data, 1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type bool, class@anonymous given, .*~'],
+[function (bool $data): bool { return $data; }, 1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type bool, class@anonymous given, .*~'],
+[[$this, 'test9bool'], 1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type bool, class@anonymous given, .*~'],
+[[self::class, 'test9bool'], 1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type bool, class@anonymous given, .*~'],
+['PhabelTest\Target\test9bool', 1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type bool, class@anonymous given, .*~'],
+[fn (bool $data): bool => $data, "0", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type bool, class@anonymous given, .*~'],
+[function (bool $data): bool { return $data; }, "0", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type bool, class@anonymous given, .*~'],
+[[$this, 'test10bool'], "0", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type bool, class@anonymous given, .*~'],
+[[self::class, 'test10bool'], "0", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type bool, class@anonymous given, .*~'],
+['PhabelTest\Target\test10bool', "0", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type bool, class@anonymous given, .*~']];
 ;
     }
     
@@ -107,11 +107,11 @@ class TypeHintReplacer2Test extends TestCase
 private static function testRet6bool($data): bool { return $data; }
 private static function test7bool(bool $data): bool { return $data; }
 private static function testRet7bool($data): bool { return $data; }
-private static function test8iterable(iterable $data): iterable { return $data; }
-private static function testRet8iterable($data): iterable { return $data; }
-private static function test9iterable(iterable $data): iterable { return $data; }
-private static function testRet9iterable($data): iterable { return $data; }
-private static function test10iterable(iterable $data): iterable { return $data; }
-private static function testRet10iterable($data): iterable { return $data; }
+private static function test8bool(bool $data): bool { return $data; }
+private static function testRet8bool($data): bool { return $data; }
+private static function test9bool(bool $data): bool { return $data; }
+private static function testRet9bool($data): bool { return $data; }
+private static function test10bool(bool $data): bool { return $data; }
+private static function testRet10bool($data): bool { return $data; }
 
 }

@@ -55,13 +55,13 @@ function getErrorMessage(string $scalarParam, string $scalar, string $scalarSane
 $SCALARS = [
     'callable' => ['"is_null"', 'fn (): int => 0', '[$this, "noop"]','[self::class, "noop"]'],
     'array' => ["['lmao']", 'array()'],
-    'bool' => ["true", "false"],
+    'bool' => ["true", "false", '0', '1', '"0"', '"1"', '""', '"aaaa"'],
     'iterable' => ["['lmao']", 'array()', '(fn (): \\Generator => yield)()'],
-    'float' => ["123.123", "1e3"],
+    'float' => ["123", "-1", "123.123", "1e3", "true", "false", "'123'", '"123.123"'],
     'object' => ["new class{}", '$this'],
-    'string' => ["'lmao'"],
+    'string' => ["'lmao'", 'new class{public function __toString() { return "lmao"; }}', "123", "-1", "123.123", "1e3", "true", "false"],
     'self' => ['$this'],
-    'int' => ["123", "-1"],
+    'int' => ["123", "-1", "123.123", "1e3", "true", "false", "'123'", "'123.123'"],
     '\\'.CLAZZ => ['$this'],
     '\\Generator' => ['(fn (): \\Generator => yield)()'],
 ];

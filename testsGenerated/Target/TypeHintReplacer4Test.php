@@ -4,14 +4,16 @@ namespace PhabelTest\Target;
 
 use PHPUnit\Framework\TestCase;
 
-function test17int(int $data): int { return $data; }
-function testRet17int($data): int { return $data; }
-function test18int(int $data): int { return $data; }
-function testRet18int($data): int { return $data; }
-function test19PhabelTestTargetTypeHintReplacer4Test(\PhabelTest\Target\TypeHintReplacer4Test $data): \PhabelTest\Target\TypeHintReplacer4Test { return $data; }
-function testRet19PhabelTestTargetTypeHintReplacer4Test($data): \PhabelTest\Target\TypeHintReplacer4Test { return $data; }
-function test20Generator(\Generator $data): \Generator { return $data; }
-function testRet20Generator($data): \Generator { return $data; }
+function test16iterable(iterable $data): iterable { return $data; }
+function testRet16iterable($data): iterable { return $data; }
+function test17float(float $data): float { return $data; }
+function testRet17float($data): float { return $data; }
+function test18float(float $data): float { return $data; }
+function testRet18float($data): float { return $data; }
+function test19float(float $data): float { return $data; }
+function testRet19float($data): float { return $data; }
+function test20float(float $data): float { return $data; }
+function testRet20float($data): float { return $data; }
 
 
 /**
@@ -32,30 +34,31 @@ class TypeHintReplacer4Test extends TestCase
     public function returnDataProvider(): array
     {
         return [
-[fn ($data): self => $data, $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacer4Test, class@anonymous returned~'],
-[function ($data): self { return $data; }, $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacer4Test, class@anonymous returned~'],
-[[$this, 'testRet16self'], $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacer4Test, class@anonymous returned~'],
-[[self::class, 'testRet16self'], $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacer4Test, class@anonymous returned~'],
-[fn ($data): int => $data, 123, new class{}, '~.*Return value must be of type int, class@anonymous returned~'],
-[function ($data): int { return $data; }, 123, new class{}, '~.*Return value must be of type int, class@anonymous returned~'],
-[[$this, 'testRet17int'], 123, new class{}, '~.*Return value must be of type int, class@anonymous returned~'],
-[[self::class, 'testRet17int'], 123, new class{}, '~.*Return value must be of type int, class@anonymous returned~'],
-['PhabelTest\Target\testRet17int', 123, new class{}, '~.*Return value must be of type int, class@anonymous returned~'],
-[fn ($data): int => $data, -1, new class{}, '~.*Return value must be of type int, class@anonymous returned~'],
-[function ($data): int { return $data; }, -1, new class{}, '~.*Return value must be of type int, class@anonymous returned~'],
-[[$this, 'testRet18int'], -1, new class{}, '~.*Return value must be of type int, class@anonymous returned~'],
-[[self::class, 'testRet18int'], -1, new class{}, '~.*Return value must be of type int, class@anonymous returned~'],
-['PhabelTest\Target\testRet18int', -1, new class{}, '~.*Return value must be of type int, class@anonymous returned~'],
-[fn ($data): \PhabelTest\Target\TypeHintReplacer4Test => $data, $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacer4Test, class@anonymous returned~'],
-[function ($data): \PhabelTest\Target\TypeHintReplacer4Test { return $data; }, $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacer4Test, class@anonymous returned~'],
-[[$this, 'testRet19PhabelTestTargetTypeHintReplacer4Test'], $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacer4Test, class@anonymous returned~'],
-[[self::class, 'testRet19PhabelTestTargetTypeHintReplacer4Test'], $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacer4Test, class@anonymous returned~'],
-['PhabelTest\Target\testRet19PhabelTestTargetTypeHintReplacer4Test', $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacer4Test, class@anonymous returned~'],
-[fn ($data): \Generator => $data, (fn (): \Generator => yield)(), new class{}, '~.*Return value must be of type Generator, class@anonymous returned~'],
-[function ($data): \Generator { return $data; }, (fn (): \Generator => yield)(), new class{}, '~.*Return value must be of type Generator, class@anonymous returned~'],
-[[$this, 'testRet20Generator'], (fn (): \Generator => yield)(), new class{}, '~.*Return value must be of type Generator, class@anonymous returned~'],
-[[self::class, 'testRet20Generator'], (fn (): \Generator => yield)(), new class{}, '~.*Return value must be of type Generator, class@anonymous returned~'],
-['PhabelTest\Target\testRet20Generator', (fn (): \Generator => yield)(), new class{}, '~.*Return value must be of type Generator, class@anonymous returned~']];
+[fn ($data): iterable => $data, (fn (): \Generator => yield)(), new class{}, '~.*Return value must be of type iterable, class@anonymous returned~'],
+[function ($data): iterable { return $data; }, (fn (): \Generator => yield)(), new class{}, '~.*Return value must be of type iterable, class@anonymous returned~'],
+[[$this, 'testRet16iterable'], (fn (): \Generator => yield)(), new class{}, '~.*Return value must be of type iterable, class@anonymous returned~'],
+[[self::class, 'testRet16iterable'], (fn (): \Generator => yield)(), new class{}, '~.*Return value must be of type iterable, class@anonymous returned~'],
+['PhabelTest\Target\testRet16iterable', (fn (): \Generator => yield)(), new class{}, '~.*Return value must be of type iterable, class@anonymous returned~'],
+[fn ($data): float => $data, 123, new class{}, '~.*Return value must be of type float, class@anonymous returned~'],
+[function ($data): float { return $data; }, 123, new class{}, '~.*Return value must be of type float, class@anonymous returned~'],
+[[$this, 'testRet17float'], 123, new class{}, '~.*Return value must be of type float, class@anonymous returned~'],
+[[self::class, 'testRet17float'], 123, new class{}, '~.*Return value must be of type float, class@anonymous returned~'],
+['PhabelTest\Target\testRet17float', 123, new class{}, '~.*Return value must be of type float, class@anonymous returned~'],
+[fn ($data): float => $data, -1, new class{}, '~.*Return value must be of type float, class@anonymous returned~'],
+[function ($data): float { return $data; }, -1, new class{}, '~.*Return value must be of type float, class@anonymous returned~'],
+[[$this, 'testRet18float'], -1, new class{}, '~.*Return value must be of type float, class@anonymous returned~'],
+[[self::class, 'testRet18float'], -1, new class{}, '~.*Return value must be of type float, class@anonymous returned~'],
+['PhabelTest\Target\testRet18float', -1, new class{}, '~.*Return value must be of type float, class@anonymous returned~'],
+[fn ($data): float => $data, 123.123, new class{}, '~.*Return value must be of type float, class@anonymous returned~'],
+[function ($data): float { return $data; }, 123.123, new class{}, '~.*Return value must be of type float, class@anonymous returned~'],
+[[$this, 'testRet19float'], 123.123, new class{}, '~.*Return value must be of type float, class@anonymous returned~'],
+[[self::class, 'testRet19float'], 123.123, new class{}, '~.*Return value must be of type float, class@anonymous returned~'],
+['PhabelTest\Target\testRet19float', 123.123, new class{}, '~.*Return value must be of type float, class@anonymous returned~'],
+[fn ($data): float => $data, 1e3, new class{}, '~.*Return value must be of type float, class@anonymous returned~'],
+[function ($data): float { return $data; }, 1e3, new class{}, '~.*Return value must be of type float, class@anonymous returned~'],
+[[$this, 'testRet20float'], 1e3, new class{}, '~.*Return value must be of type float, class@anonymous returned~'],
+[[self::class, 'testRet20float'], 1e3, new class{}, '~.*Return value must be of type float, class@anonymous returned~'],
+['PhabelTest\Target\testRet20float', 1e3, new class{}, '~.*Return value must be of type float, class@anonymous returned~']];
 ;
     }
     /**
@@ -70,44 +73,45 @@ class TypeHintReplacer4Test extends TestCase
     public function paramDataProvider(): array
     {
         return [
-[fn (self $data): self => $data, $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacer4Test, class@anonymous given, .*~'],
-[function (self $data): self { return $data; }, $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacer4Test, class@anonymous given, .*~'],
-[[$this, 'test16self'], $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacer4Test, class@anonymous given, .*~'],
-[[self::class, 'test16self'], $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacer4Test, class@anonymous given, .*~'],
-[fn (int $data): int => $data, 123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type int, class@anonymous given, .*~'],
-[function (int $data): int { return $data; }, 123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type int, class@anonymous given, .*~'],
-[[$this, 'test17int'], 123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type int, class@anonymous given, .*~'],
-[[self::class, 'test17int'], 123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type int, class@anonymous given, .*~'],
-['PhabelTest\Target\test17int', 123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type int, class@anonymous given, .*~'],
-[fn (int $data): int => $data, -1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type int, class@anonymous given, .*~'],
-[function (int $data): int { return $data; }, -1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type int, class@anonymous given, .*~'],
-[[$this, 'test18int'], -1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type int, class@anonymous given, .*~'],
-[[self::class, 'test18int'], -1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type int, class@anonymous given, .*~'],
-['PhabelTest\Target\test18int', -1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type int, class@anonymous given, .*~'],
-[fn (\PhabelTest\Target\TypeHintReplacer4Test $data): \PhabelTest\Target\TypeHintReplacer4Test => $data, $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacer4Test, class@anonymous given, .*~'],
-[function (\PhabelTest\Target\TypeHintReplacer4Test $data): \PhabelTest\Target\TypeHintReplacer4Test { return $data; }, $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacer4Test, class@anonymous given, .*~'],
-[[$this, 'test19PhabelTestTargetTypeHintReplacer4Test'], $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacer4Test, class@anonymous given, .*~'],
-[[self::class, 'test19PhabelTestTargetTypeHintReplacer4Test'], $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacer4Test, class@anonymous given, .*~'],
-['PhabelTest\Target\test19PhabelTestTargetTypeHintReplacer4Test', $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacer4Test, class@anonymous given, .*~'],
-[fn (\Generator $data): \Generator => $data, (fn (): \Generator => yield)(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type Generator, class@anonymous given, .*~'],
-[function (\Generator $data): \Generator { return $data; }, (fn (): \Generator => yield)(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type Generator, class@anonymous given, .*~'],
-[[$this, 'test20Generator'], (fn (): \Generator => yield)(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type Generator, class@anonymous given, .*~'],
-[[self::class, 'test20Generator'], (fn (): \Generator => yield)(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type Generator, class@anonymous given, .*~'],
-['PhabelTest\Target\test20Generator', (fn (): \Generator => yield)(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type Generator, class@anonymous given, .*~']];
+[fn (iterable $data): iterable => $data, (fn (): \Generator => yield)(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable, class@anonymous given, .*~'],
+[function (iterable $data): iterable { return $data; }, (fn (): \Generator => yield)(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable, class@anonymous given, .*~'],
+[[$this, 'test16iterable'], (fn (): \Generator => yield)(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable, class@anonymous given, .*~'],
+[[self::class, 'test16iterable'], (fn (): \Generator => yield)(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable, class@anonymous given, .*~'],
+['PhabelTest\Target\test16iterable', (fn (): \Generator => yield)(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable, class@anonymous given, .*~'],
+[fn (float $data): float => $data, 123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type float, class@anonymous given, .*~'],
+[function (float $data): float { return $data; }, 123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type float, class@anonymous given, .*~'],
+[[$this, 'test17float'], 123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type float, class@anonymous given, .*~'],
+[[self::class, 'test17float'], 123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type float, class@anonymous given, .*~'],
+['PhabelTest\Target\test17float', 123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type float, class@anonymous given, .*~'],
+[fn (float $data): float => $data, -1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type float, class@anonymous given, .*~'],
+[function (float $data): float { return $data; }, -1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type float, class@anonymous given, .*~'],
+[[$this, 'test18float'], -1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type float, class@anonymous given, .*~'],
+[[self::class, 'test18float'], -1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type float, class@anonymous given, .*~'],
+['PhabelTest\Target\test18float', -1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type float, class@anonymous given, .*~'],
+[fn (float $data): float => $data, 123.123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type float, class@anonymous given, .*~'],
+[function (float $data): float { return $data; }, 123.123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type float, class@anonymous given, .*~'],
+[[$this, 'test19float'], 123.123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type float, class@anonymous given, .*~'],
+[[self::class, 'test19float'], 123.123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type float, class@anonymous given, .*~'],
+['PhabelTest\Target\test19float', 123.123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type float, class@anonymous given, .*~'],
+[fn (float $data): float => $data, 1e3, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type float, class@anonymous given, .*~'],
+[function (float $data): float { return $data; }, 1e3, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type float, class@anonymous given, .*~'],
+[[$this, 'test20float'], 1e3, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type float, class@anonymous given, .*~'],
+[[self::class, 'test20float'], 1e3, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type float, class@anonymous given, .*~'],
+['PhabelTest\Target\test20float', 1e3, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type float, class@anonymous given, .*~']];
 ;
     }
     
     public static function noop() {}
     
-    private static function test16self(self $data): self { return $data; }
-private static function testRet16self($data): self { return $data; }
-private static function test17int(int $data): int { return $data; }
-private static function testRet17int($data): int { return $data; }
-private static function test18int(int $data): int { return $data; }
-private static function testRet18int($data): int { return $data; }
-private static function test19PhabelTestTargetTypeHintReplacer4Test(\PhabelTest\Target\TypeHintReplacer4Test $data): \PhabelTest\Target\TypeHintReplacer4Test { return $data; }
-private static function testRet19PhabelTestTargetTypeHintReplacer4Test($data): \PhabelTest\Target\TypeHintReplacer4Test { return $data; }
-private static function test20Generator(\Generator $data): \Generator { return $data; }
-private static function testRet20Generator($data): \Generator { return $data; }
+    private static function test16iterable(iterable $data): iterable { return $data; }
+private static function testRet16iterable($data): iterable { return $data; }
+private static function test17float(float $data): float { return $data; }
+private static function testRet17float($data): float { return $data; }
+private static function test18float(float $data): float { return $data; }
+private static function testRet18float($data): float { return $data; }
+private static function test19float(float $data): float { return $data; }
+private static function testRet19float($data): float { return $data; }
+private static function test20float(float $data): float { return $data; }
+private static function testRet20float($data): float { return $data; }
 
 }

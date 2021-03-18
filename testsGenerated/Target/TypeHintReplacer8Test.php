@@ -4,16 +4,16 @@ namespace PhabelTest\Target;
 
 use PHPUnit\Framework\TestCase;
 
-function test36arraybool(array|bool $data): array|bool { return $data; }
-function testRet36arraybool($data): array|bool { return $data; }
-function test37arraybool(array|bool $data): array|bool { return $data; }
-function testRet37arraybool($data): array|bool { return $data; }
-function test38arraybool(array|bool $data): array|bool { return $data; }
-function testRet38arraybool($data): array|bool { return $data; }
-function test39bool(?bool $data): ?bool { return $data; }
-function testRet39bool($data): ?bool { return $data; }
-function test40bool(?bool $data): ?bool { return $data; }
-function testRet40bool($data): ?bool { return $data; }
+function test36int(int $data): int { return $data; }
+function testRet36int($data): int { return $data; }
+function test37int(int $data): int { return $data; }
+function testRet37int($data): int { return $data; }
+function test38int(int $data): int { return $data; }
+function testRet38int($data): int { return $data; }
+function test39int(int $data): int { return $data; }
+function testRet39int($data): int { return $data; }
+function test40int(int $data): int { return $data; }
+function testRet40int($data): int { return $data; }
 
 
 /**
@@ -34,31 +34,31 @@ class TypeHintReplacer8Test extends TestCase
     public function returnDataProvider(): array
     {
         return [
-[fn ($data): array|bool => $data, array(), new class{}, '~.*Return value must be of type array\\|bool, class@anonymous returned~'],
-[function ($data): array|bool { return $data; }, array(), new class{}, '~.*Return value must be of type array\\|bool, class@anonymous returned~'],
-[[$this, 'testRet36arraybool'], array(), new class{}, '~.*Return value must be of type array\\|bool, class@anonymous returned~'],
-[[self::class, 'testRet36arraybool'], array(), new class{}, '~.*Return value must be of type array\\|bool, class@anonymous returned~'],
-['PhabelTest\Target\testRet36arraybool', array(), new class{}, '~.*Return value must be of type array\\|bool, class@anonymous returned~'],
-[fn ($data): array|bool => $data, true, new class{}, '~.*Return value must be of type array\\|bool, class@anonymous returned~'],
-[function ($data): array|bool { return $data; }, true, new class{}, '~.*Return value must be of type array\\|bool, class@anonymous returned~'],
-[[$this, 'testRet37arraybool'], true, new class{}, '~.*Return value must be of type array\\|bool, class@anonymous returned~'],
-[[self::class, 'testRet37arraybool'], true, new class{}, '~.*Return value must be of type array\\|bool, class@anonymous returned~'],
-['PhabelTest\Target\testRet37arraybool', true, new class{}, '~.*Return value must be of type array\\|bool, class@anonymous returned~'],
-[fn ($data): array|bool => $data, false, new class{}, '~.*Return value must be of type array\\|bool, class@anonymous returned~'],
-[function ($data): array|bool { return $data; }, false, new class{}, '~.*Return value must be of type array\\|bool, class@anonymous returned~'],
-[[$this, 'testRet38arraybool'], false, new class{}, '~.*Return value must be of type array\\|bool, class@anonymous returned~'],
-[[self::class, 'testRet38arraybool'], false, new class{}, '~.*Return value must be of type array\\|bool, class@anonymous returned~'],
-['PhabelTest\Target\testRet38arraybool', false, new class{}, '~.*Return value must be of type array\\|bool, class@anonymous returned~'],
-[fn ($data): ?bool => $data, true, new class{}, '~.*Return value must be of type \\?bool, class@anonymous returned~'],
-[function ($data): ?bool { return $data; }, true, new class{}, '~.*Return value must be of type \\?bool, class@anonymous returned~'],
-[[$this, 'testRet39bool'], true, new class{}, '~.*Return value must be of type \\?bool, class@anonymous returned~'],
-[[self::class, 'testRet39bool'], true, new class{}, '~.*Return value must be of type \\?bool, class@anonymous returned~'],
-['PhabelTest\Target\testRet39bool', true, new class{}, '~.*Return value must be of type \\?bool, class@anonymous returned~'],
-[fn ($data): ?bool => $data, false, new class{}, '~.*Return value must be of type \\?bool, class@anonymous returned~'],
-[function ($data): ?bool { return $data; }, false, new class{}, '~.*Return value must be of type \\?bool, class@anonymous returned~'],
-[[$this, 'testRet40bool'], false, new class{}, '~.*Return value must be of type \\?bool, class@anonymous returned~'],
-[[self::class, 'testRet40bool'], false, new class{}, '~.*Return value must be of type \\?bool, class@anonymous returned~'],
-['PhabelTest\Target\testRet40bool', false, new class{}, '~.*Return value must be of type \\?bool, class@anonymous returned~']];
+[fn ($data): int => $data, 123, new class{}, '~.*Return value must be of type int, class@anonymous returned~'],
+[function ($data): int { return $data; }, 123, new class{}, '~.*Return value must be of type int, class@anonymous returned~'],
+[[$this, 'testRet36int'], 123, new class{}, '~.*Return value must be of type int, class@anonymous returned~'],
+[[self::class, 'testRet36int'], 123, new class{}, '~.*Return value must be of type int, class@anonymous returned~'],
+['PhabelTest\Target\testRet36int', 123, new class{}, '~.*Return value must be of type int, class@anonymous returned~'],
+[fn ($data): int => $data, -1, new class{}, '~.*Return value must be of type int, class@anonymous returned~'],
+[function ($data): int { return $data; }, -1, new class{}, '~.*Return value must be of type int, class@anonymous returned~'],
+[[$this, 'testRet37int'], -1, new class{}, '~.*Return value must be of type int, class@anonymous returned~'],
+[[self::class, 'testRet37int'], -1, new class{}, '~.*Return value must be of type int, class@anonymous returned~'],
+['PhabelTest\Target\testRet37int', -1, new class{}, '~.*Return value must be of type int, class@anonymous returned~'],
+[fn ($data): int => $data, 123.123, new class{}, '~.*Return value must be of type int, class@anonymous returned~'],
+[function ($data): int { return $data; }, 123.123, new class{}, '~.*Return value must be of type int, class@anonymous returned~'],
+[[$this, 'testRet38int'], 123.123, new class{}, '~.*Return value must be of type int, class@anonymous returned~'],
+[[self::class, 'testRet38int'], 123.123, new class{}, '~.*Return value must be of type int, class@anonymous returned~'],
+['PhabelTest\Target\testRet38int', 123.123, new class{}, '~.*Return value must be of type int, class@anonymous returned~'],
+[fn ($data): int => $data, 1e3, new class{}, '~.*Return value must be of type int, class@anonymous returned~'],
+[function ($data): int { return $data; }, 1e3, new class{}, '~.*Return value must be of type int, class@anonymous returned~'],
+[[$this, 'testRet39int'], 1e3, new class{}, '~.*Return value must be of type int, class@anonymous returned~'],
+[[self::class, 'testRet39int'], 1e3, new class{}, '~.*Return value must be of type int, class@anonymous returned~'],
+['PhabelTest\Target\testRet39int', 1e3, new class{}, '~.*Return value must be of type int, class@anonymous returned~'],
+[fn ($data): int => $data, true, new class{}, '~.*Return value must be of type int, class@anonymous returned~'],
+[function ($data): int { return $data; }, true, new class{}, '~.*Return value must be of type int, class@anonymous returned~'],
+[[$this, 'testRet40int'], true, new class{}, '~.*Return value must be of type int, class@anonymous returned~'],
+[[self::class, 'testRet40int'], true, new class{}, '~.*Return value must be of type int, class@anonymous returned~'],
+['PhabelTest\Target\testRet40int', true, new class{}, '~.*Return value must be of type int, class@anonymous returned~']];
 ;
     }
     /**
@@ -73,45 +73,45 @@ class TypeHintReplacer8Test extends TestCase
     public function paramDataProvider(): array
     {
         return [
-[fn (array|bool $data): array|bool => $data, array(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type array\\|bool, class@anonymous given, .*~'],
-[function (array|bool $data): array|bool { return $data; }, array(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type array\\|bool, class@anonymous given, .*~'],
-[[$this, 'test36arraybool'], array(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type array\\|bool, class@anonymous given, .*~'],
-[[self::class, 'test36arraybool'], array(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type array\\|bool, class@anonymous given, .*~'],
-['PhabelTest\Target\test36arraybool', array(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type array\\|bool, class@anonymous given, .*~'],
-[fn (array|bool $data): array|bool => $data, true, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type array\\|bool, class@anonymous given, .*~'],
-[function (array|bool $data): array|bool { return $data; }, true, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type array\\|bool, class@anonymous given, .*~'],
-[[$this, 'test37arraybool'], true, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type array\\|bool, class@anonymous given, .*~'],
-[[self::class, 'test37arraybool'], true, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type array\\|bool, class@anonymous given, .*~'],
-['PhabelTest\Target\test37arraybool', true, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type array\\|bool, class@anonymous given, .*~'],
-[fn (array|bool $data): array|bool => $data, false, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type array\\|bool, class@anonymous given, .*~'],
-[function (array|bool $data): array|bool { return $data; }, false, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type array\\|bool, class@anonymous given, .*~'],
-[[$this, 'test38arraybool'], false, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type array\\|bool, class@anonymous given, .*~'],
-[[self::class, 'test38arraybool'], false, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type array\\|bool, class@anonymous given, .*~'],
-['PhabelTest\Target\test38arraybool', false, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type array\\|bool, class@anonymous given, .*~'],
-[fn (?bool $data): ?bool => $data, true, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?bool, class@anonymous given, .*~'],
-[function (?bool $data): ?bool { return $data; }, true, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?bool, class@anonymous given, .*~'],
-[[$this, 'test39bool'], true, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?bool, class@anonymous given, .*~'],
-[[self::class, 'test39bool'], true, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?bool, class@anonymous given, .*~'],
-['PhabelTest\Target\test39bool', true, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?bool, class@anonymous given, .*~'],
-[fn (?bool $data): ?bool => $data, false, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?bool, class@anonymous given, .*~'],
-[function (?bool $data): ?bool { return $data; }, false, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?bool, class@anonymous given, .*~'],
-[[$this, 'test40bool'], false, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?bool, class@anonymous given, .*~'],
-[[self::class, 'test40bool'], false, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?bool, class@anonymous given, .*~'],
-['PhabelTest\Target\test40bool', false, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?bool, class@anonymous given, .*~']];
+[fn (int $data): int => $data, 123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type int, class@anonymous given, .*~'],
+[function (int $data): int { return $data; }, 123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type int, class@anonymous given, .*~'],
+[[$this, 'test36int'], 123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type int, class@anonymous given, .*~'],
+[[self::class, 'test36int'], 123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type int, class@anonymous given, .*~'],
+['PhabelTest\Target\test36int', 123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type int, class@anonymous given, .*~'],
+[fn (int $data): int => $data, -1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type int, class@anonymous given, .*~'],
+[function (int $data): int { return $data; }, -1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type int, class@anonymous given, .*~'],
+[[$this, 'test37int'], -1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type int, class@anonymous given, .*~'],
+[[self::class, 'test37int'], -1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type int, class@anonymous given, .*~'],
+['PhabelTest\Target\test37int', -1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type int, class@anonymous given, .*~'],
+[fn (int $data): int => $data, 123.123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type int, class@anonymous given, .*~'],
+[function (int $data): int { return $data; }, 123.123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type int, class@anonymous given, .*~'],
+[[$this, 'test38int'], 123.123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type int, class@anonymous given, .*~'],
+[[self::class, 'test38int'], 123.123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type int, class@anonymous given, .*~'],
+['PhabelTest\Target\test38int', 123.123, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type int, class@anonymous given, .*~'],
+[fn (int $data): int => $data, 1e3, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type int, class@anonymous given, .*~'],
+[function (int $data): int { return $data; }, 1e3, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type int, class@anonymous given, .*~'],
+[[$this, 'test39int'], 1e3, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type int, class@anonymous given, .*~'],
+[[self::class, 'test39int'], 1e3, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type int, class@anonymous given, .*~'],
+['PhabelTest\Target\test39int', 1e3, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type int, class@anonymous given, .*~'],
+[fn (int $data): int => $data, true, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type int, class@anonymous given, .*~'],
+[function (int $data): int { return $data; }, true, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type int, class@anonymous given, .*~'],
+[[$this, 'test40int'], true, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type int, class@anonymous given, .*~'],
+[[self::class, 'test40int'], true, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type int, class@anonymous given, .*~'],
+['PhabelTest\Target\test40int', true, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type int, class@anonymous given, .*~']];
 ;
     }
     
     public static function noop() {}
     
-    private static function test36arraybool(array|bool $data): array|bool { return $data; }
-private static function testRet36arraybool($data): array|bool { return $data; }
-private static function test37arraybool(array|bool $data): array|bool { return $data; }
-private static function testRet37arraybool($data): array|bool { return $data; }
-private static function test38arraybool(array|bool $data): array|bool { return $data; }
-private static function testRet38arraybool($data): array|bool { return $data; }
-private static function test39bool(?bool $data): ?bool { return $data; }
-private static function testRet39bool($data): ?bool { return $data; }
-private static function test40bool(?bool $data): ?bool { return $data; }
-private static function testRet40bool($data): ?bool { return $data; }
+    private static function test36int(int $data): int { return $data; }
+private static function testRet36int($data): int { return $data; }
+private static function test37int(int $data): int { return $data; }
+private static function testRet37int($data): int { return $data; }
+private static function test38int(int $data): int { return $data; }
+private static function testRet38int($data): int { return $data; }
+private static function test39int(int $data): int { return $data; }
+private static function testRet39int($data): int { return $data; }
+private static function test40int(int $data): int { return $data; }
+private static function testRet40int($data): int { return $data; }
 
 }

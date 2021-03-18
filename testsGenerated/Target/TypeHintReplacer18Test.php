@@ -4,16 +4,16 @@ namespace PhabelTest\Target;
 
 use PHPUnit\Framework\TestCase;
 
-function test86PhabelTestTargetTypeHintReplacer18TestGenerator(\PhabelTest\Target\TypeHintReplacer18Test|\Generator $data): \PhabelTest\Target\TypeHintReplacer18Test|\Generator { return $data; }
-function testRet86PhabelTestTargetTypeHintReplacer18TestGenerator($data): \PhabelTest\Target\TypeHintReplacer18Test|\Generator { return $data; }
-function test87PhabelTestTargetTypeHintReplacer18TestGenerator(\PhabelTest\Target\TypeHintReplacer18Test|\Generator $data): \PhabelTest\Target\TypeHintReplacer18Test|\Generator { return $data; }
-function testRet87PhabelTestTargetTypeHintReplacer18TestGenerator($data): \PhabelTest\Target\TypeHintReplacer18Test|\Generator { return $data; }
-function test88Generator(?\Generator $data): ?\Generator { return $data; }
-function testRet88Generator($data): ?\Generator { return $data; }
-function test89Generator(?\Generator $data): ?\Generator { return $data; }
-function testRet89Generator($data): ?\Generator { return $data; }
-function test90Generatorcallable(\Generator|callable $data): \Generator|callable { return $data; }
-function testRet90Generatorcallable($data): \Generator|callable { return $data; }
+function test86booliterable(bool|iterable $data): bool|iterable { return $data; }
+function testRet86booliterable($data): bool|iterable { return $data; }
+function test87booliterable(bool|iterable $data): bool|iterable { return $data; }
+function testRet87booliterable($data): bool|iterable { return $data; }
+function test88booliterable(bool|iterable $data): bool|iterable { return $data; }
+function testRet88booliterable($data): bool|iterable { return $data; }
+function test89booliterable(bool|iterable $data): bool|iterable { return $data; }
+function testRet89booliterable($data): bool|iterable { return $data; }
+function test90iterable(?iterable $data): ?iterable { return $data; }
+function testRet90iterable($data): ?iterable { return $data; }
 
 
 /**
@@ -34,31 +34,31 @@ class TypeHintReplacer18Test extends TestCase
     public function returnDataProvider(): array
     {
         return [
-[fn ($data): \PhabelTest\Target\TypeHintReplacer18Test|\Generator => $data, $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacer18Test\\|Generator, class@anonymous returned~'],
-[function ($data): \PhabelTest\Target\TypeHintReplacer18Test|\Generator { return $data; }, $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacer18Test\\|Generator, class@anonymous returned~'],
-[[$this, 'testRet86PhabelTestTargetTypeHintReplacer18TestGenerator'], $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacer18Test\\|Generator, class@anonymous returned~'],
-[[self::class, 'testRet86PhabelTestTargetTypeHintReplacer18TestGenerator'], $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacer18Test\\|Generator, class@anonymous returned~'],
-['PhabelTest\Target\testRet86PhabelTestTargetTypeHintReplacer18TestGenerator', $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacer18Test\\|Generator, class@anonymous returned~'],
-[fn ($data): \PhabelTest\Target\TypeHintReplacer18Test|\Generator => $data, (fn (): \Generator => yield)(), new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacer18Test\\|Generator, class@anonymous returned~'],
-[function ($data): \PhabelTest\Target\TypeHintReplacer18Test|\Generator { return $data; }, (fn (): \Generator => yield)(), new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacer18Test\\|Generator, class@anonymous returned~'],
-[[$this, 'testRet87PhabelTestTargetTypeHintReplacer18TestGenerator'], (fn (): \Generator => yield)(), new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacer18Test\\|Generator, class@anonymous returned~'],
-[[self::class, 'testRet87PhabelTestTargetTypeHintReplacer18TestGenerator'], (fn (): \Generator => yield)(), new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacer18Test\\|Generator, class@anonymous returned~'],
-['PhabelTest\Target\testRet87PhabelTestTargetTypeHintReplacer18TestGenerator', (fn (): \Generator => yield)(), new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacer18Test\\|Generator, class@anonymous returned~'],
-[fn ($data): ?\Generator => $data, (fn (): \Generator => yield)(), new class{}, '~.*Return value must be of type \\?Generator, class@anonymous returned~'],
-[function ($data): ?\Generator { return $data; }, (fn (): \Generator => yield)(), new class{}, '~.*Return value must be of type \\?Generator, class@anonymous returned~'],
-[[$this, 'testRet88Generator'], (fn (): \Generator => yield)(), new class{}, '~.*Return value must be of type \\?Generator, class@anonymous returned~'],
-[[self::class, 'testRet88Generator'], (fn (): \Generator => yield)(), new class{}, '~.*Return value must be of type \\?Generator, class@anonymous returned~'],
-['PhabelTest\Target\testRet88Generator', (fn (): \Generator => yield)(), new class{}, '~.*Return value must be of type \\?Generator, class@anonymous returned~'],
-[fn ($data): ?\Generator => $data, null, new class{}, '~.*Return value must be of type \\?Generator, class@anonymous returned~'],
-[function ($data): ?\Generator { return $data; }, null, new class{}, '~.*Return value must be of type \\?Generator, class@anonymous returned~'],
-[[$this, 'testRet89Generator'], null, new class{}, '~.*Return value must be of type \\?Generator, class@anonymous returned~'],
-[[self::class, 'testRet89Generator'], null, new class{}, '~.*Return value must be of type \\?Generator, class@anonymous returned~'],
-['PhabelTest\Target\testRet89Generator', null, new class{}, '~.*Return value must be of type \\?Generator, class@anonymous returned~'],
-[fn ($data): \Generator|callable => $data, (fn (): \Generator => yield)(), new class{}, '~.*Return value must be of type Generator\\|callable, class@anonymous returned~'],
-[function ($data): \Generator|callable { return $data; }, (fn (): \Generator => yield)(), new class{}, '~.*Return value must be of type Generator\\|callable, class@anonymous returned~'],
-[[$this, 'testRet90Generatorcallable'], (fn (): \Generator => yield)(), new class{}, '~.*Return value must be of type Generator\\|callable, class@anonymous returned~'],
-[[self::class, 'testRet90Generatorcallable'], (fn (): \Generator => yield)(), new class{}, '~.*Return value must be of type Generator\\|callable, class@anonymous returned~'],
-['PhabelTest\Target\testRet90Generatorcallable', (fn (): \Generator => yield)(), new class{}, '~.*Return value must be of type Generator\\|callable, class@anonymous returned~']];
+[fn ($data): bool|iterable => $data, "aaaa", new class{}, '~.*Return value must be of type iterable\\|bool, class@anonymous returned~'],
+[function ($data): bool|iterable { return $data; }, "aaaa", new class{}, '~.*Return value must be of type iterable\\|bool, class@anonymous returned~'],
+[[$this, 'testRet86booliterable'], "aaaa", new class{}, '~.*Return value must be of type iterable\\|bool, class@anonymous returned~'],
+[[self::class, 'testRet86booliterable'], "aaaa", new class{}, '~.*Return value must be of type iterable\\|bool, class@anonymous returned~'],
+['PhabelTest\Target\testRet86booliterable', "aaaa", new class{}, '~.*Return value must be of type iterable\\|bool, class@anonymous returned~'],
+[fn ($data): bool|iterable => $data, ['lmao'], new class{}, '~.*Return value must be of type iterable\\|bool, class@anonymous returned~'],
+[function ($data): bool|iterable { return $data; }, ['lmao'], new class{}, '~.*Return value must be of type iterable\\|bool, class@anonymous returned~'],
+[[$this, 'testRet87booliterable'], ['lmao'], new class{}, '~.*Return value must be of type iterable\\|bool, class@anonymous returned~'],
+[[self::class, 'testRet87booliterable'], ['lmao'], new class{}, '~.*Return value must be of type iterable\\|bool, class@anonymous returned~'],
+['PhabelTest\Target\testRet87booliterable', ['lmao'], new class{}, '~.*Return value must be of type iterable\\|bool, class@anonymous returned~'],
+[fn ($data): bool|iterable => $data, array(), new class{}, '~.*Return value must be of type iterable\\|bool, class@anonymous returned~'],
+[function ($data): bool|iterable { return $data; }, array(), new class{}, '~.*Return value must be of type iterable\\|bool, class@anonymous returned~'],
+[[$this, 'testRet88booliterable'], array(), new class{}, '~.*Return value must be of type iterable\\|bool, class@anonymous returned~'],
+[[self::class, 'testRet88booliterable'], array(), new class{}, '~.*Return value must be of type iterable\\|bool, class@anonymous returned~'],
+['PhabelTest\Target\testRet88booliterable', array(), new class{}, '~.*Return value must be of type iterable\\|bool, class@anonymous returned~'],
+[fn ($data): bool|iterable => $data, (fn (): \Generator => yield)(), new class{}, '~.*Return value must be of type iterable\\|bool, class@anonymous returned~'],
+[function ($data): bool|iterable { return $data; }, (fn (): \Generator => yield)(), new class{}, '~.*Return value must be of type iterable\\|bool, class@anonymous returned~'],
+[[$this, 'testRet89booliterable'], (fn (): \Generator => yield)(), new class{}, '~.*Return value must be of type iterable\\|bool, class@anonymous returned~'],
+[[self::class, 'testRet89booliterable'], (fn (): \Generator => yield)(), new class{}, '~.*Return value must be of type iterable\\|bool, class@anonymous returned~'],
+['PhabelTest\Target\testRet89booliterable', (fn (): \Generator => yield)(), new class{}, '~.*Return value must be of type iterable\\|bool, class@anonymous returned~'],
+[fn ($data): ?iterable => $data, ['lmao'], new class{}, '~.*Return value must be of type \\?iterable, class@anonymous returned~'],
+[function ($data): ?iterable { return $data; }, ['lmao'], new class{}, '~.*Return value must be of type \\?iterable, class@anonymous returned~'],
+[[$this, 'testRet90iterable'], ['lmao'], new class{}, '~.*Return value must be of type \\?iterable, class@anonymous returned~'],
+[[self::class, 'testRet90iterable'], ['lmao'], new class{}, '~.*Return value must be of type \\?iterable, class@anonymous returned~'],
+['PhabelTest\Target\testRet90iterable', ['lmao'], new class{}, '~.*Return value must be of type \\?iterable, class@anonymous returned~']];
 ;
     }
     /**
@@ -73,45 +73,45 @@ class TypeHintReplacer18Test extends TestCase
     public function paramDataProvider(): array
     {
         return [
-[fn (\PhabelTest\Target\TypeHintReplacer18Test|\Generator $data): \PhabelTest\Target\TypeHintReplacer18Test|\Generator => $data, $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacer18Test\\|Generator, class@anonymous given, .*~'],
-[function (\PhabelTest\Target\TypeHintReplacer18Test|\Generator $data): \PhabelTest\Target\TypeHintReplacer18Test|\Generator { return $data; }, $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacer18Test\\|Generator, class@anonymous given, .*~'],
-[[$this, 'test86PhabelTestTargetTypeHintReplacer18TestGenerator'], $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacer18Test\\|Generator, class@anonymous given, .*~'],
-[[self::class, 'test86PhabelTestTargetTypeHintReplacer18TestGenerator'], $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacer18Test\\|Generator, class@anonymous given, .*~'],
-['PhabelTest\Target\test86PhabelTestTargetTypeHintReplacer18TestGenerator', $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacer18Test\\|Generator, class@anonymous given, .*~'],
-[fn (\PhabelTest\Target\TypeHintReplacer18Test|\Generator $data): \PhabelTest\Target\TypeHintReplacer18Test|\Generator => $data, (fn (): \Generator => yield)(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacer18Test\\|Generator, class@anonymous given, .*~'],
-[function (\PhabelTest\Target\TypeHintReplacer18Test|\Generator $data): \PhabelTest\Target\TypeHintReplacer18Test|\Generator { return $data; }, (fn (): \Generator => yield)(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacer18Test\\|Generator, class@anonymous given, .*~'],
-[[$this, 'test87PhabelTestTargetTypeHintReplacer18TestGenerator'], (fn (): \Generator => yield)(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacer18Test\\|Generator, class@anonymous given, .*~'],
-[[self::class, 'test87PhabelTestTargetTypeHintReplacer18TestGenerator'], (fn (): \Generator => yield)(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacer18Test\\|Generator, class@anonymous given, .*~'],
-['PhabelTest\Target\test87PhabelTestTargetTypeHintReplacer18TestGenerator', (fn (): \Generator => yield)(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacer18Test\\|Generator, class@anonymous given, .*~'],
-[fn (?\Generator $data): ?\Generator => $data, (fn (): \Generator => yield)(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?Generator, class@anonymous given, .*~'],
-[function (?\Generator $data): ?\Generator { return $data; }, (fn (): \Generator => yield)(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?Generator, class@anonymous given, .*~'],
-[[$this, 'test88Generator'], (fn (): \Generator => yield)(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?Generator, class@anonymous given, .*~'],
-[[self::class, 'test88Generator'], (fn (): \Generator => yield)(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?Generator, class@anonymous given, .*~'],
-['PhabelTest\Target\test88Generator', (fn (): \Generator => yield)(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?Generator, class@anonymous given, .*~'],
-[fn (?\Generator $data): ?\Generator => $data, null, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?Generator, class@anonymous given, .*~'],
-[function (?\Generator $data): ?\Generator { return $data; }, null, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?Generator, class@anonymous given, .*~'],
-[[$this, 'test89Generator'], null, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?Generator, class@anonymous given, .*~'],
-[[self::class, 'test89Generator'], null, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?Generator, class@anonymous given, .*~'],
-['PhabelTest\Target\test89Generator', null, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?Generator, class@anonymous given, .*~'],
-[fn (\Generator|callable $data): \Generator|callable => $data, (fn (): \Generator => yield)(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type Generator\\|callable, class@anonymous given, .*~'],
-[function (\Generator|callable $data): \Generator|callable { return $data; }, (fn (): \Generator => yield)(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type Generator\\|callable, class@anonymous given, .*~'],
-[[$this, 'test90Generatorcallable'], (fn (): \Generator => yield)(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type Generator\\|callable, class@anonymous given, .*~'],
-[[self::class, 'test90Generatorcallable'], (fn (): \Generator => yield)(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type Generator\\|callable, class@anonymous given, .*~'],
-['PhabelTest\Target\test90Generatorcallable', (fn (): \Generator => yield)(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type Generator\\|callable, class@anonymous given, .*~']];
+[fn (bool|iterable $data): bool|iterable => $data, "aaaa", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable\\|bool, class@anonymous given, .*~'],
+[function (bool|iterable $data): bool|iterable { return $data; }, "aaaa", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable\\|bool, class@anonymous given, .*~'],
+[[$this, 'test86booliterable'], "aaaa", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable\\|bool, class@anonymous given, .*~'],
+[[self::class, 'test86booliterable'], "aaaa", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable\\|bool, class@anonymous given, .*~'],
+['PhabelTest\Target\test86booliterable', "aaaa", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable\\|bool, class@anonymous given, .*~'],
+[fn (bool|iterable $data): bool|iterable => $data, ['lmao'], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable\\|bool, class@anonymous given, .*~'],
+[function (bool|iterable $data): bool|iterable { return $data; }, ['lmao'], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable\\|bool, class@anonymous given, .*~'],
+[[$this, 'test87booliterable'], ['lmao'], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable\\|bool, class@anonymous given, .*~'],
+[[self::class, 'test87booliterable'], ['lmao'], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable\\|bool, class@anonymous given, .*~'],
+['PhabelTest\Target\test87booliterable', ['lmao'], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable\\|bool, class@anonymous given, .*~'],
+[fn (bool|iterable $data): bool|iterable => $data, array(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable\\|bool, class@anonymous given, .*~'],
+[function (bool|iterable $data): bool|iterable { return $data; }, array(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable\\|bool, class@anonymous given, .*~'],
+[[$this, 'test88booliterable'], array(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable\\|bool, class@anonymous given, .*~'],
+[[self::class, 'test88booliterable'], array(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable\\|bool, class@anonymous given, .*~'],
+['PhabelTest\Target\test88booliterable', array(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable\\|bool, class@anonymous given, .*~'],
+[fn (bool|iterable $data): bool|iterable => $data, (fn (): \Generator => yield)(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable\\|bool, class@anonymous given, .*~'],
+[function (bool|iterable $data): bool|iterable { return $data; }, (fn (): \Generator => yield)(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable\\|bool, class@anonymous given, .*~'],
+[[$this, 'test89booliterable'], (fn (): \Generator => yield)(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable\\|bool, class@anonymous given, .*~'],
+[[self::class, 'test89booliterable'], (fn (): \Generator => yield)(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable\\|bool, class@anonymous given, .*~'],
+['PhabelTest\Target\test89booliterable', (fn (): \Generator => yield)(), new class{}, '~.*Argument #1 \\(\\$data\\) must be of type iterable\\|bool, class@anonymous given, .*~'],
+[fn (?iterable $data): ?iterable => $data, ['lmao'], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?iterable, class@anonymous given, .*~'],
+[function (?iterable $data): ?iterable { return $data; }, ['lmao'], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?iterable, class@anonymous given, .*~'],
+[[$this, 'test90iterable'], ['lmao'], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?iterable, class@anonymous given, .*~'],
+[[self::class, 'test90iterable'], ['lmao'], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?iterable, class@anonymous given, .*~'],
+['PhabelTest\Target\test90iterable', ['lmao'], new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?iterable, class@anonymous given, .*~']];
 ;
     }
     
     public static function noop() {}
     
-    private static function test86PhabelTestTargetTypeHintReplacer18TestGenerator(\PhabelTest\Target\TypeHintReplacer18Test|\Generator $data): \PhabelTest\Target\TypeHintReplacer18Test|\Generator { return $data; }
-private static function testRet86PhabelTestTargetTypeHintReplacer18TestGenerator($data): \PhabelTest\Target\TypeHintReplacer18Test|\Generator { return $data; }
-private static function test87PhabelTestTargetTypeHintReplacer18TestGenerator(\PhabelTest\Target\TypeHintReplacer18Test|\Generator $data): \PhabelTest\Target\TypeHintReplacer18Test|\Generator { return $data; }
-private static function testRet87PhabelTestTargetTypeHintReplacer18TestGenerator($data): \PhabelTest\Target\TypeHintReplacer18Test|\Generator { return $data; }
-private static function test88Generator(?\Generator $data): ?\Generator { return $data; }
-private static function testRet88Generator($data): ?\Generator { return $data; }
-private static function test89Generator(?\Generator $data): ?\Generator { return $data; }
-private static function testRet89Generator($data): ?\Generator { return $data; }
-private static function test90Generatorcallable(\Generator|callable $data): \Generator|callable { return $data; }
-private static function testRet90Generatorcallable($data): \Generator|callable { return $data; }
+    private static function test86booliterable(bool|iterable $data): bool|iterable { return $data; }
+private static function testRet86booliterable($data): bool|iterable { return $data; }
+private static function test87booliterable(bool|iterable $data): bool|iterable { return $data; }
+private static function testRet87booliterable($data): bool|iterable { return $data; }
+private static function test88booliterable(bool|iterable $data): bool|iterable { return $data; }
+private static function testRet88booliterable($data): bool|iterable { return $data; }
+private static function test89booliterable(bool|iterable $data): bool|iterable { return $data; }
+private static function testRet89booliterable($data): bool|iterable { return $data; }
+private static function test90iterable(?iterable $data): ?iterable { return $data; }
+private static function testRet90iterable($data): ?iterable { return $data; }
 
 }

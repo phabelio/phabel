@@ -4,6 +4,16 @@ namespace PhabelTest\Target;
 
 use PHPUnit\Framework\TestCase;
 
+function test71bool(?bool $data): ?bool { return $data; }
+function testRet71bool($data): ?bool { return $data; }
+function test72bool(?bool $data): ?bool { return $data; }
+function testRet72bool($data): ?bool { return $data; }
+function test73bool(?bool $data): ?bool { return $data; }
+function testRet73bool($data): ?bool { return $data; }
+function test74bool(?bool $data): ?bool { return $data; }
+function testRet74bool($data): ?bool { return $data; }
+function test75bool(?bool $data): ?bool { return $data; }
+function testRet75bool($data): ?bool { return $data; }
 
 
 /**
@@ -24,26 +34,31 @@ class TypeHintReplacer15Test extends TestCase
     public function returnDataProvider(): array
     {
         return [
-[fn ($data): string|self => $data, 'lmao', new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacer15Test\\|string, class@anonymous returned~'],
-[function ($data): string|self { return $data; }, 'lmao', new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacer15Test\\|string, class@anonymous returned~'],
-[[$this, 'testRet71stringself'], 'lmao', new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacer15Test\\|string, class@anonymous returned~'],
-[[self::class, 'testRet71stringself'], 'lmao', new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacer15Test\\|string, class@anonymous returned~'],
-[fn ($data): string|self => $data, $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacer15Test\\|string, class@anonymous returned~'],
-[function ($data): string|self { return $data; }, $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacer15Test\\|string, class@anonymous returned~'],
-[[$this, 'testRet72stringself'], $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacer15Test\\|string, class@anonymous returned~'],
-[[self::class, 'testRet72stringself'], $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacer15Test\\|string, class@anonymous returned~'],
-[fn ($data): ?self => $data, $this, new class{}, '~.*Return value must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacer15Test, class@anonymous returned~'],
-[function ($data): ?self { return $data; }, $this, new class{}, '~.*Return value must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacer15Test, class@anonymous returned~'],
-[[$this, 'testRet73self'], $this, new class{}, '~.*Return value must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacer15Test, class@anonymous returned~'],
-[[self::class, 'testRet73self'], $this, new class{}, '~.*Return value must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacer15Test, class@anonymous returned~'],
-[fn ($data): ?self => $data, null, new class{}, '~.*Return value must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacer15Test, class@anonymous returned~'],
-[function ($data): ?self { return $data; }, null, new class{}, '~.*Return value must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacer15Test, class@anonymous returned~'],
-[[$this, 'testRet74self'], null, new class{}, '~.*Return value must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacer15Test, class@anonymous returned~'],
-[[self::class, 'testRet74self'], null, new class{}, '~.*Return value must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacer15Test, class@anonymous returned~'],
-[fn ($data): self|int => $data, $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacer15Test\\|int, class@anonymous returned~'],
-[function ($data): self|int { return $data; }, $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacer15Test\\|int, class@anonymous returned~'],
-[[$this, 'testRet75selfint'], $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacer15Test\\|int, class@anonymous returned~'],
-[[self::class, 'testRet75selfint'], $this, new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacer15Test\\|int, class@anonymous returned~']];
+[fn ($data): ?bool => $data, false, new class{}, '~.*Return value must be of type \\?bool, class@anonymous returned~'],
+[function ($data): ?bool { return $data; }, false, new class{}, '~.*Return value must be of type \\?bool, class@anonymous returned~'],
+[[$this, 'testRet71bool'], false, new class{}, '~.*Return value must be of type \\?bool, class@anonymous returned~'],
+[[self::class, 'testRet71bool'], false, new class{}, '~.*Return value must be of type \\?bool, class@anonymous returned~'],
+['PhabelTest\Target\testRet71bool', false, new class{}, '~.*Return value must be of type \\?bool, class@anonymous returned~'],
+[fn ($data): ?bool => $data, 0, new class{}, '~.*Return value must be of type \\?bool, class@anonymous returned~'],
+[function ($data): ?bool { return $data; }, 0, new class{}, '~.*Return value must be of type \\?bool, class@anonymous returned~'],
+[[$this, 'testRet72bool'], 0, new class{}, '~.*Return value must be of type \\?bool, class@anonymous returned~'],
+[[self::class, 'testRet72bool'], 0, new class{}, '~.*Return value must be of type \\?bool, class@anonymous returned~'],
+['PhabelTest\Target\testRet72bool', 0, new class{}, '~.*Return value must be of type \\?bool, class@anonymous returned~'],
+[fn ($data): ?bool => $data, 1, new class{}, '~.*Return value must be of type \\?bool, class@anonymous returned~'],
+[function ($data): ?bool { return $data; }, 1, new class{}, '~.*Return value must be of type \\?bool, class@anonymous returned~'],
+[[$this, 'testRet73bool'], 1, new class{}, '~.*Return value must be of type \\?bool, class@anonymous returned~'],
+[[self::class, 'testRet73bool'], 1, new class{}, '~.*Return value must be of type \\?bool, class@anonymous returned~'],
+['PhabelTest\Target\testRet73bool', 1, new class{}, '~.*Return value must be of type \\?bool, class@anonymous returned~'],
+[fn ($data): ?bool => $data, "0", new class{}, '~.*Return value must be of type \\?bool, class@anonymous returned~'],
+[function ($data): ?bool { return $data; }, "0", new class{}, '~.*Return value must be of type \\?bool, class@anonymous returned~'],
+[[$this, 'testRet74bool'], "0", new class{}, '~.*Return value must be of type \\?bool, class@anonymous returned~'],
+[[self::class, 'testRet74bool'], "0", new class{}, '~.*Return value must be of type \\?bool, class@anonymous returned~'],
+['PhabelTest\Target\testRet74bool', "0", new class{}, '~.*Return value must be of type \\?bool, class@anonymous returned~'],
+[fn ($data): ?bool => $data, "1", new class{}, '~.*Return value must be of type \\?bool, class@anonymous returned~'],
+[function ($data): ?bool { return $data; }, "1", new class{}, '~.*Return value must be of type \\?bool, class@anonymous returned~'],
+[[$this, 'testRet75bool'], "1", new class{}, '~.*Return value must be of type \\?bool, class@anonymous returned~'],
+[[self::class, 'testRet75bool'], "1", new class{}, '~.*Return value must be of type \\?bool, class@anonymous returned~'],
+['PhabelTest\Target\testRet75bool', "1", new class{}, '~.*Return value must be of type \\?bool, class@anonymous returned~']];
 ;
     }
     /**
@@ -58,40 +73,45 @@ class TypeHintReplacer15Test extends TestCase
     public function paramDataProvider(): array
     {
         return [
-[fn (string|self $data): string|self => $data, 'lmao', new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacer15Test\\|string, class@anonymous given, .*~'],
-[function (string|self $data): string|self { return $data; }, 'lmao', new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacer15Test\\|string, class@anonymous given, .*~'],
-[[$this, 'test71stringself'], 'lmao', new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacer15Test\\|string, class@anonymous given, .*~'],
-[[self::class, 'test71stringself'], 'lmao', new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacer15Test\\|string, class@anonymous given, .*~'],
-[fn (string|self $data): string|self => $data, $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacer15Test\\|string, class@anonymous given, .*~'],
-[function (string|self $data): string|self { return $data; }, $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacer15Test\\|string, class@anonymous given, .*~'],
-[[$this, 'test72stringself'], $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacer15Test\\|string, class@anonymous given, .*~'],
-[[self::class, 'test72stringself'], $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacer15Test\\|string, class@anonymous given, .*~'],
-[fn (?self $data): ?self => $data, $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacer15Test, class@anonymous given, .*~'],
-[function (?self $data): ?self { return $data; }, $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacer15Test, class@anonymous given, .*~'],
-[[$this, 'test73self'], $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacer15Test, class@anonymous given, .*~'],
-[[self::class, 'test73self'], $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacer15Test, class@anonymous given, .*~'],
-[fn (?self $data): ?self => $data, null, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacer15Test, class@anonymous given, .*~'],
-[function (?self $data): ?self { return $data; }, null, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacer15Test, class@anonymous given, .*~'],
-[[$this, 'test74self'], null, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacer15Test, class@anonymous given, .*~'],
-[[self::class, 'test74self'], null, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?PhabelTest\\\\Target\\\\TypeHintReplacer15Test, class@anonymous given, .*~'],
-[fn (self|int $data): self|int => $data, $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacer15Test\\|int, class@anonymous given, .*~'],
-[function (self|int $data): self|int { return $data; }, $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacer15Test\\|int, class@anonymous given, .*~'],
-[[$this, 'test75selfint'], $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacer15Test\\|int, class@anonymous given, .*~'],
-[[self::class, 'test75selfint'], $this, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacer15Test\\|int, class@anonymous given, .*~']];
+[fn (?bool $data): ?bool => $data, false, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?bool, class@anonymous given, .*~'],
+[function (?bool $data): ?bool { return $data; }, false, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?bool, class@anonymous given, .*~'],
+[[$this, 'test71bool'], false, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?bool, class@anonymous given, .*~'],
+[[self::class, 'test71bool'], false, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?bool, class@anonymous given, .*~'],
+['PhabelTest\Target\test71bool', false, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?bool, class@anonymous given, .*~'],
+[fn (?bool $data): ?bool => $data, 0, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?bool, class@anonymous given, .*~'],
+[function (?bool $data): ?bool { return $data; }, 0, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?bool, class@anonymous given, .*~'],
+[[$this, 'test72bool'], 0, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?bool, class@anonymous given, .*~'],
+[[self::class, 'test72bool'], 0, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?bool, class@anonymous given, .*~'],
+['PhabelTest\Target\test72bool', 0, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?bool, class@anonymous given, .*~'],
+[fn (?bool $data): ?bool => $data, 1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?bool, class@anonymous given, .*~'],
+[function (?bool $data): ?bool { return $data; }, 1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?bool, class@anonymous given, .*~'],
+[[$this, 'test73bool'], 1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?bool, class@anonymous given, .*~'],
+[[self::class, 'test73bool'], 1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?bool, class@anonymous given, .*~'],
+['PhabelTest\Target\test73bool', 1, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?bool, class@anonymous given, .*~'],
+[fn (?bool $data): ?bool => $data, "0", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?bool, class@anonymous given, .*~'],
+[function (?bool $data): ?bool { return $data; }, "0", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?bool, class@anonymous given, .*~'],
+[[$this, 'test74bool'], "0", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?bool, class@anonymous given, .*~'],
+[[self::class, 'test74bool'], "0", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?bool, class@anonymous given, .*~'],
+['PhabelTest\Target\test74bool', "0", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?bool, class@anonymous given, .*~'],
+[fn (?bool $data): ?bool => $data, "1", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?bool, class@anonymous given, .*~'],
+[function (?bool $data): ?bool { return $data; }, "1", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?bool, class@anonymous given, .*~'],
+[[$this, 'test75bool'], "1", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?bool, class@anonymous given, .*~'],
+[[self::class, 'test75bool'], "1", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?bool, class@anonymous given, .*~'],
+['PhabelTest\Target\test75bool', "1", new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?bool, class@anonymous given, .*~']];
 ;
     }
     
     public static function noop() {}
     
-    private static function test71stringself(string|self $data): string|self { return $data; }
-private static function testRet71stringself($data): string|self { return $data; }
-private static function test72stringself(string|self $data): string|self { return $data; }
-private static function testRet72stringself($data): string|self { return $data; }
-private static function test73self(?self $data): ?self { return $data; }
-private static function testRet73self($data): ?self { return $data; }
-private static function test74self(?self $data): ?self { return $data; }
-private static function testRet74self($data): ?self { return $data; }
-private static function test75selfint(self|int $data): self|int { return $data; }
-private static function testRet75selfint($data): self|int { return $data; }
+    private static function test71bool(?bool $data): ?bool { return $data; }
+private static function testRet71bool($data): ?bool { return $data; }
+private static function test72bool(?bool $data): ?bool { return $data; }
+private static function testRet72bool($data): ?bool { return $data; }
+private static function test73bool(?bool $data): ?bool { return $data; }
+private static function testRet73bool($data): ?bool { return $data; }
+private static function test74bool(?bool $data): ?bool { return $data; }
+private static function testRet74bool($data): ?bool { return $data; }
+private static function test75bool(?bool $data): ?bool { return $data; }
+private static function testRet75bool($data): ?bool { return $data; }
 
 }
