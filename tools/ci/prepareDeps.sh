@@ -8,6 +8,7 @@ BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
 if [ $BRANCH != master ]; then
     VERSION=${BRANCH: -3}
+    git fetch
     git checkout ${BRANCH:0:-3}
 fi
 
