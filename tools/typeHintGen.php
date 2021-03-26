@@ -61,7 +61,7 @@ $SCALARS = [
     'object' => ["new class{}", '$this'],
     'string' => ["'lmao'", 'new class{public function __toString() { return "lmao"; }}', "123", "-1", "123.123", "1e3", "true", "false"],
     'self' => ['$this'],
-    'int' => ["123", "-1", "123.123", "1e3", "true", "false", "'123'", "'123.123'"],
+    'int' => ["123", "-1", "123.0", "1e3", "true", "false", "'123'", "'123.0'"],
     '\\'.CLAZZ => ['$this'],
     '\\Generator' => ['(fn (): \\Generator => yield)()'],
 ];
@@ -158,7 +158,7 @@ foreach ($SCALARS as $scalar => $vals) {
                  * @dataProvider returnDataProvider
                  */
                 public function testRet(callable \$c, \$data, \$wrongData, string \$exception) {
-                    \$this->assertEquals(\$data, \$c(\$data));
+                    \$this->assertTrue(\$data == \$c(\$data));
             
                     \$this->expectExceptionMessageMatches(\$exception);
                     \$c(\$wrongData);
@@ -171,7 +171,7 @@ foreach ($SCALARS as $scalar => $vals) {
                  * @dataProvider paramDataProvider
                  */
                 public function test(callable \$c, \$data, \$wrongData, string \$exception) {
-                    \$this->assertEquals(\$data, \$c(\$data));
+                    \$this->assertTrue(\$data == \$c(\$data));
             
                     \$this->expectExceptionMessageMatches(\$exception);
                     \$c(\$wrongData);

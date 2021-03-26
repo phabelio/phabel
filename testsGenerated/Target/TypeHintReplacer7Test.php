@@ -24,7 +24,7 @@ class TypeHintReplacer7Test extends TestCase
      * @dataProvider returnDataProvider
      */
     public function testRet(callable $c, $data, $wrongData, string $exception) {
-        $this->assertEquals($data, $c($data));
+        $this->assertTrue($data == $c($data));
 
         $this->expectExceptionMessageMatches($exception);
         $c($wrongData);
@@ -62,7 +62,7 @@ class TypeHintReplacer7Test extends TestCase
      * @dataProvider paramDataProvider
      */
     public function test(callable $c, $data, $wrongData, string $exception) {
-        $this->assertEquals($data, $c($data));
+        $this->assertTrue($data == $c($data));
 
         $this->expectExceptionMessageMatches($exception);
         $c($wrongData);

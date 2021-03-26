@@ -16,7 +16,7 @@ class TypeHintReplacer33Test extends TestCase
      * @dataProvider returnDataProvider
      */
     public function testRet(callable $c, $data, $wrongData, string $exception) {
-        $this->assertEquals($data, $c($data));
+        $this->assertTrue($data == $c($data));
 
         $this->expectExceptionMessageMatches($exception);
         $c($wrongData);
@@ -40,17 +40,17 @@ class TypeHintReplacer33Test extends TestCase
 [function ($data): self|int { return $data; }, '123', new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacer33Test\\|int, class@anonymous returned~'],
 [[$this, 'testRet164selfint'], '123', new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacer33Test\\|int, class@anonymous returned~'],
 [[self::class, 'testRet164selfint'], '123', new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacer33Test\\|int, class@anonymous returned~'],
-[fn ($data): self|int => $data, '123.123', new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacer33Test\\|int, class@anonymous returned~'],
-[function ($data): self|int { return $data; }, '123.123', new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacer33Test\\|int, class@anonymous returned~'],
-[[$this, 'testRet165selfint'], '123.123', new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacer33Test\\|int, class@anonymous returned~'],
-[[self::class, 'testRet165selfint'], '123.123', new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacer33Test\\|int, class@anonymous returned~']];
+[fn ($data): self|int => $data, '123.0', new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacer33Test\\|int, class@anonymous returned~'],
+[function ($data): self|int { return $data; }, '123.0', new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacer33Test\\|int, class@anonymous returned~'],
+[[$this, 'testRet165selfint'], '123.0', new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacer33Test\\|int, class@anonymous returned~'],
+[[self::class, 'testRet165selfint'], '123.0', new class{}, '~.*Return value must be of type PhabelTest\\\\Target\\\\TypeHintReplacer33Test\\|int, class@anonymous returned~']];
 ;
     }
     /**
      * @dataProvider paramDataProvider
      */
     public function test(callable $c, $data, $wrongData, string $exception) {
-        $this->assertEquals($data, $c($data));
+        $this->assertTrue($data == $c($data));
 
         $this->expectExceptionMessageMatches($exception);
         $c($wrongData);
@@ -74,10 +74,10 @@ class TypeHintReplacer33Test extends TestCase
 [function (self|int $data): self|int { return $data; }, '123', new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacer33Test\\|int, class@anonymous given, .*~'],
 [[$this, 'test164selfint'], '123', new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacer33Test\\|int, class@anonymous given, .*~'],
 [[self::class, 'test164selfint'], '123', new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacer33Test\\|int, class@anonymous given, .*~'],
-[fn (self|int $data): self|int => $data, '123.123', new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacer33Test\\|int, class@anonymous given, .*~'],
-[function (self|int $data): self|int { return $data; }, '123.123', new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacer33Test\\|int, class@anonymous given, .*~'],
-[[$this, 'test165selfint'], '123.123', new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacer33Test\\|int, class@anonymous given, .*~'],
-[[self::class, 'test165selfint'], '123.123', new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacer33Test\\|int, class@anonymous given, .*~']];
+[fn (self|int $data): self|int => $data, '123.0', new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacer33Test\\|int, class@anonymous given, .*~'],
+[function (self|int $data): self|int { return $data; }, '123.0', new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacer33Test\\|int, class@anonymous given, .*~'],
+[[$this, 'test165selfint'], '123.0', new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacer33Test\\|int, class@anonymous given, .*~'],
+[[self::class, 'test165selfint'], '123.0', new class{}, '~.*Argument #1 \\(\\$data\\) must be of type PhabelTest\\\\Target\\\\TypeHintReplacer33Test\\|int, class@anonymous given, .*~']];
 ;
     }
     

@@ -26,7 +26,7 @@ class TypeHintReplacer35Test extends TestCase
      * @dataProvider returnDataProvider
      */
     public function testRet(callable $c, $data, $wrongData, string $exception) {
-        $this->assertEquals($data, $c($data));
+        $this->assertTrue($data == $c($data));
 
         $this->expectExceptionMessageMatches($exception);
         $c($wrongData);
@@ -44,11 +44,11 @@ class TypeHintReplacer35Test extends TestCase
 [[$this, 'testRet172int'], '123', new class{}, '~.*Return value must be of type \\?int, class@anonymous returned~'],
 [[self::class, 'testRet172int'], '123', new class{}, '~.*Return value must be of type \\?int, class@anonymous returned~'],
 ['PhabelTest\Target\testRet172int', '123', new class{}, '~.*Return value must be of type \\?int, class@anonymous returned~'],
-[fn ($data): ?int => $data, '123.123', new class{}, '~.*Return value must be of type \\?int, class@anonymous returned~'],
-[function ($data): ?int { return $data; }, '123.123', new class{}, '~.*Return value must be of type \\?int, class@anonymous returned~'],
-[[$this, 'testRet173int'], '123.123', new class{}, '~.*Return value must be of type \\?int, class@anonymous returned~'],
-[[self::class, 'testRet173int'], '123.123', new class{}, '~.*Return value must be of type \\?int, class@anonymous returned~'],
-['PhabelTest\Target\testRet173int', '123.123', new class{}, '~.*Return value must be of type \\?int, class@anonymous returned~'],
+[fn ($data): ?int => $data, '123.0', new class{}, '~.*Return value must be of type \\?int, class@anonymous returned~'],
+[function ($data): ?int { return $data; }, '123.0', new class{}, '~.*Return value must be of type \\?int, class@anonymous returned~'],
+[[$this, 'testRet173int'], '123.0', new class{}, '~.*Return value must be of type \\?int, class@anonymous returned~'],
+[[self::class, 'testRet173int'], '123.0', new class{}, '~.*Return value must be of type \\?int, class@anonymous returned~'],
+['PhabelTest\Target\testRet173int', '123.0', new class{}, '~.*Return value must be of type \\?int, class@anonymous returned~'],
 [fn ($data): ?int => $data, null, new class{}, '~.*Return value must be of type \\?int, class@anonymous returned~'],
 [function ($data): ?int { return $data; }, null, new class{}, '~.*Return value must be of type \\?int, class@anonymous returned~'],
 [[$this, 'testRet174int'], null, new class{}, '~.*Return value must be of type \\?int, class@anonymous returned~'],
@@ -65,7 +65,7 @@ class TypeHintReplacer35Test extends TestCase
      * @dataProvider paramDataProvider
      */
     public function test(callable $c, $data, $wrongData, string $exception) {
-        $this->assertEquals($data, $c($data));
+        $this->assertTrue($data == $c($data));
 
         $this->expectExceptionMessageMatches($exception);
         $c($wrongData);
@@ -83,11 +83,11 @@ class TypeHintReplacer35Test extends TestCase
 [[$this, 'test172int'], '123', new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?int, class@anonymous given, .*~'],
 [[self::class, 'test172int'], '123', new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?int, class@anonymous given, .*~'],
 ['PhabelTest\Target\test172int', '123', new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?int, class@anonymous given, .*~'],
-[fn (?int $data): ?int => $data, '123.123', new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?int, class@anonymous given, .*~'],
-[function (?int $data): ?int { return $data; }, '123.123', new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?int, class@anonymous given, .*~'],
-[[$this, 'test173int'], '123.123', new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?int, class@anonymous given, .*~'],
-[[self::class, 'test173int'], '123.123', new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?int, class@anonymous given, .*~'],
-['PhabelTest\Target\test173int', '123.123', new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?int, class@anonymous given, .*~'],
+[fn (?int $data): ?int => $data, '123.0', new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?int, class@anonymous given, .*~'],
+[function (?int $data): ?int { return $data; }, '123.0', new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?int, class@anonymous given, .*~'],
+[[$this, 'test173int'], '123.0', new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?int, class@anonymous given, .*~'],
+[[self::class, 'test173int'], '123.0', new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?int, class@anonymous given, .*~'],
+['PhabelTest\Target\test173int', '123.0', new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?int, class@anonymous given, .*~'],
 [fn (?int $data): ?int => $data, null, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?int, class@anonymous given, .*~'],
 [function (?int $data): ?int { return $data; }, null, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?int, class@anonymous given, .*~'],
 [[$this, 'test174int'], null, new class{}, '~.*Argument #1 \\(\\$data\\) must be of type \\?int, class@anonymous given, .*~'],
