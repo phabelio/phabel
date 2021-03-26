@@ -16,6 +16,11 @@ use PhpParser\Node\Expr\BinaryOp\BooleanOr;
 use PhpParser\Node\Expr\BinaryOp\Concat;
 use PhpParser\Node\Expr\BinaryOp\Plus;
 use PhpParser\Node\Expr\BooleanNot;
+use PhpParser\Node\Expr\Cast;
+use PhpParser\Node\Expr\Cast\Bool_;
+use PhpParser\Node\Expr\Cast\Double;
+use PhpParser\Node\Expr\Cast\Int_;
+use PhpParser\Node\Expr\Cast\String_ as CastString_;
 use PhpParser\Node\Expr\ClassConstFetch;
 use PhpParser\Node\Expr\Instanceof_;
 use PhpParser\Node\Expr\New_;
@@ -33,6 +38,7 @@ use PhpParser\Node\Scalar\String_;
 use PhpParser\Node\Stmt\Class_ as StmtClass_;
 use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\Node\Stmt\ClassMethod;
+use PhpParser\Node\Stmt\Else_;
 use PhpParser\Node\Stmt\Expression;
 use PhpParser\Node\Stmt\Foreach_;
 use PhpParser\Node\Stmt\If_;
@@ -62,7 +68,7 @@ class TypeHintReplacer extends Plugin
      * Stack.
      *
      * @var SplStack
-     * @psalm-var SplStack<array{0: self::IGNORE_RETURN|self::VOID_RETURN}|array{0: self::TYPE_RETURN, 1: Node, 2: bool, 3: bool, 4: Node, 5: BooleanNot}>
+     * @psalm-var SplStack<array{0: self::IGNORE_RETURN|self::VOID_RETURN}|array{0: self::TYPE_RETURN, 1: Node, 2: bool, 3: bool, 4: Node, 5: (callable(Node...): If_)}>
      */
     private SplStack $stack;
     /**
@@ -70,7 +76,7 @@ class TypeHintReplacer extends Plugin
      */
     public function __construct()
     {
-        /** @psalm-var SplStack<array{0: self::IGNORE_RETURN|self::VOID_RETURN}|array{0: self::TYPE_RETURN, 1: Node, 2: bool, 3: bool, 4: Node, 5: BooleanNot}> */
+        /** @psalm-var SplStack<array{0: self::IGNORE_RETURN|self::VOID_RETURN}|array{0: self::TYPE_RETURN, 1: Node, 2: bool, 3: bool, 4: Node, 5: (callable(Node...): If_)}> */
         $this->stack = new SplStack;
     }
     /**
@@ -115,6 +121,21 @@ class TypeHintReplacer extends Plugin
             ) : new String_($type->toString());
     }
     /**
+     * Reduce multiple conditions to a single not.
+     *
+     * @param non-empty-list<Expr> $conditions
+     * @return BooleanNot
+     */
+    private static function reduceConditions(array $conditions): BooleanNot
+    {
+        $initial = \array_shift($conditions);
+        return new BooleanNot(
+            empty($conditions)
+            ? $initial
+            : \array_reduce($conditions, fn (Expr $a, Expr $b): BooleanOr => new BooleanOr($a, $b), $initial)
+        );
+    }
+    /**
      * Generate.
      *
      * @param Variable            $var          Variable to check
@@ -122,7 +143,7 @@ class TypeHintReplacer extends Plugin
      * @param ?Expr               $className    Whether the current class is anonymous
      * @param boolean             $fromNullable Whether this type is nullable
      *
-     * @return array{0: bool, 1: Node, 2: BooleanNot} Whether the polyfilled gettype should be used, the error message, the condition
+     * @return array{0: bool, 1: Node, 2: (callable(Node...): If_)} Whether the polyfilled gettype should be used, the error message, the condition
      */
     private function generateConditions(Variable $var, array $types, ?Expr $className, bool $fromNullable = false): array
     {
@@ -132,7 +153,7 @@ class TypeHintReplacer extends Plugin
         $typeNames = [];
         /** @var Expr[] */
         $oopNames = [];
-        /** @var Expr[] */
+        /** @var (Expr|array{0: Expr, 1: Expr, 2: class-string<Cast>})[] */
         $conditions = [];
         /** @var string Last string type name */
         $stringType = '';
@@ -151,32 +172,44 @@ class TypeHintReplacer extends Plugin
                     case 'null':
                         $stringType = new String_($typeName);
                         if ($typeName === 'int' || $typeName === 'float') {
-                            $conditions []= new BooleanOr(
-                                Plugin::call("is_bool", $var),
-                                Plugin::call("is_numeric", $var),
-                            );
-                        } else if ($typeName === 'bool') {
-                            $conditions []= new BooleanOr(
+                            $conditions []= [
+                                Plugin::call("is_$typeName", $var),
                                 new BooleanOr(
                                     Plugin::call("is_bool", $var),
                                     Plugin::call("is_numeric", $var),
                                 ),
-                                Plugin::call("is_string", $var),
-                            );
-                        } else if ($typeName === 'string') {
-                            $conditions []= new BooleanOr(
+                                $typeName === 'int' ? Int_::class : Double::class,
+                            ];
+                        } elseif ($typeName === 'bool') {
+                            $conditions []= [
+                                Plugin::call("is_$typeName", $var),
                                 new BooleanOr(
+                                    new BooleanOr(
+                                        Plugin::call("is_bool", $var),
+                                        Plugin::call("is_numeric", $var),
+                                    ),
                                     Plugin::call("is_string", $var),
-                                    new BooleanAnd(
-                                        Plugin::call("is_object", $var),
-                                        Plugin::call("method_exists", $var, self::fromLiteral('__toString')),
+                                ),
+                                Bool_::class
+                            ];
+                        } elseif ($typeName === 'string') {
+                            $conditions []= [
+                                Plugin::call("is_$typeName", $var),
+                                new BooleanOr(
+                                    new BooleanOr(
+                                        Plugin::call("is_string", $var),
+                                        new BooleanAnd(
+                                            Plugin::call("is_object", $var),
+                                            Plugin::call("method_exists", $var, new String_('__toString')),
+                                        ),
+                                    ),
+                                    new BooleanOr(
+                                        Plugin::call("is_bool", $var),
+                                        Plugin::call("is_numeric", $var),
                                     ),
                                 ),
-                                new BooleanOr(
-                                    Plugin::call("is_bool", $var),
-                                    Plugin::call("is_numeric", $var),
-                                ),
-                            );
+                                CastString_::class
+                            ];
                         } else {
                             $conditions []= Plugin::call("is_$typeName", $var);
                         }
@@ -219,13 +252,58 @@ class TypeHintReplacer extends Plugin
             $stringType = new Concat(new String_('?'), $stringType);
             $conditions []= Plugin::call("is_null", $var);
         }
-        $initial = \array_shift($conditions);
-        $condition = new BooleanNot(
-            empty($conditions)
-            ? $initial
-            : \array_reduce($conditions, fn (Expr $a, Expr $b): BooleanOr => new BooleanOr($a, $b), $initial)
-        );
-        return [$noOopTypes, $stringType, $condition];
+        $splitConditions = [];
+        $currentConditions = [];
+        foreach ($conditions as $condition) {
+            if (\is_array($condition)) {
+                if ($currentConditions) {
+                    $currentConditions = $this->reduceConditions($currentConditions);
+                    $splitConditions []= fn (Node ...$stmts): If_ => new If_(
+                        $currentConditions,
+                        ['stmts' => $stmts]
+                    );
+                }
+                $currentConditions = [];
+
+                [$conditionsStrict, $conditionsLoose, $castLoose] = $condition;
+                $conditionsStrict = new BooleanNot($conditionsStrict);
+                $conditionsLoose = new BooleanNot($conditionsLoose);
+                $splitConditions []= fn (Node ...$stmts): If_ => new If_(
+                    $conditionsStrict,
+                    ['stmts' => [
+                        new If_(
+                            $conditionsLoose,
+                            [
+                                'stmts' => $stmts,
+                                'else' => new Else_([
+                                    new Expression(new Assign($var, new $castLoose($var))),
+                                ]),
+                            ]
+                        )
+                    ]]
+                );
+            } else {
+                $currentConditions []= $condition;
+            }
+        }
+        if ($currentConditions) {
+            $currentConditions = $this->reduceConditions($currentConditions);
+            $splitConditions []= fn (Node ...$stmts): If_ => new If_(
+                $currentConditions, 
+                ['stmts' => $stmts]
+            );
+        }
+        return [
+            $noOopTypes, 
+            $stringType,
+            function (Node ...$expr) use ($splitConditions): If_ {
+                $prev = $expr;
+                foreach ($splitConditions as $func) {
+                    $prev = [$func(...$prev)];
+                }
+                return $prev[0];
+            }
+        ];
     }
     /**
      * Strip typehint.
@@ -235,7 +313,7 @@ class TypeHintReplacer extends Plugin
      * @param ?Expr                                       $className Whether the current class is anonymous
      * @param bool                                        $force     Whether to force strip
      *
-     * @return null|array{0: bool, 1: Node, 2: BooleanNot} Whether the polyfilled gettype should be used, the error message, the condition
+     * @return null|array{0: bool, 1: Node, 2: (callable(Node...): If_)} Whether the polyfilled gettype should be used, the error message, the condition
      */
     private function strip(Variable $var, ?Node $type, ?Expr $className, bool $force = false): ?array
     {
@@ -328,7 +406,7 @@ class TypeHintReplacer extends Plugin
 
             $start = new Concat($functionName, $start);
 
-            $if = new If_($condition, ['stmts' => [new Throw_(new New_(new FullyQualified(\TypeError::class), [new Arg($start)]))]]);
+            $if = $condition(new Throw_(new New_(new FullyQualified(\TypeError::class), [new Arg($start)])));
             if ($param->variadic) {
                 $stmts []= new Foreach_($param->var, new Variable('phabelVariadic'), ['keyVar' => new Variable('phabelVariadicIndex'), 'stmts' => [$if]]);
             } else {
@@ -403,7 +481,9 @@ class TypeHintReplacer extends Plugin
         $start = new Concat($start, new String_(" returned in "));
         $start = new Concat($start, self::callPoly('trace'));
 
-        $if = new If_($condition, ['stmts' => [new Throw_(new New_(new FullyQualified(\TypeError::class), [new Arg($start)]))]]);
+        $if = $condition(
+            new Throw_(new New_(new FullyQualified(\TypeError::class), [new Arg($start)]))
+        );
 
         $return->expr = $var;
 
