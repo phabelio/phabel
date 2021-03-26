@@ -39,7 +39,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          tools/ci/prepareDeps.sh
+          bash tools/ci/prepareDeps.sh
 
       - name: Run tests
         env:

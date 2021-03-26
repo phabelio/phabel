@@ -255,7 +255,7 @@ class Traverser
                             [$classes, $result] = $res;
                             if ($classStorage) {
                                 $classStorage->merge($classes);
-                            } else {
+                            } else if ($classes) {
                                 $classStorage = $classes;
                             }
                             unset($promises[$count]);
@@ -273,7 +273,7 @@ class Traverser
             yield $promises;
 
             if ($classStorage) {
-                yield self::runAsync($classStorage->finish(), $output, $output, $prefix);
+                self::run($classStorage->finish(), $output, $output, $prefix);
             }
 
             return $result;
