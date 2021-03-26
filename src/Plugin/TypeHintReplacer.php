@@ -11,6 +11,7 @@ use PhpParser\Node\Arg;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\AssignRef;
+use PhpParser\Node\Expr\BinaryOp\BooleanAnd;
 use PhpParser\Node\Expr\BinaryOp\BooleanOr;
 use PhpParser\Node\Expr\BinaryOp\Concat;
 use PhpParser\Node\Expr\BinaryOp\Plus;
@@ -149,7 +150,36 @@ class TypeHintReplacer extends Plugin
                     case 'resource':
                     case 'null':
                         $stringType = new String_($typeName);
-                        $conditions []= Plugin::call("is_$typeName", $var);
+                        if ($typeName === 'int' || $typeName === 'float') {
+                            $conditions []= new BooleanOr(
+                                Plugin::call("is_bool", $var),
+                                Plugin::call("is_numeric", $var),
+                            );
+                        } else if ($typeName === 'bool') {
+                            $conditions []= new BooleanOr(
+                                new BooleanOr(
+                                    Plugin::call("is_bool", $var),
+                                    Plugin::call("is_numeric", $var),
+                                ),
+                                Plugin::call("is_string", $var),
+                            );
+                        } else if ($typeName === 'string') {
+                            $conditions []= new BooleanOr(
+                                new BooleanOr(
+                                    Plugin::call("is_string", $var),
+                                    new BooleanAnd(
+                                        Plugin::call("is_object", $var),
+                                        Plugin::call("method_exists", $var, self::fromLiteral('__toString')),
+                                    ),
+                                ),
+                                new BooleanOr(
+                                    Plugin::call("is_bool", $var),
+                                    Plugin::call("is_numeric", $var),
+                                ),
+                            );
+                        } else {
+                            $conditions []= Plugin::call("is_$typeName", $var);
+                        }
                         if (\in_array($typeName, ['object', 'callable'])) {
                             $oopNames []= $stringType;
                         } else {
