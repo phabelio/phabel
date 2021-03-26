@@ -17,4 +17,4 @@ if [ $BRANCH != master ]; then
     git checkout $BRANCH
 fi
 
-git stash pop
+git stash pop || exit 0
