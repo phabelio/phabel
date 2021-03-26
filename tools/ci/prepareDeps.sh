@@ -15,6 +15,8 @@ php tools/ci/prepareDeps.php $VERSION
 
 sed 's/die[(]1[)];//g' -i vendor/phpunit/phpunit/phpunit
 
+chmod +x vendor/bin/*
+
 if [ $BRANCH != master ]; then
     git checkout $BRANCH
 fi
