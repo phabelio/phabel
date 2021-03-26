@@ -39,8 +39,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          composer install --prefer-dist --ignore-platform-reqs
-          php tools/ci/prepareDeps.php
+          tools/ci/prepareDeps.sh
 
       - name: Run tests
         env:
