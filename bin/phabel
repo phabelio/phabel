@@ -1,2 +1,7 @@
 #!/usr/bin/env php
-<?php require_once __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'phabel.php';
+<?php
+
+$up = DIRECTORY_SEPARATOR . '..';
+
+require_once __DIR__ . $up . $up . $up . DIRECTORY_SEPARATOR . 'autoload.php';
+require_once __DIR__ . $up . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'phabel.php';
