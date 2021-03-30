@@ -74,5 +74,6 @@
     },
     "config": {
         "process-timeout": 0
-    }
+    },
+    "bin": ["bin/phabel"]
 }
