@@ -3,6 +3,7 @@
 namespace Phabel\Target\Php74\TypeContracovariance;
 
 use Phabel\ClassStorage;
+use Phabel\ClassStorage\Storage;
 use Phabel\ClassStorageProvider;
 use Phabel\Plugin\TypeHintReplacer;
 use SplStack;
@@ -25,12 +26,13 @@ class TypeContracovariance extends ClassStorageProvider
                 $parentMethods = new SplStack;
                 $parentMethods->push($method);
                 foreach ($class->getOverriddenMethods($name) as $childMethod) {
+                    $childClass = $childMethod->getAttribute(Storage::STORAGE_KEY);
                     foreach ($childMethod->params as $k => $param) {
-                        if (isset($method->params[$k]) && $storage->compare($param->type, $method->params[$k]->type) > 0) {
+                        if (isset($method->params[$k]) && $storage->compare($param->type, $method->params[$k]->type, $childClass, $class) > 0) {
                             $act[$k] = true;
                         }
                     }
-                    if ($storage->compare($childMethod->returnType, $method->returnType) < 0) {
+                    if ($storage->compare($childMethod->returnType, $method->returnType, $childClass, $class) < 0) {
                         $actReturn = true;
                     }
                     $parentMethods->push($childMethod);

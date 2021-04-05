@@ -137,9 +137,12 @@ final class ClassStorage
      *
      * @param null|Identifier|Name|NullableType|UnionType $typeA
      * @param null|Identifier|Name|NullableType|UnionType $typeB
+     * @param Storage $ctxA
+     * @param Storage $ctxB
+     * 
      * @return integer
      */
-    public function compare(null|Identifier|Name|NullableType|UnionType $typeA, null|Identifier|Name|NullableType|UnionType $typeB): int
+    public function compare(null|Identifier|Name|NullableType|UnionType $typeA, null|Identifier|Name|NullableType|UnionType $typeB, Storage $ctxA, Storage $ctxB): int
     {
         $typeA = self::typeArray($typeA);
         $typeB = self::typeArray($typeB);
@@ -150,8 +153,8 @@ final class ClassStorage
             $typeA = $typeA[0];
             $typeB = $typeB[0];
             if ($typeA instanceof Name && $typeB instanceof Name
-                && ($classA = $this->getClassByName(Tools::getFqdn($typeA)))
-                && ($classB = $this->getClassByName(Tools::getFqdn($typeB)))
+                && ($classA = $typeA->parts === ['self'] ? $ctxA : $this->getClassByName(Tools::getFqdn($typeA)))
+                && ($classB = $typeA->parts === ['self'] ? $ctxB : $this->getClassByName(Tools::getFqdn($typeB)))
             ) {
                 foreach ($classA->getAllChildren() as $child) {
                     if ($child === $classB) {
