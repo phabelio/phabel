@@ -289,12 +289,12 @@ class TypeHintReplacer extends Plugin
         if ($currentConditions) {
             $currentConditions = $this->reduceConditions($currentConditions);
             $splitConditions []= fn (Node ...$stmts): If_ => new If_(
-                $currentConditions, 
+                $currentConditions,
                 ['stmts' => $stmts]
             );
         }
         return [
-            $noOopTypes, 
+            $noOopTypes,
             $stringType,
             function (Node ...$expr) use ($splitConditions): If_ {
                 $prev = $expr;

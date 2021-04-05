@@ -42,7 +42,7 @@ class ArrayList extends Plugin
         }
     }
     /**
-     * Parse [] list assignment
+     * Parse [] list assignment.
      *
      * @param Assign $node List assignment
      *

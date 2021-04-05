@@ -109,7 +109,7 @@ class Storage
     {
         if ($typeMask & Class_::MODIFIER_ABSTRACT) {
             foreach ($this->abstractMethods as $name => $method) {
-                if ($method->flags & $typeMask && $method->flags & $visibilityMask) {
+                if (($method->flags|Class_::MODIFIER_ABSTRACT) & $typeMask && $method->flags & $visibilityMask) {
                     yield $name => $method;
                 }
             }

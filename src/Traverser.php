@@ -171,7 +171,7 @@ class Traverser
         }
 
         if (\is_file($input)) {
-            $it = $p->traverse(\realpath($input), realpath($output) ?: $output);
+            $it = $p->traverse(\realpath($input), \realpath($output) ?: $output);
             echo("Transformed ".$input." in $it iterations".PHP_EOL);
             return [$graph->getClassStorage(), $graph->getPackages()];
         }
@@ -255,7 +255,7 @@ class Traverser
                             [$classes, $result] = $res;
                             if ($classStorage) {
                                 $classStorage->merge($classes);
-                            } else if ($classes) {
+                            } elseif ($classes) {
                                 $classStorage = $classes;
                             }
                             unset($promises[$count]);
