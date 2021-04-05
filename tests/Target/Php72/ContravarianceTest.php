@@ -6,6 +6,7 @@ use PhabelTest\Target\Php72\Contravariance\Cls;
 use PhabelTest\Target\Php72\Contravariance\OtherCls1;
 use PhabelTest\Target\Php72\Contravariance\OtherCls2;
 use PhabelTest\Target\Php72\Contravariance\OtherCls3;
+use PhabelTest\Target\Php72\Contravariance\OtherClsNative;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -27,5 +28,7 @@ class ContravarianceTest extends TestCase
         $this->assertInstanceOf(OtherCls1::class, OtherCls1::get());
         $this->assertInstanceOf(OtherCls2::class, OtherCls2::get());
         $this->assertInstanceOf(OtherCls3::class, OtherCls3::get());
+
+        $this->assertInstanceOf(OtherClsNative::class, OtherClsNative::get());
     }
 }

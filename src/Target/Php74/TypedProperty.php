@@ -3,7 +3,6 @@
 namespace Phabel\Target\Php74;
 
 use Phabel\Plugin;
-use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\Node\Stmt\Property;
 

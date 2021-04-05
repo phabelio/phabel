@@ -9,9 +9,13 @@ use Phabel\ClassStorageProvider;
 use Phabel\Context;
 use Phabel\Plugin;
 use Phabel\RootNode;
+use PhpParser\Builder\Class_;
+use PhpParser\Builder\Method;
+use PhpParser\Builder\Param;
 use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Trait_;
+use ReflectionClass;
 
 final class ClassStoragePlugin extends Plugin
 {
@@ -69,7 +73,56 @@ final class ClassStoragePlugin extends Plugin
             if (isset($classes[$file])) {
                 unset($this->classes[$class][$file]);
             }
-        }
+        }/*
+        if (!isset($this->classes[''])) {
+            foreach (get_declared_classes() as $class) {
+                $refl = new ReflectionClass($class);
+                if (!$refl->getExtension()) {
+                    continue;
+                }
+                $class = new Class_($class);
+                if ($extends = $refl->getParentClass()) {
+                    $class->extend($extends->getName());
+                }
+                $class->implement(...$refl->getInterfaceNames());
+                foreach ($refl->getMethods() as $method) {
+                    $builder = new Method($method->name);
+                    foreach ($method->getParameters() as $parameter) {
+                        $param = new Param($parameter->name);
+                        if ($type = $parameter->getType()) {
+                            $param->setType((string) $parameter->getType());
+                        }
+                        if ($parameter->isVariadic()) {
+                            $param->makeVariadic();
+                        }
+                        if ($parameter->isPassedByReference()) {
+                            $param->makeByRef();
+                        }
+                        $builder->addParam($param->getNode());
+                    }
+                    if ($method->isAbstract()) {
+                        $builder->makeAbstract();
+                    }
+                    if ($method->isFinal()) {
+                        $builder->makeFinal();
+                    }
+                    if ($method->isPrivate()) {
+                        $builder->makePrivate();
+                    }
+                    if ($method->isProtected()) {
+                        $builder->makeProtected();
+                    }
+                    if ($method->isPublic()) {
+                        $builder->makePublic();
+                    }
+                    if ($method->isStatic()) {
+                        $builder->makeStatic();
+                    }
+                    $class->addStmt($builder->getNode());
+                }
+                $this->classes[$refl->getName()][''] = new Builder($class->getNode());
+            }
+        }*/
     }
     /**
      * Add method.

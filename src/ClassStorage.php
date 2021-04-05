@@ -32,7 +32,6 @@ final class ClassStorage
      * @var array<class-string, Storage>
      */
     private array $rootClasses = [];
-
     /**
      * Constructor.
      */
@@ -139,7 +138,7 @@ final class ClassStorage
      * @param null|Identifier|Name|NullableType|UnionType $typeB
      * @param Storage $ctxA
      * @param Storage $ctxB
-     * 
+     *
      * @return integer
      */
     public function compare(null|Identifier|Name|NullableType|UnionType $typeA, null|Identifier|Name|NullableType|UnionType $typeB, Storage $ctxA, Storage $ctxB): int

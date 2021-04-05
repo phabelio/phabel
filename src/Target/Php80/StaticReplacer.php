@@ -17,9 +17,7 @@ class StaticReplacer extends Plugin
     {
         return [
             TypeHintReplacer::class => [
-                'types' => [
-                    'static' => true
-                ]
+                'types' => ['static']
             ]
         ];
     }
