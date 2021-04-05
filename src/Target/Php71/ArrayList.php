@@ -4,6 +4,7 @@ namespace Phabel\Target\Php71;
 
 use Phabel\Plugin;
 use PhpParser\Node\Expr\Array_;
+use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\List_;
 use PhpParser\Node\Stmt\Foreach_;
 
@@ -38,6 +39,19 @@ class ArrayList extends Plugin
             if ($item && $item->value instanceof Array_) {
                 self::replaceTypeInPlace($item->value, List_::class);
             }
+        }
+    }
+    /**
+     * Parse [] list assignment
+     *
+     * @param Assign $node List assignment
+     *
+     * @return void
+     */
+    public function enterAssign(Assign $node): void
+    {
+        if ($node->var instanceof Array_) {
+            $node->var = new List_($node->var->items);
         }
     }
 }

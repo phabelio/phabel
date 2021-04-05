@@ -171,7 +171,7 @@ class Traverser
         }
 
         if (\is_file($input)) {
-            $it = $p->traverse(\realpath($input), $output);
+            $it = $p->traverse(\realpath($input), realpath($output) ?: $output);
             echo("Transformed ".$input." in $it iterations".PHP_EOL);
             return [$graph->getClassStorage(), $graph->getPackages()];
         }

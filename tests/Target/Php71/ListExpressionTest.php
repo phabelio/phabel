@@ -19,6 +19,8 @@ class ListExpressionTest extends TestCase
         $this->assertEquals('bb', $b);
         $this->assertEquals('d', $d);
         $this->assertEquals('e', $e);
+
+        [$a, $b] = [$a, $b];
     }
     public function testEmpty()
     {
