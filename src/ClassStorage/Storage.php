@@ -181,14 +181,15 @@ class Storage
     public function getOverriddenMethods(string $name, int $typeMask = ~Class_::VISIBILITY_MODIFIER_MASK, int $visibilityMask = Class_::VISIBILITY_MODIFIER_MASK): \Generator
     {
         foreach ($this->getAllChildren() as $child) {
-            $methods = [];
             if (isset($child->abstractMethods[$name])) {
-                $methods []= $child->abstractMethods[$name];
+                $method = $child->abstractMethods[$name];
+                $flags = $method->flags | Class_::MODIFIER_ABSTRACT;
+                if ($flags & $typeMask && $flags & $visibilityMask) {
+                    yield $method;
+                }
             }
             if (isset($child->methods[$name])) {
-                $methods []= $child->methods[$name];
-            }
-            foreach ($methods as $method) {
+                $method = $child->methods[$name];
                 $flags = $method->flags;
                 if ($flags & $typeMask && $flags & $visibilityMask) {
                     yield $method;

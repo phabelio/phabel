@@ -97,7 +97,7 @@ final class ClassStorage
     /**
      * Get storage.
      *
-     * @return \Generator
+     * @return \Generator<class-string, Storage, null, void>
      */
     public function getClasses(): \Generator
     {

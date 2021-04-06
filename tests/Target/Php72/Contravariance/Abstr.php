@@ -2,7 +2,7 @@
 
 namespace PhabelTest\Target\Php72\Contravariance;
 
-abstract class Abstr implements IFace
+abstract class Abstr implements IFace, IFace2
 {
     abstract public function testCanWiden1(?string $s);
     abstract public function testCanRestrict1(): ?string;
