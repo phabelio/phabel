@@ -6,6 +6,7 @@ use JsonSerializable;
 use Phabel\ClassStorage\Storage;
 use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\Node\Stmt\ClassMethod;
+use PhpParser\Node\Stmt\Nop;
 
 abstract class ClassStorageProvider extends Plugin implements JsonSerializable
 {
@@ -56,7 +57,7 @@ abstract class ClassStorageProvider extends Plugin implements JsonSerializable
         $storage = $this->getGlobalClassStorage()->getClass($file, $name);
         foreach ($class->stmts as $k => $stmt) {
             if ($stmt instanceof ClassMethod && $storage->process($stmt)) {
-                unset($class->stmts[$k]);
+                $class->stmts[$k] = new Nop();
             }
         }
     }
