@@ -2,7 +2,7 @@
 
 namespace PhabelTest\Target\Php72\Contravariance;
 
-interface IFace2
+interface IFace2 extends IFace
 {
     public function testCanWiden1(string $s);
     public function testCanRestrict1();
