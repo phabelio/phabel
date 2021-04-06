@@ -5,6 +5,10 @@ namespace PhabelTest\Target\Php71;
 use Closure;
 use PHPUnit\Framework\TestCase;
 
+function returnMe($a) {
+    return $a;
+}
+
 /**
  * Polyfills Closure::fromCallable
  */
@@ -28,6 +32,10 @@ class ClosureFromCallableTest extends TestCase
         $this->assertEquals('a', Closure::fromCallable([$this, 'retPrivate'])('a'));
         $this->assertEquals('b', Closure::fromCallable([$this, 'retProtected'])('b'));
         $this->assertEquals('c', Closure::fromCallable([$this, 'retPublic'])('c'));
+
+        $this->assertEquals('a', Closure::fromCallable(returnMe::class)('a'));
+        $this->assertEquals('a', Closure::fromCallable(fn ($a) => $a)('a'));
+        $this->assertEquals('a', Closure::fromCallable(new class { public function __invoke($a) { return $a; }})('a'));
 
         $name = 'fromcallable';
         $this->assertEquals('a', Closure::{$name}([$this, 'retPrivate'])('a'));
