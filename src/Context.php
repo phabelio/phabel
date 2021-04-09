@@ -23,6 +23,8 @@ use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\Ternary;
 use PhpParser\Node\Expr\Variable;
+use PhpParser\Node\Expr\List_;
+use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\FunctionLike;
 use PhpParser\Node\Name\FullyQualified;
 use PhpParser\Node\Param;
@@ -142,12 +144,7 @@ class Context
             }
             $this->variables->push(new VariableContext($variables));
         } elseif ($node instanceof Assign || $node instanceof AssignOp || $node instanceof AssignRef) {
-            do {
-                $node = $node->var;
-            } while ($node instanceof ArrayDimFetch && $node->var instanceof ArrayDimFetch);
-            if ($node instanceof Variable && \is_string($node->name)) {
-                $this->variables->top()->addVar($node->name);
-            }
+            $this->populateVars($node->var);
         } elseif ($node instanceof MethodCall || $node instanceof StaticCall || $node instanceof FuncCall) {
             // Cover reference parameters
             foreach ($node->args as $argument) {
@@ -158,6 +155,24 @@ class Context
                 if ($argument instanceof Variable && \is_string($argument->name)) {
                     $this->variables->top()->addVar($argument->name);
                 }
+            }
+        }
+    }
+    /**
+     * Populate variables.
+     *
+     * @return void
+     */
+    private function populateVars(Node $node): void
+    {
+        while ($node instanceof ArrayDimFetch && $node->var instanceof ArrayDimFetch) {
+            $node = $node->var;
+        }
+        if ($node instanceof Variable && \is_string($node->name)) {
+            $this->variables->top()->addVar($node->name);
+        } elseif ($node instanceof List_ || $node instanceof Array_) {
+            foreach ($node->items ?? [] as $item) {
+                $this->populateVars($item->value);
             }
         }
     }
