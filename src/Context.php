@@ -171,8 +171,8 @@ class Context
         if ($node instanceof Variable && \is_string($node->name)) {
             $this->variables->top()->addVar($node->name);
         } elseif ($node instanceof List_ || $node instanceof Array_) {
-            foreach ($node->items ?? [] as $item) {
-                $this->populateVars($item->value);
+            foreach ($node->items as $item) {
+                if ($item) $this->populateVars($item->value);
             }
         }
     }
