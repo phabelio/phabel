@@ -11,6 +11,12 @@ This project is mostly ready, and I would love some feedback on design and APIs.
 
 Created by [Daniil Gentili](https://daniil.it)
 
+## Usage
+
+```
+PHABEL_TARGET=70 php src/phabel.php src transpiledSrc
+```
+
 ## Design
 
 After hooking into composer, the transpilation process begins.  
