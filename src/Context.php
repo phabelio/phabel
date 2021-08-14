@@ -7,6 +7,7 @@ use PhpParser\BuilderHelpers;
 use PhpParser\ErrorHandler\Throwing;
 use PhpParser\NameContext;
 use PhpParser\Node;
+use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Expr\ArrayDimFetch;
 use PhpParser\Node\Expr\ArrowFunction;
 use PhpParser\Node\Expr\Assign;
@@ -19,12 +20,11 @@ use PhpParser\Node\Expr\BooleanNot;
 use PhpParser\Node\Expr\Cast\Bool_;
 use PhpParser\Node\Expr\Closure;
 use PhpParser\Node\Expr\FuncCall;
+use PhpParser\Node\Expr\List_;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\Ternary;
 use PhpParser\Node\Expr\Variable;
-use PhpParser\Node\Expr\List_;
-use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\FunctionLike;
 use PhpParser\Node\Name\FullyQualified;
 use PhpParser\Node\Param;
@@ -176,7 +176,9 @@ class Context
             $this->variables->top()->addVar($node->name);
         } elseif ($node instanceof List_ || $node instanceof Array_) {
             foreach ($node->items as $item) {
-                if ($item) $this->populateVars($item->value);
+                if ($item) {
+                    $this->populateVars($item->value);
+                }
             }
         }
     }

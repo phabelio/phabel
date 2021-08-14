@@ -390,16 +390,16 @@ class Traverser
         }
 
         $fileParts = [];
-        $explodedInput = array_reverse(explode('/', str_replace('\\', '/', $file)));
-        $explodedOutput = array_reverse(explode('/', str_replace('\\', '/', $output)));
+        $explodedInput = \array_reverse(\explode('/', \str_replace('\\', '/', $file)));
+        $explodedOutput = \array_reverse(\explode('/', \str_replace('\\', '/', $output)));
         foreach ($explodedInput as $k => $part) {
             if ($explodedOutput[$k] === $part) {
-                $fileParts []= $part;                
+                $fileParts []= $part;
             } else {
                 break;
             }
         }
-        $this->file = $fileParts ? implode('/', array_reverse($fileParts)) : basename($output);
+        $this->file = $fileParts ? \implode('/', \array_reverse($fileParts)) : \basename($output);
         $this->inputFile = $file;
         $this->outputFile = $output;
         [$it, $result] = $this->traverseAstInternal($ast, $reducedQueue);
