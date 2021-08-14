@@ -3,6 +3,7 @@
 namespace Phabel;
 
 use Amp\Promise;
+use Phabel\Plugin\ClassStoragePlugin;
 use Phabel\PluginGraph\Graph;
 use PhpParser\Node;
 use PhpParser\Parser;
@@ -49,6 +50,10 @@ class Traverser
      * Current file.
      */
     private string $file = '';
+    /**
+     * Current input file.
+     */
+    private string $inputFile = '';
     /**
      * Current output file.
      */
@@ -127,10 +132,9 @@ class Traverser
      */
     public static function run(array $plugins, string $input, string $output, string $coverage = ''): array
     {
-        [$classStorage, $packages] = self::runInternal($plugins, $input, $output, $coverage);
-        if ($classStorage) {
-            self::run($classStorage->finish(), $output, $output, $coverage);
-        }
+        do {
+            [$classStorage, $packages] = self::runInternal($plugins, $input, $output, $coverage);
+        } while ($classStorage && $plugins = $classStorage->finish());
         return $packages;
     }
     /**
@@ -385,7 +389,18 @@ class Traverser
             throw new Exception($message, (int) $e->getCode(), $e, $e->getFile(), $e->getLine());
         }
 
-        $this->file = $file;
+        $fileParts = [];
+        $explodedInput = array_reverse(explode('/', str_replace('\\', '/', $file)));
+        $explodedOutput = array_reverse(explode('/', str_replace('\\', '/', $output)));
+        foreach ($explodedInput as $k => $part) {
+            if ($explodedOutput[$k] === $part) {
+                $fileParts []= $part;                
+            } else {
+                break;
+            }
+        }
+        $this->file = $fileParts ? implode('/', array_reverse($fileParts)) : basename($output);
+        $this->inputFile = $file;
         $this->outputFile = $output;
         [$it, $result] = $this->traverseAstInternal($ast, $reducedQueue);
         \file_put_contents($output, $result);
@@ -406,6 +421,7 @@ class Traverser
     public function traverseAst(Node &$node, SplQueue $pluginQueue = null, bool $allowMulti = true): int
     {
         $this->file = '';
+        $this->inputFile = '';
         $this->outputFile = '';
         $n = new RootNode([&$node]);
         return $this->traverseAstInternal($n, $pluginQueue, $allowMulti)[0] ?? 0;
@@ -435,6 +451,7 @@ class Traverser
                 foreach ($pluginQueue ?? $this->packageQueue ?? $this->queue as $queue) {
                     $context = new Context;
                     $context->setFile($this->file);
+                    $context->setInputFile($this->inputFile);
                     $context->setOutputFile($this->outputFile);
                     $context->push($node);
                     $this->traverseNode($node, $queue, $context);

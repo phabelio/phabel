@@ -27,12 +27,6 @@ final class ClassStorage
     private array $traits = [];
 
     /**
-     * Root classes.
-     *
-     * @var array<class-string, Storage>
-     */
-    private array $rootClasses = [];
-    /**
      * Constructor.
      */
     public function __construct(ClassStoragePlugin $plugin)
@@ -60,14 +54,6 @@ final class ClassStorage
                 $this->classes[$name][$file] = $class;
             }
         }
-
-        foreach ($this->classes as $name => $fileClasses) {
-            foreach ($fileClasses as $file => $class) {
-                if (!$class->getExtends() && !$class->getExtendedBy()) {
-                    $this->rootClasses[$name] = $class;
-                }
-            }
-        }
     }
 
     /**
@@ -80,6 +66,12 @@ final class ClassStorage
      */
     public function getClass(string $file, string $name): Storage
     {
+        if (!isset($this->classes[$name][$file])) {
+            foreach ($this->classes as $n => $uwu) {
+                var_dump($n, array_keys($uwu));
+            }
+            var_dump($file, $name);
+        }
         return $this->classes[$name][$file] ?? $this->traits[$name][$file];
     }
     /**
@@ -102,22 +94,11 @@ final class ClassStorage
     public function getClasses(): \Generator
     {
         foreach ($this->classes as $class => $classes) {
-            foreach ($classes as $file => $storage) {
+            foreach ($classes as $_ => $storage) {
                 yield $class => $storage;
             }
         }
     }
-
-    /**
-     * Get root classes.
-     *
-     * @return array<class-string, Storage>
-     */
-    public function getRootClasses(): array
-    {
-        return $this->rootClasses;
-    }
-
 
     private static function typeArray(null|Identifier|Name|NullableType|UnionType $type): array
     {

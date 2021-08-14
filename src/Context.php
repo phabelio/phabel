@@ -76,6 +76,10 @@ class Context
      */
     private string $file;
     /**
+     * Current input file.
+     */
+    private string $inputFile;
+    /**
      * Current output file.
      */
     private string $outputFile;
@@ -418,7 +422,7 @@ class Context
     }
 
     /**
-     * Get current file.
+     * Get relative path of current file.
      *
      * @return string
      */
@@ -428,7 +432,7 @@ class Context
     }
 
     /**
-     * Set current file.
+     * Set relative path of current file.
      *
      * @param string $file Current file
      *
@@ -442,7 +446,7 @@ class Context
     }
 
     /**
-     * Get current output file.
+     * Get absolute path of current output file.
      *
      * @return string
      */
@@ -452,7 +456,30 @@ class Context
     }
 
     /**
-     * Set current output file.
+     * Set absolute path of current input file.
+     *
+     * @param string $inputFile Current input file.
+     *
+     * @return self
+     */
+    public function setInputFile(string $inputFile): self
+    {
+        $this->inputFile = $inputFile;
+
+        return $this;
+    }
+    /**
+     * Get absolute path of current input file.
+     *
+     * @return string
+     */
+    public function getInputFile(): string
+    {
+        return $this->inputFile;
+    }
+
+    /**
+     * Set absolute path of current output file.
      *
      * @param string $outputFile Current output file.
      *
