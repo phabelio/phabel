@@ -102,11 +102,6 @@ class Transformer extends EventHandler
      */
     public function log(string $text, int $verbosity = IOInterface::NORMAL, bool $newline = true): void
     {
-        static $printed = false;
-        if (!$printed) {
-            $printed = true;
-            $this->log(self::PHABEL);
-        }
         $blue = $this->outputFormatter->format("<phabel>$text</phabel>");
         $this->io->writeError($blue, $newline, $verbosity);
     }
@@ -143,7 +138,7 @@ class Transformer extends EventHandler
         }
         if (!$havePhabel) {
             if ($target === Php::TARGET_IGNORE) {
-                $this->io->debug("Skipping ".$package->getName()."=$newName");
+                $this->log("Skipping ".$package->getName()."=$newName", IOInterface::VERY_VERBOSE);
                 return;
             }
             $myTarget = $target;
@@ -152,7 +147,7 @@ class Transformer extends EventHandler
             $myTarget = \min($myTarget, $target);
         }
 
-        $this->io->debug("Applying ".$package->getName()."=$newName");
+        $this->log("Applying ".$package->getName()."=$newName", IOInterface::VERY_VERBOSE);
 
         $this->processed = true;
         $this->processedRequires = $this->requires;
@@ -335,6 +330,12 @@ class Transformer extends EventHandler
                 \gc_disable();
             }
             return false;
+        }
+
+        static $printed = false;
+        if (!$printed) {
+            $printed = true;
+            $this->log(self::PHABEL);
         }
 
         $traverser
