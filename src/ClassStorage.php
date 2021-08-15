@@ -27,7 +27,7 @@ final class ClassStorage
     private array $traits = [];
 
     /**
-     * Files
+     * Files.
      *
      * @var array<string, true>
      */
@@ -66,7 +66,7 @@ final class ClassStorage
     }
 
     /**
-     * Whether we should process this file
+     * Whether we should process this file.
      *
      * @param string $file File to process
      * @return boolean

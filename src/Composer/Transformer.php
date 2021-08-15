@@ -107,6 +107,20 @@ class Transformer extends EventHandler
     }
 
     /**
+     * Print banner.
+     *
+     * @return void
+     */
+    public function banner(): void
+    {
+        static $printed = false;
+        if (!$printed) {
+            $printed = true;
+            $this->log(self::PHABEL);
+        }
+    }
+
+    /**
      * Prepare package for phabel tree injection.
      *
      * @param PackageInterface $package Package
@@ -332,11 +346,7 @@ class Transformer extends EventHandler
             return false;
         }
 
-        static $printed = false;
-        if (!$printed) {
-            $printed = true;
-            $this->log(self::PHABEL);
-        }
+        $this->banner();
 
         $traverser
             ->setInput('vendor')

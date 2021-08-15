@@ -5,7 +5,6 @@ namespace Phabel\PluginGraph;
 use Phabel\Exception;
 use Phabel\Plugin\ClassStoragePlugin;
 use Phabel\PluginInterface;
-use RuntimeException;
 use SplQueue;
 
 /**
@@ -56,14 +55,13 @@ final class ResolvedGraph
                             $this->classStorage->getConfigArray(),
                             $plugin->getConfigArray()
                         );
-                        if (count($config) !== 1) {
+                        if (\count($config) !== 1) {
                             throw new Exception('Could not merge class storage config!');
                         }
                         $this->classStorage->setConfigArray($config[0]);
                         continue;
-                    } else {
-                        $this->classStorage = $plugin;
                     }
+                    $this->classStorage = $plugin;
                 }
                 $newQueue->enqueue($plugin);
             }

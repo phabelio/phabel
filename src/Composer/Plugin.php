@@ -35,7 +35,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      */
     public function activate(Composer $composer, IOInterface $io): void
     {
-        if (file_exists('composer.lock')) {
+        if (\file_exists('composer.lock')) {
             $this->lock = \json_decode(\file_get_contents('composer.lock'), true);
         }
 
@@ -110,8 +110,10 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     private function run(Event $event, bool $isUpdate): void
     {
         $lock = \json_decode(\file_get_contents('composer.lock'), true);
-        if ($lock !== $this->lock && !$this->transformer->transform($lock['packages'] ?? [])
-        ) {
+        if ($lock === $this->lock) {
+            $this->transformer->banner();
+            $this->transformer->log("No changes detected, skipping transpilation.\n");
+        } elseif (!$this->transformer->transform($lock['packages'] ?? [])) {
             \register_shutdown_function(function () use ($isUpdate) {
                 /** @var Application */
                 $application = ($GLOBALS['application'] ?? null) instanceof Application ? $GLOBALS['application'] : new Application;

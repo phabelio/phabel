@@ -2,7 +2,6 @@
 
 namespace Phabel;
 
-use Phabel\Plugin\ClassStoragePlugin;
 use Phabel\PluginGraph\Graph;
 use Phabel\PluginGraph\ResolvedGraph;
 use PhpParser\Node;

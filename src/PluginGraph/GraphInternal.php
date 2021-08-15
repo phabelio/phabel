@@ -140,7 +140,7 @@ class GraphInternal
         foreach ($this->flatten() as $queue) {
             $cur = [];
             foreach ($queue as $plugin) {
-                $cur[] = get_class($plugin); //[\get_class($plugin), $plugin->getConfigArray()];
+                $cur[] = \get_class($plugin); //[\get_class($plugin), $plugin->getConfigArray()];
             }
             $res []= $cur;
         }
