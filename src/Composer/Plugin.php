@@ -24,7 +24,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     private string $toRequire = '';
     /** @psalm-suppress MissingConstructor */
     private Transformer $transformer;
-    private ?string $contentHash = null;
+    private ?array $lock = null;
     /**
      * Apply plugin modifications to Composer.
      *
@@ -36,7 +36,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     public function activate(Composer $composer, IOInterface $io): void
     {
         if (file_exists('composer.lock')) {
-            $this->contentHash = \json_decode(\file_get_contents('composer.lock'), true)['content-hash'] ?? null;
+            $this->lock = \json_decode(\file_get_contents('composer.lock'), true);
         }
 
         $rootPackage = $composer->getPackage();
@@ -110,8 +110,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     private function run(Event $event, bool $isUpdate): void
     {
         $lock = \json_decode(\file_get_contents('composer.lock'), true);
-        if ((!isset($lock['content-hash']) || $lock['content-hash'] !== $this->contentHash)
-            && !$this->transformer->transform($lock['packages'] ?? [])
+        if ($lock !== $this->lock && !$this->transformer->transform($lock['packages'] ?? [])
         ) {
             \register_shutdown_function(function () use ($isUpdate) {
                 /** @var Application */
