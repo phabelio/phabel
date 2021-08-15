@@ -59,6 +59,10 @@ class Transformer extends EventHandler
      */
     private bool $processed = false;
     /**
+     * Whether a progress bar should be shown.
+     */
+    private bool $doProgress = true;
+    /**
      * Instance.
      */
     private static self $instance;
@@ -360,32 +364,33 @@ class Transformer extends EventHandler
     }
 
     private ?ProgressBar $progress = null;
-    private bool $started = false;
+    private int $count = 0;
 
-    public function onStart(): void
-    {
-        if (!$this->io instanceof ConsoleIO) {
-            $this->log("Transpilation in progress... ", IOInterface::NORMAL);
-        }
-    }
     public function onBeginDirectoryTraversal(int $total): void
     {
-        if ($this->io instanceof ConsoleIO && !$this->progress) {
+        if ($this->doProgress
+            && $this->io instanceof ConsoleIO
+            && !\getenv('CI')
+            && !$this->io->isDebug()
+            && !$this->progress
+        ) {
             $this->progress = $this->io->getProgressBar($total);
             $this->progress->setFormat($this->outputFormatter->format('<phabel>%message% <bold>%percent:3s%%</bold></phabel> (%current%/%max%)'));
         }
-        if (!$this->started) {
-            $this->started = true;
-            $this->log("Starting directory iteration...", IOInterface::VERBOSE);
-            $this->progress?->setMessage('Transpilation in progress...');
+        if (!$this->count) {
+            $message = 'Transpilation in progress...';
         } else {
-            if ($this->io instanceof ConsoleIO) {
-                $this->progress?->setMessage('Applying secondary transforms...');
-            } else {
-                $this->log("Applying secondary transforms... ", IOInterface::NORMAL);
-            }
+            $secondary = $this->count === 1 ? 'secondary' : 'further';
+            $message = "Applying $secondary transforms...";
         }
-        $this->progress?->start();
+        $this->count++;
+        if ($this->progress) {
+            $this->progress->setMessage($message);
+            $this->progress->clear();
+            $this->progress->start();
+        } else {
+            $this->log($message, IOInterface::VERBOSE);
+        }
     }
     public function onEndAstTraversal(string $file, int $iterations): void
     {

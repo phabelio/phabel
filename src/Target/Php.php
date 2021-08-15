@@ -38,6 +38,19 @@ class Php extends Plugin
      */
     const TARGET_IGNORE = 1000;
     /**
+     * Polyfill versions
+     */
+    private const POLYFILL_VERSIONS = [
+        'symfony/polyfill-php56' => '^1.19',
+        'symfony/polyfill-php70' => '^1.19',
+        'symfony/polyfill-php71' => '^1.19',
+        'symfony/polyfill-php72' => '^1.23',
+        'symfony/polyfill-php73' => '^1.23',
+        'symfony/polyfill-php74' => '^1.23',
+        'symfony/polyfill-php80' => '^1.23',
+        'symfony/polyfill-php81' => '^1.23',
+    ];
+    /**
      * Normalize target version string.
      *
      * @param string $target
@@ -83,10 +96,13 @@ class Php extends Plugin
     }
     public function getComposerRequires(): array
     {
-        return \array_fill_keys(
-            \array_map(fn (int $version): string => "symfony/polyfill-php$version", self::getRange((int) $this->getConfig('target', self::DEFAULT_TARGET))),
-            '*'
-        );
+        $res = [];
+        foreach (self::getRange((int) $this->getConfig('target', self::DEFAULT_TARGET)) as $version) {
+            $version = "symfony/polyfill-php$version";
+            $res[$version] = self::POLYFILL_VERSIONS[$version];
+        }
+        var_dump($res);
+        return $res;
     }
     public static function previous(array $config): array
     {

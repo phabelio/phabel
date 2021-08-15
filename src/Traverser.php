@@ -289,11 +289,24 @@ class Traverser
             }
         );
 
+        $packages = [];
+
         $this->eventHandler?->onStart();
-        do {
-            [$classStorage, $packages] = $this->runInternal();
+        while (true) {
+            [$classStorage, $packagesPart] = $this->runInternal();
+            $packages += $packagesPart;
+            if (!$classStorage) {
+                break;
+            }
+            $plugins = $classStorage->finish();
+            unset($classStorage);
+            if (!$plugins) {
+                break;
+            }
+            var_dump(array_keys($plugins));
             $this->input = $this->output;
-        } while ($classStorage && ($plugins = $classStorage->finish()) && $this->setPlugins($plugins));
+            $this->setPlugins($plugins);
+        }
         $this->eventHandler?->onEnd();
 
         \restore_error_handler();
@@ -310,6 +323,8 @@ class Traverser
     public function runInternal(): array
     {
         $_ = self::startCoverage($this->coverage);
+        $this->packageQueue = null;
+
         if (\is_file($this->input)) {
             $it = $this->traverse(\basename($this->input), \realpath($this->input), \realpath($this->output) ?: $this->output);
             return [$this->graph->getClassStorage(), $this->graph->getPackages()];
@@ -338,6 +353,8 @@ class Traverser
                     $_ = self::startCoverage($this->coverage);
                     if ($this->composerPackageName) {
                         $this->setPackage(($this->composerPackageName)($rel));
+                    } else {
+                        $this->packageQueue = null;
                     }
                     $it = $this->traverse($rel, $file->getRealPath(), $targetPath);
                 } elseif (\realpath($targetPath) !== $file->getRealPath()) {
@@ -473,7 +490,7 @@ class Traverser
     private function traverseAstInternal(RootNode &$node, SplQueue $pluginQueue = null, bool $allowMulti = true): ?array
     {
         $it = 0;
-        $result = '';
+        $result = $this->printer->prettyPrintFile($node->stmts);
         do {
             $context = null;
             try {
