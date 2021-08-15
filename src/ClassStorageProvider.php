@@ -38,7 +38,7 @@ abstract class ClassStorageProvider extends Plugin implements JsonSerializable
     {
         return true;
     }
-    
+
     /**
      * Process class graph.
      *

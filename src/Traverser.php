@@ -62,7 +62,7 @@ class Traverser
      */
     private string $output = '';
     /**
-     * Callable to extract package name from path
+     * Callable to extract package name from path.
      *
      * @var (callable(string): string)|null
      */
@@ -198,7 +198,7 @@ class Traverser
     }
 
     /**
-     * Set callable to extract composer package name from path
+     * Set callable to extract composer package name from path.
      *
      * @param callable $composer
      *
@@ -311,7 +311,7 @@ class Traverser
     {
         $_ = self::startCoverage($this->coverage);
         if (\is_file($this->input)) {
-            $it = $this->traverse(basename($this->input), \realpath($this->input), \realpath($this->output) ?: $this->output);
+            $it = $this->traverse(\basename($this->input), \realpath($this->input), \realpath($this->output) ?: $this->output);
             return [$this->graph->getClassStorage(), $this->graph->getPackages()];
         }
 

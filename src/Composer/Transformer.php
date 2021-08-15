@@ -18,7 +18,6 @@ use Phabel\PluginGraph\Graph;
 use Phabel\Target\Php;
 use Phabel\Traverser;
 use ReflectionClass;
-use SebastianBergmann\Environment\Console;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -273,8 +272,8 @@ class Transformer extends EventHandler
      */
     public function transform(array $packages): bool
     {
-        $enabled = gc_enabled();
-        gc_enable();
+        $enabled = \gc_enabled();
+        \gc_enable();
 
         $this->log("Creating plugin graph...", IOInterface::VERBOSE);
         $byName = [];
@@ -328,8 +327,8 @@ class Transformer extends EventHandler
         if (!$this->processedRequires()) {
             if (!$enabled) {
                 unset($traverser);
-                while (gc_collect_cycles());
-                gc_disable();
+                while (\gc_collect_cycles());
+                \gc_disable();
             }
             return false;
         }
@@ -338,15 +337,15 @@ class Transformer extends EventHandler
             ->setInput('vendor')
             ->setOutput('vendor')
             ->setComposer(function (string $rel): string {
-                [$package] = $this->extractTarget(str_replace('\\', '/', $rel));
-                return implode('/', array_slice(explode('/', $package), 0, 2));
+                [$package] = $this->extractTarget(\str_replace('\\', '/', $rel));
+                return \implode('/', \array_slice(\explode('/', $package), 0, 2));
             })
             ->run();
 
         if (!$enabled) {
             unset($traverser);
-            while (gc_collect_cycles());
-            gc_disable();
+            while (\gc_collect_cycles());
+            \gc_disable();
         }
         return true;
     }
