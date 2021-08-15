@@ -2,6 +2,7 @@
 
 namespace Phabel\Composer;
 
+use Composer\IO\ConsoleIO;
 use Composer\IO\IOInterface;
 use Composer\Package\AliasPackage;
 use Composer\Package\BasePackage;
@@ -12,19 +13,24 @@ use Composer\Repository\PlatformRepository;
 use Composer\Semver\Constraint\Constraint as ComposerConstraint;
 
 use Composer\Semver\VersionParser;
+use Phabel\EventHandler;
 use Phabel\PluginGraph\Graph;
 use Phabel\Target\Php;
 use Phabel\Traverser;
 use ReflectionClass;
+use SebastianBergmann\Environment\Console;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
+use Symfony\Component\Console\Helper\ProgressBar;
 
-class Transformer
+class Transformer extends EventHandler
 {
     const PHABEL = "
 <bold>＊＊＊＊＊＊＊＊＊</>
 <bold>＊</bold><phabel> Ｐｈａｂｅｌ </><bold>＊</bold>
 <bold>＊＊＊＊＊＊＊＊＊</>
+
+<phabel>PHP transpiler - Write and deploy modern PHP 8 code, today: https://phabel.io</phabel>
 ";
     const HEADER = 'phabel/transpiler';
     const SEPARATOR = '/';
@@ -87,13 +93,19 @@ class Transformer
      * Log text.
      *
      * @param string $text
-     * @param bool $format
+     * @param int $verbosity
+     * @param bool $newline
      * @return void
      */
-    public function log(string $text, $format = true): void
+    public function log(string $text, int $verbosity = IOInterface::NORMAL, bool $newline = true): void
     {
-        $blue = $this->outputFormatter->format($format ? "<phabel>$text</phabel>" : $text);
-        $this->io->writeError($blue);
+        static $printed = false;
+        if (!$printed) {
+            $printed = true;
+            $this->log(self::PHABEL);
+        }
+        $blue = $this->outputFormatter->format("<phabel>$text</phabel>");
+        $this->io->writeError($blue, $newline, $verbosity);
     }
 
     /**
@@ -261,13 +273,10 @@ class Transformer
      */
     public function transform(array $packages): bool
     {
-        static $printed = false;
-        if (!$printed) {
-            $printed = true;
-            $this->log(self::PHABEL, false);
-        }
+        $enabled = gc_enabled();
+        gc_enable();
 
-        $this->log("Creating plugin graph...");
+        $this->log("Creating plugin graph...", IOInterface::VERBOSE);
         $byName = [];
         foreach ($packages as $package) {
             [$name, $target] = $this->extractTarget($package['name']);
@@ -311,29 +320,88 @@ class Transformer
             }
         }
 
-        $graph = $graph->flatten();
-        $traverser = new Traverser($graph->getPlugins());
+        $traverser = new Traverser($this);
+        $traverser->setPluginGraph($graph);
+        unset($graph);
 
-        $this->requires = $graph->getPackages();
+        $this->requires = $traverser->getGraph()->getPackages();
         if (!$this->processedRequires()) {
+            if (!$enabled) {
+                unset($traverser);
+                while (gc_collect_cycles());
+                gc_disable();
+            }
             return false;
         }
 
-        $this->log("Applying transforms...");
-        foreach ($byName as $name => $package) {
-            $traverser->setPackage($name);
+        $traverser
+            ->setInput('vendor')
+            ->setOutput('vendor')
+            ->setComposer(function (string $rel): string {
+                [$package] = $this->extractTarget(str_replace('\\', '/', $rel));
+                return implode('/', array_slice(explode('/', $package), 0, 2));
+            })
+            ->run();
 
-            $it = new \RecursiveDirectoryIterator("vendor/".$package['name']);
-            foreach (new \RecursiveIteratorIterator($it) as $file) {
-                if ($file->isFile() && $file->getExtension() == 'php') {
-                    $this->io->debug("Transforming ".$file->getRealPath());
-                    $traverser->traverse($file->getRealPath(), $file->getRealPath());
-                }
+        if (!$enabled) {
+            unset($traverser);
+            while (gc_collect_cycles());
+            gc_disable();
+        }
+        return true;
+    }
+
+    public function onBeginPluginGraphResolution(): void
+    {
+        $this->log("Plugin graph resolution in progress...", IOInterface::VERY_VERBOSE);
+    }
+    public function onEndPluginGraphResolution(): void
+    {
+        $this->log("Finished plugin graph resolution!", IOInterface::VERY_VERBOSE);
+    }
+
+    private ?ProgressBar $progress = null;
+    private bool $started = false;
+
+    public function onStart(): void
+    {
+        if (!$this->io instanceof ConsoleIO) {
+            $this->log("Transpilation in progress... ", IOInterface::NORMAL);
+        }
+    }
+    public function onBeginDirectoryTraversal(int $total): void
+    {
+        if ($this->io instanceof ConsoleIO && !$this->progress) {
+            $this->progress = $this->io->getProgressBar($total);
+            $this->progress->setFormat($this->outputFormatter->format('<phabel>%message% <bold>%percent:3s%%</bold></phabel> (%current%/%max%)'));
+        }
+        if (!$this->started) {
+            $this->started = true;
+            $this->log("Starting directory iteration...", IOInterface::VERBOSE);
+            $this->progress?->setMessage('Transpilation in progress...');
+        } else {
+            if ($this->io instanceof ConsoleIO) {
+                $this->progress?->setMessage('Applying secondary transforms...');
+            } else {
+                $this->log("Applying secondary transforms... ", IOInterface::NORMAL);
             }
         }
+        $this->progress?->start();
+    }
+    public function onEndAstTraversal(string $file, int $iterations): void
+    {
+        $this->progress?->advance();
+        $this->log("Transpiled $file in $iterations iterations!", IOInterface::VERBOSE);
+    }
+    public function onEndDirectoryTraversal(): void
+    {
+        $this->progress?->finish();
+        $this->log("");
+    }
+    public function onEnd(): void
+    {
         $this->log("Done!");
-
-        return true;
+        $this->started = false;
     }
 
     /**

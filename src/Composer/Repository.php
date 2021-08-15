@@ -129,7 +129,7 @@ trait Repository
     }
 
     /**
-     * Set the value of phabelTransformer.
+     * Set the Transformer.
      *
      * @param Transformer $phabelTransformer
      *

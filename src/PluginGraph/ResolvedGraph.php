@@ -3,6 +3,7 @@
 namespace Phabel\PluginGraph;
 
 use Phabel\Plugin\ClassStoragePlugin;
+use Phabel\PluginInterface;
 use RuntimeException;
 use SplQueue;
 

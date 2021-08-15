@@ -2,9 +2,9 @@
 
 namespace Phabel;
 
-use Amp\Promise;
 use Phabel\Plugin\ClassStoragePlugin;
 use Phabel\PluginGraph\Graph;
+use Phabel\PluginGraph\ResolvedGraph;
 use PhpParser\Node;
 use PhpParser\Parser;
 use PhpParser\ParserFactory;
@@ -15,9 +15,6 @@ use SebastianBergmann\CodeCoverage\Filter;
 use SebastianBergmann\CodeCoverage\Report\PHP;
 use SplQueue;
 
-use function Amp\call;
-use function Amp\Parallel\Worker\enqueueCallable;
-
 /**
  * AST traverser.
  *
@@ -27,11 +24,11 @@ use function Amp\Parallel\Worker\enqueueCallable;
 class Traverser
 {
     /**
-     * Plugin queue.
+     * Resolved plugin graph.
      *
-     * @var SplQueue<SplQueue<PluginInterface>>
+     * @var ResolvedGraph
      */
-    private SplQueue $queue;
+    private ResolvedGraph $graph;
     /**
      * Parser instance.
      */
@@ -47,6 +44,36 @@ class Traverser
      */
     private ?SplQueue $packageQueue = null;
     /**
+     * Event handler.
+     *
+     * @var EventHandlerInterface|null
+     */
+    private ?EventHandlerInterface $eventHandler = null;
+    /**
+     * Input.
+     *
+     * @var string
+     */
+    private string $input = '';
+    /**
+     * Output.
+     *
+     * @var string
+     */
+    private string $output = '';
+    /**
+     * Callable to extract package name from path
+     *
+     * @var (callable(string): string)|null
+     */
+    private $composerPackageName = null;
+    /**
+     * Coverage path.
+     *
+     * @var string
+     */
+    private string $coverage = '';
+    /**
      * Current file.
      */
     private string $file = '';
@@ -58,6 +85,7 @@ class Traverser
      * Current output file.
      */
     private string $outputFile = '';
+
     /**
      * Generate traverser from basic plugin instances.
      *
@@ -73,7 +101,126 @@ class Traverser
         }
         $final = new SplQueue;
         $final->enqueue($queue);
-        return new self($final);
+        $res = new self();
+        $res->graph = new ResolvedGraph($final);
+        return $res;
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param ?EventHandlerInterface $EventHandlerInterface Event handler
+     */
+    public function __construct(?EventHandlerInterface $eventHandler = null)
+    {
+        $this->parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
+        $this->printer = new Standard();
+        $this->eventHandler = $eventHandler;
+    }
+
+    /**
+     * Set plugin array.
+     *
+     * @param array $plugins
+     *
+     * @psalm-param array<class-string<PluginInterface>, array> $plugins
+     *
+     * @return self
+     */
+    public function setPlugins(array $plugins): self
+    {
+        $this->eventHandler?->onBeginPluginGraphResolution();
+
+        $graph = new Graph;
+        foreach ($plugins as $plugin => $config) {
+            $graph->addPlugin($plugin, $config, $graph->getPackageContext());
+        }
+
+        $this->graph = $graph->flatten();
+
+        $this->eventHandler?->onEndPluginGraphResolution();
+
+        return $this;
+    }
+    /**
+     * Set plugin graph.
+     *
+     * @param Graph $graph
+     *
+     * @return self
+     */
+    public function setPluginGraph(Graph $graph): self
+    {
+        $this->eventHandler?->onBeginPluginGraphResolution();
+
+        $this->graph = $graph->flatten();
+
+        $this->eventHandler?->onEndPluginGraphResolution();
+
+        return $this;
+    }
+
+    /**
+     * Get resolved plugin graph.
+     *
+     * @return ResolvedGraph
+     */
+    public function getGraph(): ResolvedGraph
+    {
+        return $this->graph;
+    }
+
+    /**
+     * Set input path.
+     *
+     * @param string $input
+     * @return self
+     */
+    public function setInput(string $input): self
+    {
+        if (!\file_exists($input)) {
+            throw new \RuntimeException("File {$input} does not exist!");
+        }
+
+        $this->input = $input;
+        return $this;
+    }
+    /**
+     * Set output path.
+     *
+     * @param string $output
+     * @return self
+     */
+    public function setOutput(string $output): self
+    {
+        $this->output = $output;
+        return $this;
+    }
+
+    /**
+     * Set callable to extract composer package name from path
+     *
+     * @param callable $composer
+     *
+     * @return self
+     */
+    public function setComposer(callable $composer): self
+    {
+        $this->composerPackageName = $composer;
+
+        return $this;
+    }
+
+    /**
+     * Set coverage path.
+     *
+     * @param string $coverage
+     * @return self
+     */
+    public function setCoverage(string $coverage): self
+    {
+        $this->coverage = $coverage;
+        return $this;
     }
     /**
      * Start code coverage.
@@ -130,28 +277,8 @@ class Traverser
      *
      * @return array<string, string>
      */
-    public static function run(array $plugins, string $input, string $output, string $coverage = ''): array
+    public function run(): array
     {
-        do {
-            [$classStorage, $packages] = self::runInternal($plugins, $input, $output, $coverage);
-        } while ($classStorage && $plugins = $classStorage->finish());
-        return $packages;
-    }
-    /**
-     * Run phabel.
-     *
-     * @param array $plugins   Plugins
-     * @param string $input    Input file/directory
-     * @param string $output   Output file/directory
-     * @param string $coverage Coverage path
-     *
-     * @psalm-param array<class-string<PluginInterface>, array> $plugins
-     *
-     * @return array{0: ?ClassStoragePlugin, 1: array<string, string>}
-     */
-    private static function runInternal(array $plugins, string $input, string $output, string $coverage = ''): array
-    {
-        $_ = self::startCoverage($coverage);
         \set_error_handler(
             function (int $errno = 0, string $errstr = '', string $errfile = '', int $errline = -1): bool {
                 // If error is suppressed with @, don't throw an exception
@@ -162,161 +289,67 @@ class Traverser
             }
         );
 
-        $graph = new Graph;
-        foreach ($plugins as $plugin => $config) {
-            $graph->addPlugin($plugin, $config, $graph->getPackageContext());
+        $this->eventHandler?->onStart();
+        do {
+            [$classStorage, $packages] = $this->runInternal();
+            $this->input = $this->output;
+        } while ($classStorage && ($plugins = $classStorage->finish()) && $this->setPlugins($plugins));
+        $this->eventHandler?->onEnd();
+
+        \restore_error_handler();
+
+        return $packages;
+    }
+    /**
+     * Run phabel (internal function).
+     *
+     * @internal
+     *
+     * @return array{0: ?ClassStoragePlugin, 1: array<string, string>}
+     */
+    public function runInternal(): array
+    {
+        $_ = self::startCoverage($this->coverage);
+        if (\is_file($this->input)) {
+            $it = $this->traverse(basename($this->input), \realpath($this->input), \realpath($this->output) ?: $this->output);
+            return [$this->graph->getClassStorage(), $this->graph->getPackages()];
         }
 
-        $graph = $graph->flatten();
-        $p = new Traverser($graph->getPlugins());
-
-        if (!\file_exists($input)) {
-            throw new \RuntimeException("File $input does not exist!");
+        if (!\file_exists($this->output)) {
+            \mkdir($this->output, 0777, true);
         }
+        $this->output = \realpath($this->output);
 
-        if (\is_file($input)) {
-            $it = $p->traverse(\realpath($input), \realpath($output) ?: $output);
-            echo("Transformed ".$input." in $it iterations".PHP_EOL);
-            return [$graph->getClassStorage(), $graph->getPackages()];
-        }
-
-        if (!\file_exists($output)) {
-            \mkdir($output, 0777, true);
-        }
-        $output = \realpath($output);
-
-        $it = new \RecursiveDirectoryIterator($input, \RecursiveDirectoryIterator::SKIP_DOTS);
+        $it = new \RecursiveDirectoryIterator($this->input, \RecursiveDirectoryIterator::SKIP_DOTS);
         $ri = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::SELF_FIRST);
+        if ($this->eventHandler) {
+            $this->eventHandler->onBeginDirectoryTraversal(\iterator_count($ri));
+        }
         /** @var \SplFileInfo $file */
         foreach ($ri as $file) {
-            $targetPath = $output.DIRECTORY_SEPARATOR.$ri->getSubPathname();
+            $rel = $ri->getSubPathname();
+            $targetPath = $this->output.DIRECTORY_SEPARATOR.$rel;
             if ($file->isDir()) {
                 if (!\file_exists($targetPath)) {
                     \mkdir($targetPath, 0777, true);
                 }
             } elseif ($file->isFile()) {
                 if ($file->getExtension() == 'php') {
-                    $_ = self::startCoverage($coverage);
-                    $it = $p->traverse($file->getRealPath(), $targetPath);
-                    echo("Transformed ".$file->getRealPath()." in $it iterations".PHP_EOL);
+                    $_ = self::startCoverage($this->coverage);
+                    if ($this->composerPackageName) {
+                        $this->setPackage(($this->composerPackageName)($rel));
+                    }
+                    $it = $this->traverse($rel, $file->getRealPath(), $targetPath);
                 } elseif (\realpath($targetPath) !== $file->getRealPath()) {
                     \copy($file->getRealPath(), $targetPath);
                 }
             }
         }
+        $this->eventHandler?->onEndDirectoryTraversal();
 
-        return [$graph->getClassStorage(), $graph->getPackages()];
+        return [$this->graph->getClassStorage(), $this->graph->getPackages()];
     }
 
-    /**
-     * Run phabel.
-     *
-     * @param array $plugins Plugins
-     * @param string $input  Input file/directory
-     * @param string $output Output file/directory
-     * @param string $prefix Coverage prefix
-     * @return Promise<array>
-     */
-    public static function runAsync(array $plugins, string $input, string $output, string $prefix): Promise
-    {
-        if (!\interface_exists(Promise::class)) {
-            throw new Exception("amphp/parallel must be installed to parallelize transforms!");
-        }
-        return call(function () use ($plugins, $input, $output, $prefix) {
-            $result = [];
-
-            if (!\file_exists($output)) {
-                \mkdir($output, 0777, true);
-            }
-            $output = \realpath($output);
-
-            $count = 0;
-            $promises = [];
-            $classStorage = null;
-
-            $it = new \RecursiveDirectoryIterator($input, \RecursiveDirectoryIterator::SKIP_DOTS);
-            $ri = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::SELF_FIRST);
-            /** @var \SplFileInfo $file */
-            foreach ($ri as $file) {
-                $targetPath = $output.DIRECTORY_SEPARATOR.$ri->getSubPathname();
-                if ($file->isDir()) {
-                    if (!\file_exists($targetPath)) {
-                        \mkdir($targetPath, 0777, true);
-                    }
-                } elseif ($file->isFile()) {
-                    if ($file->getExtension() == 'php') {
-                        $promise = call(function () use ($plugins, $file, $targetPath, $prefix, $count, &$result, &$promises, &$classStorage) {
-                            $res = yield enqueueCallable(
-                                [self::class, 'runAsyncInternal'],
-                                $plugins,
-                                $file->getRealPath(),
-                                $targetPath,
-                                "$prefix$count.php"
-                            );
-                            if ($res instanceof ExceptionWrapper) {
-                                throw $res->getException();
-                            }
-                            [$classes, $result] = $res;
-                            if ($classStorage) {
-                                $classStorage->merge($classes);
-                            } elseif ($classes) {
-                                $classStorage = $classes;
-                            }
-                            unset($promises[$count]);
-                        });
-                        $promises[$count] = $promise;
-                        if (!($count++ % 10)) {
-                            yield $promise;
-                        }
-                    } elseif (\realpath($targetPath) !== $file->getRealPath()) {
-                        \copy($file->getRealPath(), $targetPath);
-                    }
-                }
-            }
-
-            yield $promises;
-
-            if ($classStorage) {
-                self::run($classStorage->finish(), $output, $output, $prefix);
-            }
-
-            return $result;
-        });
-    }
-
-    /**
-     * Run phabel.
-     *
-     * @param array $plugins   Plugins
-     * @param string $input    Input file/directory
-     * @param string $output   Output file/directory
-     * @param string $coverage Coverage path
-     *
-     * @psalm-param array<class-string<PluginInterface>, array> $plugins
-     *
-     * @return array<string, string>|ExceptionWrapper
-     */
-    public static function runAsyncInternal(array $plugins, string $input, string $output, string $coverage = '')
-    {
-        try {
-            return Traverser::runInternal($plugins, $input, $output, $coverage);
-        } catch (\Throwable $e) {
-            return new ExceptionWrapper($e);
-        }
-    }
-
-    /**
-     * AST traverser.
-     *
-     * @return SplQueue<SplQueue<PluginInterface>> $queue Plugin queue
-     */
-    public function __construct(SplQueue $queue = null)
-    {
-        /** @var SplQueue<SplQueue<PluginInterface>> */
-        $this->queue = $queue ?? new SplQueue;
-        $this->parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
-        $this->printer = new Standard();
-    }
     /**
      * Set package name.
      *
@@ -330,7 +363,7 @@ class Traverser
         $this->packageQueue = new SplQueue;
         /** @var SplQueue<PluginInterface> */
         $newQueue = new SplQueue;
-        foreach ($this->queue as $queue) {
+        foreach ($this->graph->getPlugins() as $queue) {
             if ($newQueue->count()) {
                 $this->packageQueue->enqueue($newQueue);
                 /** @var SplQueue<PluginInterface> */
@@ -350,18 +383,21 @@ class Traverser
     /**
      * Traverse AST of file.
      *
-     * @param string $file File
+     * @param string $file Relative path
+     * @param string $input Input file
      * @param string $output Output file
      *
      * @return int
      */
-    public function traverse(string $file, string $output): int
+    public function traverse(string $file, string $input, string $output): int
     {
+        $this->eventHandler?->onBeginAstTraversal($input);
+
         /** @var SplQueue<SplQueue<PluginInterface>> */
         $reducedQueue = new SplQueue;
         /** @var SplQueue<PluginInterface> */
         $newQueue = new SplQueue;
-        foreach ($this->packageQueue ?? $this->queue as $queue) {
+        foreach ($this->packageQueue ?? $this->graph->getPlugins() as $queue) {
             if ($newQueue->count()) {
                 $reducedQueue->enqueue($newQueue);
                 /** @var SplQueue<PluginInterface> */
@@ -369,7 +405,7 @@ class Traverser
             }
             /** @var Plugin */
             foreach ($queue as $plugin) {
-                if ($plugin->shouldRunFile($file)) {
+                if ($plugin->shouldRunFile($input)) {
                     $newQueue->enqueue($plugin);
                 }
             }
@@ -377,33 +413,26 @@ class Traverser
         if ($newQueue->count()) {
             $reducedQueue->enqueue($newQueue);
         } elseif (!$reducedQueue->count()) {
+            $this->eventHandler?->onEndAstTraversal($input, 0);
             return 0;
         }
 
         try {
-            $ast = new RootNode($this->parser->parse(\file_get_contents($file)) ?? []);
+            $ast = new RootNode($this->parser->parse(\file_get_contents($input)) ?? []);
         } catch (\Throwable $e) {
             $message = $e->getMessage();
             $message .= " while processing ";
-            $message .= $file;
+            $message .= $input;
             throw new Exception($message, (int) $e->getCode(), $e, $e->getFile(), $e->getLine());
         }
 
-        $fileParts = [];
-        $explodedInput = \array_reverse(\explode('/', \str_replace('\\', '/', $file)));
-        $explodedOutput = \array_reverse(\explode('/', \str_replace('\\', '/', $output)));
-        foreach ($explodedInput as $k => $part) {
-            if ($explodedOutput[$k] === $part) {
-                $fileParts []= $part;
-            } else {
-                break;
-            }
-        }
-        $this->file = $fileParts ? \implode('/', \array_reverse($fileParts)) : \basename($output);
-        $this->inputFile = $file;
+        $this->file = $file;
+        $this->inputFile = $input;
         $this->outputFile = $output;
         [$it, $result] = $this->traverseAstInternal($ast, $reducedQueue);
         \file_put_contents($output, $result);
+
+        $this->eventHandler?->onEndAstTraversal($input, $it);
 
         return $it;
     }
@@ -448,7 +477,7 @@ class Traverser
         do {
             $context = null;
             try {
-                foreach ($pluginQueue ?? $this->packageQueue ?? $this->queue as $queue) {
+                foreach ($pluginQueue ?? $this->packageQueue ?? $this->graph->getPlugins() as $queue) {
                     $context = new Context;
                     $context->setFile($this->file);
                     $context->setInputFile($this->inputFile);

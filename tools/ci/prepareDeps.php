@@ -13,7 +13,12 @@ foreach (Php::VERSIONS as $version) {
     }
 }
 
-$packages = Traverser::run([Php::class => ['target' => $version]], '.', '../phabelConverted', 'coverage/convertVendor.php');
+$packages = (new Traverser)
+    ->setPlugins([Php::class => ['target' => $version]])
+    ->setInput('.')
+    ->setOutput('../phabelConverted')
+    ->setCoverage('coverage/convertVendor.php')
+    ->run();
 
 `cp -a ../phabelConverted/vendor .`;
 

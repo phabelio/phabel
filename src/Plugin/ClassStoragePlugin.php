@@ -42,6 +42,29 @@ final class ClassStoragePlugin extends Plugin
     private array $finalPlugins = [];
 
     /**
+     * Check if plugin should run.
+     *
+     * @param string $package Package name
+     *
+     * @return boolean
+     */
+    public function shouldRun(string $package): bool
+    {
+        return true;
+    }
+    /**
+     * Check if plugin should run.
+     *
+     * @param string $file File name
+     *
+     * @return boolean
+     */
+    public function shouldRunFile(string $file): bool
+    {
+        return true;
+    }
+
+    /**
      * Set configuration array.
      *
      * @param array $config
