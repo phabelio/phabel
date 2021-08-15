@@ -112,7 +112,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         $lock = \json_decode(\file_get_contents('composer.lock'), true);
         if ($lock === $this->lock) {
             $this->transformer->banner();
-            $this->transformer->log("No changes detected, skipping transpilation.\n");
+            $this->transformer->log("No changes required, skipping transpilation.\n");
         } elseif (!$this->transformer->transform($lock['packages'] ?? [])) {
             \register_shutdown_function(function () use ($isUpdate) {
                 /** @var Application */
@@ -127,6 +127,10 @@ class Plugin implements PluginInterface, EventSubscriberInterface
                 }
             });
         }
+        register_shutdown_function(function () {
+            $json = json_decode(file_get_contents('composer.json'), true);
+            var_dump($json);
+        });
     }
 
 
