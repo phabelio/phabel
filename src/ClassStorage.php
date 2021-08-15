@@ -27,6 +27,13 @@ final class ClassStorage
     private array $traits = [];
 
     /**
+     * Files
+     *
+     * @var array<string, true>
+     */
+    private array $files = [];
+
+    /**
      * Constructor.
      */
     public function __construct(ClassStoragePlugin $plugin)
@@ -46,14 +53,27 @@ final class ClassStorage
             foreach ($fileTraits as $file => $trait) {
                 $trait = $trait->build();
                 $this->traits[$name][$file] = $trait;
+                $this->files[$file] = true;
             }
         }
         foreach ($plugin->classes as $name => $fileClasses) {
             foreach ($fileClasses as $file => $class) {
                 $class = $class->build();
                 $this->classes[$name][$file] = $class;
+                $this->files[$file] = true;
             }
         }
+    }
+
+    /**
+     * Whether we should process this file
+     *
+     * @param string $file File to process
+     * @return boolean
+     */
+    public function shouldProcess(string $file): bool
+    {
+        return isset($this->files[$file]);
     }
 
     /**

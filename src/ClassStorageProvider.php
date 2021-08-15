@@ -36,7 +36,7 @@ abstract class ClassStorageProvider extends Plugin implements JsonSerializable
      */
     public function shouldRunFile(string $file): bool
     {
-        return true;
+        return $this->getGlobalClassStorage()->shouldProcess($file);
     }
 
     /**

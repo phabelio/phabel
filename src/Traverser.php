@@ -293,8 +293,9 @@ class Traverser
 
         $this->eventHandler?->onStart();
         while (true) {
-            [$classStorage, $packagesPart] = $this->runInternal();
-            $packages += $packagesPart;
+            $this->runInternal();
+            $packages += $this->graph->getPackages();
+            $classStorage = $this->graph->getClassStorage();
             if (!$classStorage) {
                 break;
             }
@@ -303,7 +304,6 @@ class Traverser
             if (!$plugins) {
                 break;
             }
-            var_dump(array_keys($plugins));
             $this->input = $this->output;
             $this->setPlugins($plugins);
         }
@@ -317,17 +317,15 @@ class Traverser
      * Run phabel (internal function).
      *
      * @internal
-     *
-     * @return array{0: ?ClassStoragePlugin, 1: array<string, string>}
      */
-    public function runInternal(): array
+    public function runInternal(): void
     {
         $_ = self::startCoverage($this->coverage);
         $this->packageQueue = null;
 
         if (\is_file($this->input)) {
-            $it = $this->traverse(\basename($this->input), \realpath($this->input), \realpath($this->output) ?: $this->output);
-            return [$this->graph->getClassStorage(), $this->graph->getPackages()];
+            $this->traverse(\basename($this->input), \realpath($this->input), \realpath($this->output) ?: $this->output);
+            return;
         }
 
         if (!\file_exists($this->output)) {
@@ -363,8 +361,6 @@ class Traverser
             }
         }
         $this->eventHandler?->onEndDirectoryTraversal();
-
-        return [$this->graph->getClassStorage(), $this->graph->getPackages()];
     }
 
     /**

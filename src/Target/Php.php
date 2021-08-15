@@ -101,7 +101,6 @@ class Php extends Plugin
             $version = "symfony/polyfill-php$version";
             $res[$version] = self::POLYFILL_VERSIONS[$version];
         }
-        var_dump($res);
         return $res;
     }
     public static function previous(array $config): array

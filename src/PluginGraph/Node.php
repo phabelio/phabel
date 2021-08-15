@@ -2,6 +2,7 @@
 
 namespace Phabel\PluginGraph;
 
+use Phabel\Exception;
 use Phabel\PluginCache;
 use Phabel\PluginInterface;
 use SplObjectStorage;
@@ -20,7 +21,7 @@ class Node
      *
      * @var Plugins
      */
-    private Plugins $plugin;
+    public Plugins $plugin;
 
     /**
      * Original plugin name.
@@ -182,6 +183,9 @@ class Node
      */
     public function merge(self $other): Node
     {
+        if ($other->requires->count() || $other->extends->count()) {
+            throw new Exception('Cannot merge a node that requires other nodes!');
+        }
         $this->packageContext->merge($other->packageContext);
         $this->plugin->merge($other->plugin);
         foreach ($other->requiredBy as $that) {
@@ -195,24 +199,6 @@ class Node
         return $this;
     }
 
-    /**
-     * Flatten tree.
-     *
-     * @return SplQueue<SplQueue<PluginInterface>>
-     */
-    public function flatten(): SplQueue
-    {
-        /** @var SplQueue<PluginInterface> */
-        $initQueue = new SplQueue;
-
-        /** @var SplQueue<SplQueue<PluginInterface>> */
-        $queue = new SplQueue;
-        $queue->enqueue($initQueue);
-
-        $this->flattenInternal($queue);
-
-        return $queue;
-    }
     /**
      * Look for circular references, while merging package contexts.
      *
@@ -244,6 +230,26 @@ class Node
         return $this;
     }
     /**
+     * Flatten tree.
+     *
+     * @return SplQueue<SplQueue<PluginInterface>>
+     */
+    public function flatten(): SplQueue
+    {
+        /** @var SplQueue<PluginInterface> */
+        $initQueue = new SplQueue;
+
+        /** @var SplQueue<SplQueue<PluginInterface>> */
+        $queue = new SplQueue;
+        $queue->enqueue($initQueue);
+
+        while ($this->extendedBy->count() && $this->requiredBy->count()) {
+            $this->flattenInternal($queue);
+        }
+
+        return $queue;
+    }
+    /**
      * Internal flattening.
      *
      * @param SplQueue<SplQueue<PluginInterface>> $queueOfQueues Queue
@@ -259,11 +265,13 @@ class Node
         $extendedBy = new SplQueue;
         $prevNode = null;
         foreach ($this->extendedBy as $node) {
-            if (\count($node->requires) + \count($node->extends) === 1) {
+            $node->extends->detach($this);
+            if (\count($node->requires) + \count($node->extends) === 0) {
                 if ($prevNode instanceof self) {
-                    $node->merge($prevNode);
+                    $prevNode->merge($node);
+                } else {
+                    $prevNode = $node;
                 }
-                $prevNode = $node;
             } else {
                 $extendedBy->enqueue($node);
             }
@@ -276,11 +284,13 @@ class Node
         $requiredBy = new SplQueue;
         $prevNode = null;
         foreach ($this->requiredBy as $node) {
-            if (\count($node->requires) + \count($node->extends) === 1) {
+            $node->requires->detach($this);
+            if (\count($node->requires) + \count($node->extends) === 0) {
                 if ($prevNode instanceof self) {
-                    $node->merge($prevNode);
+                    $prevNode->merge($node);
+                } else {
+                    $prevNode = $node;
                 }
-                $prevNode = $node;
             } else {
                 $requiredBy->enqueue($node);
             }
@@ -290,14 +300,14 @@ class Node
         }
 
         foreach ($extendedBy as $node) {
-            $node->extends->detach($this);
             if (\count($node->extends) + \count($node->requires) === 0) {
+                $this->extendedBy->detach($node);
                 $node->flattenInternal($queueOfQueues);
             }
         }
         foreach ($requiredBy as $node) {
-            $node->requires->detach($this);
             if (\count($node->extends) + \count($node->requires) === 0) {
+                $this->requiredBy->detach($node);
                 if (!$queue->isEmpty()) {
                     $queueOfQueues->enqueue(new SplQueue);
                 }

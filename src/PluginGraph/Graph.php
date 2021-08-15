@@ -16,7 +16,11 @@ class Graph
     /**
      * Graph instance.
      */
-    private GraphInternal $graph;
+    private ?GraphInternal $graph = null;
+    /**
+     * Resolved graph instance.
+     */
+    private ?ResolvedGraph $resolvedGraph = null;
     /**
      * Constructr.
      */
@@ -56,16 +60,8 @@ class Graph
      */
     public function flatten(): ResolvedGraph
     {
-        return new ResolvedGraph($this->graph->flatten());
-    }
-
-    /**
-     * Returns graph debug information.
-     *
-     * @return array
-     */
-    public function __debugInfo(): array
-    {
-        return $this->graph->__debugInfo();
+        $this->resolvedGraph ??= new ResolvedGraph($this->graph->flatten());
+        $this->graph = null;
+        return $this->resolvedGraph;
     }
 }
