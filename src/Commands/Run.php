@@ -2,11 +2,9 @@
 
 namespace Phabel\Commands;
 
-use Exception;
 use Phabel\Cli\EventHandler as CliEventHandler;
 use Phabel\Cli\Formatter;
 use Phabel\Cli\SimpleConsoleLogger;
-use Phabel\EventHandler;
 use Phabel\Target\Php;
 use Phabel\Traverser;
 use Symfony\Component\Console\Command\Command;
@@ -14,18 +12,16 @@ use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Process\Exception\ProcessFailedException;
-use Symfony\Component\Process\Process;
 
-class Run extends Command {
+class Run extends Command
+{
     protected static $defaultName = 'run';
 
     protected function configure(): void
     {
-        $target = getenv('PHABEL_TARGET') ?: null;
-        $coverage = getenv('PHABEL_COVERAGE') ?: false;
+        $target = \getenv('PHABEL_TARGET') ?: null;
+        $coverage = \getenv('PHABEL_COVERAGE') ?: false;
 
         $this
             ->setDescription('Run transpiler.')
@@ -35,10 +31,9 @@ class Run extends Command {
             ->addOption('coverage', null, InputOption::VALUE_OPTIONAL, 'PHP coverage path', $coverage)
 
             ->addArgument('input', InputArgument::REQUIRED, 'Input path')
-            ->addArgument('output', InputArgument::REQUIRED, 'Output path')
-        ;
+            ->addArgument('output', InputArgument::REQUIRED, 'Output path');
     }
-    
+
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
@@ -51,12 +46,12 @@ class Run extends Command {
         }
 
         $packages = (new Traverser(
-                new CliEventHandler(
-                    new SimpleConsoleLogger($output), 
+            new CliEventHandler(
+                    new SimpleConsoleLogger($output),
                     !\getenv('CI')
                         && !$output->isDebug() ? fn (int $max): ProgressBar => new ProgressBar($output, $max, -1) : null
                 )
-            ))
+        ))
             ->setPlugins([
                 Php::class => ['target' => Php::normalizeVersion($input->getOption('target'))]
             ])
@@ -64,7 +59,7 @@ class Run extends Command {
             ->setOutput($input->getArgument('output'))
             ->setCoverage($input->getOption('coverage') ?: '')
             ->run();
-        
+
         if (!empty($packages)) {
             $cmd = "composer require --dev ";
             foreach ($packages as $package => $constraint) {
@@ -73,7 +68,7 @@ class Run extends Command {
             $output->write("Please run the following command to install required development dependencies:".PHP_EOL);
             $output->write($cmd.PHP_EOL);
         }
-        
+
         return Command::SUCCESS;
     }
 }

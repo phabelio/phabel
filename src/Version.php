@@ -3,19 +3,20 @@
 namespace Phabel;
 
 /**
- * Various version headers
+ * Various version headers.
  */
-class Version {
+class Version
+{
     /**
-     * Latest git tag
+     * Latest git tag.
      */
     public const VERSION = '1.0.0';
     /**
-     * Latest revision
+     * Latest revision.
      */
     public const LATEST = 0;
     /**
-     * Changelog
+     * Changelog.
      */
     public const CHANGELOG = [
         0 => '<bold>Welcome! You can now use PHP 8 features in your code.</bold>
@@ -32,5 +33,4 @@ class Version {
 <bold>Have fun!</bold>
 ',
     ];
-
 }

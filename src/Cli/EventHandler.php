@@ -6,14 +6,13 @@ use Phabel\EventHandler as PhabelEventHandler;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Helper\ProgressBar;
-use Symfony\Component\Console\Output\OutputInterface;
 
-class EventHandler extends PhabelEventHandler {
-
+class EventHandler extends PhabelEventHandler
+{
     private OutputFormatter $outputFormatter;
     private ?ProgressBar $progress = null;
     /**
-     * Progress bar getter
+     * Progress bar getter.
      *
      * @var null|(callable(int): ProgressBar)
      */

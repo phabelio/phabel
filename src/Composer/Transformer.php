@@ -21,7 +21,6 @@ use Phabel\Target\Php;
 use Phabel\Traverser;
 use ReflectionClass;
 use Symfony\Component\Console\Formatter\OutputFormatter;
-use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Helper\ProgressBar;
 
 class Transformer extends EventHandler
@@ -98,12 +97,13 @@ class Transformer extends EventHandler
     }
 
     /**
-     * Format text
+     * Format text.
      *
      * @param string $text
      * @return string
      */
-    public function format(string $text): string {
+    public function format(string $text): string
+    {
         return $this->outputFormatter->format($text);
     }
 
@@ -339,7 +339,7 @@ class Transformer extends EventHandler
         $traverser = new Traverser(
             new CliEventHandler(
                 $this->io,
-                $this->doProgress 
+                $this->doProgress
                     && $this->io instanceof ConsoleIO
                     && !\getenv('CI')
                     && !$this->io->isDebug() ? fn (int $progress): ProgressBar => $this->io->getProgressBar($progress) : null

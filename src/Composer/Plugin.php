@@ -11,10 +11,7 @@ use Composer\Plugin\PluginInterface;
 use Composer\Repository\PlatformRepository;
 use Composer\Script\Event;
 use Composer\Script\ScriptEvents;
-use Phabel\Exception;
-use Phabel\Target\Php;
 use Phabel\Tools;
-use Phabel\Traverser;
 use Phabel\Version;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
@@ -128,10 +125,12 @@ class Plugin implements PluginInterface, EventSubscriberInterface
                 }
             });
         } else {
-            register_shutdown_function(function () {
-                $json = json_decode(file_get_contents('composer.json'), true);
+            \register_shutdown_function(function () {
+                $json = \json_decode(\file_get_contents('composer.json'), true);
                 $old = $json['extra']['phabel']['revision'] ?? -1;
-                if ($old === Version::LATEST) return;
+                if ($old === Version::LATEST) {
+                    return;
+                }
                 $json['extra'] ??= [];
                 $json['extra']['phabel'] ??= [];
                 $json['extra']['phabel']['revision'] = Version::LATEST;
@@ -148,7 +147,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
                     }
                 }
 
-                file_put_contents('composer.json', json_encode($json, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES).PHP_EOL);
+                \file_put_contents('composer.json', \json_encode($json, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES).PHP_EOL);
             });
         }
     }

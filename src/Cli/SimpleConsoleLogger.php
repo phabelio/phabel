@@ -67,7 +67,7 @@ class SimpleConsoleLogger extends AbstractLogger
     public function log($level, $message, array $context = [])
     {
         if (!isset($this->verbosityLevelMap[$level])) {
-            throw new InvalidArgumentException(sprintf('The log level "%s" does not exist.', $level));
+            throw new InvalidArgumentException(\sprintf('The log level "%s" does not exist.', $level));
         }
 
         $output = $this->output;
@@ -83,7 +83,7 @@ class SimpleConsoleLogger extends AbstractLogger
         // the if condition check isn't necessary -- it's the same one that $output will do internally anyway.
         // We only do it for efficiency here as the message formatting is relatively expensive.
         if ($output->getVerbosity() >= $this->verbosityLevelMap[$level]) {
-            $output->writeln(sprintf('<%1$s>%3$s</%1$s>', $this->formatLevelMap[$level], $level, $this->interpolate($message, $context)), $this->verbosityLevelMap[$level]);
+            $output->writeln(\sprintf('<%1$s>%3$s</%1$s>', $this->formatLevelMap[$level], $level, $this->interpolate($message, $context)), $this->verbosityLevelMap[$level]);
         }
     }
 
@@ -104,13 +104,13 @@ class SimpleConsoleLogger extends AbstractLogger
      */
     private function interpolate(string $message, array $context): string
     {
-        if (!str_contains($message, '{')) {
+        if (!\str_contains($message, '{')) {
             return $message;
         }
 
         $replacements = [];
         foreach ($context as $key => $val) {
-            if (null === $val || is_scalar($val) || (\is_object($val) && method_exists($val, '__toString'))) {
+            if (null === $val || \is_scalar($val) || (\is_object($val) && \method_exists($val, '__toString'))) {
                 $replacements["{{$key}}"] = $val;
             } elseif ($val instanceof \DateTimeInterface) {
                 $replacements["{{$key}}"] = $val->format(\DateTime::RFC3339);
@@ -121,6 +121,6 @@ class SimpleConsoleLogger extends AbstractLogger
             }
         }
 
-        return strtr($message, $replacements);
+        return \strtr($message, $replacements);
     }
 }

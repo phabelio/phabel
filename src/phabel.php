@@ -5,7 +5,6 @@ namespace Phabel;
 use Phabel\Cli\Formatter;
 use Phabel\Commands\Run;
 use Phabel\Commands\Tag;
-use Phabel\Target\Php;
 use Symfony\Component\Console\Application;
 
 if (!\class_exists(Run::class)) {
