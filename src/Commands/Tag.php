@@ -67,13 +67,12 @@ class Tag extends Command {
         $this->exec(['git', 'commit', '-am', 'phabel.io release']);
         $this->exec(['git', 'tag', $dest]);
         $this->exec(['git', 'checkout', $branch]);
-        $this->exec(['git', 'push', $dest]);
 
         if ($stashed) {
             $this->exec(['git', 'stash', 'pop']);
         }
 
-        $output->write("<phabel>OK, pushed the transpiled $dest tag!</phabel>");
+        $output->write("<phabel>OK, you can now push the transpiled $dest tag!</phabel>");
 
         return Command::SUCCESS;
     }
