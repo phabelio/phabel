@@ -19,7 +19,7 @@ class Tag extends Command {
     {
         $tags = new Process(['git', 'describe', '--tags', '--abbrev=0']);
         $tags->run();
-        $tag = $tags->isSuccessful() ? $tags->getOutput() : null;
+        $tag = $tags->isSuccessful() ? trim($tags->getOutput()) : null;
 
         $this
             ->setDescription('Transpile a release.')
@@ -66,8 +66,8 @@ class Tag extends Command {
 
         $this->exec(['git', 'commit', '-am', 'phabel.io release']);
         $this->exec(['git', 'tag', $dest]);
-        $this->exec(['git', 'push', $dest]);
         $this->exec(['git', 'checkout', $branch]);
+        $this->exec(['git', 'push', $dest]);
 
         if ($stashed) {
             $this->exec(['git', 'stash', 'pop']);
