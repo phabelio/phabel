@@ -127,29 +127,30 @@ class Plugin implements PluginInterface, EventSubscriberInterface
                     $application->run();
                 }
             });
-        }
-        register_shutdown_function(function () {
-            $json = json_decode(file_get_contents('composer.json'), true);
-            $old = $json['extra']['phabel']['revision'] ?? -1;
-            if ($old === Version::LATEST) return;
-            $json['extra'] ??= [];
-            $json['extra']['phabel'] ??= [];
-            $json['extra']['phabel']['revision'] = Version::LATEST;
+        } else {
+            register_shutdown_function(function () {
+                $json = json_decode(file_get_contents('composer.json'), true);
+                $old = $json['extra']['phabel']['revision'] ?? -1;
+                if ($old === Version::LATEST) return;
+                $json['extra'] ??= [];
+                $json['extra']['phabel'] ??= [];
+                $json['extra']['phabel']['revision'] = Version::LATEST;
 
-            $json['require'] ??= [];
-            $json['require']['php'] = '>=8.0';
+                $json['require'] ??= [];
+                $json['require']['php'] = '>=8.0';
 
-            $this->transformer->banner();
-            $f = [$this->transformer, 'format'];
-            $io = $this->transformer->getIo();
-            for ($x = $old; $x <= Version::LATEST; $x++) {
-                if (isset(Version::CHANGELOG[$x])) {
-                    $io->writeError($f(Version::CHANGELOG[$x]));
+                $this->transformer->banner();
+                $f = [$this->transformer, 'format'];
+                $io = $this->transformer->getIo();
+                for ($x = $old; $x <= Version::LATEST; $x++) {
+                    if (isset(Version::CHANGELOG[$x])) {
+                        $io->writeError($f(Version::CHANGELOG[$x]));
+                    }
                 }
-            }
 
-            file_put_contents('composer.json', json_encode($json, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES).PHP_EOL);
-        });
+                file_put_contents('composer.json', json_encode($json, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES).PHP_EOL);
+            });
+        }
     }
 
 
