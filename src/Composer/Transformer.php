@@ -151,6 +151,7 @@ class Transformer extends EventHandler
                 }
             }
         }
+        $this->processed = true;
         if (!$havePhabel) {
             if ($target === Php::TARGET_IGNORE) {
                 $this->log("Skipping ".$package->getName()."=$newName", IOInterface::VERY_VERBOSE);
@@ -164,7 +165,6 @@ class Transformer extends EventHandler
 
         $this->log("Applying ".$package->getName()."=$newName", IOInterface::VERY_VERBOSE);
 
-        $this->processed = true;
         $this->processedRequires = $this->requires;
         $requires = $this->requires;
         foreach ($config['require'] ?? [] as $name => $constraint) {
