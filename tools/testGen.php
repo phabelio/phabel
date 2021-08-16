@@ -19,26 +19,26 @@ $packagesSecondary = [];
 foreach (Php::VERSIONS as $version) {
     $fs->remove("tests/Target$version");
     $fs->remove("tests/Target10$version");
-    $packages []= $promise = Traverser::runAsync(
-        [
+    $packages []= $promise = (new Traverser)
+        ->setPlugins([
             PhabelTestGenerator::class => ['target' => $version]
-        ],
-        'tests/Target',
-        "tests/Target$version",
-        "test$version"
-    );
+        ])
+        ->setInput('tests/Target')
+        ->setOutput("tests/Target$version")
+        ->setCoverage("test$version")
+        ->runAsync();
     $promise->onResolve(function (?\Throwable $e, ?array $res) use ($version, &$packagesSecondary) {
         if ($e) {
             throw $e;
         }
-        $packagesSecondary []= Traverser::runAsync(
-            [
+        $packagesSecondary []= (new Traverser)
+            ->setPlugins([
                 PhabelTestGenerator::class => ['target' => 1000+$version]
-            ],
-            "tests/Target$version",
-            "tests/Target10$version",
-            "test10$version"
-        );
+            ])
+            ->setInput("tests/Target$version")
+            ->setOutput("tests/Target10$version")
+            ->setCoverage("test10$version")
+            ->runAsync();
     });
 }
 $packages = \array_merge(...wait(all($packages)));

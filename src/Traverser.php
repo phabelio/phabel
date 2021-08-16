@@ -2,8 +2,15 @@
 
 namespace Phabel;
 
+use Amp\Parallel\Worker\DefaultPool;
+use Amp\Parallel\Worker\Pool;
+use Amp\Promise;
+use Phabel\Plugin\ClassStoragePlugin;
 use Phabel\PluginGraph\Graph;
 use Phabel\PluginGraph\ResolvedGraph;
+use Phabel\Tasks\Init;
+use Phabel\Tasks\Run;
+use Phabel\Tasks\Shutdown;
 use PhpParser\Node;
 use PhpParser\Parser;
 use PhpParser\ParserFactory;
@@ -13,6 +20,8 @@ use SebastianBergmann\CodeCoverage\Driver\Selector;
 use SebastianBergmann\CodeCoverage\Filter;
 use SebastianBergmann\CodeCoverage\Report\PHP;
 use SplQueue;
+
+use function Amp\call;
 
 /**
  * AST traverser.
@@ -170,6 +179,20 @@ class Traverser
     }
 
     /**
+     * Set resolved plugin graph.
+     *
+     * @param ResolvedGraph $graph Resolved graph
+     *
+     * @return self
+     */
+    public function setGraph(ResolvedGraph $graph): self
+    {
+        $this->graph = $graph;
+
+        return $this;
+    }
+
+    /**
      * Set input path.
      *
      * @param string $input
@@ -228,7 +251,7 @@ class Traverser
      *
      * @return ?object
      */
-    private static function startCoverage(string $coveragePath): ?object
+    public static function startCoverage(string $coveragePath): ?object
     {
         if (!$coveragePath || !\class_exists(CodeCoverage::class)) {
             return null;
@@ -264,6 +287,143 @@ class Traverser
         }
         return null;
     }
+    /**
+     * Run phabel asynchronously.
+     *
+     * @return Promise<array>
+     */
+    public function runAsync(): Promise
+    {
+        if (!\interface_exists(Promise::class)) {
+            throw new Exception("amphp/parallel must be installed to parallelize transforms!");
+        }
+        $this->eventHandler?->onStart();
+        $coverages = [];
+        return call(function () use (&$coverages) {
+            $packages = [];
+
+            if (!\file_exists($this->output)) {
+                \mkdir($this->output, 0777, true);
+            }
+            $output = \realpath($this->output);
+
+            $count = 0;
+            $promises = [];
+            $classStorage = null;
+
+            $pool = new DefaultPool(Pool::DEFAULT_MAX_SIZE);
+            $promises = [];
+            for ($x = 0; $x < Pool::DEFAULT_MAX_SIZE; $x++) {
+                $promises []= $pool->enqueue(new Init($this->graph));
+            }
+            yield $promises;
+            $packages = $this->graph->getPackages();
+            unset($this->graph);
+
+            $it = new \RecursiveDirectoryIterator($this->input, \RecursiveDirectoryIterator::SKIP_DOTS);
+            $ri = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::SELF_FIRST);
+
+            if ($this->eventHandler) {
+                $this->eventHandler->onBeginDirectoryTraversal(\iterator_count($ri));
+            }
+
+            $promises = [];
+            /** @var \SplFileInfo $file */
+            foreach ($ri as $file) {
+                $rel = $ri->getSubPathname();
+                $targetPath = $output.DIRECTORY_SEPARATOR.$rel;
+                if ($file->isDir()) {
+                    if (!\file_exists($targetPath)) {
+                        \mkdir($targetPath, 0777, true);
+                    }
+                } elseif ($file->isFile()) {
+                    if ($file->getExtension() == 'php') {
+                        $promise = call(function () use ($pool, $file, $rel, $targetPath, $count, &$promises, &$coverages) {
+                            $this->eventHandler?->onBeginAstTraversal($file->getRealPath());
+                            $package = null;
+                            if ($this->composerPackageName) {
+                                $package = ($this->composerPackageName)($rel);
+                            }
+                            $res = yield $pool->enqueue(
+                                new Run(
+                                    $rel,
+                                    $file->getRealPath(),
+                                    $targetPath,
+                                    $package,
+                                    "{$this->coverage}$count.php"
+                                )
+                            );
+                            $coverages []= "{$this->coverage}$count.php";
+                            if ($res instanceof ExceptionWrapper) {
+                                throw $res->getException();
+                            }
+                            $this->eventHandler?->onEndAstTraversal($file->getRealPath(), $res);
+                            unset($promises[$count]);
+                        });
+                        $promises[$count] = $promise;
+                        $count++;
+                    } elseif (\realpath($targetPath) !== $file->getRealPath()) {
+                        \copy($file->getRealPath(), $targetPath);
+                    }
+                }
+            }
+            yield $promises;
+
+            $this->eventHandler?->onEndDirectoryTraversal();
+
+            $promises = [];
+            /** @var ClassStoragePlugin|null */
+            $classStorage = null;
+            for ($x = 0; $x < Pool::DEFAULT_MAX_SIZE; $x++) {
+                $promises []= call(function () use ($pool, &$classStorage) {
+                    /** @var ClassStoragePlugin */
+                    $newClassStorage = yield $pool->enqueue(new Shutdown());
+                    if (!$classStorage) {
+                        $classStorage = $newClassStorage;
+                    } else {
+                        $classStorage->merge($classStorage);
+                    }
+                });
+            }
+            yield $promises;
+
+            yield $pool->shutdown();
+
+            if ($classStorage) {
+                $plugins = $classStorage->finish();
+                unset($classStorage);
+                if ($plugins) {
+                    $this->input = $this->output;
+                    $this->setPlugins($plugins);
+                    return yield $this->runAsync();
+                }
+            }
+
+            /** @var CodeCoverage|null $coverage */
+            $coverage = null;
+            foreach ($coverages as $file) {
+                if (!\file_exists($file)) {
+                    continue;
+                }
+                if (!$coverage) {
+                    /** @var CodeCoverage $coverage */
+                    $coverage = include $file;
+                    \unlink($file);
+                    continue;
+                }
+                $coverage->merge(include $file);
+                \unlink($file);
+            }
+            if ($coverage) {
+                (new PHP)->process($coverage, $this->coverage);
+            }
+
+            $this->eventHandler?->onEnd();
+            return $packages;
+        });
+    }
+
+
     /**
      * Run phabel.
      *
@@ -365,14 +525,17 @@ class Traverser
     /**
      * Set package name.
      *
-     * @param string $package Package name
+     * @param ?string $package Package name
      *
      * @return void
      */
-    public function setPackage(string $package): void
+    public function setPackage(?string $package): void
     {
         /** @var SplQueue<SplQueue<PluginInterface>> */
         $this->packageQueue = new SplQueue;
+        if (!$package) {
+            return;
+        }
         /** @var SplQueue<PluginInterface> */
         $newQueue = new SplQueue;
         foreach ($this->graph->getPlugins() as $queue) {
