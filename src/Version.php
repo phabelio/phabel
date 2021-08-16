@@ -10,7 +10,7 @@ class Version
     /**
      * Latest git tag.
      */
-    public const VERSION = '1.0.0';
+    public const VERSION = '1.0.1';
     /**
      * Latest revision.
      */

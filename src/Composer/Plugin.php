@@ -127,6 +127,9 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         } else {
             \register_shutdown_function(function () {
                 $json = \json_decode(\file_get_contents('composer.json'), true);
+                if (!isset($json['require']['phabel/phabel'])) {
+                    return;
+                }
                 $old = $json['extra']['phabel']['revision'] ?? -1;
                 if ($old === Version::LATEST) {
                     return;
