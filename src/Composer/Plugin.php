@@ -11,7 +11,11 @@ use Composer\Plugin\PluginInterface;
 use Composer\Repository\PlatformRepository;
 use Composer\Script\Event;
 use Composer\Script\ScriptEvents;
+use Phabel\Exception;
+use Phabel\Target\Php;
 use Phabel\Tools;
+use Phabel\Traverser;
+use Phabel\Version;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 
@@ -110,10 +114,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     private function run(Event $event, bool $isUpdate): void
     {
         $lock = \json_decode(\file_get_contents('composer.lock'), true);
-        if ($lock === $this->lock) {
-            $this->transformer->banner();
-            $this->transformer->log("No changes required, skipping transpilation.\n");
-        } elseif (!$this->transformer->transform($lock['packages'] ?? [])) {
+        if (!$this->transformer->transform($lock, $this->lock)) {
             \register_shutdown_function(function () use ($isUpdate) {
                 /** @var Application */
                 $application = ($GLOBALS['application'] ?? null) instanceof Application ? $GLOBALS['application'] : new Application;
@@ -129,7 +130,25 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         }
         register_shutdown_function(function () {
             $json = json_decode(file_get_contents('composer.json'), true);
-            var_dump($json);
+            $old = $json['extra']['phabel']['revision'] ?? -1;
+            if ($old === Version::LATEST) return;
+            $json['extra'] ??= [];
+            $json['extra']['phabel'] ??= [];
+            $json['extra']['phabel']['revision'] = Version::LATEST;
+
+            $json['require'] ??= [];
+            $json['require']['php'] = '>=8.0';
+
+            $this->transformer->banner();
+            $f = [$this->transformer, 'format'];
+            $io = $this->transformer->getIo();
+            for ($x = $old; $x <= Version::LATEST; $x++) {
+                if (isset(Version::CHANGELOG[$x])) {
+                    $io->writeError($f(Version::CHANGELOG[$x]));
+                }
+            }
+
+            file_put_contents('composer.json', json_encode($json, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES).PHP_EOL);
         });
     }
 

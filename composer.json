@@ -4,7 +4,9 @@
     "type": "composer-plugin",
     "require": {
         "phabel/php-parser": "^94.10",
-        "composer-plugin-api": "^2.0"
+        "composer-plugin-api": "^2.0",
+        "symfony/console": "^2.8.52 || ^3.4.35 || ^4.4 || ^5.0 || ^6.0",
+        "symfony/process": "^2.8.52 || ^3.4.35 || ^4.4 || ^5.0 || ^6.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^7 | ^8 | ^9",

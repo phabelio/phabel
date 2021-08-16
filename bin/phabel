@@ -3,5 +3,12 @@
 
 $up = DIRECTORY_SEPARATOR . '..';
 
-require_once __DIR__ . $up . $up . $up . DIRECTORY_SEPARATOR . 'autoload.php';
-require_once __DIR__ . $up . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'phabel.php';
+$implode = fn (string ...$parts): string => implode(DIRECTORY_SEPARATOR, $parts);
+
+if (file_exists($implode(__DIR__, '..', 'autoload.php'))) {
+    require_once $implode(__DIR__, '..', 'autoload.php');
+    require_once $implode(__DIR__, '..', 'phabel', 'phabel', 'src', 'phabel.php');
+} else {
+    require_once $implode(__DIR__, '..', 'vendor', 'autoload.php');
+    require_once $implode(__DIR__, '..', 'src', 'phabel.php');
+}
