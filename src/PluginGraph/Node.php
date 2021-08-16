@@ -244,7 +244,9 @@ class Node
         $queue->enqueue($initQueue);
 
         while ($this->extendedBy->count() && $this->requiredBy->count()) {
-            $this->flattenInternal($queue);
+            if (!$this->flattenInternal($queue)) {
+                throw new Exception('Graph resolution has stalled');
+            }
         }
 
         return $queue;
@@ -254,9 +256,9 @@ class Node
      *
      * @param SplQueue<SplQueue<PluginInterface>> $queueOfQueues Queue
      *
-     * @return void
+     * @return int
      */
-    private function flattenInternal(SplQueue $queueOfQueues): void
+    private function flattenInternal(SplQueue $queueOfQueues): int
     {
         $queue = $queueOfQueues->top();
         $this->plugin->enqueue($queue, $this->packageContext);
@@ -299,10 +301,12 @@ class Node
             $requiredBy->enqueue($prevNode);
         }
 
+        $processed = 0;
         foreach ($extendedBy as $node) {
             if (\count($node->extends) + \count($node->requires) === 0) {
                 $this->extendedBy->detach($node);
                 $node->flattenInternal($queueOfQueues);
+                $processed++;
             }
         }
         foreach ($requiredBy as $node) {
@@ -312,8 +316,10 @@ class Node
                     $queueOfQueues->enqueue(new SplQueue);
                 }
                 $node->flattenInternal($queueOfQueues);
+                $processed++;
             }
         }
+        return $processed;
     }
 
     /**

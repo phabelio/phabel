@@ -47,10 +47,10 @@ class Run extends Command
 
         $packages = (new Traverser(
             new CliEventHandler(
-                    new SimpleConsoleLogger($output),
-                    !\getenv('CI')
+                new SimpleConsoleLogger($output),
+                !\getenv('CI')
                         && !$output->isDebug() ? fn (int $max): ProgressBar => new ProgressBar($output, $max, -1) : null
-                )
+            )
         ))
             ->setPlugins([
                 Php::class => ['target' => Php::normalizeVersion($input->getOption('target'))]
