@@ -72,7 +72,7 @@ class Tag extends Command {
             $this->exec(['git', 'stash', 'pop']);
         }
 
-        $output->write("<phabel>OK, you can now push the transpiled $dest tag!</phabel>");
+        $output->write("<phabel>OK, you can now push the transpiled $dest tag!</phabel>".PHP_EOL);
 
         return Command::SUCCESS;
     }
