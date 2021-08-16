@@ -70,7 +70,6 @@ class Run extends Command {
             foreach ($packages as $package => $constraint) {
                 $cmd .= \escapeshellarg("$package:$constraint")." ";
             }
-            $output->write("<bold>All done, OK!</bold>");
             $output->write("Please run the following command to install required development dependencies:".PHP_EOL);
             $output->write($cmd.PHP_EOL);
         }

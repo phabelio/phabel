@@ -360,6 +360,9 @@ class Transformer extends EventHandler
         if ($lock && $lock === $old) {
             return true;
         }
+        if (!$byName) {
+            return true;
+        }
 
         $this->banner();
 

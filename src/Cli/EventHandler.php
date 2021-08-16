@@ -69,6 +69,6 @@ class EventHandler extends PhabelEventHandler {
     }
     public function onEnd(): void
     {
-        $this->logger->warning($this->outputFormatter->format("<phabel>Done!</phabel>"));
+        $this->logger->warning($this->outputFormatter->format('<phabel>Done!</phabel>'.PHP_EOL.PHP_EOL.Formatter::TIP));
     }
 }
