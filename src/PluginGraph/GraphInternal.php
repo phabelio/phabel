@@ -2,6 +2,7 @@
 
 namespace Phabel\PluginGraph;
 
+use Exception;
 use Phabel\Plugin;
 use Phabel\PluginInterface;
 use SplObjectStorage;
@@ -37,11 +38,19 @@ class GraphInternal
     private SplObjectStorage $unlinkedNodes;
 
     /**
+     * Stores list of Nodes that weren't yet processed.
+     *
+     * @var SplObjectStorage<Node, null>
+     */
+    public SplObjectStorage $unprocessedNode;
+
+    /**
      * Constructor.
      */
     public function __construct()
     {
         $this->unlinkedNodes = new SplObjectStorage();
+        $this->unprocessedNode = new SplObjectStorage();
     }
 
     /**
@@ -88,6 +97,7 @@ class GraphInternal
         }
         $this->plugins[$plugin][$configStr] = $node = new Node($this, $ctx);
         $this->unlinkedNodes->attach($node);
+        $this->unprocessedNode->attach($node);
 
         return $node->init($plugin, $config);
     }
@@ -125,9 +135,14 @@ class GraphInternal
             }
             $this->unlinkedNodes = new SplObjectStorage;
             $this->unlinkedNodes->attach($initNode);
-            return $initNode->circular()->flatten();
+            $result = $initNode->circular()->flatten();
+        } else {
+            $result = \array_values(\array_values($this->plugins)[0])[0]->circular()->flatten();
         }
-        return \array_values(\array_values($this->plugins)[0])[0]->circular()->flatten();
+        if ($this->unprocessedNode->count()) {
+            throw new Exception('Did not process entire graph!');
+        }
+        return $result;
     }
     /**
      * Returns graph debug information.

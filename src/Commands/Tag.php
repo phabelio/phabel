@@ -86,7 +86,7 @@ class Tag extends Command
             $this->exec(['git', 'stash', 'pop']);
         }
 
-        $output->write("<phabel>Pushing the following tags to <bold>$remote</bold>: <bold>$src.9998 $src.9999</bold>...</phabel>".PHP_EOL);
+        $output->write("<phabel>Pushing <bold>$src.9998</bold>, <bold>$src.9999</bold> to <bold>$remote</bold>...</phabel>".PHP_EOL);
         $this->exec(['git', 'push', $remote, "$src.9998", "$src.9999"]);
 
         $output->write("<phabel>Done!</phabel>

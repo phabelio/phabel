@@ -245,10 +245,22 @@ class Node
 
         $this->flattenInternal($queue);
         if ($this->extendedBy->count() || $this->requiredBy->count()) {
+            $this->explore();
             throw new Exception('Graph resolution has stalled');
         }
 
         return $queue;
+    }
+    public function explore(string $prefix = ' ')
+    {
+        foreach ($this->extendedBy as $e) {
+            $e->explore("$prefix ");
+        }
+        \var_dump($prefix.$this->name.' requires');
+        foreach ($this->requiredBy as $e) {
+            $e->explore("$prefix ");
+        }
+        \var_dump($prefix.$this->name.' exit');
     }
     /**
      * Internal flattening.
@@ -259,60 +271,53 @@ class Node
      */
     private function flattenInternal(SplQueue $queueOfQueues)
     {
+        $queue = $queueOfQueues->top();
+        $this->plugin->enqueue($queue, $this->packageContext);
+        $this->graph->unprocessedNode->detach($this);
+
+        $prevNode = null;
+        foreach ($this->extendedBy as $node) {
+            $node->extends->detach($this);
+            if (\count($node->requires) + \count($node->extends) === 0) {
+                if ($prevNode instanceof self) {
+                    $prevNode->merge($node);
+                    $this->extendedBy->detach($node);
+                    $this->graph->unprocessedNode->detach($node);
+                } else {
+                    $prevNode = $node;
+                }
+            }
+        }
+
+        $prevNode = null;
+        foreach ($this->requiredBy as $node) {
+            $node->requires->detach($this);
+            if (\count($node->requires) + \count($node->extends) === 0) {
+                if ($prevNode instanceof self) {
+                    $prevNode->merge($node);
+                    $this->requiredBy->detach($node);
+                    $this->graph->unprocessedNode->detach($node);
+                } else {
+                    $prevNode = $node;
+                }
+            }
+        }
+
         do {
             $processed = false;
-            $queue = $queueOfQueues->top();
-            $this->plugin->enqueue($queue, $this->packageContext);
-
-            /** @var SplQueue<Node> */
-            $extendedBy = new SplQueue;
-            $prevNode = null;
-            foreach ($this->extendedBy as $node) {
-                $node->extends->detach($this);
-                if (\count($node->requires) + \count($node->extends) === 0) {
-                    if ($prevNode instanceof self) {
-                        $prevNode->merge($node);
-                    } else {
-                        $prevNode = $node;
-                    }
-                    $this->extendedBy->detach($node);
-                } else {
-                    $extendedBy->enqueue($node);
-                }
-            }
-            if ($prevNode) {
-                $this->extendedBy->attach($prevNode);
-                $extendedBy->enqueue($prevNode);
-            }
-
-            /** @var SplQueue<Node> */
-            $requiredBy = new SplQueue;
-            $prevNode = null;
-            foreach ($this->requiredBy as $node) {
-                $node->requires->detach($this);
-                if (\count($node->requires) + \count($node->extends) === 0) {
-                    if ($prevNode instanceof self) {
-                        $prevNode->merge($node);
-                    } else {
-                        $prevNode = $node;
-                    }
-                    $this->requiredBy->detach($node);
-                } else {
-                    $requiredBy->enqueue($node);
-                }
-            }
-            if ($prevNode) {
-                $this->requiredBy->attach($prevNode);
-                $requiredBy->enqueue($prevNode);
-            }
-
+            \var_dump($prefix.$this->name.' extends');
             foreach ($this->extendedBy as $node) {
                 if (\count($node->extends) + \count($node->requires) === 0) {
                     $this->extendedBy->detach($node);
                     $node->flattenInternal($queueOfQueues);
                     $processed = true;
                 }
+                \var_dump($prefix.$this->name.' extends done');
             }
+        } while ($processed);
+        do {
+            $processed = false;
+            \var_dump($prefix.$this->name.' requires');
             foreach ($this->requiredBy as $node) {
                 if (\count($node->extends) + \count($node->requires) === 0) {
                     $this->requiredBy->detach($node);
@@ -321,8 +326,11 @@ class Node
                     }
                     $node->flattenInternal($queueOfQueues);
                     $processed = true;
+                } else {
+                    \var_dump($prefix." skip ".$node->name);
                 }
             }
+            \var_dump($prefix.$this->name.' requires done');
         } while ($processed);
     }
 
