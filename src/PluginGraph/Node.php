@@ -243,10 +243,9 @@ class Node
         $queue = new SplQueue;
         $queue->enqueue($initQueue);
 
-        while ($this->extendedBy->count() && $this->requiredBy->count()) {
-            if (!$this->flattenInternal($queue)) {
-                throw new Exception('Graph resolution has stalled');
-            }
+        $this->flattenInternal($queue);
+        if ($this->extendedBy->count() || $this->requiredBy->count()) {
+            throw new Exception('Graph resolution has stalled');
         }
 
         return $queue;
@@ -256,70 +255,75 @@ class Node
      *
      * @param SplQueue<SplQueue<PluginInterface>> $queueOfQueues Queue
      *
-     * @return int
+     * @return void
      */
-    private function flattenInternal(SplQueue $queueOfQueues): int
+    private function flattenInternal(SplQueue $queueOfQueues)
     {
-        $queue = $queueOfQueues->top();
-        $this->plugin->enqueue($queue, $this->packageContext);
+        do {
+            $processed = false;
+            $queue = $queueOfQueues->top();
+            $this->plugin->enqueue($queue, $this->packageContext);
 
-        /** @var SplQueue<Node> */
-        $extendedBy = new SplQueue;
-        $prevNode = null;
-        foreach ($this->extendedBy as $node) {
-            $node->extends->detach($this);
-            if (\count($node->requires) + \count($node->extends) === 0) {
-                if ($prevNode instanceof self) {
-                    $prevNode->merge($node);
+            /** @var SplQueue<Node> */
+            $extendedBy = new SplQueue;
+            $prevNode = null;
+            foreach ($this->extendedBy as $node) {
+                $node->extends->detach($this);
+                if (\count($node->requires) + \count($node->extends) === 0) {
+                    if ($prevNode instanceof self) {
+                        $prevNode->merge($node);
+                    } else {
+                        $prevNode = $node;
+                    }
+                    $this->extendedBy->detach($node);
                 } else {
-                    $prevNode = $node;
+                    $extendedBy->enqueue($node);
                 }
-            } else {
-                $extendedBy->enqueue($node);
             }
-        }
-        if ($prevNode) {
-            $extendedBy->enqueue($prevNode);
-        }
+            if ($prevNode) {
+                $this->extendedBy->attach($prevNode);
+                $extendedBy->enqueue($prevNode);
+            }
 
-        /** @var SplQueue<Node> */
-        $requiredBy = new SplQueue;
-        $prevNode = null;
-        foreach ($this->requiredBy as $node) {
-            $node->requires->detach($this);
-            if (\count($node->requires) + \count($node->extends) === 0) {
-                if ($prevNode instanceof self) {
-                    $prevNode->merge($node);
+            /** @var SplQueue<Node> */
+            $requiredBy = new SplQueue;
+            $prevNode = null;
+            foreach ($this->requiredBy as $node) {
+                $node->requires->detach($this);
+                if (\count($node->requires) + \count($node->extends) === 0) {
+                    if ($prevNode instanceof self) {
+                        $prevNode->merge($node);
+                    } else {
+                        $prevNode = $node;
+                    }
+                    $this->requiredBy->detach($node);
                 } else {
-                    $prevNode = $node;
+                    $requiredBy->enqueue($node);
                 }
-            } else {
-                $requiredBy->enqueue($node);
             }
-        }
-        if ($prevNode) {
-            $requiredBy->enqueue($prevNode);
-        }
+            if ($prevNode) {
+                $this->requiredBy->attach($prevNode);
+                $requiredBy->enqueue($prevNode);
+            }
 
-        $processed = 0;
-        foreach ($extendedBy as $node) {
-            if (\count($node->extends) + \count($node->requires) === 0) {
-                $this->extendedBy->detach($node);
-                $node->flattenInternal($queueOfQueues);
-                $processed++;
-            }
-        }
-        foreach ($requiredBy as $node) {
-            if (\count($node->extends) + \count($node->requires) === 0) {
-                $this->requiredBy->detach($node);
-                if (!$queue->isEmpty()) {
-                    $queueOfQueues->enqueue(new SplQueue);
+            foreach ($this->extendedBy as $node) {
+                if (\count($node->extends) + \count($node->requires) === 0) {
+                    $this->extendedBy->detach($node);
+                    $node->flattenInternal($queueOfQueues);
+                    $processed = true;
                 }
-                $node->flattenInternal($queueOfQueues);
-                $processed++;
             }
-        }
-        return $processed;
+            foreach ($this->requiredBy as $node) {
+                if (\count($node->extends) + \count($node->requires) === 0) {
+                    $this->requiredBy->detach($node);
+                    if (!$queue->isEmpty()) {
+                        $queueOfQueues->enqueue(new SplQueue);
+                    }
+                    $node->flattenInternal($queueOfQueues);
+                    $processed = true;
+                }
+            }
+        } while ($processed);
     }
 
     /**

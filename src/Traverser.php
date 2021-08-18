@@ -3,7 +3,6 @@
 namespace Phabel;
 
 use Amp\Parallel\Worker\DefaultPool;
-use Amp\Parallel\Worker\Pool;
 use Amp\Promise;
 use Phabel\Plugin\ClassStoragePlugin;
 use Phabel\PluginGraph\Graph;
@@ -311,9 +310,10 @@ class Traverser
             $promises = [];
             $classStorage = null;
 
-            $pool = new DefaultPool(Pool::DEFAULT_MAX_SIZE);
+            $nproc = Tools::getCpuCount();
+            $pool = new DefaultPool($nproc);
             $promises = [];
-            for ($x = 0; $x < Pool::DEFAULT_MAX_SIZE; $x++) {
+            for ($x = 0; $x < $nproc; $x++) {
                 $promises []= $pool->enqueue(new Init($this->graph));
             }
             yield $promises;
@@ -374,7 +374,7 @@ class Traverser
             $promises = [];
             /** @var ClassStoragePlugin|null */
             $classStorage = null;
-            for ($x = 0; $x < Pool::DEFAULT_MAX_SIZE; $x++) {
+            for ($x = 0; $x < $nproc; $x++) {
                 $promises []= call(function () use ($pool, &$classStorage) {
                     /** @var ClassStoragePlugin */
                     $newClassStorage = yield $pool->enqueue(new Shutdown());
