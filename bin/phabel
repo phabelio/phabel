@@ -8,6 +8,9 @@ $implode = fn (string ...$parts): string => implode(DIRECTORY_SEPARATOR, $parts)
 if (file_exists($implode(__DIR__, '..', 'autoload.php'))) {
     require_once $implode(__DIR__, '..', 'autoload.php');
     require_once $implode(__DIR__, '..', 'phabel', 'phabel', 'src', 'phabel.php');
+} elseif (file_exists($implode(__DIR__, '..', 'vendor', 'autoload.php'))) {
+    require_once $implode(__DIR__, '..', 'vendor', 'autoload.php');
+    require_once $implode(__DIR__, '..', 'src', 'phabel.php');
 } else {
     require_once $implode(__DIR__, '..', '..', '..', 'autoload.php');
     require_once $implode(__DIR__, '..', 'src', 'phabel.php');

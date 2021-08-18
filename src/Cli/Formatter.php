@@ -13,10 +13,6 @@ class Formatter
 
 <phabel>PHP transpiler - Write and deploy modern PHP 8 code, today: https://phabel.io</phabel>";
 
-    public const TIP = "<bold>Tip</bold>: Add the following badge to your README to let users know about your minimum supported PHP version, as it won't be shown on packagist.
-<phabel>![phabel.io](https://phabel.io/badge/7.0)</phabel>
-";
-
     private static ?OutputFormatter $instance = null;
     public static function getFormatter(): OutputFormatter
     {
