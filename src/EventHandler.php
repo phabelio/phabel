@@ -13,7 +13,7 @@ abstract class EventHandler implements EventHandlerInterface
     public function onEndPluginGraphResolution(): void
     {
     }
-    public function onBeginDirectoryTraversal(int $total): void
+    public function onBeginDirectoryTraversal(int $total, int $workers): void
     {
     }
     public function onBeginAstTraversal(string $file): void
@@ -25,6 +25,9 @@ abstract class EventHandler implements EventHandlerInterface
     public function onEndDirectoryTraversal(): void
     {
     }
+    public function onBeginClassGraphMerge(int $count): void{}
+    public function onClassGraphMerged(): void{}
+    public function onEndClassGraphMerge(): void{}
     public function onEnd(): void
     {
     }

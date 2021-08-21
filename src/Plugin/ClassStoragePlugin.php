@@ -140,8 +140,16 @@ final class ClassStoragePlugin extends Plugin
      */
     public function merge($other): void
     {
-        $this->classes = \array_merge_recursive($this->classes, $other->classes);
-        $this->traits = \array_merge_recursive($this->traits, $other->traits);
+        foreach ($other->classes as $class => $classes) {
+            foreach ($classes as $file => $builder) {
+                $this->classes[$class][$file] = $builder;
+            }
+        }
+        foreach ($other->traits as $class => $traits) {
+            foreach ($traits as $file => $builder) {
+                $this->traits[$class][$file] = $builder;
+            }
+        }
         $this->finalPlugins += $other->finalPlugins;
     }
 

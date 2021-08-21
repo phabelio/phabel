@@ -127,7 +127,6 @@ class Php extends Plugin
     }
     public static function next(array $config): array
     {
-        return [];
         $classes = [
             StmtExprWrapper::class => $config[StmtExprWrapper::class] ?? [],
             NewFixer::class => []

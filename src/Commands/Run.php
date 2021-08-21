@@ -22,6 +22,7 @@ class Run extends Command
     {
         $target = \getenv('PHABEL_TARGET') ?: null;
         $coverage = \getenv('PHABEL_COVERAGE') ?: false;
+        $parallel = getenv('PHABEL_PARALLEL') ?: 1;
 
         $this
             ->setDescription('Run transpiler.')
@@ -29,6 +30,7 @@ class Run extends Command
 
             ->addOption('target', null, $target ? InputOption::VALUE_OPTIONAL : InputOption::VALUE_REQUIRED, 'Target PHP version', $target)
             ->addOption('coverage', null, InputOption::VALUE_OPTIONAL, 'PHP coverage path', $coverage)
+            ->addOption('parallel', 'j', InputOption::VALUE_OPTIONAL, 'Number of threads to use for transpilation', $parallel)
 
             ->addArgument('input', InputArgument::REQUIRED, 'Input path')
             ->addArgument('output', InputArgument::REQUIRED, 'Output path');
@@ -58,7 +60,7 @@ class Run extends Command
             ->setInput($input->getArgument('input'))
             ->setOutput($input->getArgument('output'))
             ->setCoverage($input->getOption('coverage') ?: '')
-            ->runAsync();
+            ->run($input->getOption('parallel'));
 
         if (!empty($packages)) {
             $cmd = "composer require --dev ";

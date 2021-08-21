@@ -3,10 +3,12 @@
     "description": "Write and deploy modern PHP 8 code, today.",
     "type": "composer-plugin",
     "require": {
+        "php": ">=8.0",
         "phabel/php-parser": "^94.10",
         "composer-plugin-api": "^2.0",
         "symfony/console": "^2.8.52 || ^3.4.35 || ^4.4 || ^5.0 || ^6.0",
         "symfony/process": "^2.8.52 || ^3.4.35 || ^4.4 || ^5.0 || ^6.0",
+        "amphp/parallel": "^1.4",
         "ext-json": "*"
     },
     "require-dev": {
@@ -21,7 +23,6 @@
         "symfony/polyfill-php72": "*",
         "symfony/polyfill-php73": "*",
         "symfony/polyfill-php74": "*",
-        "amphp/parallel": "^1.4",
         "phpunit/php-code-coverage": "*"
     },
     "provide": {

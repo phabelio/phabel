@@ -293,23 +293,26 @@ class Traverser
      *
      * @return array
      */
-    public function runAsync(): array
+    public function runAsync(int $threads = -1): array
     {
-        return wait($this->runAsyncPromise());
+        return wait($this->runAsyncPromise($threads));
     }
     /**
      * Run phabel asynchronously.
      *
      * @return Promise<array>
      */
-    public function runAsyncPromise(): Promise
+    public function runAsyncPromise(int $threads = -1): Promise
     {
         if (!\interface_exists(Promise::class)) {
             throw new Exception("amphp/parallel must be installed to parallelize transforms!");
         }
         $this->eventHandler?->onStart();
+        if ($threads === -1) {
+            $threads = Tools::getCpuCount();
+        }
         $coverages = [];
-        return call(function () use (&$coverages) {
+        return call(function () use (&$coverages, $threads) {
             $packages = [];
 
             if (!\file_exists($this->output)) {
@@ -321,25 +324,20 @@ class Traverser
             $promises = [];
             $classStorage = null;
 
-            $nproc = Tools::getCpuCount();
-            $pool = new DefaultPool($nproc);
+            $pool = new DefaultPool($threads);
             $promises = [];
-            for ($x = 0; $x < $nproc; $x++) {
+            for ($x = 0; $x < $threads; $x++) {
                 $promises []= $pool->enqueue(new Init($this->graph));
             }
             yield $promises;
             $packages = $this->graph->getPackages();
             unset($this->graph);
 
-            if ($this->eventHandler instanceof EventHandler) {
-                $this->eventHandler->setProcessCount($nproc);
-            }
-
             $it = new \RecursiveDirectoryIterator($this->input, \RecursiveDirectoryIterator::SKIP_DOTS);
             $ri = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::SELF_FIRST);
 
             if ($this->eventHandler) {
-                $this->eventHandler->onBeginDirectoryTraversal(\iterator_count($ri));
+                $this->eventHandler->onBeginDirectoryTraversal(\iterator_count($ri), $threads);
             }
 
             $promises = [];
@@ -387,11 +385,12 @@ class Traverser
             yield $promises;
 
             $this->eventHandler?->onEndDirectoryTraversal();
+            $this->eventHandler?->onBeginClassGraphMerge($threads);
 
             $promises = [];
             /** @var ClassStoragePlugin|null */
             $classStorage = null;
-            for ($x = 0; $x < $nproc; $x++) {
+            for ($x = 0; $x < $threads; $x++) {
                 $promises []= call(function () use ($pool, &$classStorage) {
                     /** @var ClassStoragePlugin */
                     $newClassStorage = yield $pool->enqueue(new Shutdown());
@@ -400,9 +399,11 @@ class Traverser
                     } else {
                         $classStorage->merge($classStorage);
                     }
+                    $this->eventHandler?->onClassGraphMerged();
                 });
             }
             yield $promises;
+            $this->eventHandler?->onEndClassGraphMerge();
 
             yield $pool->shutdown();
 
@@ -412,7 +413,7 @@ class Traverser
                 if ($plugins) {
                     $this->input = $this->output;
                     $this->setPlugins($plugins);
-                    return yield $this->runAsync();
+                    return $this->runAsync($threads);
                 }
             }
 
@@ -444,17 +445,13 @@ class Traverser
     /**
      * Run phabel.
      *
-     * @param array $plugins   Plugins
-     * @param string $input    Input file/directory
-     * @param string $output   Output file/directory
-     * @param string $coverage Coverage path
-     *
-     * @psalm-param array<class-string<PluginInterface>, array> $plugins
-     *
      * @return array<string, string>
      */
-    public function run(): array
+    public function run(int $threads): array
     {
+        if ($threads > 1) {
+            return $this->runAsync($threads);
+        }
         \set_error_handler(
             function (int $errno = 0, string $errstr = '', string $errfile = '', int $errline = -1): bool {
                 // If error is suppressed with @, don't throw an exception
@@ -512,7 +509,7 @@ class Traverser
         $it = new \RecursiveDirectoryIterator($this->input, \RecursiveDirectoryIterator::SKIP_DOTS);
         $ri = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::SELF_FIRST);
         if ($this->eventHandler) {
-            $this->eventHandler->onBeginDirectoryTraversal(\iterator_count($ri));
+            $this->eventHandler->onBeginDirectoryTraversal(\iterator_count($ri), 1);
         }
         /** @var \SplFileInfo $file */
         foreach ($ri as $file) {

@@ -399,6 +399,10 @@ abstract class Tools
      */
     public static function getCpuCount(): int
     {
+        static $result = -1;
+        if ($result !== -1) {
+            return $result;
+        }
         if (\defined('PHP_WINDOWS_VERSION_MAJOR')) {
             /*
             $str = trim((string) shell_exec('wmic cpu get NumberOfCores 2>&1'));
@@ -407,7 +411,7 @@ abstract class Tools
             }
             return ((int) $matches [1]);
             */
-            return 1;
+            return $result = 1;
         }
 
         if (\ini_get('pcre.jit') === '1'
@@ -415,11 +419,11 @@ abstract class Tools
             && \version_compare(\PHP_VERSION, '7.3.0') >= 0
             && \version_compare(\PHP_VERSION, '7.4.0') < 0
         ) {
-            return 1;
+            return $result = 1;
         }
 
         if (!\extension_loaded('pcntl')) {
-            return 1;
+            return $result = 1;
         }
 
         $has_nproc = \trim((string) @\shell_exec('command -v nproc'));
@@ -429,7 +433,7 @@ abstract class Tools
                 $ret = \trim($ret);
                 $tmp = \filter_var($ret, FILTER_VALIDATE_INT);
                 if (\is_int($tmp)) {
-                    return $tmp;
+                    return $result = $tmp;
                 }
             }
         }
@@ -439,7 +443,7 @@ abstract class Tools
             $ret = \trim($ret);
             $tmp = \filter_var($ret, FILTER_VALIDATE_INT);
             if (\is_int($tmp)) {
-                return $tmp;
+                return $result = $tmp;
             }
         }
 
@@ -447,10 +451,10 @@ abstract class Tools
             $cpuinfo = \file_get_contents('/proc/cpuinfo');
             $count = \substr_count($cpuinfo, 'processor');
             if ($count > 0) {
-                return $count;
+                return $result = $count;
             }
         }
 
-        return 1;
+        return $result = 1;
     }
 }
