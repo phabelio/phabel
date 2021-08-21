@@ -446,7 +446,7 @@ class Traverser
      *
      * @return array<string, string>
      */
-    public function run(int $threads): array
+    public function run(int $threads = 1): array
     {
         if ($threads > 1) {
             return $this->runAsync($threads);

@@ -10,8 +10,6 @@ use SebastianBergmann\CodeCoverage\Driver\Selector;
 use SebastianBergmann\CodeCoverage\Filter;
 
 use function Amp\Parallel\Worker\pool;
-use function Amp\Promise\all;
-use function Amp\Promise\wait;
 
 require_once 'vendor/autoload.php';
 
@@ -50,7 +48,7 @@ foreach (Php::VERSIONS as $version) {
     }
     $fs->remove("testsGenerated/Target$version");
     $fs->remove("testsGenerated/Target10$version");
-    $packages []= $promise = (new Traverser)
+    $packages += (new Traverser)
         ->setPlugins([
             PhabelTestGenerator::class => ['target' => $version],
             TypeHintReplacer::class => ['union' => true, 'nullable' => true, 'return' => true, 'types' => $types]
@@ -58,23 +56,16 @@ foreach (Php::VERSIONS as $version) {
         ->setInput('testsGenerated/Target')
         ->setOutput("testsGenerated/Target$version")
         ->setCoverage("expr$version")
-        ->runAsyncPromise();
-    $promise->onResolve(function (?\Throwable $e, ?array $res) use ($version, &$packagesSecondary) {
-        if ($e) {
-            throw $e;
-        }
-        $packagesSecondary []= (new Traverser)
+        ->runAsync();
+    $packagesSecondary += (new Traverser)
             ->setPlugins([
                 PhabelTestGenerator::class => ['target' => 1000+$version]
             ])
             ->setInput("testsGenerated/Target$version")
             ->setOutput("testsGenerated/Target10$version")
             ->setCoverage("expr10$version")
-            ->runAsyncPromise();
-    });
+            ->runAsync();
 }
-$packages = \array_merge(...wait(all($packages)));
-wait(all($packagesSecondary));
 
 if (!empty($packages)) {
     $cmd = "composer require --dev ";
