@@ -127,6 +127,8 @@ class GraphInternal
             /** @var Node|null $initNode */
             $initNode = null;
             foreach ($this->unlinkedNodes as $node) {
+                $this->unprocessedNode->detach($node);
+                echo "Processing ".$node->n().PHP_EOL;
                 if ($initNode) {
                     $node = $initNode->merge($node);
                 }
@@ -135,7 +137,13 @@ class GraphInternal
             }
             $this->unlinkedNodes = new SplObjectStorage;
             $this->unlinkedNodes->attach($initNode);
-            $result = $initNode->circular()->flatten();
+            $this->unprocessedNode->attach($initNode);;
+            try {
+                $result = $initNode->circular()->flatten();
+            } catch (\Throwable $e) {
+                $this->explore();
+                throw $e;
+            }
         } else {
             $result = \array_values(\array_values($this->plugins)[0])[0]->circular()->flatten();
         }
@@ -143,6 +151,17 @@ class GraphInternal
             throw new Exception('Did not process entire graph!');
         }
         return $result;
+    }
+    private function explore(): void
+    {
+        $result = [];
+        foreach ($this->plugins as $plugins) {
+            foreach ($plugins as $plugin) {
+                $plugin->explore($result);
+            }
+        }
+        \file_put_contents('/tmp/graph.dot', "digraph {\n  ".\implode(";\n  ", \array_keys($result))."\n}\n");
+        `dot -Tsvg > /tmp/graph.svg < /tmp/graph.dot`;
     }
     /**
      * Returns graph debug information.

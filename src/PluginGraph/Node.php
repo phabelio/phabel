@@ -29,6 +29,12 @@ class Node
      * @var class-string<PluginInterface>
      */
     private string $name;
+    /**
+     * Original plugin name.
+     *
+     * @var class-string<PluginInterface>
+     */
+    private string $nameConcat;
 
     /**
      * Associated package context.
@@ -196,6 +202,11 @@ class Node
             $that->extend($this);
             $that->extends->detach($other);
         }
+        $other->requiredBy = new SplObjectStorage;
+        $other->extendedBy = new SplObjectStorage;
+        $this->nameConcat ??= \basename(\str_replace('\\', '/', $this->name));
+        $this->nameConcat .= '+';
+        $this->nameConcat .= $other->nameConcat ?? \basename(\str_replace('\\', '/', $other->name));
         return $this;
     }
 
@@ -245,22 +256,52 @@ class Node
 
         $this->flattenInternal($queue);
         if ($this->extendedBy->count() || $this->requiredBy->count()) {
-            $this->explore();
+            $this->flattenInternal($queue, ' ', true);
+
             throw new Exception('Graph resolution has stalled');
         }
 
         return $queue;
     }
-    public function explore(string $prefix = ' ')
+    public function n(): string
     {
+        $n = \basename(\str_replace('\\', '/', $this->nameConcat ?? $this->name));
+        if ($n !== 'NestedExpressionFixer' && $n !== 'IssetExpressionFixer') {
+            if ($this->plugin->plugins[$this->name][0]) {
+                $n .= \str_replace(['"', '[', ']'], ['\\"', '\[', '\]'], \json_encode($this->plugin->plugins[$this->name][0]));
+            }
+        } else {
+            $n .= \md5(\json_encode($this->plugin->plugins[$this->name][0]));
+        }
+        $n .= ' '.\spl_object_id($this);
+        return '"'.$n.'"';
+    }
+    public function nn(): string
+    {
+        return \spl_object_id($this);
+    }
+    public function explore(array &$result, string $prefix = ' ')
+    {
+        //echo("$prefix enter extend {$this->name} ".$this->nn().PHP_EOL);
         foreach ($this->extendedBy as $e) {
-            $e->explore("$prefix ");
+            $result[$this->n().' -> '.$e->n()." [color=green]"] = true;
+            //$e->explore($result, "$prefix ");
         }
-        \var_dump($prefix.$this->name.' requires');
+        foreach ($this->extends as $e) {
+            $result[$e->n().' -> '.$this->n()." [color=green]"] = true;
+            //$e->explore($result, "$prefix ");
+        }
+        //echo("$prefix exit extend {$this->name} ".$this->nn().PHP_EOL);
+        //echo("$prefix enter require {$this->name} ".$this->nn().PHP_EOL);
         foreach ($this->requiredBy as $e) {
-            $e->explore("$prefix ");
+            $result[$this->n().' -> '.$e->n()." [color=green]"] = true;
+            //$e->explore($result, "$prefix ");
         }
-        \var_dump($prefix.$this->name.' exit');
+        foreach ($this->requires as $e) {
+            $result[$e->n().' -> '.$this->n()." [color=green]"] = true;
+            //$e->explore($result, "$prefix ");
+        }
+        //echo("$prefix exit require {$this->name} ".$this->nn().PHP_EOL);
     }
     /**
      * Internal flattening.
@@ -269,69 +310,116 @@ class Node
      *
      * @return void
      */
-    private function flattenInternal(SplQueue $queueOfQueues)
+    private function flattenInternal(SplQueue $queueOfQueues, $prefix = ' ', bool $print = false)
     {
+        do {
+            $processedAny = false;
         $queue = $queueOfQueues->top();
         $this->plugin->enqueue($queue, $this->packageContext);
         $this->graph->unprocessedNode->detach($this);
 
         $prevNode = null;
+        $toDetach = new SplQueue;
         foreach ($this->extendedBy as $node) {
             $node->extends->detach($this);
             if (\count($node->requires) + \count($node->extends) === 0) {
                 if ($prevNode instanceof self) {
                     $prevNode->merge($node);
-                    $this->extendedBy->detach($node);
+                    $toDetach->enqueue($node);
                     $this->graph->unprocessedNode->detach($node);
                 } else {
                     $prevNode = $node;
                 }
             }
         }
+        foreach ($toDetach as $node) {
+            $this->extendedBy->detach($node);
+        }
 
         $prevNode = null;
+        $toDetach = new SplQueue;
         foreach ($this->requiredBy as $node) {
             $node->requires->detach($this);
             if (\count($node->requires) + \count($node->extends) === 0) {
                 if ($prevNode instanceof self) {
                     $prevNode->merge($node);
-                    $this->requiredBy->detach($node);
+                    $toDetach->enqueue($node);
                     $this->graph->unprocessedNode->detach($node);
                 } else {
                     $prevNode = $node;
                 }
             }
         }
+        foreach ($toDetach as $node) {
+            $this->requiredBy->detach($node);
+        }
 
-        do {
-            $processed = false;
-            \var_dump($prefix.$this->name.' extends');
-            foreach ($this->extendedBy as $node) {
-                if (\count($node->extends) + \count($node->requires) === 0) {
-                    $this->extendedBy->detach($node);
-                    $node->flattenInternal($queueOfQueues);
-                    $processed = true;
+            do {
+                if ($print) {
+                    echo("$prefix enter extend {$this->name} ".$this->nn().PHP_EOL);
                 }
-                \var_dump($prefix.$this->name.' extends done');
-            }
-        } while ($processed);
-        do {
-            $processed = false;
-            \var_dump($prefix.$this->name.' requires');
-            foreach ($this->requiredBy as $node) {
-                if (\count($node->extends) + \count($node->requires) === 0) {
-                    $this->requiredBy->detach($node);
-                    if (!$queue->isEmpty()) {
-                        $queueOfQueues->enqueue(new SplQueue);
+                $processed = false;
+                $toDetach = new SplQueue;
+                foreach ($this->extendedBy as $node) {
+                    if (\count($node->extends) + \count($node->requires) === 0) {
+                        $toDetach->enqueue($node);
+                        $node->flattenInternal($queueOfQueues, "$prefix ", $print);
+                        $processed = true;
+                    } elseif ($print) {
+                        //var_dump($node->extends);
                     }
-                    $node->flattenInternal($queueOfQueues);
-                    $processed = true;
-                } else {
-                    \var_dump($prefix." skip ".$node->name);
                 }
-            }
-            \var_dump($prefix.$this->name.' requires done');
-        } while ($processed);
+                foreach ($toDetach as $node) {
+                    $this->extendedBy->detach($node);
+                }
+                if ($print) {
+                    echo("$prefix exit extend {$this->name} ".$this->nn().PHP_EOL);
+                }
+                $processedAny = $processedAny || $processed;
+            } while ($processed);
+            do {
+                if ($print) {
+                    echo("$prefix enter require {$this->name} ".$this->nn().PHP_EOL);
+                }
+                $processed = false;
+                $toDetach = new SplQueue;
+                foreach ($this->requiredBy as $node) {
+                    if (\count($node->extends) + \count($node->requires) === 0) {
+                        $toDetach->enqueue($node);
+                        if (!$queue->isEmpty()) {
+                            $queueOfQueues->enqueue(new SplQueue);
+                        }
+                        $node->flattenInternal($queueOfQueues, "$prefix ", $print);
+                        $processed = true;
+                    }
+                }
+                foreach ($toDetach as $node) {
+                    $this->requiredBy->detach($node);
+                }
+                if ($print) {
+                    echo("$prefix exit require {$this->name} ".$this->nn().PHP_EOL);
+                }
+                $processedAny = $processedAny || $processed;
+            } while ($processed);
+        } while ($processedAny);
+        if ($print) {
+            echo("$prefix DONE {$this->name} ".$this->nn().PHP_EOL);
+        }
+    }
+
+    public function __debugInfo()
+    {
+        $e = \array_map(fn ($f) => $f->name, \iterator_to_array($this->extends));
+        $r = \array_map(fn ($f) => $f->name, \iterator_to_array($this->requires));
+        $eBy = \array_map(fn ($f) => $f->name, \iterator_to_array($this->extendedBy));
+        $rBy = \array_map(fn ($f) => $f->name, \iterator_to_array($this->requiredBy));
+        return [
+            'name' => "{$this->name} ".$this->nn(),
+            'extendedBy' => $eBy,
+            'requiredBy' => $rBy,
+            'extends' => $e,
+            'requires' => $r
+        ];
     }
 
     /**
