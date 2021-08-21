@@ -373,7 +373,7 @@ class Transformer extends EventHandler
                 [$package] = $this->extractTarget(\str_replace('\\', '/', $rel));
                 return \implode('/', \array_slice(\explode('/', $package), 0, 2));
             })
-            ->run((int) (getenv('PHABEL_PARALLEL') ?: 1));
+            ->run((int) (\getenv('PHABEL_PARALLEL') ?: 1));
 
         if (!$enabled) {
             unset($traverser);

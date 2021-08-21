@@ -4,7 +4,6 @@ namespace Phabel;
 
 use Amp\Parallel\Worker\DefaultPool;
 use Amp\Promise;
-use Phabel\Cli\EventHandler;
 use Phabel\Plugin\ClassStoragePlugin;
 use Phabel\PluginGraph\Graph;
 use Phabel\PluginGraph\ResolvedGraph;

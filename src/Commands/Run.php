@@ -22,7 +22,7 @@ class Run extends Command
     {
         $target = \getenv('PHABEL_TARGET') ?: null;
         $coverage = \getenv('PHABEL_COVERAGE') ?: false;
-        $parallel = getenv('PHABEL_PARALLEL') ?: 1;
+        $parallel = \getenv('PHABEL_PARALLEL') ?: 1;
 
         $this
             ->setDescription('Run transpiler.')

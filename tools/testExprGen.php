@@ -58,7 +58,7 @@ foreach (Php::VERSIONS as $version) {
         ->setInput('testsGenerated/Target')
         ->setOutput("testsGenerated/Target$version")
         ->setCoverage("expr$version")
-        ->runAsync();
+        ->runAsyncPromise();
     $promise->onResolve(function (?\Throwable $e, ?array $res) use ($version, &$packagesSecondary) {
         if ($e) {
             throw $e;
@@ -70,7 +70,7 @@ foreach (Php::VERSIONS as $version) {
             ->setInput("testsGenerated/Target$version")
             ->setOutput("testsGenerated/Target10$version")
             ->setCoverage("expr10$version")
-            ->runAsync();
+            ->runAsyncPromise();
     });
 }
 $packages = \array_merge(...wait(all($packages)));

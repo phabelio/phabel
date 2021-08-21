@@ -73,10 +73,12 @@ class EventHandler extends PhabelEventHandler
         $this->logger->warning("");
     }
 
-    public function onBeginClassGraphMerge(int $count): void {
+    public function onBeginClassGraphMerge(int $count): void
+    {
         $this->startProgressBar("Merging class graphs...", $count);
     }
-    public function onClassGraphMerged(): void {
+    public function onClassGraphMerged(): void
+    {
         $this->progress?->advance();
         $this->logger->debug($this->outputFormatter->format("<phabel>Merged class graph!</phabel>"));
     }

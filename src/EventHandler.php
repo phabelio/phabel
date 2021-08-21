@@ -25,9 +25,15 @@ abstract class EventHandler implements EventHandlerInterface
     public function onEndDirectoryTraversal(): void
     {
     }
-    public function onBeginClassGraphMerge(int $count): void{}
-    public function onClassGraphMerged(): void{}
-    public function onEndClassGraphMerge(): void{}
+    public function onBeginClassGraphMerge(int $count): void
+    {
+    }
+    public function onClassGraphMerged(): void
+    {
+    }
+    public function onEndClassGraphMerge(): void
+    {
+    }
     public function onEnd(): void
     {
     }
