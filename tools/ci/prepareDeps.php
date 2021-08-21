@@ -18,7 +18,7 @@ $packages = (new Traverser)
     ->setInput('.')
     ->setOutput('../phabelConverted')
     ->setCoverage('coverage/convertVendor.php')
-    ->run();
+    ->runAsync();
 
 `cp -a ../phabelConverted/vendor .`;
 

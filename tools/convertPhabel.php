@@ -43,7 +43,7 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
             ->setOutput('../phabelConverted')
             ->setPlugins([Php::class => ['target' => $target]])
             ->setCoverage($coverage)
-            ->run();
+            ->runAsync();
         foreach (['tools', 'src', 'bin'] as $dir) {
             if (!\file_exists("../phabelConverted/$dir")) {
                 continue;

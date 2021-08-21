@@ -15,6 +15,12 @@ class Init implements Task
     }
     public function run(Environment $environment)
     {
+        if (\function_exists("cli_set_process_title")) {
+            try {
+                @\cli_set_process_title("Phabel - PHP transpiler worker");
+            } catch (\Throwable $e) {
+            }
+        }
         \set_error_handler(
             function (int $errno = 0, string $errstr = '', string $errfile = '', int $errline = -1): bool {
                 // If error is suppressed with @, don't throw an exception

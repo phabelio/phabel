@@ -128,7 +128,7 @@ class Builder
     /**
      * Add method.
      *
-     * @var ClassMethod $method
+     * @param ClassMethod $method
      */
     private function addMethod(ClassMethod $method)
     {

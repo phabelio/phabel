@@ -11,6 +11,7 @@ class EventHandler extends PhabelEventHandler
 {
     private OutputFormatter $outputFormatter;
     private ?ProgressBar $progress = null;
+    private int $nproc = 1;
     /**
      * Progress bar getter.
      *
@@ -23,6 +24,15 @@ class EventHandler extends PhabelEventHandler
     {
         $this->outputFormatter = Formatter::getFormatter();
         $this->getProgressBar = $getProgressBar;
+    }
+    /**
+     * Set process count
+     *
+     * @param integer $nproc
+     * @return void
+     */
+    public function setProcessCount(int $nproc): void {
+        $this->nproc = $nproc;
     }
     public function onBeginPluginGraphResolution(): void
     {
@@ -49,6 +59,9 @@ class EventHandler extends PhabelEventHandler
         }
         $this->count++;
         if ($this->progress) {
+            if ($this->nproc > 1) {
+                $message .= " ({$this->nproc} threads)";
+            }
             $this->progress->setMessage($message);
             $this->progress->clear();
             $this->progress->start();

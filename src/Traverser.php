@@ -4,6 +4,7 @@ namespace Phabel;
 
 use Amp\Parallel\Worker\DefaultPool;
 use Amp\Promise;
+use Phabel\Cli\EventHandler;
 use Phabel\Plugin\ClassStoragePlugin;
 use Phabel\PluginGraph\Graph;
 use Phabel\PluginGraph\ResolvedGraph;
@@ -21,6 +22,7 @@ use SebastianBergmann\CodeCoverage\Report\PHP;
 use SplQueue;
 
 use function Amp\call;
+use function Amp\Promise\wait;
 
 /**
  * AST traverser.
@@ -289,9 +291,18 @@ class Traverser
     /**
      * Run phabel asynchronously.
      *
+     * @return array
+     */
+    public function runAsync(): array
+    {
+        return wait($this->runAsyncPromise());
+    }
+    /**
+     * Run phabel asynchronously.
+     *
      * @return Promise<array>
      */
-    public function runAsync(): Promise
+    public function runAsyncPromise(): Promise
     {
         if (!\interface_exists(Promise::class)) {
             throw new Exception("amphp/parallel must be installed to parallelize transforms!");
@@ -319,6 +330,10 @@ class Traverser
             yield $promises;
             $packages = $this->graph->getPackages();
             unset($this->graph);
+
+            if ($this->eventHandler instanceof EventHandler) {
+                $this->eventHandler->setProcessCount($nproc);
+            }
 
             $it = new \RecursiveDirectoryIterator($this->input, \RecursiveDirectoryIterator::SKIP_DOTS);
             $ri = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::SELF_FIRST);
@@ -350,10 +365,12 @@ class Traverser
                                     $file->getRealPath(),
                                     $targetPath,
                                     $package,
-                                    "{$this->coverage}$count.php"
+                                    $this->coverage ? "{$this->coverage}$count.php" : ''
                                 )
                             );
-                            $coverages []= "{$this->coverage}$count.php";
+                            if ($this->coverage) {
+                                $coverages []= "{$this->coverage}$count.php";
+                            }
                             if ($res instanceof ExceptionWrapper) {
                                 throw $res->getException();
                             }
@@ -532,10 +549,11 @@ class Traverser
     public function setPackage(?string $package): void
     {
         /** @var SplQueue<SplQueue<PluginInterface>> */
-        $this->packageQueue = new SplQueue;
         if (!$package) {
+            $this->packageQueue = null;
             return;
         }
+        $this->packageQueue = new SplQueue;
         /** @var SplQueue<PluginInterface> */
         $newQueue = new SplQueue;
         foreach ($this->graph->getPlugins() as $queue) {

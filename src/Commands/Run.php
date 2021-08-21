@@ -58,7 +58,7 @@ class Run extends Command
             ->setInput($input->getArgument('input'))
             ->setOutput($input->getArgument('output'))
             ->setCoverage($input->getOption('coverage') ?: '')
-            ->run();
+            ->runAsync();
 
         if (!empty($packages)) {
             $cmd = "composer require --dev ";
