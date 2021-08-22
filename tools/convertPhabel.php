@@ -36,7 +36,8 @@ if (!$dry) {
 
 \chdir($home);
 r("composer install");
-r("cp -a src tools bin composer.json .php-cs-fixer.dist.php /tmp/phabelConvertedInput");
+r("cp -a * /tmp/phabelConvertedInput");
+r("rm -rf /tmp/phabelConvertedInput/vendor-bin");
 \chdir("/tmp/phabelConvertedInput");
 r("composer update --no-dev");
 
