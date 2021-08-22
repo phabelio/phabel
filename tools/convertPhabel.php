@@ -29,11 +29,9 @@ r("rm -rf /tmp/phabelConvertedInput");
 \mkdir('/tmp/phabelConvertedInput');
 
 if (!$dry) {
-    chdir($home);
-    $remote = trim(`git remote get-url $(git remote | tail -1)`);
     r("rm -rf /tmp/phabelConvertedRepo");
-    \chdir("/tmp");
-    r('git clone '.escapeshellarg($remote).' phabelConvertedRepo');
+    r("cp -a $home /tmp/phabelConvertedRepo");
+    r("rm -rf /tmp/phabelConvertedRepo/vendor");
 }
 
 \chdir($home);
@@ -44,8 +42,7 @@ r("composer update --no-dev");
 
 function commit(string $message)
 {
-    \chdir("/tmp/phabelConvertedRepo");
-    r("cp -a /tmp/phabelConvertedOutput/* .");
+    r("cp -a /tmp/phabelConvertedOutput/* /tmp/phabelConvertedRepo");
     r("git add -A");
     r("git commit -m " . \escapeshellarg($message));
 }
