@@ -1,6 +1,7 @@
 <?php
 
 use Composer\Util\Filesystem;
+use Phabel\Cli\EventHandler;
 use Phabel\Plugin\PhabelTestGenerator;
 use Phabel\Target\Php;
 use Phabel\Traverser;
@@ -16,7 +17,7 @@ $packagesSecondary = [];
 foreach (Php::VERSIONS as $version) {
     $fs->remove("tests/Target$version");
     $fs->remove("tests/Target10$version");
-    $packages += (new Traverser)
+    $packages += (new Traverser(EventHandler::create()))
         ->setPlugins([
             PhabelTestGenerator::class => ['target' => $version]
         ])
@@ -24,7 +25,7 @@ foreach (Php::VERSIONS as $version) {
         ->setOutput("tests/Target$version")
         ->setCoverage("test$version")
         ->runAsync();
-    $packagesSecondary += (new Traverser)
+    $packagesSecondary += (new Traverser(EventHandler::create()))
         ->setPlugins([
             PhabelTestGenerator::class => ['target' => 1000+$version]
         ])

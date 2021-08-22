@@ -1,5 +1,6 @@
 <?php
 
+use Phabel\Cli\EventHandler;
 use Phabel\Target\Php;
 use Phabel\Traverser;
 
@@ -23,7 +24,7 @@ EOF;
 $target = $argv[1];
 $dry = (bool) ($argv[2] ?? '');
 $branch = 'master';
-$tag = getenv('shouldTag') ?: null;
+$tag = \getenv('shouldTag') ?: null;
 
 $home = \realpath(__DIR__.'/../');
 r("rm -rf /tmp/phabelConvertedInput");
@@ -43,7 +44,7 @@ r("rm -rf vendor-bin/*/vendor");
 r("composer update --no-dev");
 
 if ($tag) {
-    r("rm -rf testsGenerated/Expression*");
+    r("rm -rf testsGenerated/*");
 }
 
 function commit(string $message)
@@ -79,12 +80,12 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
         if ($coverage) {
             $coverage .= "-{$target}";
         }
-        $packages += (new Traverser())
+        $packages += (new Traverser(EventHandler::create()))
             ->setInput($input)
             ->setOutput($output)
             ->setPlugins([Php::class => ['target' => $target]])
             ->setCoverage($coverage)
-            ->run((int) (getenv('PHABEL_PARALLEL') ?: 1));
+            ->run((int) (\getenv('PHABEL_PARALLEL') ?: 1));
 
         \chdir($output);
         r("$home/vendor/bin/php-cs-fixer fix");
@@ -141,7 +142,7 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
         commit("phabel.io: add dependencies");
         \chdir("/tmp/phabelConvertedRepo");
         if ($tag) {
-            r("git tag ".escapeshellarg("$tag.$target"));
+            r("git tag ".\escapeshellarg("$tag.$target"));
             r("git push -f origin " . \escapeshellarg("$tag.$target"));
         }
         r("git push -f origin " . \escapeshellarg("phabel_tmp:{$branch}-{$target}"));

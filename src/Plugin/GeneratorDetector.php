@@ -18,7 +18,17 @@ class GeneratorDetector extends Plugin
     /**
      * Whether this function is a generator.
      */
-    const IS_GENERATOR = 'isGenerator';
+    private const IS_GENERATOR = 'isGenerator';
+    /**
+     * Return whether this function is a generator
+     *
+     * @param FunctionLike $node
+     * @return boolean
+     */
+    public static function isGenerator(FunctionLike $node): bool
+    {
+        return $node->getAttribute(self::IS_GENERATOR, false);
+    }
     public function enterYield(Yield_ $node, Context $ctx): void
     {
         foreach ($ctx->parents as $parent) {

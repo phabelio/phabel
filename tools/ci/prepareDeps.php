@@ -1,5 +1,6 @@
 <?php
 
+use Phabel\Cli\EventHandler;
 use Phabel\Target\Php;
 use Phabel\Traverser;
 
@@ -13,7 +14,7 @@ foreach (Php::VERSIONS as $version) {
     }
 }
 
-$packages = (new Traverser)
+$packages = (new Traverser(EventHandler::create()))
     ->setPlugins([Php::class => ['target' => $version]])
     ->setInput('.')
     ->setOutput('../phabelConverted')

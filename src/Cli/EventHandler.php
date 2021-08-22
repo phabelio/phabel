@@ -6,6 +6,7 @@ use Phabel\EventHandler as PhabelEventHandler;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Helper\ProgressBar;
+use Symfony\Component\Console\Output\ConsoleOutput;
 
 class EventHandler extends PhabelEventHandler
 {
@@ -18,6 +19,25 @@ class EventHandler extends PhabelEventHandler
      */
     private $getProgressBar = null;
     private int $count = 0;
+
+    private static ?self $instance = null;
+
+    /**
+     * Create simple CLI-based preconfigured instance.
+     *
+     * @return self
+     */
+    public static function create(): self
+    {
+        if (!self::$instance) {
+            $output = new ConsoleOutput();
+            self::$instance = new EventHandler(
+                new SimpleConsoleLogger($output),
+                fn (int $max): ProgressBar => new ProgressBar($output, $max, -1)
+            );
+        }
+        return self::$instance;
+    }
 
     public function __construct(private LoggerInterface $logger, ?callable $getProgressBar)
     {

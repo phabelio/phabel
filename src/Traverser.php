@@ -405,6 +405,7 @@ class Traverser
             $this->eventHandler?->onEndClassGraphMerge();
 
             yield $pool->shutdown();
+            unset($pool);
 
             if ($classStorage) {
                 $plugins = $classStorage->finish();

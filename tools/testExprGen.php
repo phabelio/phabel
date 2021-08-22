@@ -2,6 +2,7 @@
 
 use Amp\Parallel\Worker\DefaultPool;
 use Composer\Util\Filesystem;
+use Phabel\Cli\EventHandler;
 use Phabel\Plugin\PhabelTestGenerator;
 use Phabel\Plugin\TypeHintReplacer;
 use Phabel\Target\Php;
@@ -48,7 +49,7 @@ foreach (Php::VERSIONS as $version) {
     }
     $fs->remove("testsGenerated/Target$version");
     $fs->remove("testsGenerated/Target10$version");
-    $packages += (new Traverser)
+    $packages += (new Traverser(EventHandler::create()))
         ->setPlugins([
             PhabelTestGenerator::class => ['target' => $version],
             TypeHintReplacer::class => ['union' => true, 'nullable' => true, 'return' => true, 'types' => $types]
@@ -57,14 +58,14 @@ foreach (Php::VERSIONS as $version) {
         ->setOutput("testsGenerated/Target$version")
         ->setCoverage("expr$version")
         ->runAsync();
-    $packagesSecondary += (new Traverser)
-            ->setPlugins([
-                PhabelTestGenerator::class => ['target' => 1000+$version]
-            ])
-            ->setInput("testsGenerated/Target$version")
-            ->setOutput("testsGenerated/Target10$version")
-            ->setCoverage("expr10$version")
-            ->runAsync();
+    $packagesSecondary += (new Traverser(EventHandler::create()))
+        ->setPlugins([
+            PhabelTestGenerator::class => ['target' => 1000+$version]
+        ])
+        ->setInput("testsGenerated/Target$version")
+        ->setOutput("testsGenerated/Target10$version")
+        ->setCoverage("expr10$version")
+        ->runAsync();
 }
 
 if (!empty($packages)) {

@@ -430,7 +430,7 @@ class TypeHintReplacer extends Plugin
             return $func;
         }
         $func->returnType = null;
-        if ($func->getAttribute(GeneratorDetector::IS_GENERATOR, false)) {
+        if (GeneratorDetector::isGenerator($func)) {
             $this->stack->push([self::IGNORE_RETURN]);
             return $func;
         }
