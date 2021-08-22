@@ -20,7 +20,7 @@ class GeneratorDetector extends Plugin
      */
     private const IS_GENERATOR = 'isGenerator';
     /**
-     * Return whether this function is a generator
+     * Return whether this function is a generator.
      *
      * @param FunctionLike $node
      * @return boolean

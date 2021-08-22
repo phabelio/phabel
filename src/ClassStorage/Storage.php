@@ -10,7 +10,7 @@ use PhpParser\Node\Stmt\ClassMethod;
  */
 class Storage
 {
-    private const MODIFIER_NORMAL = 64;
+    private const MODIFIER_NORMAL = 256;
     const STORAGE_KEY = 'Storage:instance';
     /**
      * Method list.

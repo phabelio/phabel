@@ -3,7 +3,7 @@
 namespace Phabel\Target\Php72;
 
 use Phabel\Plugin;
-use Phabel\Plugin\ClassStoragePlugin;
+use Phabel\Plugin\ClassStoragePluginCrawler;
 use Phabel\Target\Php72\TypeContravariance\TypeContravariance as T;
 
 /**
@@ -14,6 +14,6 @@ class TypeContravariance extends Plugin
 {
     public static function previous(array $config): array
     {
-        return [ClassStoragePlugin::class => [T::class => true]];
+        return [ClassStoragePluginCrawler::class => [T::class => true]];
     }
 }

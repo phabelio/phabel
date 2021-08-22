@@ -4,6 +4,7 @@ namespace Phabel;
 
 use JsonSerializable;
 use Phabel\ClassStorage\Storage;
+use Phabel\Plugin\ClassStoragePluginRepeater;
 use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Nop;
@@ -15,29 +16,6 @@ abstract class ClassStorageProvider extends Plugin implements JsonSerializable
      * Class count.
      */
     private array $count = [];
-
-    /**
-     * Check if plugin should run.
-     *
-     * @param string $package Package name
-     *
-     * @return boolean
-     */
-    public function shouldRun(string $package): bool
-    {
-        return true;
-    }
-    /**
-     * Check if plugin should run.
-     *
-     * @param string $file File name
-     *
-     * @return boolean
-     */
-    public function shouldRunFile(string $file): bool
-    {
-        return $this->getGlobalClassStorage()->shouldProcess($file);
-    }
 
     /**
      * Process class graph.
@@ -101,5 +79,15 @@ abstract class ClassStorageProvider extends Plugin implements JsonSerializable
     public function jsonSerialize(): string
     {
         return \spl_object_hash($this);
+    }
+
+    public static function previous(array $config): array
+    {
+        return [
+            ClassStoragePluginRepeater::class => [
+                ClassStorage::class => $config[ClassStorage::class],
+                static::class => true
+            ]
+        ];
     }
 }

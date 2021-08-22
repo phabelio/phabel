@@ -15,6 +15,7 @@ $fs->remove("coverage");
 $packages = [];
 $packagesSecondary = [];
 foreach (Php::VERSIONS as $version) {
+    echo "$version\n";
     $fs->remove("tests/Target$version");
     $fs->remove("tests/Target10$version");
     $packages += (new Traverser(EventHandler::create()))
@@ -24,7 +25,7 @@ foreach (Php::VERSIONS as $version) {
         ->setInput('tests/Target')
         ->setOutput("tests/Target$version")
         ->setCoverage("test$version")
-        ->runAsync();
+        ->run(\getenv('PHABEL_PARALLEL') ?: -1);
     $packagesSecondary += (new Traverser(EventHandler::create()))
         ->setPlugins([
             PhabelTestGenerator::class => ['target' => 1000+$version]
@@ -32,7 +33,7 @@ foreach (Php::VERSIONS as $version) {
         ->setInput("tests/Target$version")
         ->setOutput("tests/Target10$version")
         ->setCoverage("test10$version")
-        ->runAsync();
+        ->run(\getenv('PHABEL_PARALLEL') ?: -1);
 }
 
 if (!empty($packages)) {

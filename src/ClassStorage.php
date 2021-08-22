@@ -27,7 +27,7 @@ final class ClassStorage
     private array $traits = [];
 
     /**
-     * Files.
+     * Files to process.
      *
      * @var array<string, true>
      */
@@ -66,14 +66,13 @@ final class ClassStorage
     }
 
     /**
-     * Whether we should process this file.
+     * Get all files to process.
      *
-     * @param string $file File to process
-     * @return boolean
+     * @return array<string, true>
      */
-    public function shouldProcess(string $file): bool
+    public function getFiles(): array
     {
-        return isset($this->files[$file]);
+        return $this->files;
     }
 
     /**

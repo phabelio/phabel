@@ -15,7 +15,7 @@ use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Trait_;
 
-final class ClassStoragePlugin extends Plugin
+abstract class ClassStoragePlugin extends Plugin
 {
     /**
      * Storage.
@@ -39,7 +39,7 @@ final class ClassStoragePlugin extends Plugin
      *
      * @var array<class-string<ClassStorageProvider>, true>
      */
-    private array $finalPlugins = [];
+    protected array $finalPlugins = [];
 
     /**
      * Check if plugin should run.
@@ -73,6 +73,7 @@ final class ClassStoragePlugin extends Plugin
     public function setConfigArray(array $config): void
     {
         $this->finalPlugins += $config;
+        parent::setConfigArray($config);
     }
 
     /**
@@ -156,21 +157,12 @@ final class ClassStoragePlugin extends Plugin
     /**
      * Resolve all classes, optionally fixing up a few methods.
      *
-     * @return array Config to pass to new Traverser instance
+     * @return array{0: array, 1: array<string, true>} Config to pass to new Traverser instance
      */
     public function finish(): array
     {
         $storage = new ClassStorage($this);
-        $changed = false;
-        foreach ($this->finalPlugins as $class => $_) {
-            if ($class::processClassGraph($storage)) {
-                $changed = true;
-            }
-        }
         $result = \array_fill_keys(\array_keys($this->finalPlugins), [ClassStorage::class => $storage]);
-        if ($changed) {
-            $result[self::class] = $this->finalPlugins;
-        }
-        return $result;
+        return [$result, $storage->getFiles()];
     }
 }

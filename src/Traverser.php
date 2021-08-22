@@ -70,6 +70,10 @@ class Traverser
      */
     private string $output = '';
     /**
+     * File whitelist.
+     */
+    private ?array $fileWhitelist = null;
+    /**
      * Callable to extract package name from path.
      *
      * @var (callable(string): string)|null
@@ -336,13 +340,16 @@ class Traverser
             $ri = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::SELF_FIRST);
 
             if ($this->eventHandler) {
-                $this->eventHandler->onBeginDirectoryTraversal(\iterator_count($ri), $threads);
+                $this->eventHandler->onBeginDirectoryTraversal($this->fileWhitelist ? \count($this->fileWhitelist) : \iterator_count($ri), $threads);
             }
 
             $promises = [];
             /** @var \SplFileInfo $file */
             foreach ($ri as $file) {
                 $rel = $ri->getSubPathname();
+                if ($this->fileWhitelist && !isset($this->fileWhitelist[$rel])) {
+                    continue;
+                }
                 $targetPath = $output.DIRECTORY_SEPARATOR.$rel;
                 if ($file->isDir()) {
                     if (!\file_exists($targetPath)) {
@@ -408,10 +415,12 @@ class Traverser
             unset($pool);
 
             if ($classStorage) {
-                $plugins = $classStorage->finish();
+                [$plugins, $files] = $classStorage->finish();
                 unset($classStorage);
                 if ($plugins) {
                     $this->input = $this->output;
+                    $this->fileWhitelist = $files;
+                    $this->composerPackageName = null;
                     $this->setPlugins($plugins);
                     return $this->runAsync($threads);
                 }
@@ -449,7 +458,7 @@ class Traverser
      */
     public function run(int $threads = 1): array
     {
-        if ($threads > 1) {
+        if ($threads > 1 || $threads === -1) {
             return $this->runAsync($threads);
         }
         \set_error_handler(
@@ -472,12 +481,14 @@ class Traverser
             if (!$classStorage) {
                 break;
             }
-            $plugins = $classStorage->finish();
+            [$plugins, $files] = $classStorage->finish();
             unset($classStorage);
             if (!$plugins) {
                 break;
             }
             $this->input = $this->output;
+            $this->fileWhitelist = $files;
+            $this->composerPackageName = null;
             $this->setPlugins($plugins);
         }
         $this->eventHandler?->onEnd();
@@ -509,11 +520,14 @@ class Traverser
         $it = new \RecursiveDirectoryIterator($this->input, \RecursiveDirectoryIterator::SKIP_DOTS);
         $ri = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::SELF_FIRST);
         if ($this->eventHandler) {
-            $this->eventHandler->onBeginDirectoryTraversal(\iterator_count($ri), 1);
+            $this->eventHandler->onBeginDirectoryTraversal($this->fileWhitelist ? \count($this->fileWhitelist) : \iterator_count($ri), 1);
         }
         /** @var \SplFileInfo $file */
         foreach ($ri as $file) {
             $rel = $ri->getSubPathname();
+            if ($this->fileWhitelist && !isset($this->fileWhitelist[$rel])) {
+                continue;
+            }
             $targetPath = $this->output.DIRECTORY_SEPARATOR.$rel;
             if ($file->isDir()) {
                 if (!\file_exists($targetPath)) {
@@ -595,7 +609,7 @@ class Traverser
             }
             /** @var Plugin */
             foreach ($queue as $plugin) {
-                if ($plugin->shouldRunFile($input)) {
+                if ($plugin->shouldRunFile($file)) {
                     $newQueue->enqueue($plugin);
                 }
             }
