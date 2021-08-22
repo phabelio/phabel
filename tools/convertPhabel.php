@@ -29,9 +29,11 @@ r("rm -rf /tmp/phabelConvertedInput");
 \mkdir('/tmp/phabelConvertedInput');
 
 if (!$dry) {
+    chdir($home);
+    $remote = trim(`git remote get-url $(git remote | tail -1)`);
     r("rm -rf /tmp/phabelConvertedRepo");
     \chdir("/tmp");
-    r("git clone git@github.com:phabelio/phabel phabelConvertedRepo");
+    r('git clone '.escapeshellarg($remote).' phabelConvertedRepo');
 }
 
 \chdir($home);
