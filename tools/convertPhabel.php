@@ -43,6 +43,7 @@ r("composer update --no-dev");
 function commit(string $message)
 {
     r("cp -a /tmp/phabelConvertedOutput/* /tmp/phabelConvertedRepo");
+    chdir("/tmp/phabelConvertedRepo/");
     r("git add -A");
     r("git commit -m " . \escapeshellarg($message));
 }
