@@ -79,7 +79,7 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
             ->setOutput($output)
             ->setPlugins([Php::class => ['target' => $target]])
             ->setCoverage($coverage)
-            ->runAsync();
+            ->run((int) (getenv('PHABEL_PARALLEL') ?: 1));
 
         \chdir($output);
         r("$home/vendor/bin/php-cs-fixer fix");
