@@ -38,13 +38,13 @@ if (!$dry) {
 r("composer install");
 r("cp -a * .php-cs-fixer.dist.php /tmp/phabelConvertedInput");
 \chdir("/tmp/phabelConvertedInput");
-r("rm -rf vendor-bin");
+r("rm -rf vendor-bin/*/vendor");
 r("composer update --no-dev");
 
 function commit(string $message)
 {
     r("cp -a /tmp/phabelConvertedOutput/* /tmp/phabelConvertedRepo");
-    chdir("/tmp/phabelConvertedRepo/");
+    \chdir("/tmp/phabelConvertedRepo/");
     r("git add -A");
     r("git commit -m " . \escapeshellarg($message));
 }

@@ -132,7 +132,7 @@ class Php extends Plugin
             NewFixer::class => []
         ];
         foreach (self::getRange((int) ($config['target'] ?? self::DEFAULT_TARGET)) as $version) {
-            if (!\file_exists($dir = __DIR__."/Php$version")) {
+            if (!\file_exists(__DIR__."/Php$version")) {
                 continue;
             }
             foreach (['Nested', 'Isset'] as $t) {

@@ -7,500 +7,500 @@ use PHPUnit\Framework\TestCase;
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT
  */
-class Expressiond3e9a884efb61ff2509545e5219a5ddfe1c5f821473612566dc786b5de915ce2Test extends TestCase
+class Expression3b2264e751b13fbde2a8cc617346870eda376bcc96139615193434c5925cc9c3Test extends TestCase
 {
     function test02688df3a5fe158f1a79503df999dc511618878604a5ab6ea3e232c009c66a43()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset($test?->{$test?->{$test}}));
+        $this->assertTrue(true);
+        fn() => isset($test?->{$test?->{$test}});
     }
     function test0590197ab2da5438a74f1040349f200e8e5ccf1cf7b195fade1a6dcb28008944()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => $test?->{$test ? $test : $test};
     }
     function test09f7474faecaab992769dfa51a4e7f0fe6fa1605f220beca68e1f29f7573b379()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset($test?->{self}));
+        $this->assertTrue(true);
+        fn() => isset($test?->{self});
     }
     function test0ab0b3c9a39fd96970758d2982145c970d1542ec30aadef7815203c4c1add290()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => $test?->{isset($test)};
     }
     function test0b2bea4c41ef067e3c1f8ab0187393d9bcb470a1885ba37783b5a8e2407e7c5a()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => $test?->{$test};
     }
     function test0c974302da78e707b4603629c8f05e218cb5316170550df2b1b846695e40450b()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => $test?->{$test::$test};
     }
     function test0cb5c4578608b38046c1b5db85180a2b5164b5a6c80acbbf2b8cc47899745e54()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => 'test'?->{$test};
     }
     function test0ce0544485ff90f8e586b87e0ed37f445a68786f184212da3abf30479f9da438()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => (0)?->{$test};
+    }
+    function test1002c9133bc36562fa0bd64ea05e9daba5bc9e7d77d5fd234196be3e3e78d3a3()
+    {
+        $this->assertTrue(true);
+        fn() => $test?->{yield from $test};
     }
     function test1155f47457d7afc2d2db9cd6ebd359661a947961b6e7111c3202b2fa5f657931()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => $test?->{ $test};
     }
     function test134d22bc5a83214346c515103ad346f91f10dfd05a930a25bafad77e9b3ebbb0()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset($test?->{$test++}));
+        $this->assertTrue(true);
+        fn() => isset($test?->{$test++});
     }
     function test14ea21b052132135d2c90293ed950de4e9921237ca39e85ed178dc6cd55e1775()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset($test?->{${$test}}));
+        $this->assertTrue(true);
+        fn() => isset($test?->{${$test}});
     }
     function test171c1733dd8a0964ce98eecc66291b4c52989f3ea7509684b3a75e60a30f3c9d()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => $test?->{$test?->{$test}};
     }
     function test1c37e3daec14a2c34519992ed470241f6e94a7bd00965353e094884349414ed5()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset((__NAMESPACE__)?->{$test}));
+        $this->assertTrue(true);
+        fn() => isset((__NAMESPACE__)?->{$test});
     }
     function test1c8f3ed1a910ccf3aedc778e66cb626a42bb307e16070c06826090be2b08190e()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset($test?->{+$test}));
+        $this->assertTrue(true);
+        fn() => isset($test?->{+$test});
     }
     function test1f7047f8e2870226b1cd58ad277b5afc134b2f979ddc8f63f25dfb4e9f4f30f4()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset($test?->{match ($test) {
-        }}));
+        $this->assertTrue(true);
+        fn() => isset($test?->{match ($test) {
+        }});
     }
     function test234fa6d2fbe9274f4a1dd26460f3d2ce527b7747b95512b965b093b62e45ad01()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => $test?->{new $test()};
     }
     function test2cb0eba5fa9f69b2b8c09c9b90763743189bc6e823feb0a9e8c770825a1bf0d1()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => $test?->{match ($test) {
         }};
     }
     function test2cc9ade07f0bc68da901755d109cf0da08b3b30340df32b06a1855fd8fbe75f8()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => $test?->{-$test};
     }
     function test30f22d47fbb7d40087857bd410b1be20f5cae167bfdf7a77219f9456df6721be()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset($test?->{isset($test)}));
+        $this->assertTrue(true);
+        fn() => isset($test?->{isset($test)});
     }
     function test3271145e933191347ff7159917ac6cd9d5ddf381d706512069277c2e25ecd376()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset((__LINE__)?->{$test}));
+        $this->assertTrue(true);
+        fn() => isset((__LINE__)?->{$test});
     }
     function test34a5d0fd401978d3735694c9329557dd2c4933aab930e377b227b22856678845()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset($test?->{$test?->{$test}()}));
+        $this->assertTrue(true);
+        fn() => isset($test?->{$test?->{$test}()});
     }
     function test34d4c72c8d251c349e61d5b5b9659186b5e051fc9b14338296d237e0b45e6361()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => $test?->{$test->{$test}()};
     }
     function test37d926483012dc697242732220701f46fa994e75cc70b9f89c4daa676fa5c32c()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => $test?->{$test[$test]};
     }
     function test3f27d129cffd26765d6f8f6ee29cfbc043f8f13dbe4feb59501bfacaa617e26e()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset($test?->{$test =& $test}));
+        $this->assertTrue(true);
+        fn() => isset($test?->{$test =& $test});
     }
     function test417ffd2e3abd01bf225afd0af1b9f140493a6b5008ff651e8b32670f11ee40d1()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset($test?->{$test->{$test}}));
+        $this->assertTrue(true);
+        fn() => isset($test?->{$test->{$test}});
     }
     function test430efd6f52173a32614b1faec6e07958d7f137931853ccb6db167cade870e98c()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => $test?->{$test?->{$test}()};
     }
     function test4475dd4bb9f2f4567369ba298c9e2a49ef8b898becc8d80e78fd1c27a2ec9f7f()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => ("{$test}")?->{$test};
     }
     function test45bb30132467932f21bc1750fd4f705486e5e425b98c4871a73f67553afafbc7()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => (__LINE__)?->{$test};
     }
     function test48297e805eb028429013ec5d97a837101de255ac4ffce49c2a3bddd7a613b52d()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => $test?->{$test()};
     }
     function test4bf8589b71a31e450f1c673dc79563ec0bbddc7d725726231814871729e141e1()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => $test?->{self};
     }
     function test513cdd8f37fd37d071b37f41a67a59f7370fc1fa1186618d280cdf6b5e1c8eee()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => $test?->{+$test};
     }
     function test52e65ec94fcc5cf8a43732590e778cf6e36fbf23999dfc38dc3f411961957d9c()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset((__FILE__)?->{$test}));
+        $this->assertTrue(true);
+        fn() => isset((__FILE__)?->{$test});
     }
     function test5574060b31afd0f728c9db2c91a94c20e6a534caf50039263905baf0bdbddf89()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => $test?->{$test--};
     }
     function test58b22dd8d3c310a6a98205765390dbea13e169f5fb5505185ad3317e83681888()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => $test?->{${$test}};
     }
     function test5fda0a5c50bfca045d77d8a105f72a08711b9088c870cad711985846ea651bc9()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset((__CLASS__)?->{$test}));
+        $this->assertTrue(true);
+        fn() => isset((__CLASS__)?->{$test});
     }
     function test66e71e4525e7a144dc13c9c66fcfa18553c202ac7b9a729a68575f465e450dd1()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset($test?->{$test[$test]}));
+        $this->assertTrue(true);
+        fn() => isset($test?->{$test[$test]});
     }
     function test69e34a2f386f228bfe1c9a30ba0506fa3b274497065d4feba6988c7cf2044a20()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => $test?->{--$test};
     }
     function test6c40db9701e46d0e94d544cfe1fee8c477e207b8f6ea900178e185879d378b9b()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset($test?->{$test}));
+        $this->assertTrue(true);
+        fn() => isset($test?->{$test});
     }
     function test6c57c911fb36e4fd3683ef8019d0eb47308975c979a90737a317954f2a7e989b()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset($test?->{$test()}));
+        $this->assertTrue(true);
+        fn() => isset($test?->{$test()});
     }
     function test6d208b1285cc93a3b6eb8dc077d3f9e7acd40d9b3fc8604c92feb0a2bf05ba6f()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => (__FUNCTION__)?->{$test};
     }
     function test6db7c93e33402abffa7c238dd1f93be32e6e0dea661565513a8263db96889ab0()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset((__DIR__)?->{$test}));
+        $this->assertTrue(true);
+        fn() => isset((__DIR__)?->{$test});
     }
     function test6e9da64c38a429eb6413eb697bde3dc4a86543e9909146f572417ebf312da7d0()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => (__METHOD__)?->{$test};
     }
     function test785590b6fb0d55e01e749feeb3ddd4d01529c3cce93bcfc7b07b9c7a67a04a00()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset($test?->{new $test()}));
+        $this->assertTrue(true);
+        fn() => isset($test?->{new $test()});
     }
     function test7cf3605715151f0b0efadc1accf1528b2c3957233e9411c454c01063e137b9cd()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset(("{$test}")?->{$test}));
+        $this->assertTrue(true);
+        fn() => isset(("{$test}")?->{$test});
     }
     function test7df50cb320ce75875293185cdc41841bf0f40d6f7048734c09c2de53e876f9aa()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset('test'?->{$test}));
+        $this->assertTrue(true);
+        fn() => isset('test'?->{$test});
     }
     function test84710c5516397d953284a2476260eaf7aefed880251bb4c605a21b3fded557a6()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => $test?->{eval($test)};
     }
     function test864278ea0e8b7917d46949244219b5c31f9a21be03d3c1d5e31b5c4158350e30()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => $test?->{print $test};
     }
     function test8ab81b97f9a67ae6c9ac33b9fd3ea1ee5a4e33e4b0267daef99e70afcddfff79()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => $test?->{empty($test)};
     }
     function test8b01f3a58edb00028ef318ecb5f3dea696700f1c8d07e44259c3f524e85f8274()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset($test?->{$test::$test}));
+        $this->assertTrue(true);
+        fn() => isset($test?->{$test::$test});
     }
     function test90365c32edad2b976474fb86dd47a773fa252ee261605c7da98ca3ace5eeee55()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset($test?->{empty($test)}));
+        $this->assertTrue(true);
+        fn() => isset($test?->{empty($test)});
+    }
+    function test95e9b00fb80bf425635f3dacb8b5568fc4eb7fe345d2001a741143bbbe1991bb()
+    {
+        $this->assertTrue(true);
+        fn() => isset($test?->{yield from $test});
     }
     function test97128ded9b115275b1589f45e30a45edc80a6fa1b247041905aca4a1ae59a8c5()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset($test?->{function () {
-        }}));
+        $this->assertTrue(true);
+        fn() => isset($test?->{function () {
+        }});
     }
     function test98caec4f3511fbd94a170ec3edd608fc5ea481a687a2e06a90f3542f24ac5df5()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => $test?->{$test++};
     }
     function test9a2b919172d1ba19a6ba6da44b42d073ba806ebf224922cfb7cd5b7b4b5a53d4()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset($test?->{$test::$test()}));
+        $this->assertTrue(true);
+        fn() => isset($test?->{$test::$test()});
     }
     function test9aa67bdbda55f91344537b91d4b1b7df133998d1b766587f53d9523b6592fea9()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset($test?->{``}));
+        $this->assertTrue(true);
+        fn() => isset($test?->{``});
     }
     function test9f3f727a91fb9fa57cb4f40f26a5fe0c3e13804490f20fa4a4f945ae7948a737()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => $test?->{$test::$test()};
     }
     function testa28371f5e12471fb9994ad00fce8007484954ffbf459988cb757bb8c9bf16506()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => $test?->{throw $test};
     }
     function testa5a24a29eef2b3a61a5099f271e35aed8bd9d0908641e534c649f73dd17c0a07()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset($test?->{print $test}));
+        $this->assertTrue(true);
+        fn() => isset($test?->{print $test});
     }
     function testa69886812834e11a580b1f559045f36303ad2528c93b13ea8945d6402df2d4d7()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => (__FILE__)?->{$test};
     }
     function testa739efc1c2ba50f8a849993edd8a645df3ee9eefdf530f2abd73195943367765()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => $test?->{$test =& $test};
     }
     function testa8f0ad4dbeeae775c576673f6cc7889063cc193c315c9f5a361c38958e3b271f()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => $test?->{clone $test};
     }
     function testaa06c81503e123d5b56f45e6cbddcd99f252d6dbf9b63055a78757a7c670316e()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => $test?->{$test instanceof $test};
     }
     function testaa30e24045f6e3548da343880fb1ee8caa7f4f163e1f9d5bcf766dbb042fc674()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => $test?->{!$test};
     }
     function testacebd0d99cc2f87506e620b236669d593e215d5296c14b6489d838dce3a8aaff()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => $test?->{$test::${$test}};
     }
     function testb2835f5976216e732f91b718bc2934317d159bbe429f80c15d62e8e70998f726()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset($test?->{clone $test}));
+        $this->assertTrue(true);
+        fn() => isset($test?->{clone $test});
     }
     function testb4a5438efb31492e3cc601d42e1bad9eb8471eedaf82c70f723c24c869081e44()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset($test?->test));
+        $this->assertTrue(true);
+        fn() => isset($test?->test);
     }
     function testb5a0dafd2dd7a250a2db1d6bda031b511bfe73ed1852dcf3eedefdcf57ac847e()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => (__TRAIT__)?->{$test};
     }
     function testb5e261b13ad988a7d3c07a337e948d4c4782c99777844e815cea0a02b901739d()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset($test?->{$test::${$test}}));
+        $this->assertTrue(true);
+        fn() => isset($test?->{$test::${$test}});
     }
     function testb7951548f9c008e7125a0f3675715f20fbf0b4604a11d0a98afa6c329cc18855()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset((0)?->{$test}));
+        $this->assertTrue(true);
+        fn() => isset((0)?->{$test});
     }
     function testb83bc1e17a817a8ef61505aff8e3f8e801a47bf8fba5c42327a357ab3044ef3c()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => $test?->{$test->{$test}};
     }
     function testbc6348d3076ef9bd2c456c6b4749ce9d2381b0d0cdceab6e259762f618ae752b()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset($test?->{$test ? $test : $test}));
+        $this->assertTrue(true);
+        fn() => isset($test?->{$test ? $test : $test});
     }
     function testbd8e496fbce5d6200798710c8144a6d40ef09e119301b2f7ea921961538da643()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset($test?->{$test--}));
+        $this->assertTrue(true);
+        fn() => isset($test?->{$test--});
     }
     function testc0cfbd3ea1df75144855f86c4fc326eb3e4a6f58ea4937dcc21b4c3768e0fe70()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset((__FUNCTION__)?->{$test}));
+        $this->assertTrue(true);
+        fn() => isset((__FUNCTION__)?->{$test});
     }
     function testc31ece68acaa995484b924143abc107930317dee1f27e6b3d02e2afa234892ab()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => $test?->{~$test};
     }
     function testc92aa9565d13841ceb97d5418757514e2b11a23dcec71e13855112fcd7d7de33()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset($test?->{ $test}));
+        $this->assertTrue(true);
+        fn() => isset($test?->{ $test});
     }
     function testca1f89d031ca0d3337d7e4189b587aaec4c486571d1514a0e736eb1af0be0ff0()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset($test?->{@$test}));
-    }
-    function testcc4aa077a552c7a1411e6e80eec9318c35b0274fb1a411b776228f4f8407f401()
-    {
-        $this->assertTrue(0 === 0);
-        fn() => (isset((0.0)?->{$test}));
+        $this->assertTrue(true);
+        fn() => isset($test?->{@$test});
     }
     function testcc5c5ab0420eda148569259c8d8863498fad975839b70ab637ed4178a1801594()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => $test?->test;
     }
     function testcc84f3e0ec74dd1771b77fae4f0ecd8df3397fa730db47f2d0be325fa5e977ae()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset($test?->{++$test}));
+        $this->assertTrue(true);
+        fn() => isset($test?->{++$test});
     }
     function testcdab6f133da85e6ef61d217987542722e21ec52bddd4c939badf84a6bcc0b7a9()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset($test?->{~$test}));
+        $this->assertTrue(true);
+        fn() => isset($test?->{~$test});
     }
     function testd29d31e368d82b372ef04020366ef72a8f6d33bd4d4affbe0545a188829909db()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => $test?->{``};
     }
     function testd6a0f6796e7aeac40fa5b6e45b8b0f1d95b4672a1728ad160f38e54d0bf97c7a()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => $test?->{@$test};
     }
     function testd6a54e98012c37967f00c087f906530fa0a8ea77c92b06bee2f3fb15309d5606()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => $test?->{++$test};
-    }
-    function testd6a5b723ec4a7b2a52ce353ada384140366b83017a00da828a10b96f2d3d6746()
-    {
-        $this->assertTrue(0 === 0);
-        fn() => (0.0)?->{$test};
     }
     function testd7cb36ce11a448823f017f9ba9a96d584f4ee45294519c4fede0866431d63a97()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset($test?->{-$test}));
+        $this->assertTrue(true);
+        fn() => isset($test?->{-$test});
     }
     function testd8f06a3a718e97776ff24aaf552bd810c271e7ce9e4ee7bb8026c05dd9b0f90a()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => (__DIR__)?->{$test};
     }
     function testd96edcc5fe2ebd8a8ad454a6e12d2dbfd48bff097fbce459267e92d282a6de7a()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => (__NAMESPACE__)?->{$test};
     }
     function testda3f435ce70e306b278d780cabceff6bc111711b18646547c199f7ee7972ad3d()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset($test?->{eval($test)}));
+        $this->assertTrue(true);
+        fn() => isset($test?->{eval($test)});
     }
     function testde7741ebe86e535ea84e6dd3f2eae84a6aa9aad23af5fd2c83860c74fb37f1be()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset($test?->{--$test}));
+        $this->assertTrue(true);
+        fn() => isset($test?->{--$test});
     }
     function teste0379f2173e7375cdd180f53d4064b314afc141153c5bf2cc45db0471d7f7a25()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset($test?->{$test->{$test}()}));
+        $this->assertTrue(true);
+        fn() => isset($test?->{$test->{$test}()});
     }
     function teste059bc60d64a6983923d97b10994ae20df914711341ce883e87179bcd5f34c3d()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => (__CLASS__)?->{$test};
     }
     function teste1f94b4de1a2cb21f97d8d4e19243d548fd2ffae75e9bab4ab650a7f2d923f33()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => $test?->{$test = $test};
     }
     function testeb889450f3e03f738b2e920f0b5176034979531605ec7101b8e49c86d227c98d()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset($test?->{$test = $test}));
+        $this->assertTrue(true);
+        fn() => isset($test?->{$test = $test});
     }
     function testf03fcda238cb686f1f12cd13caf595715c5321c1d05e39d4f18233cc5a6f2c78()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset((__METHOD__)?->{$test}));
+        $this->assertTrue(true);
+        fn() => isset((__METHOD__)?->{$test});
     }
     function testf302f28b6f6b9c61a4c011c74e0fcacb27e4df647e76e8f6860332f61ef3841d()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset($test?->{!$test}));
+        $this->assertTrue(true);
+        fn() => isset($test?->{!$test});
     }
     function testf3e67de2f3da111fa0cd4c9f10d016c8fa72115ad3a1f9d88ecbe0936f3ecdd7()
     {
-        $this->assertTrue(0 === 0);
+        $this->assertTrue(true);
         fn() => $test?->{function () {
         }};
     }
     function testf5a59b20cbf5161ee40c62efe1d24d0e6fbd4ff7d76855fa3118cd849fa2ce28()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset($test?->{throw $test}));
+        $this->assertTrue(true);
+        fn() => isset($test?->{throw $test});
     }
     function testf906e32dd95848a9e76aed7e6329c308666eaf5b806f29c1838a0acff832353b()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset((__TRAIT__)?->{$test}));
+        $this->assertTrue(true);
+        fn() => isset((__TRAIT__)?->{$test});
     }
     function testfcb55087899e62d071170861b806defa6f7316b0f5a74092578cfe173694346d()
     {
-        $this->assertTrue(0 === 0);
-        fn() => (isset($test?->{$test instanceof $test}));
+        $this->assertTrue(true);
+        fn() => isset($test?->{$test instanceof $test});
     }
 }
