@@ -22,65 +22,120 @@ EOF;
 }
 $target = $argv[1];
 $dry = (bool) ($argv[2] ?? '');
-if (!\file_exists('../phabelConverted')) {
-    \mkdir('../phabelConverted');
+$branch = 'master';
+
+$home = \realpath(__DIR__.'/../');
+r("rm -rf /tmp/phabelConvertedInput");
+\mkdir('/tmp/phabelConvertedInput');
+
+if (!$dry) {
+    r("rm -rf /tmp/phabelConvertedRepo");
+    \chdir("/tmp");
+    r("git clone git@github.com:phabelio/phabel phabelConvertedRepo");
 }
-r("git stash");
-$branch = \trim(\shell_exec("git rev-parse --abbrev-ref HEAD"));
+
+\chdir($home);
+r("composer install");
+r("cp -a src tools bin composer.json .php-cs-fixer.dist.php /tmp/phabelConvertedInput");
+\chdir("/tmp/phabelConvertedInput");
+r("composer update --no-dev");
+
+function commit(string $message)
+{
+    \chdir("/tmp/phabelConvertedRepo");
+    r("cp -a /tmp/phabelConvertedOutput/* .");
+    r("git add -A");
+    r("git commit -m " . \escapeshellarg($message));
+}
+
 foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
     if (!$dry) {
+        \chdir("/tmp/phabelConvertedRepo");
         \passthru("git branch -D phabel_tmp");
         r("git branch phabel_tmp");
         r("git checkout phabel_tmp");
+        r("rm -rf /tmp/phabelConvertedRepo/*");
     }
-    foreach ([Php::VERSIONS[\count(Php::VERSIONS)-1], $realTarget] as $target) {
+    r("rm -rf /tmp/phabelConvertedOutput");
+    \mkdir('/tmp/phabelConvertedOutput');
+
+    $packages = [];
+    foreach ([Php::VERSIONS[\count(Php::VERSIONS)-1], $realTarget] as $k => $target) {
+        if ($k === 0) {
+            $input = "/tmp/phabelConvertedInput";
+            $output = "/tmp/phabelConvertedOutput";
+        } else {
+            $input = $output = "/tmp/phabelConvertedOutput";
+        }
+        \chdir($input);
+
         $coverage = \getenv('PHABEL_COVERAGE') ?: '';
         if ($coverage) {
             $coverage .= "-{$target}";
         }
-        (new Traverser())
-            ->setInput('.')
-            ->setOutput('../phabelConverted')
+        $packages += (new Traverser())
+            ->setInput($input)
+            ->setOutput($output)
             ->setPlugins([Php::class => ['target' => $target]])
             ->setCoverage($coverage)
             ->runAsync();
-        foreach (['tools', 'src', 'bin'] as $dir) {
-            if (!\file_exists("../phabelConverted/$dir")) {
-                continue;
-            }
-            $files = new RecursiveIteratorIterator(
-                new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS),
-                RecursiveIteratorIterator::CHILD_FIRST,
-            );
 
-            foreach ($files as $fileinfo) {
-                $todo = ($fileinfo->isDir() ? 'rmdir' : 'unlink');
-                $todo($fileinfo->getRealPath());
-            }
+        \chdir($output);
+        r("$home/vendor/bin/php-cs-fixer fix");
 
-            \rmdir($dir);
-
-            \rename("../phabelConverted/$dir", $dir);
-        }
-        $packages["php"] = ">=" . Php::unnormalizeVersion(Php::normalizeVersion($target));
-        if (!empty($packages) && !$dry) {
-            $cmd = "composer require ";
-            foreach ($packages as $package => $constraint) {
-                $cmd .= \escapeshellarg("{$package}:{$constraint}") . " ";
-            }
-            r($cmd);
-        }
-        r("composer cs-fix");
         if (!$dry) {
-            r("git add -A");
-            r("git commit -m " . \escapeshellarg("phabel.io: transpile to {$target}"));
+            commit("phabel.io: transpile to {$target}");
         }
     }
+    \chdir("/tmp/phabelConvertedOutput");
+    r("$home/vendor/bin/php-scoper add-prefix -c $home/scoper.inc.php");
+    r("rm -rf vendor");
+    r("cp -a build/. .");
+    r("rm -rf build vendor/composer vendor/autoload.php vendor/scoper-autoload.php vendor/bin");
+    \rename("vendor", "vendor-bundle");
+
+    \file_put_contents('vendor-bundle/autoload.php', <<<PHP
+        <?php
+        if (file_exists(__DIR__.'/../vendor/autoload.php')) return require __DIR__.'/../vendor/autoload.php';
+        return require __DIR__.'/../../../autoload.php';
+    PHP);
+
+    $packages["php"] = ">=" . Php::unnormalizeVersion(Php::normalizeVersion($target));
+
+    $lock = \json_decode(\file_get_contents('composer.lock'), true);
+    $json = \json_decode(\file_get_contents('composer.json'), true);
+
+    $json['require'] = $packages;
+    foreach ($lock['packages'] as $package) {
+        $name = $package['name'];
+
+        if ($name === 'phabel/phabel') {
+            continue;
+        }
+        foreach (['psr-4', 'psr-0'] as $type) {
+            foreach ($package['autoload'][$type] ?? [] as $namespace => $path) {
+                $namespace = "Phabel\\$namespace";
+                $paths = \is_string($path) ? [$path] : $path;
+                $paths = \array_map(fn ($path) => "vendor-bundle/$name/$path", $paths);
+                $json['autoload'][$type][$namespace] = $paths;
+            }
+        }
+        $json['autoload']['files'] = \array_merge(
+            $json['autoload']['files'] ?? [],
+            \array_map(
+                fn ($path) => "vendor-bundle/$name/$path",
+                $package['autoload']['files'] ?? []
+            )
+        );
+    }
+
+    \file_put_contents('composer.json', \json_encode($json, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES));
+
     if (!$dry) {
+        commit("phabel.io: add dependencies");
+        \chdir("/tmp/phabelConvertedRepo");
         r("git push -f origin " . \escapeshellarg("phabel_tmp:{$branch}-{$target}"));
         r("git checkout " . \escapeshellarg($branch));
         r("git branch -D phabel_tmp");
     }
-    r("git reset --hard");
 }
-\passthru("git stash pop");

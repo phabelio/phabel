@@ -9,6 +9,7 @@
         "symfony/console": "^2.8.52 || ^3.4.35 || ^4.4 || ^5.0 || ^6.0",
         "symfony/process": "^2.8.52 || ^3.4.35 || ^4.4 || ^5.0 || ^6.0",
         "amphp/parallel": "^1.4",
+        "psr/log": "^1.0",
         "ext-json": "*"
     },
     "require-dev": {
@@ -23,7 +24,8 @@
         "symfony/polyfill-php72": "*",
         "symfony/polyfill-php73": "*",
         "symfony/polyfill-php74": "*",
-        "phpunit/php-code-coverage": "*"
+        "phpunit/php-code-coverage": "*",
+        "bamarni/composer-bin-plugin": "^1.4"
     },
     "provide": {
         "phabelio/phabel": "self.version"
