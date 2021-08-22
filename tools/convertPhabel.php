@@ -23,6 +23,7 @@ EOF;
 $target = $argv[1];
 $dry = (bool) ($argv[2] ?? '');
 $branch = 'master';
+$tag = getenv('shouldTag') ?: null;
 
 $home = \realpath(__DIR__.'/../');
 r("rm -rf /tmp/phabelConvertedInput");
@@ -40,6 +41,10 @@ r("cp -a * .php-cs-fixer.dist.php /tmp/phabelConvertedInput");
 \chdir("/tmp/phabelConvertedInput");
 r("rm -rf vendor-bin/*/vendor");
 r("composer update --no-dev");
+
+if ($tag) {
+    r("rm -rf testsGenerated/Expression*");
+}
 
 function commit(string $message)
 {
@@ -135,6 +140,10 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
     if (!$dry) {
         commit("phabel.io: add dependencies");
         \chdir("/tmp/phabelConvertedRepo");
+        if ($tag) {
+            r("git tag ".escapeshellarg("$tag.$target"));
+            r("git push -f origin " . \escapeshellarg("$tag.$target"));
+        }
         r("git push -f origin " . \escapeshellarg("phabel_tmp:{$branch}-{$target}"));
         r("git checkout " . \escapeshellarg($branch));
         r("git branch -D phabel_tmp");
