@@ -36,9 +36,9 @@ if (!$dry) {
 
 \chdir($home);
 r("composer install");
-r("cp -a * /tmp/phabelConvertedInput");
-r("rm -rf /tmp/phabelConvertedInput/vendor-bin");
+r("cp -a * .php-cs-fixer.dist.php /tmp/phabelConvertedInput");
 \chdir("/tmp/phabelConvertedInput");
+r("rm -rf vendor-bin");
 r("composer update --no-dev");
 
 function commit(string $message)
