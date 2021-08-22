@@ -37,15 +37,10 @@ if (!$dry) {
 }
 
 \chdir($home);
-r("composer install");
 r("cp -a * .php-cs-fixer.dist.php /tmp/phabelConvertedInput");
 \chdir("/tmp/phabelConvertedInput");
 r("rm -rf vendor-bin/*/vendor");
 r("composer update --no-dev");
-
-if ($tag) {
-    r("rm -rf testsGenerated/*");
-}
 
 function commit(string $message)
 {

@@ -12,27 +12,27 @@ class Expression55dc34b253d8ac2aa98f0cceb34fbd4c5cffe75f816ee17714a01daeb063ea22
     function test00a99e93e1974a85cc2715872944beeb870949388a0d722215c33a694ba5ebe7()
     {
         $this->assertTrue(true);
-        fn() => isset(($test < $test)[$test]);
+        fn() => (isset(($test < $test)[$test]));
     }
     function test01971a0a2aa1bf8135decdd3e7dd1fd7fe2421ec9ee0c0dbe60fc1ea76ee015d()
     {
         $this->assertTrue(true);
-        fn() => isset(($test or $test)[$test]);
+        fn() => (isset(($test or $test)[$test]));
     }
     function test02f30de4ef88735a14af8b8430ad824ed5d96a2d408c03e194435f3c2f1c9468()
     {
         $this->assertTrue(true);
-        fn() => isset(($test !== $test)[$test]);
+        fn() => (isset(($test !== $test)[$test]));
     }
     function test0a252b7d58341da7f6a998808cc2648ff0461ef7caa20ec5a63c1bb824c10630()
     {
         $this->assertTrue(true);
-        fn() => isset((__DIR__)[$test]);
+        fn() => (isset((__DIR__)[$test]));
     }
     function test0bcc25d593b6bbc74788bebbef58d6e5839c4a425faf5b00fdc1e29d0f52ffca()
     {
         $this->assertTrue(true);
-        fn() => isset(($test >= $test)[$test]);
+        fn() => (isset(($test >= $test)[$test]));
     }
     function test0c850db4941ab37caac89bf57bc0f59172550333cc8605245d2cf1337cbe52b1()
     {
@@ -47,7 +47,7 @@ class Expression55dc34b253d8ac2aa98f0cceb34fbd4c5cffe75f816ee17714a01daeb063ea22
     function test11d634ebbbd68765eb1f3db572448c05ed9a2a7a4fa7bdb44f168562cd5f8073()
     {
         $this->assertTrue(true);
-        fn() => isset(((string) $test)[$test]);
+        fn() => (isset(((string) $test)[$test]));
     }
     function test13d5dd4138a5d1de116641c71d280262d4fb5a1cd148786a13dd3cdc05600bbd()
     {
@@ -57,7 +57,7 @@ class Expression55dc34b253d8ac2aa98f0cceb34fbd4c5cffe75f816ee17714a01daeb063ea22
     function test14a67b5e22f3f19f54ec606bb0eaeba8fa6bd2eb35b25a6c4118a04a4b5f307a()
     {
         $this->assertTrue(true);
-        fn() => isset(((int) $test)[$test]);
+        fn() => (isset(((int) $test)[$test]));
     }
     function test153c30215d6778dbe78c5912ef17ef562a83df5911b4c3dc6d0a0896e808d203()
     {
@@ -72,7 +72,7 @@ class Expression55dc34b253d8ac2aa98f0cceb34fbd4c5cffe75f816ee17714a01daeb063ea22
     function test1a33b25d5a9d46a0740ac19906f3212abf8d53f8a3101b473937592d9cbdcbd0()
     {
         $this->assertTrue(true);
-        fn() => isset(($test * $test)[$test]);
+        fn() => (isset(($test * $test)[$test]));
     }
     function test1aa24ffb30053b163f183feb740e08c5cb0acd79d90d87cf9be4d292675e393c()
     {
@@ -82,7 +82,7 @@ class Expression55dc34b253d8ac2aa98f0cceb34fbd4c5cffe75f816ee17714a01daeb063ea22
     function test1de1eb2644ad6ef7ff9b5b1f18c00d5899c0e6605f090558ce857485c9bf8001()
     {
         $this->assertTrue(true);
-        fn() => isset(((array) $test)[$test]);
+        fn() => (isset(((array) $test)[$test]));
     }
     function test2315728460b036fba4edd1690cbe4dff80e4006d4b37368f017acd99dd722b5b()
     {
@@ -92,7 +92,7 @@ class Expression55dc34b253d8ac2aa98f0cceb34fbd4c5cffe75f816ee17714a01daeb063ea22
     function test249670e12327b1663c2051ace62fe45b33c66a70b759cc2f8abd4c934d63efbb()
     {
         $this->assertTrue(true);
-        fn() => isset((__LINE__)[$test]);
+        fn() => (isset((__LINE__)[$test]));
     }
     function test254ad866e863e039e5284a51e24f4cd168c550a804f0cc399f0c6e5dda73986f()
     {
@@ -117,7 +117,7 @@ class Expression55dc34b253d8ac2aa98f0cceb34fbd4c5cffe75f816ee17714a01daeb063ea22
     function test31d9b9becafa77531a821b85e6a7602919345f20752b4ea0a18933624e5257ec()
     {
         $this->assertTrue(true);
-        fn() => isset(($test ^ $test)[$test]);
+        fn() => (isset(($test ^ $test)[$test]));
     }
     function test3376e2447c2ff622c26d42f8473efc5d702702f5c382c018c43998bca70f012f()
     {
@@ -132,7 +132,7 @@ class Expression55dc34b253d8ac2aa98f0cceb34fbd4c5cffe75f816ee17714a01daeb063ea22
     function test37404cb3dcde91e5c16f65c7595066030f34fa92fac6777ee70aa266d23b7a09()
     {
         $this->assertTrue(true);
-        fn() => isset(($test xor $test)[$test]);
+        fn() => (isset(($test xor $test)[$test]));
     }
     function test37b4178472e1f536441e65d78536a9683abb778da72c6656e7d376578553e57b()
     {
@@ -147,7 +147,7 @@ class Expression55dc34b253d8ac2aa98f0cceb34fbd4c5cffe75f816ee17714a01daeb063ea22
     function test3fd822e81dedc0822c0513b95025b40ef721e9297f481959a9af3d803a2fe9a7()
     {
         $this->assertTrue(true);
-        fn() => isset(($test | $test)[$test]);
+        fn() => (isset(($test | $test)[$test]));
     }
     function test439f89a7d73339c52d6cb7cf2dcf1d85e84783c1fef7cf2c9a843126323ae35a()
     {
@@ -162,7 +162,7 @@ class Expression55dc34b253d8ac2aa98f0cceb34fbd4c5cffe75f816ee17714a01daeb063ea22
     function test4815f65627cafbbd035869934a88a165d331d7c9c353725e1dbdd594c9123a9a()
     {
         $this->assertTrue(true);
-        fn() => isset(($test and $test)[$test]);
+        fn() => (isset(($test and $test)[$test]));
     }
     function test490b50407b30f95a618dfe67f2dabf39d58fd7bf89afddb0ffd2398a59c9669d()
     {
@@ -172,12 +172,12 @@ class Expression55dc34b253d8ac2aa98f0cceb34fbd4c5cffe75f816ee17714a01daeb063ea22
     function test4c197f6fac7984af74b1380c393f0b2a3de04fb45b98cfd47b4f28611cedb7c3()
     {
         $this->assertTrue(true);
-        fn() => isset(((double) $test)[$test]);
+        fn() => (isset(((double) $test)[$test]));
     }
     function test4f6bacf5ad5bd3ed82c1816d1ad8b11ca12644eee28280ed9bc7b5c50f2110e6()
     {
         $this->assertTrue(true);
-        fn() => isset(($test && $test)[$test]);
+        fn() => (isset(($test && $test)[$test]));
     }
     function test552186378d98974db446fcdc74e7898766d3d115acc4f7e325b235060ca8c114()
     {
@@ -192,7 +192,7 @@ class Expression55dc34b253d8ac2aa98f0cceb34fbd4c5cffe75f816ee17714a01daeb063ea22
     function test5d20525e40ec7cc0d509358034d3e5607ce05e0f3971fc91e87132e90df04e44()
     {
         $this->assertTrue(true);
-        fn() => isset(($test <=> $test)[$test]);
+        fn() => (isset(($test <=> $test)[$test]));
     }
     function test5e1dfaf928928272d1b51ade9cf8349a4d50c9aecfe737395ef7260feaf09bd4()
     {
@@ -212,12 +212,12 @@ class Expression55dc34b253d8ac2aa98f0cceb34fbd4c5cffe75f816ee17714a01daeb063ea22
     function test635aeb89bda8785ee7a7ed137c05035e4be709804d376ea5acd4ad189543157d()
     {
         $this->assertTrue(true);
-        fn() => isset(($test <= $test)[$test]);
+        fn() => (isset(($test <= $test)[$test]));
     }
     function test68ee27afe4a040ee5421a0275bc4f5677fce9c90ebfca6d8580a2a66e4a6b13a()
     {
         $this->assertTrue(true);
-        fn() => isset(($test == $test)[$test]);
+        fn() => (isset(($test == $test)[$test]));
     }
     function test721cd8116bec111747ac46691e0a5655b77ab11dcd7102f892408cfd2d6bae41()
     {
@@ -232,7 +232,7 @@ class Expression55dc34b253d8ac2aa98f0cceb34fbd4c5cffe75f816ee17714a01daeb063ea22
     function test7d55c292084c2ba87a525dace8a391cbf3cedad825a56c521472bb267db4d7c9()
     {
         $this->assertTrue(true);
-        fn() => isset(((object) $test)[$test]);
+        fn() => (isset(((object) $test)[$test]));
     }
     function test7ed2a74bd8113d1c826a9591ccda20d748b6ceaeeac579c62c32e01b8f24c9ba()
     {
@@ -242,12 +242,12 @@ class Expression55dc34b253d8ac2aa98f0cceb34fbd4c5cffe75f816ee17714a01daeb063ea22
     function test817fc5d3f92e2a31926ac672a276d2b00208bfe4bcf39d3a2c3959f6e2cb1c05()
     {
         $this->assertTrue(true);
-        fn() => isset(($test === $test)[$test]);
+        fn() => (isset(($test === $test)[$test]));
     }
     function test819a002c2c348489c6b262aed1fd2b9faeff814d135d96c56a7b5d012b8bdcb1()
     {
         $this->assertTrue(true);
-        fn() => isset($test[$test = $test]);
+        fn() => (isset($test[$test = $test]));
     }
     function test83cfdf41cbc97a57caf81290b0e632266407065748b21c146cdb28dbc8fff0fc()
     {
@@ -257,7 +257,7 @@ class Expression55dc34b253d8ac2aa98f0cceb34fbd4c5cffe75f816ee17714a01daeb063ea22
     function test8421da9a74d514b83c7fa3c00300d195e5d0e57d5bb14438e76b7fd431358b92()
     {
         $this->assertTrue(true);
-        fn() => isset('test'[$test]);
+        fn() => (isset('test'[$test]));
     }
     function test8c01953e1f8e944d24c749fe9791489abf53d06cbf34b6927bae3a6a26761ba1()
     {
@@ -267,32 +267,32 @@ class Expression55dc34b253d8ac2aa98f0cceb34fbd4c5cffe75f816ee17714a01daeb063ea22
     function test8c834f5a37bbdbe25bbde7c8487cf9f2ab859417913d2c7738f8d851a225d5da()
     {
         $this->assertTrue(true);
-        fn() => isset((__METHOD__)[$test]);
+        fn() => (isset((__METHOD__)[$test]));
     }
     function test907ffc74aa5a6047f98d7663d40def221415b25d6e1b63f7fe15d0c6b2fa5994()
     {
         $this->assertTrue(true);
-        fn() => isset(($test ** $test)[$test]);
+        fn() => (isset(($test ** $test)[$test]));
     }
     function test90c179d4cd03b7481183231aad10d2206e5cd35766071cb35eaea4a796794518()
     {
         $this->assertTrue(true);
-        fn() => isset($test[[]]);
+        fn() => (isset($test[[]]));
     }
     function test90e9a8a918c34253662cdf7d0a526011e6d246d980431a2e6c6896b4c0bcb1f2()
     {
         $this->assertTrue(true);
-        fn() => isset((__FILE__)[$test]);
+        fn() => (isset((__FILE__)[$test]));
     }
     function test975f101cb20bd9796b8b0006a0909a83cedf377034f9c754a8b3148b545a1c57()
     {
         $this->assertTrue(true);
-        fn() => isset(($test >> $test)[$test]);
+        fn() => (isset(($test >> $test)[$test]));
     }
     function test9a45da5add55a3ea0db839d8af96b9ac3ca7969dd4875e23a492b295a2ea0369()
     {
         $this->assertTrue(true);
-        fn() => isset(($test << $test)[$test]);
+        fn() => (isset(($test << $test)[$test]));
     }
     function test9c74c7e06b3574b0dd3bab16d0c37778a4d9e1a87d2d4f163da12d61f49d0df6()
     {
@@ -327,12 +327,12 @@ class Expression55dc34b253d8ac2aa98f0cceb34fbd4c5cffe75f816ee17714a01daeb063ea22
     function testb482fce48c141703cbe387945109756d39ab970efa2e71f1936960dc04ca72c9()
     {
         $this->assertTrue(true);
-        fn() => isset((0.0)[$test]);
+        fn() => (isset((0.0)[$test]));
     }
     function testb5cef17af2888736dc692e2e817821f0838311f6c77a12a584cff1aa8cdb5558()
     {
         $this->assertTrue(true);
-        fn() => isset((0)[$test]);
+        fn() => (isset((0)[$test]));
     }
     function testb7c04e71a7ec985344bcf6e652e510962536b25e5f8c84d6fe168ca7341dccbd()
     {
@@ -347,32 +347,32 @@ class Expression55dc34b253d8ac2aa98f0cceb34fbd4c5cffe75f816ee17714a01daeb063ea22
     function testb90f628e13a97477f9a8766f9ad75572c953474888fc2d317a3f3a0b17de20cb()
     {
         $this->assertTrue(true);
-        fn() => isset(((bool) $test)[$test]);
+        fn() => (isset(((bool) $test)[$test]));
     }
     function testb957be1dbed3f1ddecd8ddf88fcb7468bd9f5bd1eacc2be237791ddea5c43fa5()
     {
         $this->assertTrue(true);
-        fn() => isset(($test - $test)[$test]);
+        fn() => (isset(($test - $test)[$test]));
     }
     function testbda4ae6f8fdc4506fb2b0dd222b4c168d46fce76d5ed5912eca6553a3fb180cc()
     {
         $this->assertTrue(true);
-        fn() => isset($test[$test[$test]]);
+        fn() => (isset($test[$test[$test]]));
     }
     function testbf3741db5f04e39110d6c558c5b795be5f09ee159bf519101f37f0ef90b8c89a()
     {
         $this->assertTrue(true);
-        fn() => isset(($test . $test)[$test]);
+        fn() => (isset(($test . $test)[$test]));
     }
     function testc083f254dcd0a613794a25f0860016c57c028096aab9d48a980380d2a7d77419()
     {
         $this->assertTrue(true);
-        fn() => isset(($test <<= $test)[$test]);
+        fn() => (isset(($test <<= $test)[$test]));
     }
     function testc6898decff753a385c3626f51afd37c95cbb238dee923aacb1e2e28cd0f86862()
     {
         $this->assertTrue(true);
-        fn() => isset(($test != $test)[$test]);
+        fn() => (isset(($test != $test)[$test]));
     }
     function testc72e4df84fbe1ba2dde8165f48aca3428c972f30e071fc01f336c6d58e312869()
     {
@@ -387,7 +387,7 @@ class Expression55dc34b253d8ac2aa98f0cceb34fbd4c5cffe75f816ee17714a01daeb063ea22
     function testcd39195d8488e056fadd11c7094283493a4d0b27822f08bfcddd179f9466e726()
     {
         $this->assertTrue(true);
-        fn() => isset(($test + $test)[$test]);
+        fn() => (isset(($test + $test)[$test]));
     }
     function testcdb20df27f2219985b9c6d8cb6cfccefebf683aee15876a28a855499e8f86427()
     {
@@ -397,27 +397,27 @@ class Expression55dc34b253d8ac2aa98f0cceb34fbd4c5cffe75f816ee17714a01daeb063ea22
     function testce9e2ed5e3538cfcf5458273f94bb549cc20b8e8f50c16fe85a296b82f8b7f38()
     {
         $this->assertTrue(true);
-        fn() => isset(($test > $test)[$test]);
+        fn() => (isset(($test > $test)[$test]));
     }
     function testcec49dfc11b1e4fb1b99426fd06f0cb3664e2151ca5448a41ec791182e2fc2d3()
     {
         $this->assertTrue(true);
-        fn() => isset((__NAMESPACE__)[$test]);
+        fn() => (isset((__NAMESPACE__)[$test]));
     }
     function testcee267b7b0f50652b14ed141bb8802d37dd3ba0a6b3e2c409ef4b9847a98395e()
     {
         $this->assertTrue(true);
-        fn() => isset(($test % $test)[$test]);
+        fn() => (isset(($test % $test)[$test]));
     }
     function testcfc726a4c76fa543b992566d15b5b7c913276868fef0eba2cf802444b1370388()
     {
         $this->assertTrue(true);
-        fn() => isset((__TRAIT__)[$test]);
+        fn() => (isset((__TRAIT__)[$test]));
     }
     function testd38c2bbd95a33f018b4392a28efd75f5908c070ae8dd255b14e922a1de1b296a()
     {
         $this->assertTrue(true);
-        fn() => isset((__CLASS__)[$test]);
+        fn() => (isset((__CLASS__)[$test]));
     }
     function testd4b2c02b26ba69ab43b20431657041f493726852d2f716ff4fce64ba887ae20c()
     {
@@ -432,7 +432,7 @@ class Expression55dc34b253d8ac2aa98f0cceb34fbd4c5cffe75f816ee17714a01daeb063ea22
     function testd7a070621a16257c07e6b9c60bd8d4eb31824330288910185c33cf677eeb017d()
     {
         $this->assertTrue(true);
-        fn() => isset(($test ?? $test)[$test]);
+        fn() => (isset(($test ?? $test)[$test]));
     }
     function testd868a26f11d7677e106fc8b4091a8e2f77f64eb938737338da4813524b143be6()
     {
@@ -457,7 +457,7 @@ class Expression55dc34b253d8ac2aa98f0cceb34fbd4c5cffe75f816ee17714a01daeb063ea22
     function teste846fd0695a45c82cc1556b5e3e175c90a5c2602f4085b3fcaa1716baab7e012()
     {
         $this->assertTrue(true);
-        fn() => isset(($test & $test)[$test]);
+        fn() => (isset(($test & $test)[$test]));
     }
     function teste997e212428b25bd88021e373300d4bb1e5b74c0be10b3edf14e3932271a4192()
     {
@@ -467,12 +467,12 @@ class Expression55dc34b253d8ac2aa98f0cceb34fbd4c5cffe75f816ee17714a01daeb063ea22
     function testec4695d1133433b6f9b70e96f700190591918a3fb62f1b8675cb6be7dde879a6()
     {
         $this->assertTrue(true);
-        fn() => isset(($test / $test)[$test]);
+        fn() => (isset(($test / $test)[$test]));
     }
     function tested71d6017e9c9f1ab271f41fbb5009d6f3f74f71836e63f24787d84504f75f3f()
     {
         $this->assertTrue(true);
-        fn() => isset(($test || $test)[$test]);
+        fn() => (isset(($test || $test)[$test]));
     }
     function testf31e56c5f6ab00215c98ee759fb688aa68fdceff8b04585569457a26891ec8b9()
     {
@@ -487,12 +487,12 @@ class Expression55dc34b253d8ac2aa98f0cceb34fbd4c5cffe75f816ee17714a01daeb063ea22
     function testf6b7ecc17cfb7f6b5c3d4403a1b9d73c77057adaaf2a3f6017d509ac2149fa87()
     {
         $this->assertTrue(true);
-        fn() => isset((__FUNCTION__)[$test]);
+        fn() => (isset((__FUNCTION__)[$test]));
     }
     function testf73aac921c99690101cebc0a86698cfdb6fb02a082940f68af1a181776649f18()
     {
         $this->assertTrue(true);
-        fn() => isset(($test >>= $test)[$test]);
+        fn() => (isset(($test >>= $test)[$test]));
     }
     function testfaef3f400f7d64d9a605e7a62cf2bdec5f2d59d345757e50b7832e8ef9b3e2cb()
     {
@@ -507,6 +507,6 @@ class Expression55dc34b253d8ac2aa98f0cceb34fbd4c5cffe75f816ee17714a01daeb063ea22
     function testffc943766d84015540a7d1f7a984d98fa9ab42f406959d01367846f590a1b9eb()
     {
         $this->assertTrue(true);
-        fn() => isset(("{$test}")[$test]);
+        fn() => (isset(("{$test}")[$test]));
     }
 }
