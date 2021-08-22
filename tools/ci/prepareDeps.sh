@@ -1,6 +1,7 @@
 #!/bin/bash -e
 
 composer install --prefer-dist --ignore-platform-reqs --no-plugins
+composer bin all install --prefer-dist --ignore-platform-reqs
 
 git stash
 
