@@ -66,14 +66,14 @@ class Storage
         $this->abstractMethods = $abstractMethods;
 
         foreach ($methods as $method) {
-            if ($method->hasAttribute(Builder::STORAGE_KEY)) {
+            if ($method->getAttribute(Builder::STORAGE_KEY)) {
                 $method->setAttribute(self::STORAGE_KEY, $method->getAttribute(Builder::STORAGE_KEY)->build());
                 $method->setAttribute(Builder::STORAGE_KEY, null);
             }
             $method->flags |= self::MODIFIER_NORMAL;
         }
         foreach ($abstractMethods as $method) {
-            if ($method->hasAttribute(Builder::STORAGE_KEY)) {
+            if ($method->getAttribute(Builder::STORAGE_KEY)) {
                 $method->setAttribute(self::STORAGE_KEY, $method->getAttribute(Builder::STORAGE_KEY)->build());
                 $method->setAttribute(Builder::STORAGE_KEY, null);
             }
@@ -203,22 +203,24 @@ class Storage
      *
      * @param ClassMethod $method Removed method
      *
-     * @return self
+     * @return bool
      */
-    public function removeMethod(ClassMethod $method): self
+    public function removeMethod(ClassMethod $method): bool
     {
         $name = $method->name->name;
         if ($method->stmts !== null) {
             if (isset($this->methods[$name])) {
                 $this->removedMethods[$name] = true;
                 unset($this->methods[$name]);
+                return true;
             }
         } elseif (isset($this->abstractMethods[$name])) {
             $this->removedMethods[$name] = true;
             unset($this->abstractMethods[$name]);
+            return true;
         }
 
-        return $this;
+        return false;
     }
 
     /**

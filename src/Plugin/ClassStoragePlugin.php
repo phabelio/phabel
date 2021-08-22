@@ -2,6 +2,7 @@
 
 namespace Phabel\Plugin;
 
+use Exception;
 use Phabel\ClassStorage;
 use Phabel\ClassStorage\Builder;
 use Phabel\ClassStorage\Storage;
@@ -143,11 +144,17 @@ abstract class ClassStoragePlugin extends Plugin
     {
         foreach ($other->classes as $class => $classes) {
             foreach ($classes as $file => $builder) {
+                if (isset($this->classes[$class][$file])) {
+                    throw new Exception('Already exists!');
+                }
                 $this->classes[$class][$file] = $builder;
             }
         }
         foreach ($other->traits as $class => $traits) {
             foreach ($traits as $file => $builder) {
+                if (isset($this->traits[$class][$file])) {
+                    throw new Exception('Already exists!');
+                }
                 $this->traits[$class][$file] = $builder;
             }
         }

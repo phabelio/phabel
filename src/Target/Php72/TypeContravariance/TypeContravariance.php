@@ -30,11 +30,10 @@ class TypeContravariance extends ClassStorageProvider
                 if ($parentMethods->count() === 1) {
                     continue;
                 }
-                $changed = true;
                 foreach ($parentMethods as $method) {
                     /** @var Storage */
                     $storage = $method->getAttribute(Storage::STORAGE_KEY);
-                    $storage->removeMethod($method);
+                    $changed = $storage->removeMethod($method) || $changed;
                 }
             }
             // Can widen type in inherited methods
@@ -67,10 +66,10 @@ class TypeContravariance extends ClassStorageProvider
                 if (!$act) {
                     continue;
                 }
-                $changed = true;
                 foreach ($parentMethods as $method) {
                     foreach ($act as $k) {
                         if (isset($method->params[$k])) {
+                            $changed = true;
                             TypeHintReplacer::replace($method->params[$k]->type);
                         }
                     }

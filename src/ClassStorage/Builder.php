@@ -214,4 +214,19 @@ class Builder
         }
         return $this->storage;
     }
+
+    /**
+     * Debug info.
+     */
+    public function __debugInfo(): array
+    {
+        return [
+            'name' => $this->name,
+            'methods' => \array_keys($this->methods),
+            'abstractMethods' => \array_keys($this->abstractMethods),
+            'extended' => $this->extended,
+            'useAlias' => $this->useAlias,
+            'use' => $this->use,
+        ];
+    }
 }

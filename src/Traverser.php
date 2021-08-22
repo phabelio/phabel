@@ -403,7 +403,7 @@ class Traverser
                     if (!$classStorage) {
                         $classStorage = $newClassStorage;
                     } else {
-                        $classStorage->merge($classStorage);
+                        $classStorage->merge($newClassStorage);
                     }
                     $this->eventHandler?->onClassGraphMerged();
                 });
@@ -422,7 +422,7 @@ class Traverser
                     $this->fileWhitelist = $files;
                     $this->composerPackageName = null;
                     $this->setPlugins($plugins);
-                    return $this->runAsync($threads);
+                    return $this->run();
                 }
             }
 
