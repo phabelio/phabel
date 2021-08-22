@@ -22,6 +22,7 @@ $packages = (new Traverser(EventHandler::create()))
     ->runAsync();
 
 `cp -a ../phabelConverted/vendor .`;
+`cp -a ../phabelConverted/vendor-bin .`;
 
 if (!empty($packages)) {
     $cmd = "composer require --dev ";
