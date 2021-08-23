@@ -19,7 +19,7 @@ $packages = (new Traverser(EventHandler::create()))
     ->setInput('.')
     ->setOutput('../phabelConverted')
     ->setCoverage('coverage/convertVendor.php')
-    ->runAsync();
+    ->run(\getenv('PHABEL_PARALLEL') ?: 1);
 
 `cp -a ../phabelConverted/vendor .`;
 `cp -a ../phabelConverted/vendor-bin .`;
