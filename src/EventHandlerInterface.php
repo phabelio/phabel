@@ -9,7 +9,7 @@ interface EventHandlerInterface
     public function onEndPluginGraphResolution(): void;
     public function onBeginDirectoryTraversal(int $total, int $workers): void;
     public function onBeginAstTraversal(string $file): void;
-    public function onEndAstTraversal(string $file, int $iterations): void;
+    public function onEndAstTraversal(string $file, int|\Throwable $iterationsOrError): void;
     public function onEndDirectoryTraversal(): void;
 
     public function onBeginClassGraphMerge(int $count): void;

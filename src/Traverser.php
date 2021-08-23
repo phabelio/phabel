@@ -557,6 +557,8 @@ class Traverser
                     } catch (\Throwable $e) {
                         if (!($first && $e instanceof Exception && str_contains($e->getMessage(), ' while parsing '))) {
                             throw $e;
+                        } else {
+                            $this->eventHandler?->onEndAstTraversal($file->getRealPath(), $e);
                         }
                     }
                 } elseif (\realpath($targetPath) !== $file->getRealPath()) {

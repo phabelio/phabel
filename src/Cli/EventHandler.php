@@ -7,6 +7,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Output\ConsoleOutput;
+use Throwable;
 
 class EventHandler extends PhabelEventHandler
 {
@@ -86,10 +87,15 @@ class EventHandler extends PhabelEventHandler
         $this->count++;
         $this->startProgressBar($message, $total, $workers);
     }
-    public function onEndAstTraversal(string $file, int $iterations): void
+    public function onEndAstTraversal(string $file, int|\Throwable $iterationsOrError): void
     {
         $this->progress?->advance();
-        $this->logger->debug($this->outputFormatter->format("<phabel>Transpiled $file in $iterations iterations!</phabel>"));
+        if ($iterationsOrError instanceof Throwable) {
+            $this->logger->error($this->outputFormatter->format(PHP_EOL."<error>{$iterationsOrError->getMessage()}!</error>"));
+            $this->logger->debug($this->outputFormatter->format("<error>$iterationsOrError</error>"));
+        } else {
+            $this->logger->debug($this->outputFormatter->format("<phabel>Transpiled $file in $iterationsOrError iterations!</phabel>"));
+        }
     }
     public function onEndDirectoryTraversal(): void
     {
