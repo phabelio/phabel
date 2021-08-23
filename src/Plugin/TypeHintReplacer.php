@@ -22,6 +22,7 @@ use PhpParser\Node\Expr\Cast\Double;
 use PhpParser\Node\Expr\Cast\Int_;
 use PhpParser\Node\Expr\Cast\String_ as CastString_;
 use PhpParser\Node\Expr\ClassConstFetch;
+use PhpParser\Node\Expr\ConstFetch;
 use PhpParser\Node\Expr\Instanceof_;
 use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Expr\Variable;
@@ -315,7 +316,7 @@ class TypeHintReplacer extends Plugin
      *
      * @return null|array{0: bool, 1: Node, 2: (callable(Node...): If_)} Whether the polyfilled gettype should be used, the error message, the condition
      */
-    private function strip(Variable $var, ?Node $type, ?Expr $className, bool $force = false): ?array
+    private function strip(Variable $var, ?Node $type, ?Expr $className, bool $nullish, bool $force = false): ?array
     {
         if (!$type) {
             return null;
@@ -325,14 +326,14 @@ class TypeHintReplacer extends Plugin
             if (!$this->getConfig('union', $force)) {
                 return null;
             }
-            return $this->generateConditions($var, $type->types, $className);
+            return $this->generateConditions($var, $type->types, $className, $nullish);
         }
         if ($type instanceof NullableType && $this->getConfig('nullable', $force)) {
             return $this->generateConditions($var, [$type->type], $className, true);
         }
         $subType = $type instanceof NullableType ? $type->type : $type;
         if (\in_array($subType->toString(), $this->getConfig('types', [])) || $force) {
-            return $this->generateConditions($var, [$subType], $className, $type instanceof NullableType);
+            return $this->generateConditions($var, [$subType], $className, $nullish || $type instanceof NullableType);
         }
         return null;
     }
@@ -353,14 +354,14 @@ class TypeHintReplacer extends Plugin
             $parent = $ctx->parents->top();
             if ($parent instanceof Interface_ || $func->getStmts() === null) {
                 foreach ($func->getParams() as $param) {
-                    if ($this->strip(new Variable('phabelVariadic'), $param->type, null)) {
+                    if ($this->strip(new Variable('phabelVariadic'), $param->type, null, false)) {
                         $param->type = null;
                     }
                 }
                 if ($this->checkVoid($returnType)) {
                     $func->returnType = null;
                 }
-                if ($this->strip(new Variable('phabelReturn'), $returnType, null, $this->getConfig('return', false))) {
+                if ($this->strip(new Variable('phabelReturn'), $returnType, null, false, $this->getConfig('return', false))) {
                     $func->returnType = null;
                 }
                 $this->stack->push([self::IGNORE_RETURN]);
@@ -387,7 +388,8 @@ class TypeHintReplacer extends Plugin
         }
         $stmts = [];
         foreach ($func->getParams() as $index => $param) {
-            if (!$condition = $this->strip($param->variadic ? new Variable('phabelVariadic') : $param->var, $param->type, $className)) {
+            $nullish = $param->default instanceof ConstFetch && $param->default->name->toLowerString() === 'null';
+            if (!$condition = $this->strip($param->variadic ? new Variable('phabelVariadic') : $param->var, $param->type, $className, $nullish)) {
                 continue;
             }
             $index++;
@@ -425,7 +427,7 @@ class TypeHintReplacer extends Plugin
             return $func;
         }
         $var = new Variable('phabelReturn');
-        if (!$condition = $this->strip($var, $returnType, $className, $this->getConfig('return', false))) {
+        if (!$condition = $this->strip($var, $returnType, $className, false, $this->getConfig('return', false))) {
             $this->stack->push([self::IGNORE_RETURN]);
             return $func;
         }

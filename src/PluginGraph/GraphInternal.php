@@ -145,21 +145,4 @@ class GraphInternal
         }
         return $result;
     }
-    /**
-     * Returns graph debug information.
-     *
-     * @return array
-     */
-    public function __debugInfo(): array
-    {
-        $res = [];
-        foreach ($this->flatten() as $queue) {
-            $cur = [];
-            foreach ($queue as $plugin) {
-                $cur[] = \get_class($plugin); //[\get_class($plugin), $plugin->getConfigArray()];
-            }
-            $res []= $cur;
-        }
-        return $res;
-    }
 }

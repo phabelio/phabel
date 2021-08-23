@@ -44,6 +44,10 @@ class EventHandler extends PhabelEventHandler
         $this->outputFormatter = Formatter::getFormatter();
         $this->getProgressBar = $getProgressBar;
     }
+    public function onStart(): void
+    {
+        $this->count = 0;
+    }
     public function onBeginPluginGraphResolution(): void
     {
         $this->logger->debug($this->outputFormatter->format("<phabel>Plugin graph resolution in progress...</phabel>"));

@@ -108,4 +108,22 @@ final class ResolvedGraph
     {
         return $this->classStorage;
     }
+
+    /**
+     * Returns graph debug information.
+     *
+     * @return array
+     */
+    public function __debugInfo(): array
+    {
+        $res = [];
+        foreach ($this->plugins as $queue) {
+            $cur = [];
+            foreach ($queue as $plugin) {
+                $cur[] = \basename(\str_replace('\\', '/', \get_class($plugin))); //[\get_class($plugin), $plugin->getConfigArray()];
+            }
+            $res []= $cur;
+        }
+        return $res;
+    }
 }

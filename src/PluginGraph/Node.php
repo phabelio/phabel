@@ -268,12 +268,11 @@ class Node
      */
     private function flattenInternal(SplQueue $queueOfQueues)
     {
+        $queue = $queueOfQueues->top();
+        $this->plugin->enqueue($queue, $this->packageContext);
+        $this->graph->unprocessedNode->detach($this);
         do {
             $processedAny = false;
-            $queue = $queueOfQueues->top();
-            $this->plugin->enqueue($queue, $this->packageContext);
-            $this->graph->unprocessedNode->detach($this);
-
             $prevNode = null;
             $toDetach = new SplQueue;
             foreach ($this->extendedBy as $node) {
@@ -310,39 +309,32 @@ class Node
                 $this->graph->unprocessedNode->detach($node);
             }
 
-            do {
-                $processed = false;
-                $toDetach = new SplQueue;
-                foreach ($this->extendedBy as $node) {
-                    if (\count($node->extends) + \count($node->requires) === 0) {
-                        $toDetach->enqueue($node);
-                        $node->flattenInternal($queueOfQueues);
-                        $processed = true;
+            $toDetach = new SplQueue;
+            foreach ($this->extendedBy as $node) {
+                if (\count($node->extends) + \count($node->requires) === 0) {
+                    $toDetach->enqueue($node);
+                    $node->flattenInternal($queueOfQueues);
+                    $processedAny = true;
+                }
+            }
+            foreach ($toDetach as $node) {
+                $this->extendedBy->detach($node);
+            }
+
+            $toDetach = new SplQueue;
+            foreach ($this->requiredBy as $node) {
+                if (\count($node->extends) + \count($node->requires) === 0) {
+                    $toDetach->enqueue($node);
+                    if (!$queue->isEmpty()) {
+                        $queueOfQueues->enqueue(new SplQueue);
                     }
+                    $node->flattenInternal($queueOfQueues);
+                    $processedAny = true;
                 }
-                foreach ($toDetach as $node) {
-                    $this->extendedBy->detach($node);
-                }
-                $processedAny = $processedAny || $processed;
-            } while ($processed);
-            do {
-                $processed = false;
-                $toDetach = new SplQueue;
-                foreach ($this->requiredBy as $node) {
-                    if (\count($node->extends) + \count($node->requires) === 0) {
-                        $toDetach->enqueue($node);
-                        if (!$queue->isEmpty()) {
-                            $queueOfQueues->enqueue(new SplQueue);
-                        }
-                        $node->flattenInternal($queueOfQueues);
-                        $processed = true;
-                    }
-                }
-                foreach ($toDetach as $node) {
-                    $this->requiredBy->detach($node);
-                }
-                $processedAny = $processedAny || $processed;
-            } while ($processed);
+            }
+            foreach ($toDetach as $node) {
+                $this->requiredBy->detach($node);
+            }
         } while ($processedAny);
     }
 
