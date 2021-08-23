@@ -25,7 +25,8 @@ foreach ($php as $version) {
     }
 }
 if (!$final) {
-    $final = [\end($php)];
+    $versionEnd = (string) \end($php);
+    $final []= $versionEnd[0].".".$versionEnd[1];
     $doBuild = true;
 }
 
