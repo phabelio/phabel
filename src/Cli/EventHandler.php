@@ -20,9 +20,6 @@ class EventHandler extends PhabelEventHandler
      */
     private $getProgressBar = null;
     private int $count = 0;
-
-    private static ?self $instance = null;
-
     /**
      * Create simple CLI-based preconfigured instance.
      *
@@ -30,24 +27,17 @@ class EventHandler extends PhabelEventHandler
      */
     public static function create(): self
     {
-        if (!self::$instance) {
-            $output = new ConsoleOutput();
-            self::$instance = new EventHandler(
-                new SimpleConsoleLogger($output),
-                fn (int $max): ProgressBar => new ProgressBar($output, $max, -1)
-            );
-        }
-        return self::$instance;
+        $output = new ConsoleOutput();
+        return new EventHandler(
+            new SimpleConsoleLogger($output),
+            fn (int $max): ProgressBar => new ProgressBar($output, $max, -1)
+        );
     }
 
     public function __construct(private LoggerInterface $logger, ?callable $getProgressBar)
     {
         $this->outputFormatter = Formatter::getFormatter();
         $this->getProgressBar = $getProgressBar;
-    }
-    public function onStart(): void
-    {
-        $this->count = 0;
     }
     public function onBeginPluginGraphResolution(): void
     {
@@ -81,7 +71,7 @@ class EventHandler extends PhabelEventHandler
         if (!$this->count) {
             $message = 'Transpilation in progress...';
         } else {
-            $secondary = $this->count === 1 ? 'secondary' : 'further';
+            $secondary = $this->count === 1 ? 'covariance and contravariance' : 'further covariance and contravariance';
             $message = "Applying $secondary transforms...";
         }
         $this->count++;

@@ -45,8 +45,10 @@ class TypeContravariance extends ClassStorageProvider
                             ($method->isPublic() && ($childMethod->isProtected() || $childMethod->isPrivate())) ||
                             ($method->isProtected() && $childMethod->isPrivate())
                         ) {
+                            $old = $childMethod->flags;
                             $childMethod->flags &= ~Class_::VISIBILITY_MODIFIER_MASK;
                             $childMethod->flags |= Class_::MODIFIER_PUBLIC;
+                            $changed = $childMethod->flags !== $old || $changed;
                         }
                     }
                     continue;
@@ -56,7 +58,7 @@ class TypeContravariance extends ClassStorageProvider
                 $parentMethods->push($method);
                 foreach ($class->getOverriddenMethods($name) as $childMethod) {
                     foreach ($childMethod->params as $k => $param) {
-                        if (isset($method->params[$k]->type) && !$param->type) {
+                        if (isset($method->params[$k]->type) && TypeHintReplacer::replaced($param->type)) {
                             $act[$k] = true;
                         }
                     }
@@ -69,8 +71,7 @@ class TypeContravariance extends ClassStorageProvider
                 foreach ($parentMethods as $method) {
                     foreach ($act as $k) {
                         if (isset($method->params[$k])) {
-                            $changed = true;
-                            TypeHintReplacer::replace($method->params[$k]->type);
+                            $changed = TypeHintReplacer::replace($method->params[$k]->type) || $changed;
                         }
                     }
                 }

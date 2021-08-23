@@ -3,8 +3,8 @@
 namespace Phabel;
 
 use Phabel\Cli\Formatter;
+use Phabel\Commands\Publish;
 use Phabel\Commands\Run;
-use Phabel\Commands\Tag;
 use Symfony\Component\Console\Application;
 
 if (!\class_exists(Run::class)) {
@@ -12,6 +12,6 @@ if (!\class_exists(Run::class)) {
 }
 
 $app = new Application(Formatter::banner());
-$app->add(new Tag());
+$app->add(new Publish());
 $app->add(new Run());
 $app->run();

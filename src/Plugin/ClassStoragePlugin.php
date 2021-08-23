@@ -16,7 +16,7 @@ use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Trait_;
 
-abstract class ClassStoragePlugin extends Plugin
+final class ClassStoragePlugin extends Plugin
 {
     /**
      * Storage.
@@ -41,6 +41,12 @@ abstract class ClassStoragePlugin extends Plugin
      * @var array<class-string<ClassStorageProvider>, true>
      */
     protected array $finalPlugins = [];
+    /**
+     * Class storage from previous iteration.
+     *
+     * @var ?ClassStorage
+     */
+    private ?ClassStorage $storage = null;
 
     /**
      * Check if plugin should run.
@@ -73,8 +79,13 @@ abstract class ClassStoragePlugin extends Plugin
      */
     public function setConfigArray(array $config): void
     {
-        $this->finalPlugins += $config;
         parent::setConfigArray($config);
+
+        if (isset($config[ClassStorage::class])) {
+            $this->storage = $config[ClassStorage::class];
+            unset($config[ClassStorage::class]);
+        }
+        $this->finalPlugins += $config;
     }
 
     /**
@@ -85,6 +96,15 @@ abstract class ClassStoragePlugin extends Plugin
      */
     public function enterRoot(RootNode $_, Context $context): void
     {
+        if ($this->storage) {
+            do {
+                $processed = false;
+                foreach ($this->finalPlugins as $name => $_) {
+                    $processed = $name::processClassGraph($this->storage) || $processed;
+                }
+            } while ($processed);
+            $this->storage = null;
+        }
         $file = $context->getFile();
         $this->count[$file] = [];
         foreach ($this->traits as $trait => $traits) {
@@ -169,6 +189,13 @@ abstract class ClassStoragePlugin extends Plugin
     public function finish(): array
     {
         $storage = new ClassStorage($this);
+        $processed = false;
+        foreach ($this->finalPlugins as $name => $_) {
+            $processed = $name::processClassGraph($storage) || $processed;
+        }
+        if (!$processed) {
+            return [[], []];
+        }
         $result = \array_fill_keys(\array_keys($this->finalPlugins), [ClassStorage::class => $storage]);
         return [$result, $storage->getFiles()];
     }

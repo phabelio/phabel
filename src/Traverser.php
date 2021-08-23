@@ -99,7 +99,7 @@ class Traverser
     private string $outputFile = '';
 
     /**
-     * Number of times we traversed directories
+     * Number of times we traversed directories.
      *
      * @var integer
      */
@@ -384,7 +384,7 @@ class Traverser
                             }
                             if ($res instanceof ExceptionWrapper) {
                                 $res = $res->getException();
-                                if (!($first && str_contains($res->getMessage(), ' while parsing '))) {
+                                if (!($first && \str_contains($res->getMessage(), ' while parsing '))) {
                                     throw $res;
                                 }
                             }
@@ -555,11 +555,10 @@ class Traverser
                     try {
                         $it = $this->traverse($rel, $file->getRealPath(), $targetPath);
                     } catch (\Throwable $e) {
-                        if (!($first && $e instanceof Exception && str_contains($e->getMessage(), ' while parsing '))) {
+                        if (!($first && $e instanceof Exception && \str_contains($e->getMessage(), ' while parsing '))) {
                             throw $e;
-                        } else {
-                            $this->eventHandler?->onEndAstTraversal($file->getRealPath(), $e);
                         }
+                        $this->eventHandler?->onEndAstTraversal($file->getRealPath(), $e);
                     }
                 } elseif (\realpath($targetPath) !== $file->getRealPath()) {
                     \copy($file->getRealPath(), $targetPath);

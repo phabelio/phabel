@@ -85,13 +85,32 @@ class TypeHintReplacer extends Plugin
      *
      * @param null|Identifier|Name|NullableType|UnionType $type Type
      *
-     * @return void
+     * @return bool
      */
-    public static function replace(?Node $type): void
+    public static function replace(?Node $type): bool
     {
         if ($type) {
+            if ($type->getAttribute(self::FORCE_ATTRIBUTE, false)) {
+                return false;
+            }
             $type->setAttribute(self::FORCE_ATTRIBUTE, true);
+            return true;
         }
+        return false;
+    }
+    /**
+     * Return whether we replaced this typehint.
+     *
+     * @param null|Identifier|Name|NullableType|UnionType $type Type
+     *
+     * @return boolean
+     */
+    public static function replaced(?Node $type): bool
+    {
+        if ($type) {
+            return $type->getAttribute(self::FORCE_ATTRIBUTE, false);
+        }
+        return true;
     }
     /**
      * Check if we should replace a void return type.

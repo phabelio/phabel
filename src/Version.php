@@ -27,7 +27,7 @@ class Version
 <bold>✅</bold> Dependency transpilation: <phabel>Enabled</phabel>
 
 <phabel>To publish your composer package using phabel, run this command after git tagging a release:</phabel>
-<bold>vendor/bin/phabel tag</bold>
+<bold>vendor/bin/phabel publish</bold>
 
 <phabel>See https://phabel.io for documentation and more configuration parameters.</phabel>
 <bold>Have fun!</bold>

@@ -4,6 +4,7 @@ namespace Phabel;
 
 use Phabel\ClassStorage\Storage;
 use Phabel\Plugin\ClassStoragePlugin;
+use Phabel\Plugin\TypeHintReplacer;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Name;
 use PhpParser\Node\NullableType;
@@ -120,7 +121,7 @@ final class ClassStorage
             $types = [$type->type, new Identifier('null')];
         } elseif ($type instanceof UnionType) {
             $types = $type->types;
-        } elseif ($type) {
+        } elseif (!TypeHintReplacer::replaced($type)) {
             $types = [$type];
         }
         return $types;

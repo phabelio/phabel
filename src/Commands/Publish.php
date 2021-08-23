@@ -4,6 +4,7 @@ namespace Phabel\Commands;
 
 use Exception;
 use Phabel\Cli\Formatter;
+use Phabel\Plugin\ComposerSanitizer;
 use Phabel\Version;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -13,9 +14,24 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
-class Tag extends Command
+class Publish extends Command
 {
-    protected static $defaultName = 'tag';
+    protected static $defaultName = 'publish';
+
+    private function exec(array $command): string
+    {
+        $proc = new Process($command);
+        $proc->run();
+        if (!$proc->isSuccessful()) {
+            throw new ProcessFailedException($proc);
+        }
+        return $proc->getOutput();
+    }
+
+    private function getMessage(string $ref): string
+    {
+        return $this->exec(['git', 'log', '--format=%B', '-n', '1', $ref]);
+    }
 
     protected function configure(): void
     {
@@ -31,20 +47,10 @@ class Tag extends Command
             ->addArgument('source', $tag ? InputArgument::OPTIONAL : InputArgument::REQUIRED, 'Source tag name', $tag);
     }
 
-    private function exec(array $command): string
-    {
-        $proc = new Process($command);
-        $proc->run();
-        if (!$proc->isSuccessful()) {
-            throw new ProcessFailedException($proc);
-        }
-        return $proc->getOutput();
-    }
-
     private function prepare(string $src, string $dest, callable $cb): void
     {
         $this->exec(['git', 'checkout', $src]);
-        $message = $this->exec(['git', 'log', '--format=%B', '-n', '1', $src]);
+        $message = $this->getMessage($src);
 
         if (!\file_exists('composer.json')) {
             throw new Exception("composer.json doesn't exist!");
@@ -76,8 +82,14 @@ class Tag extends Command
                 'phabel/phabel' => Version::VERSION,
                 'php' => '>=5.6'
             ];
+            \file_put_contents(ComposerSanitizer::FILE_NAME, ComposerSanitizer::getContents($json['name'] ?? 'phabel'));
+            $this->exec(['git', 'add', ComposerSanitizer::FILE_NAME]);
+            $json['autoload'] ??= [];
+            $json['autoload']['files'] ??= [];
+            $json['autoload']['files'] []= ComposerSanitizer::FILE_NAME;
             return $json;
         });
+
         $output->write("<phabel>Tagging original release as <bold>$src.9999</bold>...</phabel>".PHP_EOL);
         $this->prepare($src, "$src.9999", fn (array $json): array => $json);
 

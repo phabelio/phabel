@@ -3,6 +3,7 @@
 namespace Phabel\Target;
 
 use Phabel\Plugin;
+use Phabel\Plugin\ComposerSanitizer;
 use Phabel\Plugin\NewFixer;
 use Phabel\Plugin\StmtExprWrapper;
 use Phabel\PluginInterface;
@@ -105,7 +106,7 @@ class Php extends Plugin
     }
     public static function previous(array $config): array
     {
-        $classes = [];
+        $classes = [ComposerSanitizer::class => []];
         foreach (self::getRange((int) ($config['target'] ?? self::DEFAULT_TARGET)) as $version) {
             if (!\file_exists($dir = __DIR__."/Php$version")) {
                 continue;

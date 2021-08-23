@@ -51,9 +51,6 @@ final class ResolvedGraph
                 }
                 if ($plugin instanceof ClassStoragePlugin) {
                     if ($this->classStorage) {
-                        if (!$this->classStorage instanceof $plugin) {
-                            throw new Exception("Detected an instance of both ClassStoragePluginCrawler and ClassStoragePluginRepeater!");
-                        }
                         $config = $this->classStorage->mergeConfigs(
                             $this->classStorage->getConfigArray(),
                             $plugin->getConfigArray()

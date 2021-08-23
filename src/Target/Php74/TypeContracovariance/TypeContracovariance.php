@@ -44,13 +44,11 @@ class TypeContracovariance extends ClassStorageProvider
                 foreach ($parentMethods as $method) {
                     foreach ($act as $k) {
                         if (isset($method->params[$k])) {
-                            $changed = true;
-                            TypeHintReplacer::replace($method->params[$k]->type);
+                            $changed = TypeHintReplacer::replace($method->params[$k]->type) || $changed;
                         }
                     }
                     if ($actReturn) {
-                        $changed = true;
-                        TypeHintReplacer::replace($method->returnType);
+                        $changed = TypeHintReplacer::replace($method->returnType) || $changed;
                     }
                 }
             }

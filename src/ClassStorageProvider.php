@@ -4,7 +4,7 @@ namespace Phabel;
 
 use JsonSerializable;
 use Phabel\ClassStorage\Storage;
-use Phabel\Plugin\ClassStoragePluginRepeater;
+use Phabel\Plugin\ClassStoragePlugin;
 use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Nop;
@@ -84,7 +84,7 @@ abstract class ClassStorageProvider extends Plugin implements JsonSerializable
     public static function previous(array $config): array
     {
         return [
-            ClassStoragePluginRepeater::class => [
+            ClassStoragePlugin::class => [
                 ClassStorage::class => $config[ClassStorage::class],
                 static::class => true
             ]
