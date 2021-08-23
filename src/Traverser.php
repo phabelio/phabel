@@ -389,6 +389,7 @@ class Traverser
                                 }
                                 \copy($file->getRealPath(), $targetPath);
                             }
+                            \chmod($targetPath, \fileperms($file->getRealPath()));
                             $this->eventHandler?->onEndAstTraversal($file->getRealPath(), $res);
                             unset($promises[$count]);
                         });
@@ -396,8 +397,8 @@ class Traverser
                         $count++;
                     } elseif (\realpath($targetPath) !== $file->getRealPath()) {
                         \copy($file->getRealPath(), $targetPath);
+                        \chmod($targetPath, \fileperms($file->getRealPath()));
                     }
-                    \chmod($targetPath, \fileperms($file->getRealPath()));
                 }
             }
             yield $promises;
