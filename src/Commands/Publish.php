@@ -18,11 +18,11 @@ class Publish extends Command
 {
     protected static $defaultName = 'publish';
 
-    private function exec(array $command): string
+    private function exec(array $command, bool $ignoreResult = false): string
     {
         $proc = new Process($command);
         $proc->run();
-        if (!$proc->isSuccessful()) {
+        if (!$proc->isSuccessful() && !$ignoreResult) {
             throw new ProcessFailedException($proc);
         }
         return $proc->getOutput();
@@ -35,9 +35,15 @@ class Publish extends Command
 
     protected function configure(): void
     {
-        $tags = new Process(['git', 'describe', '--tags', '--abbrev=0']);
+        $tags = new Process(['git', 'tag']);
         $tags->run();
-        $tag = $tags->isSuccessful() ? \trim($tags->getOutput()) : null;
+        $tags = $tags->isSuccessful() ? \array_reverse(\explode("\n", \trim($tags->getOutput()))) : [];
+        $tag = null;
+        foreach ($tags as $tag) {
+            if (!\str_contains($this->getMessage($tag), 'Release transpiled using https://phabel.io')) {
+                break;
+            }
+        }
 
         $this
             ->setDescription('Transpile a release.')
@@ -61,6 +67,7 @@ class Publish extends Command
         \file_put_contents('composer.json', \json_encode($json, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES));
 
         $this->exec(['git', 'commit', '-am', $message."\nRelease transpiled using https://phabel.io, the PHP transpiler"]);
+        $this->exec(['git', 'tag', '-d', $dest], true);
         $this->exec(['git', 'tag', $dest]);
     }
 
