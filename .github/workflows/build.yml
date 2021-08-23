@@ -57,6 +57,7 @@ jobs:
         env:
           PHABEL_TARGET: ${{ matrix.php }}
         run: |
+          rm -rf ../phabelConverted
           chmod +x tools/ci/prepareDeps.sh
           tools/ci/prepareDeps.sh
 
