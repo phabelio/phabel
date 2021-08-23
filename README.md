@@ -14,7 +14,7 @@ Created by [Daniil Gentili](https://daniil.it)
 ## Usage
 
 ```
-PHABEL_TARGET=70 php src/phabel.php src transpiledSrc
+PHABEL_TARGET=70 php src/phabel.php run src transpiledSrc
 ```
 
 ## Design
