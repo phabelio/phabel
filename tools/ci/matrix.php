@@ -15,14 +15,17 @@ $tail = \substr($branch, -3);
 foreach ($php as $version) {
     if ($tail === "-$version") {
         $ok = true;
-    }
-    if ($ok) {
         $version = (string) $version;
         $final []= $version[0].".".$version[1];
+        $versionEnd = (string) \end($php);
+        if ($version !== $versionEnd) {
+            $final []= $versionEnd[0].".".$versionEnd[1];
+        }
+        break;
     }
 }
 if (!$final) {
-    $final = ["8.0"];
+    $final = [\end($php)];
     $doBuild = true;
 }
 
