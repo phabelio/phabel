@@ -95,6 +95,7 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
     r("cp -a build/. .");
     r("rm -rf build vendor/composer vendor/autoload.php vendor/scoper-autoload.php vendor/bin");
     \rename("vendor", "vendor-bundle");
+    r("find src -type f -exec sed 's/\\\\Phabel\\\\self/self/g' -i {} +");
 
     \file_put_contents('vendor-bundle/autoload.php', <<<PHP
         <?php
@@ -131,6 +132,7 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
             )
         );
     }
+    $json['autoload-dev'] = ['psr-4' => ['PhabelTest\\' => 'tests/']];
 
     \file_put_contents('composer.json', \json_encode($json, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES));
 

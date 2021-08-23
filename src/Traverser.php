@@ -387,7 +387,9 @@ class Traverser
                                 if (!($first && \str_contains($res->getMessage(), ' while parsing '))) {
                                     throw $res;
                                 }
-                                \copy($file->getRealPath(), $targetPath);
+                                if (\realpath($targetPath) !== $file->getRealPath()) {
+                                    \copy($file->getRealPath(), $targetPath);
+                                }
                             }
                             \chmod($targetPath, \fileperms($file->getRealPath()));
                             $this->eventHandler?->onEndAstTraversal($file->getRealPath(), $res);
@@ -561,7 +563,9 @@ class Traverser
                         if (!($first && $e instanceof Exception && \str_contains($e->getMessage(), ' while parsing '))) {
                             throw $e;
                         }
-                        \copy($file->getRealPath(), $targetPath);
+                        if (\realpath($targetPath) !== $file->getRealPath()) {
+                            \copy($file->getRealPath(), $targetPath);
+                        }
                         $this->eventHandler?->onEndAstTraversal($file->getRealPath(), $e);
                     }
                 } elseif (\realpath($targetPath) !== $file->getRealPath()) {

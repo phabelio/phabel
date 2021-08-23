@@ -1,6 +1,6 @@
 <?php
 
-$os = ['ubuntu-latest'];
+$os = ['self-hosted'];
 $php = require 'versions.php';
 
 $commit = \trim(\shell_exec("git log -1 --pretty=%H"));

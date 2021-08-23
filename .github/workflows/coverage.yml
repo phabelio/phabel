@@ -1,6 +1,6 @@
 name: coverage
 on: 
-  create:
+  push:
     paths:
     - '**.php'
   pull_request:
