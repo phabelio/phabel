@@ -99,6 +99,12 @@ class Traverser
     private string $outputFile = '';
 
     /**
+     * Number of times we traversed directories
+     *
+     * @var integer
+     */
+    private int $count = 0;
+    /**
      * Generate traverser from basic plugin instances.
      *
      * @param Plugin ...$plugin Plugins
@@ -317,6 +323,7 @@ class Traverser
         $coverages = [];
         return call(function () use (&$coverages, $threads) {
             $packages = [];
+            $first = !$this->count++;
 
             if (!\file_exists($this->output)) {
                 \mkdir($this->output, 0777, true);
@@ -357,7 +364,7 @@ class Traverser
                     }
                 } elseif ($file->isFile()) {
                     if ($file->getExtension() == 'php') {
-                        $promise = call(function () use ($pool, $file, $rel, $targetPath, $count, &$promises, &$coverages) {
+                        $promise = call(function () use ($pool, $file, $rel, $targetPath, $count, $first, &$promises, &$coverages) {
                             $this->eventHandler?->onBeginAstTraversal($file->getRealPath());
                             $package = null;
                             if ($this->composerPackageName) {
@@ -376,7 +383,10 @@ class Traverser
                                 $coverages []= "{$this->coverage}$count.php";
                             }
                             if ($res instanceof ExceptionWrapper) {
-                                throw $res->getException();
+                                $res = $res->getException();
+                                if (!($first && str_contains($res->getMessage(), ' while parsing '))) {
+                                    throw $res;
+                                }
                             }
                             $this->eventHandler?->onEndAstTraversal($file->getRealPath(), $res);
                             unset($promises[$count]);
@@ -417,7 +427,7 @@ class Traverser
             if ($classStorage) {
                 [$plugins, $files] = $classStorage->finish();
                 unset($classStorage);
-                if ($plugins) {
+                if ($plugins && $files) {
                     $this->input = $this->output;
                     $this->fileWhitelist = $files;
                     $this->composerPackageName = null;
@@ -483,7 +493,7 @@ class Traverser
             }
             [$plugins, $files] = $classStorage->finish();
             unset($classStorage);
-            if (!$plugins) {
+            if (!$plugins || !$files) {
                 break;
             }
             $this->input = $this->output;
@@ -505,6 +515,7 @@ class Traverser
     public function runInternal(): void
     {
         $_ = self::startCoverage($this->coverage);
+        $first = !$this->count++;
         $this->packageQueue = null;
 
         if (\is_file($this->input)) {
@@ -541,7 +552,13 @@ class Traverser
                     } else {
                         $this->packageQueue = null;
                     }
-                    $it = $this->traverse($rel, $file->getRealPath(), $targetPath);
+                    try {
+                        $it = $this->traverse($rel, $file->getRealPath(), $targetPath);
+                    } catch (\Throwable $e) {
+                        if (!($first && $e instanceof Exception && str_contains($e->getMessage(), ' while parsing '))) {
+                            throw $e;
+                        }
+                    }
                 } elseif (\realpath($targetPath) !== $file->getRealPath()) {
                     \copy($file->getRealPath(), $targetPath);
                 }
@@ -625,7 +642,7 @@ class Traverser
             $ast = new RootNode($this->parser->parse(\file_get_contents($input)) ?? []);
         } catch (\Throwable $e) {
             $message = $e->getMessage();
-            $message .= " while processing ";
+            $message .= " while parsing ";
             $message .= $input;
             throw new Exception($message, (int) $e->getCode(), $e, $e->getFile(), $e->getLine());
         }

@@ -62,7 +62,7 @@ jobs:
         env:
           PHABEL_TARGET: ${{ matrix.php }}
         run: |
-          bash -x tools/ci/prepareDeps.sh
+          tools/ci/prepareDeps.sh
 
       - name: Setup PHP ${{ matrix.php }}
         uses: shivammathur/setup-php@v2

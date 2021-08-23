@@ -1,7 +1,7 @@
-#!/bin/bash -e
+#!/bin/bash -ex
 
-composer install --prefer-dist --ignore-platform-reqs --no-plugins
-composer bin all install --prefer-dist --ignore-platform-reqs
+composer update --prefer-dist --ignore-platform-reqs
+composer bin all update --prefer-dist --ignore-platform-reqs
 
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
