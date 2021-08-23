@@ -67,6 +67,8 @@ jobs:
           echo "$HOME/.local/php/$PHP_VERSION" >> $GITHUB_PATH
 
       - name: Run tests
+        env:
+          PHABEL_PARALLEL: 1
         run: |
           php vendor/bin/phpunit
 
