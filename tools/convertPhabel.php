@@ -102,11 +102,12 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
         return require __DIR__.'/../../../autoload.php';
     PHP);
 
-    $packages["php"] = ">=" . Php::unnormalizeVersion(Php::normalizeVersion($target));
-
     $lock = \json_decode(\file_get_contents('composer.lock'), true);
     $json = \json_decode(\file_get_contents('composer.json'), true);
 
+    $packages["php"] = ">=" . Php::unnormalizeVersion(Php::normalizeVersion($target));
+    $packages['composer-plugin-api'] = $json['require']['composer-plugin-api'];
+    $packages['ext-json'] = $json['require']['ext-json'];
     $json['require'] = $packages;
     foreach ($lock['packages'] as $package) {
         $name = $package['name'];
