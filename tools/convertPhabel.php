@@ -27,47 +27,47 @@ $branch = 'master';
 $tag = \getenv('shouldTag') ?: null;
 
 $home = \realpath(__DIR__.'/../');
-r("rm -rf /tmp/phabelConvertedInput");
-\mkdir('/tmp/phabelConvertedInput');
+r("rm -rf ../phabelConvertedInput");
+\mkdir('../phabelConvertedInput');
 
 if (!$dry) {
-    r("rm -rf /tmp/phabelConvertedRepo");
-    r("cp -a $home /tmp/phabelConvertedRepo");
-    r("rm -rf /tmp/phabelConvertedRepo/vendor");
+    r("rm -rf ../phabelConvertedRepo");
+    r("cp -a $home ../phabelConvertedRepo");
+    r("rm -rf ../phabelConvertedRepo/vendor");
 }
 
 \chdir($home);
-r("cp -a * .php-cs-fixer.dist.php /tmp/phabelConvertedInput");
-\chdir("/tmp/phabelConvertedInput");
+r("cp -a * .php-cs-fixer.dist.php ../phabelConvertedInput");
+\chdir("../phabelConvertedInput");
 r("rm -rf vendor-bin/*/vendor");
 r("composer update --no-dev");
 
 function commit(string $message)
 {
-    r("cp -a /tmp/phabelConvertedOutput/* /tmp/phabelConvertedRepo");
-    \chdir("/tmp/phabelConvertedRepo/");
+    r("cp -a ../phabelConvertedOutput/* ../phabelConvertedRepo");
+    \chdir("../phabelConvertedRepo/");
     r("git add -A");
     r("git commit -m " . \escapeshellarg($message));
 }
 
 foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
     if (!$dry) {
-        \chdir("/tmp/phabelConvertedRepo");
+        \chdir("../phabelConvertedRepo");
         \passthru("git branch -D phabel_tmp");
         r("git branch phabel_tmp");
         r("git checkout phabel_tmp");
-        r("rm -rf /tmp/phabelConvertedRepo/*");
+        r("rm -rf ../phabelConvertedRepo/*");
     }
-    r("rm -rf /tmp/phabelConvertedOutput");
-    \mkdir('/tmp/phabelConvertedOutput');
+    r("rm -rf ../phabelConvertedOutput");
+    \mkdir('../phabelConvertedOutput');
 
     $packages = [];
     foreach ([Php::VERSIONS[\count(Php::VERSIONS)-1], $realTarget] as $k => $target) {
         if ($k === 0) {
-            $input = "/tmp/phabelConvertedInput";
-            $output = "/tmp/phabelConvertedOutput";
+            $input = "../phabelConvertedInput";
+            $output = "../phabelConvertedOutput";
         } else {
-            $input = $output = "/tmp/phabelConvertedOutput";
+            $input = $output = "../phabelConvertedOutput";
         }
         \chdir($input);
 
@@ -89,7 +89,7 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
             commit("phabel.io: transpile to {$target}");
         }
     }
-    \chdir("/tmp/phabelConvertedOutput");
+    \chdir("../phabelConvertedOutput");
     r("$home/vendor/bin/php-scoper add-prefix -c $home/scoper.inc.php");
     r("rm -rf vendor");
     r("cp -a build/. .");
@@ -138,7 +138,7 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
 
     if (!$dry) {
         commit("phabel.io: add dependencies");
-        \chdir("/tmp/phabelConvertedRepo");
+        \chdir("../phabelConvertedRepo");
         if ($tag) {
             r("git tag ".\escapeshellarg("$tag.$target"));
             r("git push -f origin " . \escapeshellarg("$tag.$target"));

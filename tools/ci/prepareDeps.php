@@ -14,15 +14,17 @@ foreach (Php::VERSIONS as $version) {
     }
 }
 
+`rm -rf ../phabelConverted`;
+
 $packages = (new Traverser(EventHandler::create()))
     ->setPlugins([Php::class => ['target' => $version]])
-    ->setInput('.')
+    ->setInput('vendor-bin')
     ->setOutput('../phabelConverted')
     ->setCoverage('coverage/convertVendor.php')
     ->run(\getenv('PHABEL_PARALLEL') ?: 1);
 
-`cp -a ../phabelConverted/vendor .`;
-`cp -a ../phabelConverted/vendor-bin .`;
+`rm -rf vendor-bin`;
+`mv ../phabelConverted/ vendor-bin`;
 
 if (!empty($packages)) {
     $cmd = "composer require --dev ";
