@@ -41,7 +41,7 @@ class Php extends Plugin
     /**
      * Polyfill versions.
      */
-    private const POLYFILL_VERSIONS = [
+    const POLYFILL_VERSIONS = [
         'symfony/polyfill-php56' => '^1.19',
         'symfony/polyfill-php70' => '^1.19',
         'symfony/polyfill-php71' => '^1.19',
