@@ -87,7 +87,7 @@ class Publish extends Command
             $json['phabel']['extra']['require'] = $json['require'];
             $json['require'] = [
                 'phabel/phabel' => Version::VERSION,
-                'php' => '>=5.6'
+                'php' => $json['require']['php']
             ];
             \file_put_contents(ComposerSanitizer::FILE_NAME, ComposerSanitizer::getContents($json['name'] ?? 'phabel'));
             $this->exec(['git', 'add', ComposerSanitizer::FILE_NAME]);

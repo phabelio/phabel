@@ -4,6 +4,7 @@ namespace Phabel\PluginGraph;
 
 use Phabel\Exception;
 use Phabel\Plugin\ClassStoragePlugin;
+use Phabel\PluginCache;
 use Phabel\PluginInterface;
 use SplQueue;
 
@@ -48,6 +49,9 @@ final class ResolvedGraph
                 foreach ($plugin->getComposerRequires() as $package => $constraint) {
                     $requires[$package] ??= [];
                     $requires[$package][]= $constraint;
+                }
+                if (PluginCache::isEmpty(\get_class($plugin))) {
+                    continue;
                 }
                 if ($plugin instanceof ClassStoragePlugin) {
                     if ($this->classStorage) {

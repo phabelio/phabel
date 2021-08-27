@@ -11,7 +11,7 @@ use Composer\Package\Package;
 use Composer\Package\PackageInterface;
 use Composer\Repository\PlatformRepository;
 use Composer\Semver\Constraint\Constraint as ComposerConstraint;
-
+use Composer\Semver\Constraint\MultiConstraint;
 use Composer\Semver\VersionParser;
 use Phabel\Cli\EventHandler as CliEventHandler;
 use Phabel\Cli\Formatter;
@@ -212,7 +212,10 @@ class Transformer extends EventHandler
         foreach ($package->getRequires() as $name => $link) {
             if (PlatformRepository::isPlatformPackage($link->getTarget())) {
                 if ($link->getTarget() === 'php') {
-                    $constraint = new ComposerConstraint('>=', Php::unnormalizeVersion($target));
+                    $constraint = MultiConstraint::create([
+                        new ComposerConstraint('>=', Php::unnormalizeVersion($target)),
+                        new ComposerConstraint('<', Php::unnormalizeVersion($target+1))
+                    ]);
                     $links[$name]= new Link(
                         $package->getName(),
                         $link->getTarget(),

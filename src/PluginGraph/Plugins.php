@@ -2,7 +2,6 @@
 
 namespace Phabel\PluginGraph;
 
-use Phabel\PluginCache;
 use Phabel\PluginInterface;
 use SplQueue;
 
@@ -60,9 +59,6 @@ class Plugins
     public function enqueue(SplQueue $queue, PackageContext $ctx): void
     {
         foreach ($this->plugins as $plugin => $configs) {
-            if (PluginCache::isEmpty($plugin)) {
-                continue;
-            }
             foreach ($plugin::mergeConfigs(...$configs) as $config) {
                 $pluginObj = new $plugin;
                 $pluginObj->setConfigArray($config);

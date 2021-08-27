@@ -97,8 +97,11 @@ class Php extends Plugin
     }
     public function getComposerRequires(): array
     {
-        $res = [];
-        foreach (self::getRange((int) $this->getConfig('target', self::DEFAULT_TARGET)) as $version) {
+        $target = (int) $this->getConfig('target', self::DEFAULT_TARGET);
+        $res = [
+            'php' => '>='.Php::unnormalizeVersion($target).' <'.Php::unnormalizeVersion($target+1)
+        ];
+        foreach (self::getRange($target) as $version) {
             $version = "symfony/polyfill-php$version";
             $res[$version] = self::POLYFILL_VERSIONS[$version];
         }

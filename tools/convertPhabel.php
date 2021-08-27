@@ -36,12 +36,6 @@ if (!$dry) {
     r("rm -rf ../phabelConvertedRepo/vendor");
 }
 
-\chdir($home);
-r("cp -a * .php-cs-fixer.dist.php ../phabelConvertedInput");
-\chdir("../phabelConvertedInput");
-r("rm -rf vendor-bin/*/vendor");
-r("composer update --no-dev");
-
 function commit(string $message)
 {
     r("cp -a ../phabelConvertedOutput/* ../phabelConvertedRepo");
@@ -51,6 +45,7 @@ function commit(string $message)
 }
 
 foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
+    $realTarget = Php::normalizeVersion($realTarget);
     if (!$dry) {
         \chdir("../phabelConvertedRepo");
         \passthru("git branch -D phabel_tmp");
@@ -61,7 +56,35 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
     r("rm -rf ../phabelConvertedOutput");
     \mkdir('../phabelConvertedOutput');
 
-    $packages = [];
+    $coverage = \getenv('PHABEL_COVERAGE') ?: '';
+    if ($coverage) {
+        $coverage .= "-{$realTarget}";
+    }
+    $packages = (new Traverser(EventHandler::create()))
+        ->setInput('../phabelConvertedOutput')
+        ->setOutput('../phabelConvertedOutput')
+        ->setPlugins([Php::class => ['target' => $realTarget]])
+        ->setCoverage($coverage)
+        ->run((int) (\getenv('PHABEL_PARALLEL') ?: 1));
+
+    \chdir($home);
+    r("cp -a * .php-cs-fixer.dist.php ../phabelConvertedInput");
+    \chdir("../phabelConvertedInput");
+    r("rm -rf vendor-bin/*/vendor");
+    if (!empty($packages)) {
+        $cmd = "composer require --update-no-dev ";
+        foreach ($packages as $package => $constraint) {
+            if ($package === 'php') {
+                continue;
+            }
+            $cmd .= \escapeshellarg("{$package}:{$constraint}")." ";
+        }
+        r($cmd);
+    } else {
+        r("composer update --no-dev");
+    }
+
+
     foreach ([Php::VERSIONS[\count(Php::VERSIONS)-1], $realTarget] as $k => $target) {
         if ($k === 0) {
             $input = "../phabelConvertedInput";
@@ -75,7 +98,7 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
         if ($coverage) {
             $coverage .= "-{$target}";
         }
-        $packages += (new Traverser(EventHandler::create()))
+        (new Traverser(EventHandler::create()))
             ->setInput($input)
             ->setOutput($output)
             ->setPlugins([Php::class => ['target' => $target]])
@@ -106,16 +129,21 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
     $lock = \json_decode(\file_get_contents('composer.lock'), true);
     $json = \json_decode(\file_get_contents('composer.json'), true);
 
-    $packages["php"] = ">=" . Php::unnormalizeVersion(Php::normalizeVersion($target));
-    $packages['composer-plugin-api'] = $json['require']['composer-plugin-api'];
-    $packages['ext-json'] = $json['require']['ext-json'];
-    $json['require'] = $packages;
+    $json['require'] = [
+        'php' => $packages['php'],
+        'ext-json' => $json['require']['ext-json'],
+        'composer-plugin-api' => $json['require']['composer-plugin-api'],
+    ];
+
     foreach ($lock['packages'] as $package) {
         $name = $package['name'];
 
         if ($name === 'phabel/phabel') {
             continue;
         }
+
+        $json['require'] += \array_filter($package['require'], fn ($s) => \str_starts_with($s, 'ext-'), ARRAY_FILTER_USE_KEY);
+
         foreach (['psr-4', 'psr-0'] as $type) {
             foreach ($package['autoload'][$type] ?? [] as $namespace => $path) {
                 $namespace = "Phabel\\$namespace";
@@ -124,6 +152,7 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
                 $json['autoload'][$type][$namespace] = $paths;
             }
         }
+
         $json['autoload']['files'] = \array_merge(
             $json['autoload']['files'] ?? [],
             \array_map(

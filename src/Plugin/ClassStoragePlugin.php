@@ -41,12 +41,6 @@ final class ClassStoragePlugin extends Plugin
      * @var array<class-string<ClassStorageProvider>, true>
      */
     protected array $finalPlugins = [];
-    /**
-     * Class storage from previous iteration.
-     *
-     * @var ?ClassStorage
-     */
-    private ?ClassStorage $storage = null;
 
     /**
      * Check if plugin should run.
@@ -80,11 +74,6 @@ final class ClassStoragePlugin extends Plugin
     public function setConfigArray(array $config): void
     {
         parent::setConfigArray($config);
-
-        if (isset($config[ClassStorage::class])) {
-            $this->storage = $config[ClassStorage::class];
-            unset($config[ClassStorage::class]);
-        }
         $this->finalPlugins += $config;
     }
 
@@ -96,15 +85,6 @@ final class ClassStoragePlugin extends Plugin
      */
     public function enterRoot(RootNode $_, Context $context): void
     {
-        if ($this->storage) {
-            do {
-                $processed = false;
-                foreach ($this->finalPlugins as $name => $_) {
-                    $processed = $name::processClassGraph($this->storage) || $processed;
-                }
-            } while ($processed);
-            $this->storage = null;
-        }
         $file = $context->getFile();
         $this->count[$file] = [];
         foreach ($this->traits as $trait => $traits) {
@@ -189,11 +169,15 @@ final class ClassStoragePlugin extends Plugin
     public function finish(): array
     {
         $storage = new ClassStorage($this);
-        $processed = false;
-        foreach ($this->finalPlugins as $name => $_) {
-            $processed = $name::processClassGraph($storage) || $processed;
-        }
-        if (!$processed) {
+        $processedAny = false;
+        do {
+            $processed = false;
+            foreach ($this->finalPlugins as $name => $_) {
+                $processed = $name::processClassGraph($storage) || $processed;
+            }
+            $processedAny = $processed || $processedAny;
+        } while ($processed);
+        if (!$processedAny) {
             return [[], []];
         }
         $result = \array_fill_keys(\array_keys($this->finalPlugins), [ClassStorage::class => $storage]);

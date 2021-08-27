@@ -139,7 +139,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
                 $json['extra']['phabel']['revision'] = Version::LATEST;
 
                 $json['require'] ??= [];
-                $json['require']['php'] = '>=8.0';
+                $json['require']['php'] = '^8.0';
 
                 $this->transformer->banner();
                 $f = [$this->transformer, 'format'];
