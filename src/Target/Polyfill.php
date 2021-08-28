@@ -19,6 +19,7 @@ use ReflectionMethod;
  */
 class Polyfill extends Plugin
 {
+    private array $functions = [];
     public static function mergeConfigs(array ...$configs): array
     {
         $configs = \array_merge(...$configs);
@@ -43,12 +44,23 @@ class Polyfill extends Plugin
         ]];
     }
 
+    public function shouldRunFile(string $file): bool
+    {
+        if (\preg_match(':Target/Php(\d\d)/Polyfill.php:', $file, $matches)) {
+            $version = Php::normalizeVersion($matches[1]);
+            $version = Php::class.$version.'\\Polyfill';
+            $this->functions = \array_filter($this->getConfig('functions', []), fn ($s) => $s[0] !== $version);
+        } else {
+            $this->functions = $this->getConfig('functions', []);
+        }
+        return true;
+    }
     public function enterFunc(FuncCall $call): ?StaticCall
     {
         if (!$call->name instanceof Name) {
             return null;
         }
-        $replacement = $this->getConfig('functions', [])[\strtolower(Tools::getFqdn($call->name, $call->name->toLowerString()))] ?? null;
+        $replacement = $this->functions[\strtolower(Tools::getFqdn($call->name, $call->name->toLowerString()))] ?? null;
         if ($replacement) {
             return Tools::call($replacement, ...$call->args);
         }
