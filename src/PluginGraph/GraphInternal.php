@@ -7,7 +7,6 @@ use Phabel\Plugin;
 use Phabel\PluginInterface;
 use SplObjectStorage;
 use SplQueue;
-
 /**
  * Internal graph class.
  *
@@ -53,10 +52,10 @@ class GraphInternal
      */
     public function getPackageContext()
     {
-        $packageContext = new PackageContext();
+        $packageContext = new \Phabel\PluginGraph\PackageContext();
         $this->packageContexts[] = $packageContext;
         $phabelReturn = $packageContext;
-        if (!$phabelReturn instanceof PackageContext) {
+        if (!$phabelReturn instanceof \Phabel\PluginGraph\PackageContext) {
             throw new \TypeError(__METHOD__ . '(): Return value must be of type PackageContext, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
         }
         return $phabelReturn;
@@ -72,7 +71,7 @@ class GraphInternal
      *
      * @return Node[]
      */
-    public function addPlugin($plugin, array $config, PackageContext $ctx)
+    public function addPlugin($plugin, array $config, \Phabel\PluginGraph\PackageContext $ctx)
     {
         if (!\is_string($plugin)) {
             if (!(\is_string($plugin) || \is_object($plugin) && \method_exists($plugin, '__toString') || (\is_bool($plugin) || \is_numeric($plugin)))) {
@@ -80,9 +79,9 @@ class GraphInternal
             }
             $plugin = (string) $plugin;
         }
-        $phabelReturn = \array_map(function (array $config) use ($plugin, $ctx) {
+        $phabelReturn = \array_map(function (array $config) use($plugin, $ctx) {
             $phabelReturn = $this->addPluginInternal($plugin, $config, $ctx);
-            if (!$phabelReturn instanceof Node) {
+            if (!$phabelReturn instanceof \Phabel\PluginGraph\Node) {
                 throw new \TypeError(__METHOD__ . '(): Return value must be of type Node, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
             }
             return $phabelReturn;
@@ -101,7 +100,7 @@ class GraphInternal
      *
      * @psalm-param class-string<PluginInterface> $plugin Plugin name
      */
-    private function addPluginInternal($plugin, array $config, PackageContext $ctx)
+    private function addPluginInternal($plugin, array $config, \Phabel\PluginGraph\PackageContext $ctx)
     {
         if (!\is_string($plugin)) {
             if (!(\is_string($plugin) || \is_object($plugin) && \method_exists($plugin, '__toString') || (\is_bool($plugin) || \is_numeric($plugin)))) {
@@ -112,16 +111,16 @@ class GraphInternal
         $configStr = \json_encode($config);
         if (isset($this->plugins[$plugin][$configStr])) {
             $phabelReturn = $this->plugins[$plugin][$configStr]->addPackages($ctx);
-            if (!$phabelReturn instanceof Node) {
+            if (!$phabelReturn instanceof \Phabel\PluginGraph\Node) {
                 throw new \TypeError(__METHOD__ . '(): Return value must be of type Node, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
             }
             return $phabelReturn;
         }
-        $this->plugins[$plugin][$configStr] = $node = new Node($this, $ctx);
+        $this->plugins[$plugin][$configStr] = $node = new \Phabel\PluginGraph\Node($this, $ctx);
         $this->unlinkedNodes->attach($node);
         $this->unprocessedNode->attach($node);
         $phabelReturn = $node->init($plugin, $config);
-        if (!$phabelReturn instanceof Node) {
+        if (!$phabelReturn instanceof \Phabel\PluginGraph\Node) {
             throw new \TypeError(__METHOD__ . '(): Return value must be of type Node, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
         }
         return $phabelReturn;
@@ -129,7 +128,7 @@ class GraphInternal
     /**
      * Set unlinked node as linked.
      */
-    public function linkNode(Node $node)
+    public function linkNode(\Phabel\PluginGraph\Node $node)
     {
         if ($this->unlinkedNodes->contains($node)) {
             $this->unlinkedNodes->detach($node);

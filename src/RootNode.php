@@ -2,9 +2,8 @@
 
 namespace Phabel;
 
-use PhpParser\Node;
-use PhpParser\NodeAbstract;
-
+use Phabel\PhpParser\Node;
+use Phabel\PhpParser\NodeAbstract;
 /**
  * Root node.
  *

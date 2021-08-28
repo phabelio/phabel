@@ -7,7 +7,6 @@ use Phabel\PluginCache;
 use Phabel\PluginInterface;
 use SplObjectStorage;
 use SplQueue;
-
 /**
  * Represents a plugin with a certain configuration.
  *
@@ -71,17 +70,17 @@ class Node
     /**
      * Whether this node was visited when looking for circular requirements.
      */
-    private $visitedCircular = false;
+    private $visitedCircular = \false;
     /**
      * Whether this node can be required, or only extended.
      */
-    private $canBeRequired = true;
+    private $canBeRequired = \true;
     /**
      * Constructor.
      *
      * @param GraphInternal  $graph  Graph instance
      */
-    public function __construct(GraphInternal $graph, PackageContext $ctx)
+    public function __construct(\Phabel\PluginGraph\GraphInternal $graph, \Phabel\PluginGraph\PackageContext $ctx)
     {
         $this->packageContext = $ctx;
         $this->graph = $graph;
@@ -110,7 +109,7 @@ class Node
             $plugin = (string) $plugin;
         }
         $this->name = $plugin;
-        $this->plugin = new Plugins($plugin, $pluginConfig);
+        $this->plugin = new \Phabel\PluginGraph\Plugins($plugin, $pluginConfig);
         $this->canBeRequired = PluginCache::canBeRequired($plugin);
         foreach (PluginCache::next($plugin, $pluginConfig) as $class => $config) {
             foreach ($this->graph->addPlugin($class, $config, $this->packageContext) as $node) {
@@ -201,7 +200,7 @@ class Node
         $other->extendedBy = new SplObjectStorage();
         $this->graph->unprocessedNode->detach($other);
         $phabelReturn = $this;
-        if (!$phabelReturn instanceof Node) {
+        if (!$phabelReturn instanceof \Phabel\PluginGraph\Node) {
             throw new \TypeError(__METHOD__ . '(): Return value must be of type Node, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
         }
         return $phabelReturn;
@@ -215,22 +214,22 @@ class Node
     {
         if ($this->visitedCircular) {
             $plugins = [$this->name];
-            foreach (\debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, DEBUG_BACKTRACE_PROVIDE_OBJECT) as $frame) {
+            foreach (\debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, \DEBUG_BACKTRACE_PROVIDE_OBJECT) as $frame) {
                 $plugins[] = $frame['object']->name;
                 if ($frame['object'] === $this) {
                     break;
                 }
             }
-            throw new CircularException($plugins);
+            throw new \Phabel\PluginGraph\CircularException($plugins);
         }
-        $this->visitedCircular = true;
+        $this->visitedCircular = \true;
         foreach ($this->requiredBy as $that) {
             $this->packageContext->merge($that->circular()->packageContext);
         }
         foreach ($this->extendedBy as $that) {
             $this->packageContext->merge($that->circular()->packageContext);
         }
-        $this->visitedCircular = false;
+        $this->visitedCircular = \false;
         $phabelReturn = $this;
         if (!$phabelReturn instanceof self) {
             throw new \TypeError(__METHOD__ . '(): Return value must be of type ' . self::class . ', ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -273,7 +272,7 @@ class Node
         $this->plugin->enqueue($queue, $this->packageContext, $packages);
         $this->graph->unprocessedNode->detach($this);
         do {
-            $processedAny = false;
+            $processedAny = \false;
             $prevNode = null;
             $toDetach = new SplQueue();
             foreach ($this->extendedBy as $node) {
@@ -313,7 +312,7 @@ class Node
                 if (\count($node->extends) + \count($node->requires) === 0) {
                     $toDetach->enqueue($node);
                     $node->flattenInternal($queueOfQueues, $packages);
-                    $processedAny = true;
+                    $processedAny = \true;
                 }
             }
             foreach ($toDetach as $node) {
@@ -327,7 +326,7 @@ class Node
                         $queueOfQueues->enqueue(new SplQueue());
                     }
                     $node->flattenInternal($queueOfQueues, $packages);
-                    $processedAny = true;
+                    $processedAny = \true;
                 }
             }
             foreach ($toDetach as $node) {
@@ -342,7 +341,7 @@ class Node
      *
      * @return self
      */
-    public function addPackages(PackageContext $ctx)
+    public function addPackages(\Phabel\PluginGraph\PackageContext $ctx)
     {
         $this->packageContext->merge($ctx);
         $phabelReturn = $this;

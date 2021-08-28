@@ -3,7 +3,6 @@
 namespace Phabel\PluginGraph;
 
 use Phabel\PluginInterface;
-
 /**
  * Circular reference in plugin graph.
  *

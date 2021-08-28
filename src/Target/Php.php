@@ -7,7 +7,6 @@ use Phabel\Plugin\ComposerSanitizer;
 use Phabel\Plugin\NewFixer;
 use Phabel\Plugin\StmtExprWrapper;
 use Phabel\PluginInterface;
-
 /**
  * Makes changes necessary to polyfill syntaxes of various PHP versions.
  *
@@ -25,7 +24,7 @@ class Php extends Plugin
     /**
      * Default target.
      */
-    const DEFAULT_TARGET = PHP_MAJOR_VERSION . PHP_MINOR_VERSION;
+    const DEFAULT_TARGET = \PHP_MAJOR_VERSION . \PHP_MINOR_VERSION;
     /**
      * Ignore target.
      */
@@ -110,7 +109,7 @@ class Php extends Plugin
             $target = (int) $target;
         }
         $key = \array_search($target, self::VERSIONS);
-        $phabelReturn = $key === false ? self::getRange((int) self::DEFAULT_TARGET) : \array_slice(self::VERSIONS, 1 + $key);
+        $phabelReturn = $key === \false ? self::getRange((int) self::DEFAULT_TARGET) : \array_slice(self::VERSIONS, 1 + $key);
         if (!\is_array($phabelReturn)) {
             throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
         }
@@ -118,8 +117,8 @@ class Php extends Plugin
     }
     public static function getComposerRequires(array $config)
     {
-        $target = Php::normalizeVersion(isset($config['target']) ? $config['target'] : self::DEFAULT_TARGET);
-        $res = ['php' => '>=' . Php::unnormalizeVersion($target) . ' <' . Php::unnormalizeVersion($target + 1)];
+        $target = \Phabel\Target\Php::normalizeVersion(isset($config['target']) ? $config['target'] : self::DEFAULT_TARGET);
+        $res = ['php' => '>=' . \Phabel\Target\Php::unnormalizeVersion($target) . ' <' . \Phabel\Target\Php::unnormalizeVersion($target + 1)];
         foreach (self::getRange($target) as $version) {
             $version = "symfony/polyfill-php{$version}";
             $res[$version] = self::POLYFILL_VERSIONS[$version];

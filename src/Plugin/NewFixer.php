@@ -4,16 +4,15 @@ namespace Phabel\Plugin;
 
 use Phabel\Context;
 use Phabel\Plugin;
-use PhpParser\Node;
-use PhpParser\Node\Expr;
-use PhpParser\Node\Expr\Assign;
-use PhpParser\Node\Expr\BinaryOp\BooleanOr;
-use PhpParser\Node\Expr\Instanceof_;
-use PhpParser\Node\Expr\New_;
-use PhpParser\Node\Expr\Ternary;
-use PhpParser\Node\Scalar;
-use PhpParser\NodeFinder;
-
+use Phabel\PhpParser\Node;
+use Phabel\PhpParser\Node\Expr;
+use Phabel\PhpParser\Node\Expr\Assign;
+use Phabel\PhpParser\Node\Expr\BinaryOp\BooleanOr;
+use Phabel\PhpParser\Node\Expr\Instanceof_;
+use Phabel\PhpParser\Node\Expr\New_;
+use Phabel\PhpParser\Node\Expr\Ternary;
+use Phabel\PhpParser\Node\Scalar;
+use Phabel\PhpParser\NodeFinder;
 /**
  * Fix certain new expressions.
  *
@@ -61,7 +60,7 @@ class NewFixer extends Plugin
     {
         if ($this->hasParenthesised($new->class)) {
             $valueCopy = $new->class;
-            return new Ternary(new BooleanOr(new Assign($new->class = $context->getVariable(), $valueCopy), self::fromLiteral(true)), $new, self::fromLiteral(false));
+            return new Ternary(new BooleanOr(new Assign($new->class = $context->getVariable(), $valueCopy), self::fromLiteral(\true)), $new, self::fromLiteral(\false));
         }
     }
     public function enterInstanceof(Instanceof_ $expr)

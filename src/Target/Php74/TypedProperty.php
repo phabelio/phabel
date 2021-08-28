@@ -3,9 +3,8 @@
 namespace Phabel\Target\Php74;
 
 use Phabel\Plugin;
-use PhpParser\Node\Stmt\ClassLike;
-use PhpParser\Node\Stmt\Property;
-
+use Phabel\PhpParser\Node\Stmt\ClassLike;
+use Phabel\PhpParser\Node\Stmt\Property;
 /**
  * Implement typed properties.
  */

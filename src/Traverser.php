@@ -2,26 +2,25 @@
 
 namespace Phabel;
 
-use Amp\Parallel\Worker\DefaultPool;
-use Amp\Promise;
+use Phabel\Amp\Parallel\Worker\DefaultPool;
+use Phabel\Amp\Promise;
 use Phabel\Plugin\ClassStoragePlugin;
 use Phabel\PluginGraph\Graph;
 use Phabel\PluginGraph\ResolvedGraph;
 use Phabel\Tasks\Init;
 use Phabel\Tasks\Run;
 use Phabel\Tasks\Shutdown;
-use PhpParser\Node;
-use PhpParser\Parser;
-use PhpParser\ParserFactory;
-use PhpParser\PrettyPrinter\Standard;
-use SebastianBergmann\CodeCoverage\CodeCoverage;
-use SebastianBergmann\CodeCoverage\Driver\Selector;
-use SebastianBergmann\CodeCoverage\Filter;
-use SebastianBergmann\CodeCoverage\Report\PHP;
+use Phabel\PhpParser\Node;
+use Phabel\PhpParser\Parser;
+use Phabel\PhpParser\ParserFactory;
+use Phabel\PhpParser\PrettyPrinter\Standard;
+use Phabel\SebastianBergmann\CodeCoverage\CodeCoverage;
+use Phabel\SebastianBergmann\CodeCoverage\Driver\Selector;
+use Phabel\SebastianBergmann\CodeCoverage\Filter;
+use Phabel\SebastianBergmann\CodeCoverage\Report\PHP;
 use SplQueue;
-use function Amp\call;
-use function Amp\Promise\wait;
-
+use function Phabel\Amp\call;
+use function Phabel\Amp\Promise\wait;
 /**
  * AST traverser.
  *
@@ -109,7 +108,7 @@ class Traverser
      *
      * @return self
      */
-    public static function fromPlugin(Plugin ...$plugin)
+    public static function fromPlugin(\Phabel\Plugin ...$plugin)
     {
         $queue = new SplQueue();
         foreach ($plugin as $p) {
@@ -132,7 +131,7 @@ class Traverser
      */
     public function __construct($eventHandler = null)
     {
-        if (!($eventHandler instanceof EventHandlerInterface || \is_null($eventHandler))) {
+        if (!($eventHandler instanceof \Phabel\EventHandlerInterface || \is_null($eventHandler))) {
             throw new \TypeError(__METHOD__ . '(): Argument #1 ($eventHandler) must be of type ?EventHandlerInterface, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($eventHandler) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
         }
         $this->parser = (new ParserFactory())->create(ParserFactory::PREFER_PHP7);
@@ -319,7 +318,7 @@ class Traverser
             $filter->includeDirectory(\realpath(__DIR__ . '/../src'));
             $coverage = new CodeCoverage((new Selector())->forLineCoverage($filter), $filter);
             $coverage->start('phabel');
-            $phabelReturn = new PhabelAnonymousClass063d10f883fe83b0c12eba721edc03b9cc7383d4550ab4363c290322abe45bb50($coverage, $coveragePath);
+            $phabelReturn = new \Phabel\PhabelAnonymousClass063d10f883fe83b0c12eba721edc03b9cc7383d4550ab4363c290322abe45bb50($coverage, $coveragePath);
             if (!(\is_object($phabelReturn) || \is_null($phabelReturn))) {
                 throw new \TypeError(__METHOD__ . '(): Return value must be of type ?object, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
             }
@@ -366,18 +365,18 @@ class Traverser
             $threads = (int) $threads;
         }
         if (!\interface_exists(Promise::class)) {
-            throw new Exception("amphp/parallel must be installed to parallelize transforms!");
+            throw new \Phabel\Exception("amphp/parallel must be installed to parallelize transforms!");
         }
         \Phabel\Plugin\NestedExpressionFixer::returnMe(isset($this->eventHandler) ? $this->eventHandler : \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->onStart();
         if ($threads === -1) {
-            $threads = Tools::getCpuCount();
+            $threads = \Phabel\Tools::getCpuCount();
         }
         $coverages = [];
-        $phabelReturn = call(function () use (&$coverages, $threads) {
+        $phabelReturn = call(function () use(&$coverages, $threads) {
             $packages = [];
             $first = !$this->count++;
             if (!\file_exists($this->output)) {
-                \mkdir($this->output, 0777, true);
+                \mkdir($this->output, 0777, \true);
             }
             $output = \realpath($this->output);
             $count = 0;
@@ -403,14 +402,14 @@ class Traverser
                 if ($this->fileWhitelist && !isset($this->fileWhitelist[$rel])) {
                     continue;
                 }
-                $targetPath = $output . DIRECTORY_SEPARATOR . $rel;
+                $targetPath = $output . \DIRECTORY_SEPARATOR . $rel;
                 if ($file->isDir()) {
                     if (!\file_exists($targetPath)) {
-                        \mkdir($targetPath, 0777, true);
+                        \mkdir($targetPath, 0777, \true);
                     }
                 } elseif ($file->isFile()) {
                     if ($file->getExtension() == 'php') {
-                        $promise = call(function () use ($pool, $file, $rel, $targetPath, $count, $first, &$promises, &$coverages) {
+                        $promise = call(function () use($pool, $file, $rel, $targetPath, $count, $first, &$promises, &$coverages) {
                             \Phabel\Plugin\NestedExpressionFixer::returnMe(isset($this->eventHandler) ? $this->eventHandler : \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->onBeginAstTraversal($file->getRealPath());
                             $package = null;
                             if ($this->composerPackageName) {
@@ -421,7 +420,7 @@ class Traverser
                             if ($this->coverage) {
                                 $coverages[] = "{$this->coverage}{$count}.php";
                             }
-                            if ($res instanceof ExceptionWrapper) {
+                            if ($res instanceof \Phabel\ExceptionWrapper) {
                                 $res = $res->getException();
                                 if (!($first && \str_contains($res->getMessage(), ' while parsing '))) {
                                     throw $res;
@@ -449,7 +448,7 @@ class Traverser
             /** @var ClassStoragePlugin|null */
             $classStorage = null;
             for ($x = 0; $x < $threads; $x++) {
-                $promises[] = call(function () use ($pool, &$classStorage) {
+                $promises[] = call(function () use($pool, &$classStorage) {
                     /** @var ClassStoragePlugin */
                     $newClassStorage = (yield $pool->enqueue(new Shutdown()));
                     if (!$classStorage) {
@@ -548,7 +547,7 @@ class Traverser
             }
             // If error is suppressed with @, don't throw an exception
             if (\error_reporting() === 0) {
-                $phabelReturn = false;
+                $phabelReturn = \false;
                 if (!\is_bool($phabelReturn)) {
                     if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
                         throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -557,12 +556,12 @@ class Traverser
                 }
                 return $phabelReturn;
             }
-            throw new Exception($errstr, $errno, null, $errfile, $errline);
+            throw new \Phabel\Exception($errstr, $errno, null, $errfile, $errline);
             throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, none returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
         });
         $packages = [];
         \Phabel\Plugin\NestedExpressionFixer::returnMe(isset($this->eventHandler) ? $this->eventHandler : \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->onStart();
-        while (true) {
+        while (\true) {
             $this->runInternal();
             $packages += $this->graph->getPackages();
             $classStorage = $this->graph->getClassStorage();
@@ -602,7 +601,7 @@ class Traverser
             return;
         }
         if (!\file_exists($this->output)) {
-            \mkdir($this->output, 0777, true);
+            \mkdir($this->output, 0777, \true);
         }
         $this->output = \realpath($this->output);
         $it = new \RecursiveDirectoryIterator($this->input, \RecursiveDirectoryIterator::SKIP_DOTS);
@@ -616,10 +615,10 @@ class Traverser
             if ($this->fileWhitelist && !isset($this->fileWhitelist[$rel])) {
                 continue;
             }
-            $targetPath = $this->output . DIRECTORY_SEPARATOR . $rel;
+            $targetPath = $this->output . \DIRECTORY_SEPARATOR . $rel;
             if ($file->isDir()) {
                 if (!\file_exists($targetPath)) {
-                    \mkdir($targetPath, 0777, true);
+                    \mkdir($targetPath, 0777, \true);
                 }
             } elseif ($file->isFile()) {
                 if ($file->getExtension() == 'php') {
@@ -633,7 +632,7 @@ class Traverser
                     try {
                         $it = $this->traverse($rel, $file->getRealPath(), $targetPath);
                     } catch (\Exception $e) {
-                        if (!($first && $e instanceof Exception && \str_contains($e->getMessage(), ' while parsing '))) {
+                        if (!($first && $e instanceof \Phabel\Exception && \str_contains($e->getMessage(), ' while parsing '))) {
                             throw $e;
                         }
                         if (\realpath($targetPath) !== $file->getRealPath()) {
@@ -641,7 +640,7 @@ class Traverser
                         }
                         \Phabel\Plugin\NestedExpressionFixer::returnMe(isset($this->eventHandler) ? $this->eventHandler : \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->onEndAstTraversal($file->getRealPath(), $e);
                     } catch (\Error $e) {
-                        if (!($first && $e instanceof Exception && \str_contains($e->getMessage(), ' while parsing '))) {
+                        if (!($first && $e instanceof \Phabel\Exception && \str_contains($e->getMessage(), ' while parsing '))) {
                             throw $e;
                         }
                         if (\realpath($targetPath) !== $file->getRealPath()) {
@@ -760,17 +759,17 @@ class Traverser
             return $phabelReturn;
         }
         try {
-            $ast = new RootNode(null !== ($phabel_6f5fa46f697baa56 = $this->parser->parse(\file_get_contents($input))) ? $phabel_6f5fa46f697baa56 : []);
+            $ast = new \Phabel\RootNode(null !== ($phabel_6f5fa46f697baa56 = $this->parser->parse(\file_get_contents($input))) ? $phabel_6f5fa46f697baa56 : []);
         } catch (\Exception $e) {
             $message = $e->getMessage();
             $message .= " while parsing ";
             $message .= $input;
-            throw new Exception($message, (int) $e->getCode(), $e, $e->getFile(), $e->getLine());
+            throw new \Phabel\Exception($message, (int) $e->getCode(), $e, $e->getFile(), $e->getLine());
         } catch (\Error $e) {
             $message = $e->getMessage();
             $message .= " while parsing ";
             $message .= $input;
-            throw new Exception($message, (int) $e->getCode(), $e, $e->getFile(), $e->getLine());
+            throw new \Phabel\Exception($message, (int) $e->getCode(), $e, $e->getFile(), $e->getLine());
         }
         $this->file = $file;
         $this->inputFile = $input;
@@ -798,7 +797,7 @@ class Traverser
      *
      * @return int
      */
-    public function traverseAst(Node &$node, SplQueue $pluginQueue = null, $allowMulti = true)
+    public function traverseAst(Node &$node, SplQueue $pluginQueue = null, $allowMulti = \true)
     {
         if (!\is_bool($allowMulti)) {
             if (!(\is_bool($allowMulti) || \is_numeric($allowMulti) || \is_string($allowMulti))) {
@@ -809,7 +808,7 @@ class Traverser
         $this->file = '';
         $this->inputFile = '';
         $this->outputFile = '';
-        $n = new RootNode([&$node]);
+        $n = new \Phabel\RootNode([&$node]);
         $phabelReturn = null !== ($phabel_99db884988fa8271 = $this->traverseAstInternal($n, $pluginQueue, $allowMulti)) && isset($phabel_99db884988fa8271[0]) ? $phabel_99db884988fa8271[0] : 0;
         if (!\is_int($phabelReturn)) {
             if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn))) {
@@ -834,7 +833,7 @@ class Traverser
      * @return array{0: int, 1: string}|null
      * @psalm-return (T is true ? array{0: int, 1: string} : null)
      */
-    private function traverseAstInternal(RootNode &$node, SplQueue $pluginQueue = null, $allowMulti = true)
+    private function traverseAstInternal(\Phabel\RootNode &$node, SplQueue $pluginQueue = null, $allowMulti = \true)
     {
         if (!\is_bool($allowMulti)) {
             if (!(\is_bool($allowMulti) || \is_numeric($allowMulti) || \is_string($allowMulti))) {
@@ -848,7 +847,7 @@ class Traverser
             $context = null;
             try {
                 foreach (isset($pluginQueue) ? $pluginQueue : (isset($this->packageQueue) ? $this->packageQueue : $this->graph->getPlugins()) as $queue) {
-                    $context = new Context();
+                    $context = new \Phabel\Context();
                     $context->setFile($this->file);
                     $context->setInputFile($this->inputFile);
                     $context->setOutputFile($this->outputFile);
@@ -875,7 +874,7 @@ class Traverser
                 } catch (\Error $e) {
                     $message .= "-1";
                 }
-                throw new Exception($message, (int) $e->getCode(), $e, $e->getFile(), $e->getLine());
+                throw new \Phabel\Exception($message, (int) $e->getCode(), $e, $e->getFile(), $e->getLine());
             } catch (\Error $e) {
                 $message = $e->getMessage();
                 $message .= " while processing ";
@@ -888,7 +887,7 @@ class Traverser
                 } catch (\Error $e) {
                     $message .= "-1";
                 }
-                throw new Exception($message, (int) $e->getCode(), $e, $e->getFile(), $e->getLine());
+                throw new \Phabel\Exception($message, (int) $e->getCode(), $e, $e->getFile(), $e->getLine());
             }
             $oldResult = $result;
             $result = $this->printer->prettyPrintFile($node->stmts);
@@ -909,11 +908,11 @@ class Traverser
      *
      * @return void
      */
-    private function traverseNode(Node &$node, SplQueue $plugins, Context $context)
+    private function traverseNode(Node &$node, SplQueue $plugins, \Phabel\Context $context)
     {
         $context->pushResolve($node);
         foreach ($plugins as $plugin) {
-            foreach (PluginCache::enterMethods(\get_class($plugin)) as $type => $methods) {
+            foreach (\Phabel\PluginCache::enterMethods(\get_class($plugin)) as $type => $methods) {
                 if (!\Phabel\Target\Php70\ThrowableReplacer::isInstanceofThrowable($node, $type)) {
                     continue;
                 }
@@ -958,7 +957,7 @@ class Traverser
         }
         $context->pop();
         foreach ($plugins as $plugin) {
-            foreach (PluginCache::leaveMethods(\get_class($plugin)) as $type => $methods) {
+            foreach (\Phabel\PluginCache::leaveMethods(\get_class($plugin)) as $type => $methods) {
                 if (!\Phabel\Target\Php70\ThrowableReplacer::isInstanceofThrowable($node, $type)) {
                     continue;
                 }
@@ -983,7 +982,7 @@ class Traverser
         }
     }
 }
-if (!\class_exists(PhabelAnonymousClass063d10f883fe83b0c12eba721edc03b9cc7383d4550ab4363c290322abe45bb50::class)) {
+if (!\class_exists(\Phabel\PhabelAnonymousClass063d10f883fe83b0c12eba721edc03b9cc7383d4550ab4363c290322abe45bb50::class)) {
     class PhabelAnonymousClass063d10f883fe83b0c12eba721edc03b9cc7383d4550ab4363c290322abe45bb50 implements \Phabel\Target\Php70\AnonymousClass\AnonymousClassInterface
     {
         private $coveragePath;

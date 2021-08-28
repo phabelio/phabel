@@ -4,15 +4,14 @@ namespace Phabel\Plugin;
 
 use Phabel\Context;
 use Phabel\Plugin;
-use PhpParser\Node\Expr\Array_;
-use PhpParser\Node\Expr\ArrayDimFetch;
-use PhpParser\Node\Expr\Assign;
-use PhpParser\Node\Expr\AssignRef;
-use PhpParser\Node\Expr\List_;
-use PhpParser\Node\Expr\Variable;
-use PhpParser\Node\Scalar\LNumber;
-use PhpParser\Node\Stmt\Foreach_;
-
+use Phabel\PhpParser\Node\Expr\Array_;
+use Phabel\PhpParser\Node\Expr\ArrayDimFetch;
+use Phabel\PhpParser\Node\Expr\Assign;
+use Phabel\PhpParser\Node\Expr\AssignRef;
+use Phabel\PhpParser\Node\Expr\List_;
+use Phabel\PhpParser\Node\Expr\Variable;
+use Phabel\PhpParser\Node\Scalar\LNumber;
+use Phabel\PhpParser\Node\Stmt\Foreach_;
 /**
  * Polyfills unsupported list assignments.
  */
@@ -30,7 +29,7 @@ class ListSplitter extends Plugin
         if (!($node->valueVar instanceof List_ || $node->valueVar instanceof Array_)) {
             return;
         }
-        if (!$this->shouldSplit($node->valueVar) && !($this->getConfig('parentExpr', false) && $ctx->isParentStmt())) {
+        if (!$this->shouldSplit($node->valueVar) && !($this->getConfig('parentExpr', \false) && $ctx->isParentStmt())) {
             return;
         }
         $list = $node->valueVar;
@@ -105,7 +104,7 @@ class ListSplitter extends Plugin
     private function hasReference($list)
     {
         $c = $this->getConfigArray();
-        $this->setConfigArray(['byRef' => true]);
+        $this->setConfigArray(['byRef' => \true]);
         $res = $this->shouldSplit($list);
         $this->setConfigArray($c);
         $phabelReturn = $res;
@@ -130,8 +129,8 @@ class ListSplitter extends Plugin
             if (!$item) {
                 continue;
             }
-            if ($this->getConfig('byRef', false) && $item->byRef) {
-                $phabelReturn = true;
+            if ($this->getConfig('byRef', \false) && $item->byRef) {
+                $phabelReturn = \true;
                 if (!\is_bool($phabelReturn)) {
                     if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
                         throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -139,8 +138,8 @@ class ListSplitter extends Plugin
                     $phabelReturn = (bool) $phabelReturn;
                 }
                 return $phabelReturn;
-            } elseif ($this->getConfig('key', false) && isset($item->key)) {
-                $phabelReturn = true;
+            } elseif ($this->getConfig('key', \false) && isset($item->key)) {
+                $phabelReturn = \true;
                 if (!\is_bool($phabelReturn)) {
                     if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
                         throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -150,7 +149,7 @@ class ListSplitter extends Plugin
                 return $phabelReturn;
             } elseif ($item->value instanceof List_ || $item->value instanceof Array_) {
                 if ($this->shouldSplit($item->value)) {
-                    $phabelReturn = true;
+                    $phabelReturn = \true;
                     if (!\is_bool($phabelReturn)) {
                         if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
                             throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -161,7 +160,7 @@ class ListSplitter extends Plugin
                 }
             }
         }
-        $phabelReturn = false;
+        $phabelReturn = \false;
         if (!\is_bool($phabelReturn)) {
             if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
                 throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());

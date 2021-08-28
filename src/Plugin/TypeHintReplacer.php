@@ -5,50 +5,49 @@ namespace Phabel\Plugin;
 use Phabel\Context;
 use Phabel\Plugin;
 use Phabel\Target\Php70\AnonymousClass\AnonymousClassInterface;
-use PhpParser\BuilderHelpers;
-use PhpParser\Node;
-use PhpParser\Node\Arg;
-use PhpParser\Node\Expr;
-use PhpParser\Node\Expr\Assign;
-use PhpParser\Node\Expr\AssignRef;
-use PhpParser\Node\Expr\BinaryOp\BooleanAnd;
-use PhpParser\Node\Expr\BinaryOp\BooleanOr;
-use PhpParser\Node\Expr\BinaryOp\Concat;
-use PhpParser\Node\Expr\BinaryOp\Plus;
-use PhpParser\Node\Expr\BooleanNot;
-use PhpParser\Node\Expr\Cast;
-use PhpParser\Node\Expr\Cast\Bool_;
-use PhpParser\Node\Expr\Cast\Double;
-use PhpParser\Node\Expr\Cast\Int_;
-use PhpParser\Node\Expr\Cast\String_ as CastString_;
-use PhpParser\Node\Expr\ClassConstFetch;
-use PhpParser\Node\Expr\ConstFetch;
-use PhpParser\Node\Expr\Instanceof_;
-use PhpParser\Node\Expr\New_;
-use PhpParser\Node\Expr\Variable;
-use PhpParser\Node\FunctionLike;
-use PhpParser\Node\Identifier;
-use PhpParser\Node\Name;
-use PhpParser\Node\Name\FullyQualified;
-use PhpParser\Node\NullableType;
-use PhpParser\Node\Param;
-use PhpParser\Node\Scalar\LNumber;
-use PhpParser\Node\Scalar\MagicConst\Function_ as MagicConstFunction_;
-use PhpParser\Node\Scalar\MagicConst\Method;
-use PhpParser\Node\Scalar\String_;
-use PhpParser\Node\Stmt\Class_ as StmtClass_;
-use PhpParser\Node\Stmt\ClassLike;
-use PhpParser\Node\Stmt\ClassMethod;
-use PhpParser\Node\Stmt\Else_;
-use PhpParser\Node\Stmt\Expression;
-use PhpParser\Node\Stmt\Foreach_;
-use PhpParser\Node\Stmt\If_;
-use PhpParser\Node\Stmt\Interface_;
-use PhpParser\Node\Stmt\Return_;
-use PhpParser\Node\Stmt\Throw_;
-use PhpParser\Node\UnionType;
+use Phabel\PhpParser\BuilderHelpers;
+use Phabel\PhpParser\Node;
+use Phabel\PhpParser\Node\Arg;
+use Phabel\PhpParser\Node\Expr;
+use Phabel\PhpParser\Node\Expr\Assign;
+use Phabel\PhpParser\Node\Expr\AssignRef;
+use Phabel\PhpParser\Node\Expr\BinaryOp\BooleanAnd;
+use Phabel\PhpParser\Node\Expr\BinaryOp\BooleanOr;
+use Phabel\PhpParser\Node\Expr\BinaryOp\Concat;
+use Phabel\PhpParser\Node\Expr\BinaryOp\Plus;
+use Phabel\PhpParser\Node\Expr\BooleanNot;
+use Phabel\PhpParser\Node\Expr\Cast;
+use Phabel\PhpParser\Node\Expr\Cast\Bool_;
+use Phabel\PhpParser\Node\Expr\Cast\Double;
+use Phabel\PhpParser\Node\Expr\Cast\Int_;
+use Phabel\PhpParser\Node\Expr\Cast\String_ as CastString_;
+use Phabel\PhpParser\Node\Expr\ClassConstFetch;
+use Phabel\PhpParser\Node\Expr\ConstFetch;
+use Phabel\PhpParser\Node\Expr\Instanceof_;
+use Phabel\PhpParser\Node\Expr\New_;
+use Phabel\PhpParser\Node\Expr\Variable;
+use Phabel\PhpParser\Node\FunctionLike;
+use Phabel\PhpParser\Node\Identifier;
+use Phabel\PhpParser\Node\Name;
+use Phabel\PhpParser\Node\Name\FullyQualified;
+use Phabel\PhpParser\Node\NullableType;
+use Phabel\PhpParser\Node\Param;
+use Phabel\PhpParser\Node\Scalar\LNumber;
+use Phabel\PhpParser\Node\Scalar\MagicConst\Function_ as MagicConstFunction_;
+use Phabel\PhpParser\Node\Scalar\MagicConst\Method;
+use Phabel\PhpParser\Node\Scalar\String_;
+use Phabel\PhpParser\Node\Stmt\Class_ as StmtClass_;
+use Phabel\PhpParser\Node\Stmt\ClassLike;
+use Phabel\PhpParser\Node\Stmt\ClassMethod;
+use Phabel\PhpParser\Node\Stmt\Else_;
+use Phabel\PhpParser\Node\Stmt\Expression;
+use Phabel\PhpParser\Node\Stmt\Foreach_;
+use Phabel\PhpParser\Node\Stmt\If_;
+use Phabel\PhpParser\Node\Stmt\Interface_;
+use Phabel\PhpParser\Node\Stmt\Return_;
+use Phabel\PhpParser\Node\Stmt\Throw_;
+use Phabel\PhpParser\Node\UnionType;
 use SplStack;
-
 /**
  * Replace all usages of a certain type in typehints.
  *
@@ -92,8 +91,8 @@ class TypeHintReplacer extends Plugin
             throw new \TypeError(__METHOD__ . '(): Argument #1 ($type) must be of type ?Node, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($type) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
         }
         if ($type) {
-            if ($type->getAttribute(self::FORCE_ATTRIBUTE, false)) {
-                $phabelReturn = false;
+            if ($type->getAttribute(self::FORCE_ATTRIBUTE, \false)) {
+                $phabelReturn = \false;
                 if (!\is_bool($phabelReturn)) {
                     if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
                         throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -102,8 +101,8 @@ class TypeHintReplacer extends Plugin
                 }
                 return $phabelReturn;
             }
-            $type->setAttribute(self::FORCE_ATTRIBUTE, true);
-            $phabelReturn = true;
+            $type->setAttribute(self::FORCE_ATTRIBUTE, \true);
+            $phabelReturn = \true;
             if (!\is_bool($phabelReturn)) {
                 if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
                     throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -112,7 +111,7 @@ class TypeHintReplacer extends Plugin
             }
             return $phabelReturn;
         }
-        $phabelReturn = false;
+        $phabelReturn = \false;
         if (!\is_bool($phabelReturn)) {
             if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
                 throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -134,7 +133,7 @@ class TypeHintReplacer extends Plugin
             throw new \TypeError(__METHOD__ . '(): Argument #1 ($type) must be of type ?Node, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($type) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
         }
         if ($type) {
-            $phabelReturn = $type->getAttribute(self::FORCE_ATTRIBUTE, false);
+            $phabelReturn = $type->getAttribute(self::FORCE_ATTRIBUTE, \false);
             if (!\is_bool($phabelReturn)) {
                 if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
                     throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -143,7 +142,7 @@ class TypeHintReplacer extends Plugin
             }
             return $phabelReturn;
         }
-        $phabelReturn = true;
+        $phabelReturn = \true;
         if (!\is_bool($phabelReturn)) {
             if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
                 throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -223,7 +222,7 @@ class TypeHintReplacer extends Plugin
      *
      * @return array{0: bool, 1: Node, 2: (callable(Node...): If_)} Whether the polyfilled gettype should be used, the error message, the condition
      */
-    private function generateConditions(Variable $var, array $types, $className, $fromNullable = false)
+    private function generateConditions(Variable $var, array $types, $className, $fromNullable = \false)
     {
         if (!($className instanceof Expr || \is_null($className))) {
             throw new \TypeError(__METHOD__ . '(): Argument #3 ($className) must be of type ?Expr, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($className) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -235,7 +234,7 @@ class TypeHintReplacer extends Plugin
             $fromNullable = (bool) $fromNullable;
         }
         /** @var bool Whether no explicit classes were referenced */
-        $noOopTypes = true;
+        $noOopTypes = \true;
         /** @var Expr[] */
         $typeNames = [];
         /** @var Expr[] */
@@ -279,13 +278,13 @@ class TypeHintReplacer extends Plugin
                         $oopNames[] = $stringType;
                         break;
                     default:
-                        $noOopTypes = false;
+                        $noOopTypes = \false;
                         $stringType = $this->resolveClassName($type, $className);
                         $conditions[] = new Instanceof_($var, new Name($typeName));
                         $oopNames[] = $stringType;
                 }
             } else {
-                $noOopTypes = false;
+                $noOopTypes = \false;
                 $stringType = $this->resolveClassName($type, $className);
                 $conditions[] = new Instanceof_($var, $type);
                 $oopNames[] = $stringType;
@@ -309,7 +308,7 @@ class TypeHintReplacer extends Plugin
             if (\is_array($condition)) {
                 if ($currentConditions) {
                     $currentConditions = $this->reduceConditions($currentConditions);
-                    $splitConditions[] = function (Node ...$stmts) use ($currentConditions) {
+                    $splitConditions[] = function (Node ...$stmts) use($currentConditions) {
                         $phabelReturn = new If_($currentConditions, ['stmts' => $stmts]);
                         if (!$phabelReturn instanceof If_) {
                             throw new \TypeError(__METHOD__ . '(): Return value must be of type If_, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -321,7 +320,7 @@ class TypeHintReplacer extends Plugin
                 list($conditionsStrict, $conditionsLoose, $castLoose) = $condition;
                 $conditionsStrict = new BooleanNot($conditionsStrict);
                 $conditionsLoose = new BooleanNot($conditionsLoose);
-                $splitConditions[] = function (Node ...$stmts) use ($conditionsStrict, $conditionsLoose, $var, $castLoose) {
+                $splitConditions[] = function (Node ...$stmts) use($conditionsStrict, $conditionsLoose, $var, $castLoose) {
                     $phabelReturn = new If_($conditionsStrict, ['stmts' => [new If_($conditionsLoose, ['stmts' => $stmts, 'else' => new Else_([new Expression(new Assign($var, new $castLoose($var)))])])]]);
                     if (!$phabelReturn instanceof If_) {
                         throw new \TypeError(__METHOD__ . '(): Return value must be of type If_, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -334,7 +333,7 @@ class TypeHintReplacer extends Plugin
         }
         if ($currentConditions) {
             $currentConditions = $this->reduceConditions($currentConditions);
-            $splitConditions[] = function (Node ...$stmts) use ($currentConditions) {
+            $splitConditions[] = function (Node ...$stmts) use($currentConditions) {
                 $phabelReturn = new If_($currentConditions, ['stmts' => $stmts]);
                 if (!$phabelReturn instanceof If_) {
                     throw new \TypeError(__METHOD__ . '(): Return value must be of type If_, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -342,7 +341,7 @@ class TypeHintReplacer extends Plugin
                 return $phabelReturn;
             };
         }
-        $phabelReturn = [$noOopTypes, $stringType, function (Node ...$expr) use ($splitConditions) {
+        $phabelReturn = [$noOopTypes, $stringType, function (Node ...$expr) use($splitConditions) {
             $prev = $expr;
             foreach ($splitConditions as $func) {
                 $prev = [$func(...$prev)];
@@ -368,7 +367,7 @@ class TypeHintReplacer extends Plugin
      *
      * @return null|array{0: bool, 1: Node, 2: (callable(Node...): If_)} Whether the polyfilled gettype should be used, the error message, the condition
      */
-    private function strip(Variable $var, $type, $className, $nullish, $force = false)
+    private function strip(Variable $var, $type, $className, $nullish, $force = \false)
     {
         if (!($type instanceof Node || \is_null($type))) {
             throw new \TypeError(__METHOD__ . '(): Argument #2 ($type) must be of type ?Node, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($type) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -395,7 +394,7 @@ class TypeHintReplacer extends Plugin
             }
             return $phabelReturn;
         }
-        $force = $force || $type->getAttribute(self::FORCE_ATTRIBUTE, false);
+        $force = $force || $type->getAttribute(self::FORCE_ATTRIBUTE, \false);
         if ($type instanceof UnionType) {
             if (!$this->getConfig('union', $force)) {
                 $phabelReturn = null;
@@ -411,7 +410,7 @@ class TypeHintReplacer extends Plugin
             return $phabelReturn;
         }
         if ($type instanceof NullableType && $this->getConfig('nullable', $force)) {
-            $phabelReturn = $this->generateConditions($var, [$type->type], $className, true);
+            $phabelReturn = $this->generateConditions($var, [$type->type], $className, \true);
             if (!(\is_array($phabelReturn) || \is_null($phabelReturn))) {
                 throw new \TypeError(__METHOD__ . '(): Return value must be of type ?array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
             }
@@ -448,14 +447,14 @@ class TypeHintReplacer extends Plugin
             $parent = $ctx->parents->top();
             if ($parent instanceof Interface_ || $func->getStmts() === null) {
                 foreach ($func->getParams() as $param) {
-                    if ($this->strip(new Variable('phabelVariadic'), $param->type, null, false)) {
+                    if ($this->strip(new Variable('phabelVariadic'), $param->type, null, \false)) {
                         $param->type = null;
                     }
                 }
                 if ($this->checkVoid($returnType)) {
                     $func->returnType = null;
                 }
-                if ($this->strip(new Variable('phabelReturn'), $returnType, null, false, $this->getConfig('return', false))) {
+                if ($this->strip(new Variable('phabelReturn'), $returnType, null, \false, $this->getConfig('return', \false))) {
                     $func->returnType = null;
                 }
                 $this->stack->push([self::IGNORE_RETURN]);
@@ -523,7 +522,7 @@ class TypeHintReplacer extends Plugin
             return $phabelReturn;
         }
         $var = new Variable('phabelReturn');
-        if (!($condition = $this->strip($var, $returnType, $className, false, $this->getConfig('return', false)))) {
+        if (!($condition = $this->strip($var, $returnType, $className, \false, $this->getConfig('return', \false)))) {
             $this->stack->push([self::IGNORE_RETURN]);
             $phabelReturn = $func;
             if (!($phabelReturn instanceof FunctionLike || \is_null($phabelReturn))) {
@@ -532,7 +531,7 @@ class TypeHintReplacer extends Plugin
             return $phabelReturn;
         }
         $func->returnType = null;
-        if (GeneratorDetector::isGenerator($func)) {
+        if (\Phabel\Plugin\GeneratorDetector::isGenerator($func)) {
             $this->stack->push([self::IGNORE_RETURN]);
             $phabelReturn = $func;
             if (!($phabelReturn instanceof FunctionLike || \is_null($phabelReturn))) {
@@ -620,7 +619,7 @@ class TypeHintReplacer extends Plugin
      */
     public static function trace()
     {
-        $trace = \debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1)[0];
+        $trace = \debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 1)[0];
         return (isset($trace['file']) ? $trace['file'] : '') . ' on line ' . (isset($trace['line']) ? $trace['line'] : '');
     }
     /**
@@ -638,7 +637,7 @@ class TypeHintReplacer extends Plugin
     }
     public static function next(array $config)
     {
-        $phabelReturn = [StringConcatOptimizer::class];
+        $phabelReturn = [\Phabel\Plugin\StringConcatOptimizer::class];
         if (!\is_array($phabelReturn)) {
             throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
         }
@@ -646,7 +645,7 @@ class TypeHintReplacer extends Plugin
     }
     public static function previous(array $config)
     {
-        $phabelReturn = [GeneratorDetector::class];
+        $phabelReturn = [\Phabel\Plugin\GeneratorDetector::class];
         if (!\is_array($phabelReturn)) {
             throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
         }

@@ -10,12 +10,11 @@ use Phabel\ClassStorageProvider;
 use Phabel\Context;
 use Phabel\Plugin;
 use Phabel\RootNode;
-use PhpParser\Builder\Method;
-use PhpParser\Builder\Param;
-use PhpParser\Node\Stmt\ClassLike;
-use PhpParser\Node\Stmt\ClassMethod;
-use PhpParser\Node\Stmt\Trait_;
-
+use Phabel\PhpParser\Builder\Method;
+use Phabel\PhpParser\Builder\Param;
+use Phabel\PhpParser\Node\Stmt\ClassLike;
+use Phabel\PhpParser\Node\Stmt\ClassMethod;
+use Phabel\PhpParser\Node\Stmt\Trait_;
 final class ClassStoragePlugin extends Plugin
 {
     /**
@@ -55,7 +54,7 @@ final class ClassStoragePlugin extends Plugin
             }
             $package = (string) $package;
         }
-        $phabelReturn = true;
+        $phabelReturn = \true;
         if (!\is_bool($phabelReturn)) {
             if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
                 throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -79,7 +78,7 @@ final class ClassStoragePlugin extends Plugin
             }
             $file = (string) $file;
         }
-        $phabelReturn = true;
+        $phabelReturn = \true;
         if (!\is_bool($phabelReturn)) {
             if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
                 throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -187,9 +186,9 @@ final class ClassStoragePlugin extends Plugin
     public function finish()
     {
         $storage = new ClassStorage($this);
-        $processedAny = false;
+        $processedAny = \false;
         do {
-            $processed = false;
+            $processed = \false;
             foreach ($this->finalPlugins as $name => $_) {
                 $processed = $name::processClassGraph($storage) || $processed;
             }

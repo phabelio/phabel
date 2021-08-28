@@ -4,9 +4,8 @@ namespace Phabel\Plugin;
 
 use Phabel\Plugin;
 use Phabel\Target\Php;
-use PhpParser\Node\Name;
-use PhpParser\Node\Scalar\String_;
-
+use Phabel\PhpParser\Node\Name;
+use Phabel\PhpParser\Node\Scalar\String_;
 /**
  * Replace phabel test namespaces with appropriate version.
  *
@@ -64,7 +63,7 @@ class PhabelTestGenerator extends Plugin
     }
     public static function previous(array $config)
     {
-        $phabelReturn = [Php::class => ['target' => $config['target'] % 1000], StringConcatOptimizer::class => []];
+        $phabelReturn = [Php::class => ['target' => $config['target'] % 1000], \Phabel\Plugin\StringConcatOptimizer::class => []];
         if (!\is_array($phabelReturn)) {
             throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
         }

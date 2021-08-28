@@ -5,7 +5,6 @@ namespace Phabel\Target\Php80;
 use Phabel\Plugin;
 use Phabel\Target\Polyfill as TargetPolyfill;
 use Phabel\Tools;
-
 if (!\defined('CAL_EASTER_DEFAULT')) {
     \define('CAL_EASTER_DEFAULT', 0);
 }
@@ -16,7 +15,7 @@ if (!\defined('CAL_EASTER_DEFAULT')) {
 class Polyfill extends Plugin
 {
     // Todo: nullability of a bunch of mb_ functions
-    public static function easter_date($year = null, $mode = CAL_EASTER_DEFAULT)
+    public static function easter_date($year = null, $mode = \CAL_EASTER_DEFAULT)
     {
         if (!\is_null($year)) {
             if (!\is_int($year)) {
@@ -33,7 +32,7 @@ class Polyfill extends Plugin
             $mode = (int) $mode;
         }
         $year = isset($year) ? $year : (int) \date('Y');
-        $phabelReturn = easter_date($year, $mode);
+        $phabelReturn = \easter_date($year, $mode);
         if (!\is_int($phabelReturn)) {
             if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn))) {
                 throw new \TypeError(__METHOD__ . '(): Return value must be of type int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -42,7 +41,7 @@ class Polyfill extends Plugin
         }
         return $phabelReturn;
     }
-    public static function easter_days($year = null, $mode = CAL_EASTER_DEFAULT)
+    public static function easter_days($year = null, $mode = \CAL_EASTER_DEFAULT)
     {
         if (!\is_null($year)) {
             if (!\is_int($year)) {
@@ -59,7 +58,7 @@ class Polyfill extends Plugin
             $mode = (int) $mode;
         }
         $year = isset($year) ? $year : (int) \date('Y');
-        $phabelReturn = easter_days($year, $mode);
+        $phabelReturn = \easter_days($year, $mode);
         if (!\is_int($phabelReturn)) {
             if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn))) {
                 throw new \TypeError(__METHOD__ . '(): Return value must be of type int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -79,7 +78,7 @@ class Polyfill extends Plugin
             }
         }
         $timestamp = isset($timestamp) ? $timestamp : \time();
-        $phabelReturn = unixtojd($timestamp);
+        $phabelReturn = \unixtojd($timestamp);
         if (!\is_bool($phabelReturn)) {
             if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
                 if (!\is_int($phabelReturn)) {
@@ -94,7 +93,7 @@ class Polyfill extends Plugin
         }
         return $phabelReturn;
     }
-    public static function date_sunrise($timestamp, $returnFormat = SUNFUNCS_RET_STRING, $latitude = null, $longitude = null, $zenith = null, $utcOffset = null)
+    public static function date_sunrise($timestamp, $returnFormat = \SUNFUNCS_RET_STRING, $latitude = null, $longitude = null, $zenith = null, $utcOffset = null)
     {
         if (!\is_int($timestamp)) {
             if (!(\is_bool($timestamp) || \is_numeric($timestamp))) {
@@ -171,7 +170,7 @@ class Polyfill extends Plugin
         }
         return $phabelReturn;
     }
-    public static function date_sunset($timestamp, $returnFormat = SUNFUNCS_RET_STRING, $latitude = null, $longitude = null, $zenith = null, $utcOffset = null)
+    public static function date_sunset($timestamp, $returnFormat = \SUNFUNCS_RET_STRING, $latitude = null, $longitude = null, $zenith = null, $utcOffset = null)
     {
         if (!\is_int($timestamp)) {
             if (!(\is_bool($timestamp) || \is_numeric($timestamp))) {
@@ -376,7 +375,7 @@ class Polyfill extends Plugin
         }
         return $phabelReturn;
     }
-    public static function localtime($timestamp = null, $associative = false)
+    public static function localtime($timestamp = null, $associative = \false)
     {
         if (!\is_null($timestamp)) {
             if (!\is_int($timestamp)) {
@@ -519,7 +518,7 @@ class Polyfill extends Plugin
             }
         }
         $phabelReturn = \iconv_mime_decode_headers($headers, $mode, isset($encoding) ? $encoding : \iconv_get_encoding('internal_encoding'));
-        if (!(\is_array($phabelReturn) || $phabelReturn instanceof false)) {
+        if (!(\is_array($phabelReturn) || $phabelReturn instanceof \Phabel\Target\Php80\false)) {
             throw new \TypeError(__METHOD__ . '(): Return value must be of type false|array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
         }
         return $phabelReturn;
@@ -829,7 +828,7 @@ class Polyfill extends Plugin
         }
         return $timeout === null ? \fsockopen($hostname, $port, $error_code, $error_message) : \fsockopen($hostname, $port, $error_code, $error_message);
     }
-    public static function ob_implicit_flush($flag = true)
+    public static function ob_implicit_flush($flag = \true)
     {
         if (!\is_bool($flag)) {
             if (!(\is_bool($flag) || \is_numeric($flag) || \is_string($flag))) {
@@ -861,7 +860,7 @@ class Polyfill extends Plugin
                 }
             }
         }
-        $phabelReturn = \password_hash($password, isset($algo) ? $algo : PASSWORD_DEFAULT, $options);
+        $phabelReturn = \password_hash($password, isset($algo) ? $algo : \PASSWORD_DEFAULT, $options);
         if (!\is_string($phabelReturn)) {
             if (!(\is_string($phabelReturn) || \is_object($phabelReturn) && \method_exists($phabelReturn, '__toString') || (\is_bool($phabelReturn) || \is_numeric($phabelReturn)))) {
                 throw new \TypeError(__METHOD__ . '(): Return value must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -889,7 +888,7 @@ class Polyfill extends Plugin
         }
         return $phabelReturn;
     }
-    public static function pcntl_getpriority($process_id = null, $mode = PRIO_PROCESS)
+    public static function pcntl_getpriority($process_id = null, $mode = \PRIO_PROCESS)
     {
         if (!\is_null($process_id)) {
             if (!\is_int($process_id)) {
@@ -920,7 +919,7 @@ class Polyfill extends Plugin
         }
         return $phabelReturn;
     }
-    public static function pcntl_setpriority($priority, $process_id = null, $mode = PRIO_PROCESS)
+    public static function pcntl_setpriority($priority, $process_id = null, $mode = \PRIO_PROCESS)
     {
         if (!\is_int($priority)) {
             if (!(\is_bool($priority) || \is_numeric($priority))) {
@@ -1241,7 +1240,7 @@ class Polyfill extends Plugin
         }
         return $phabelReturn;
     }
-    public static function spl_autoload_register($callback = null, $throw = true, $prepend = false)
+    public static function spl_autoload_register($callback = null, $throw = \true, $prepend = \false)
     {
         if (!(\is_callable($callback) || \is_null($callback))) {
             throw new \TypeError(__METHOD__ . '(): Argument #1 ($callback) must be of type ?callable, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($callback) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -1285,7 +1284,7 @@ class Polyfill extends Plugin
         }
         $file_extensions === null ? \spl_autoload($class) : \spl_autoload($class, $file_extensions);
     }
-    public static function html_entity_decode($string, $flags = ENT_COMPAT, $encoding = null)
+    public static function html_entity_decode($string, $flags = \ENT_COMPAT, $encoding = null)
     {
         if (!\is_string($string)) {
             if (!(\is_string($string) || \is_object($string) && \method_exists($string, '__toString') || (\is_bool($string) || \is_numeric($string)))) {
@@ -1316,7 +1315,7 @@ class Polyfill extends Plugin
         }
         return $phabelReturn;
     }
-    public static function htmlentities($string, $flags = ENT_COMPAT, $encoding = null, $double_encode = true)
+    public static function htmlentities($string, $flags = \ENT_COMPAT, $encoding = null, $double_encode = \true)
     {
         if (!\is_string($string)) {
             if (!(\is_string($string) || \is_object($string) && \method_exists($string, '__toString') || (\is_bool($string) || \is_numeric($string)))) {
@@ -1489,7 +1488,7 @@ class Polyfill extends Plugin
         }
         return $phabelReturn;
     }
-    public static function substr_compare($haystack, $needle, $offset, $length = null, $case_insensitive = false)
+    public static function substr_compare($haystack, $needle, $offset, $length = null, $case_insensitive = \false)
     {
         if (!\is_string($haystack)) {
             if (!(\is_string($haystack) || \is_object($haystack) && \method_exists($haystack, '__toString') || (\is_bool($haystack) || \is_numeric($haystack)))) {
@@ -1656,7 +1655,7 @@ class Polyfill extends Plugin
      */
     public static function withNext(array $config)
     {
-        $phabelReturn = [TargetPolyfill::class => [self::class => true]];
+        $phabelReturn = [TargetPolyfill::class => [self::class => \true]];
         if (!\is_array($phabelReturn)) {
             throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
         }

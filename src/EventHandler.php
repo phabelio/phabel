@@ -2,7 +2,7 @@
 
 namespace Phabel;
 
-abstract class EventHandler implements EventHandlerInterface
+abstract class EventHandler implements \Phabel\EventHandlerInterface
 {
     public function onStart()
     {

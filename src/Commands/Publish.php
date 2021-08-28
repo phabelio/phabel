@@ -6,18 +6,17 @@ use Exception;
 use Phabel\Cli\Formatter;
 use Phabel\Plugin\ComposerSanitizer;
 use Phabel\Version;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Process\Exception\ProcessFailedException;
-use Symfony\Component\Process\Process;
-
+use Phabel\Symfony\Component\Console\Command\Command;
+use Phabel\Symfony\Component\Console\Input\InputArgument;
+use Phabel\Symfony\Component\Console\Input\InputInterface;
+use Phabel\Symfony\Component\Console\Input\InputOption;
+use Phabel\Symfony\Component\Console\Output\OutputInterface;
+use Phabel\Symfony\Component\Process\Exception\ProcessFailedException;
+use Phabel\Symfony\Component\Process\Process;
 class Publish extends Command
 {
     protected static $defaultName = 'publish';
-    private function exec(array $command, $ignoreResult = false)
+    private function exec(array $command, $ignoreResult = \false)
     {
         if (!\is_bool($ignoreResult)) {
             if (!(\is_bool($ignoreResult) || \is_numeric($ignoreResult) || \is_string($ignoreResult))) {
@@ -88,11 +87,11 @@ class Publish extends Command
         if (!\file_exists('composer.json')) {
             throw new Exception("composer.json doesn't exist!");
         }
-        $json = \json_decode(\file_get_contents('composer.json'), true);
+        $json = \json_decode(\file_get_contents('composer.json'), \true);
         $json = $cb($json);
-        \file_put_contents('composer.json', \json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+        \file_put_contents('composer.json', \json_encode($json, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES));
         $this->exec(['git', 'commit', '-am', $message . "\nRelease transpiled using https://phabel.io, the PHP transpiler"]);
-        $this->exec(['git', 'tag', '-d', $dest], true);
+        $this->exec(['git', 'tag', '-d', $dest], \true);
         $this->exec(['git', 'tag', $dest]);
     }
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -102,7 +101,7 @@ class Publish extends Command
         $output->setFormatter(Formatter::getFormatter());
         $branch = \trim($this->exec(["git", 'rev-parse', '--abbrev-ref', 'HEAD']));
         $stashed = \trim($this->exec(['git', 'stash'])) !== 'No local changes to save';
-        $output->write("<phabel>Tagging transpiled release <bold>{$src}.9998</bold>...</phabel>" . PHP_EOL);
+        $output->write("<phabel>Tagging transpiled release <bold>{$src}.9998</bold>...</phabel>" . \PHP_EOL);
         $this->prepare($src, "{$src}.9998", function (array $json) {
             $json['phabel'] = isset($json['phabel']) ? $json['phabel'] : [];
             $json['phabel']['extra'] = isset($json['phabel']['extra']) ? $json['phabel']['extra'] : [];
@@ -119,7 +118,7 @@ class Publish extends Command
             }
             return $phabelReturn;
         });
-        $output->write("<phabel>Tagging original release as <bold>{$src}.9999</bold>...</phabel>" . PHP_EOL);
+        $output->write("<phabel>Tagging original release as <bold>{$src}.9999</bold>...</phabel>" . \PHP_EOL);
         $this->prepare($src, "{$src}.9999", function (array $json) {
             $phabelReturn = $json;
             if (!\is_array($phabelReturn)) {
@@ -131,7 +130,7 @@ class Publish extends Command
         if ($stashed) {
             $this->exec(['git', 'stash', 'pop']);
         }
-        $output->write("<phabel>Pushing <bold>{$src}.9998</bold>, <bold>{$src}.9999</bold> to <bold>{$remote}</bold>...</phabel>" . PHP_EOL);
+        $output->write("<phabel>Pushing <bold>{$src}.9998</bold>, <bold>{$src}.9999</bold> to <bold>{$remote}</bold>...</phabel>" . \PHP_EOL);
         $this->exec(['git', 'push', $remote, "{$src}.9998", "{$src}.9999"]);
         $output->write("<phabel>Done!</phabel>\n<phabel>Tell users to require <bold>^{$src}</bold> in their <bold>composer.json</bold> to automatically load the correct transpiled version!</phabel>\n\n<bold>Tip</bold>: Add the following badge to your README to let users know about your minimum supported PHP version, as it won't be shown on packagist.\n<phabel>![phabel.io](https://phabel.io/badge/5.6)</phabel>\n");
         return Command::SUCCESS;

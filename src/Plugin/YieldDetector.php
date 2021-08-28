@@ -4,9 +4,8 @@ namespace Phabel\Plugin;
 
 use Phabel\Context;
 use Phabel\Plugin;
-use PhpParser\Node\Expr\Yield_;
-use PhpParser\Node\FunctionLike;
-
+use Phabel\PhpParser\Node\Expr\Yield_;
+use Phabel\PhpParser\Node\FunctionLike;
 /**
  * Detect usages of yield.
  *
@@ -18,7 +17,7 @@ class YieldDetector extends Plugin
     {
         foreach ($ctx->parents as $parent) {
             if ($parent instanceof FunctionLike) {
-                $parent->setAttribute(ReGenerator::SHOULD_ATTRIBUTE, true);
+                $parent->setAttribute(\Phabel\Plugin\ReGenerator::SHOULD_ATTRIBUTE, \true);
                 return;
             }
         }

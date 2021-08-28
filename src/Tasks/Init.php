@@ -2,12 +2,11 @@
 
 namespace Phabel\Tasks;
 
-use Amp\Parallel\Worker\Environment;
-use Amp\Parallel\Worker\Task;
+use Phabel\Amp\Parallel\Worker\Environment;
+use Phabel\Amp\Parallel\Worker\Task;
 use Phabel\Exception;
 use Phabel\PluginGraph\ResolvedGraph;
 use Phabel\Traverser;
-
 class Init implements Task
 {
     public function __construct(private ResolvedGraph $graph)
@@ -49,7 +48,7 @@ class Init implements Task
             }
             // If error is suppressed with @, don't throw an exception
             if (\error_reporting() === 0) {
-                $phabelReturn = false;
+                $phabelReturn = \false;
                 if (!\is_bool($phabelReturn)) {
                     if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
                         throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());

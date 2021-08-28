@@ -5,16 +5,15 @@ namespace Phabel\Target\Php80;
 use Phabel\Plugin;
 use Phabel\Plugin\NestedExpressionFixer;
 use Phabel\Target\Php80\NullSafe\NullSafe;
-use PhpParser\Node\Expr\BinaryOp\Coalesce;
-use PhpParser\Node\Expr\MethodCall;
-use PhpParser\Node\Expr\New_;
-use PhpParser\Node\Expr\NullsafeMethodCall;
-use PhpParser\Node\Expr\NullsafePropertyFetch;
-use PhpParser\Node\Expr\PropertyFetch;
-use PhpParser\Node\Expr\StaticPropertyFetch;
-use PhpParser\Node\Name\FullyQualified;
-use PhpParser\Node\Param;
-
+use Phabel\PhpParser\Node\Expr\BinaryOp\Coalesce;
+use Phabel\PhpParser\Node\Expr\MethodCall;
+use Phabel\PhpParser\Node\Expr\New_;
+use Phabel\PhpParser\Node\Expr\NullsafeMethodCall;
+use Phabel\PhpParser\Node\Expr\NullsafePropertyFetch;
+use Phabel\PhpParser\Node\Expr\PropertyFetch;
+use Phabel\PhpParser\Node\Expr\StaticPropertyFetch;
+use Phabel\PhpParser\Node\Name\FullyQualified;
+use Phabel\PhpParser\Node\Param;
 /**
  * Polyfill nullsafe expressions.
  */
@@ -50,7 +49,7 @@ class NullSafeTransformer extends Plugin
     }
     public static function previous(array $config)
     {
-        $phabelReturn = [NestedExpressionFixer::class => [New_::class => ['class' => [NullsafePropertyFetch::class => true, NullsafeMethodCall::class => true]]]];
+        $phabelReturn = [NestedExpressionFixer::class => [New_::class => ['class' => [NullsafePropertyFetch::class => \true, NullsafeMethodCall::class => \true]]]];
         if (!\is_array($phabelReturn)) {
             throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
         }

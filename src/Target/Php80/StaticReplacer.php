@@ -4,7 +4,6 @@ namespace Phabel\Target\Php80;
 
 use Phabel\Plugin;
 use Phabel\Plugin\TypeHintReplacer;
-
 /**
  * Replace static typehint.
  *

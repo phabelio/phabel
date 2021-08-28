@@ -3,7 +3,6 @@
 namespace Phabel;
 
 use ReflectionMethod;
-
 /**
  * Caches plugin information.
  *

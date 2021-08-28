@@ -4,7 +4,6 @@ namespace Phabel\Target\Php74;
 
 use Phabel\Plugin;
 use Phabel\Target\Polyfill as TargetPolyfill;
-
 /**
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT
@@ -60,7 +59,7 @@ class Polyfill extends Plugin
      */
     public static function withNext(array $config)
     {
-        $phabelReturn = [TargetPolyfill::class => [self::class => true]];
+        $phabelReturn = [TargetPolyfill::class => [self::class => \true]];
         if (!\is_array($phabelReturn)) {
             throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
         }

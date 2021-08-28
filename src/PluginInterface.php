@@ -3,7 +3,6 @@
 namespace Phabel;
 
 use Phabel\PluginGraph\PackageContext;
-
 /**
  * Plugin interface.
  *

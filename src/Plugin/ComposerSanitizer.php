@@ -5,7 +5,6 @@ namespace Phabel\Plugin;
 use Phabel\Context;
 use Phabel\Plugin;
 use Phabel\RootNode;
-
 /**
  * Removes the file blocking inclusion of non-transpiled packages.
  *

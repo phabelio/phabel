@@ -4,7 +4,6 @@ namespace Phabel\PluginGraph;
 
 use Phabel\Plugin;
 use Phabel\PluginInterface;
-
 /**
  * Graph API wrapper.
  *
@@ -26,7 +25,7 @@ class Graph
      */
     public function __construct()
     {
-        $this->graph = new GraphInternal();
+        $this->graph = new \Phabel\PluginGraph\GraphInternal();
     }
     /**
      * Get new package context.
@@ -36,7 +35,7 @@ class Graph
     public function getPackageContext()
     {
         $phabelReturn = $this->graph->getPackageContext();
-        if (!$phabelReturn instanceof PackageContext) {
+        if (!$phabelReturn instanceof \Phabel\PluginGraph\PackageContext) {
             throw new \TypeError(__METHOD__ . '(): Return value must be of type PackageContext, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
         }
         return $phabelReturn;
@@ -52,7 +51,7 @@ class Graph
      *
      * @return Node[]
      */
-    public function addPlugin($plugin, array $config, PackageContext $ctx)
+    public function addPlugin($plugin, array $config, \Phabel\PluginGraph\PackageContext $ctx)
     {
         if (!\is_string($plugin)) {
             if (!(\is_string($plugin) || \is_object($plugin) && \method_exists($plugin, '__toString') || (\is_bool($plugin) || \is_numeric($plugin)))) {
@@ -73,12 +72,12 @@ class Graph
      */
     public function flatten()
     {
-        $this->resolvedGraph = isset($this->resolvedGraph) ? $this->resolvedGraph : new ResolvedGraph(...$this->graph->flatten());
+        $this->resolvedGraph = isset($this->resolvedGraph) ? $this->resolvedGraph : new \Phabel\PluginGraph\ResolvedGraph(...$this->graph->flatten());
         $this->graph = null;
         while (\gc_collect_cycles()) {
         }
         $phabelReturn = $this->resolvedGraph;
-        if (!$phabelReturn instanceof ResolvedGraph) {
+        if (!$phabelReturn instanceof \Phabel\PluginGraph\ResolvedGraph) {
             throw new \TypeError(__METHOD__ . '(): Return value must be of type ResolvedGraph, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
         }
         return $phabelReturn;

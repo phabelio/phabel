@@ -4,10 +4,9 @@ namespace Phabel\Plugin;
 
 use Phabel\Plugin;
 use Phabel\Traverser;
-use PhpParser\Node;
-use PhpParser\Node\Expr\ClosureUse;
-use PhpParser\Node\Expr\Variable;
-
+use Phabel\PhpParser\Node;
+use Phabel\PhpParser\Node\Expr\ClosureUse;
+use Phabel\PhpParser\Node\Expr\Variable;
 /**
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT
@@ -30,7 +29,7 @@ class VariableFinder extends Plugin
      *
      * @return array<string, ClosureUse>
      */
-    public static function find(Node $ast, $byRef = false)
+    public static function find(Node $ast, $byRef = \false)
     {
         if (!\is_bool($byRef)) {
             if (!(\is_bool($byRef) || \is_numeric($byRef) || \is_string($byRef))) {
@@ -43,7 +42,7 @@ class VariableFinder extends Plugin
             self::$singletonTraverser = Traverser::fromPlugin(self::$singleton);
         }
         self::$singleton->setConfig('byRef', $byRef);
-        self::$singletonTraverser->traverseAst($ast, null, false);
+        self::$singletonTraverser->traverseAst($ast, null, \false);
         $phabelReturn = self::$singleton->getFound();
         if (!\is_array($phabelReturn)) {
             throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -71,7 +70,7 @@ class VariableFinder extends Plugin
     public function enter(Variable $var)
     {
         if (\is_string($var->name) && $var->name !== 'this') {
-            $this->found[$var->name] = new ClosureUse($var, $this->getConfig('byRef', false));
+            $this->found[$var->name] = new ClosureUse($var, $this->getConfig('byRef', \false));
         }
     }
     /**

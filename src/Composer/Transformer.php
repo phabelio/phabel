@@ -20,8 +20,7 @@ use Phabel\PluginGraph\Graph;
 use Phabel\Target\Php;
 use Phabel\Traverser;
 use ReflectionClass;
-use Symfony\Component\Console\Helper\ProgressBar;
-
+use Phabel\Symfony\Component\Console\Helper\ProgressBar;
 class Transformer extends EventHandler
 {
     const HEADER = 'phabel/transpiler';
@@ -49,11 +48,11 @@ class Transformer extends EventHandler
     /**
      * Whether we processed any dependencies.
      */
-    private $processed = false;
+    private $processed = \false;
     /**
      * Whether a progress bar should be shown.
      */
-    private $doProgress = true;
+    private $doProgress = \true;
     /**
      * Instance.
      */
@@ -91,7 +90,7 @@ class Transformer extends EventHandler
      * @param bool $newline
      * @return void
      */
-    public function log($text, $verbosity = IOInterface::NORMAL, $newline = true)
+    public function log($text, $verbosity = IOInterface::NORMAL, $newline = \true)
     {
         if (!\is_string($text)) {
             if (!(\is_string($text) || \is_object($text) && \method_exists($text, '__toString') || (\is_bool($text) || \is_numeric($text)))) {
@@ -143,10 +142,10 @@ class Transformer extends EventHandler
      */
     public function banner()
     {
-        static $printed = false;
+        static $printed = \false;
         if (!$printed) {
-            $printed = true;
-            $this->log(PHP_EOL . Formatter::BANNER . PHP_EOL);
+            $printed = \true;
+            $this->log(\PHP_EOL . Formatter::BANNER . \PHP_EOL);
         }
     }
     /**
@@ -178,11 +177,11 @@ class Transformer extends EventHandler
          */
         $config = null !== ($phabel_f0c212d00f8be226 = $package->getExtra()) && isset($phabel_f0c212d00f8be226['phabel']) ? $phabel_f0c212d00f8be226['phabel'] : [];
         $myTarget = Php::normalizeVersion(isset($config['target']) ? $config['target'] : Php::DEFAULT_TARGET);
-        $havePhabel = false;
+        $havePhabel = \false;
         foreach ($package->getRequires() as $link) {
             list($name) = $this->extractTarget($link->getTarget());
             if ($name === 'phabel/phabel') {
-                $havePhabel = true;
+                $havePhabel = \true;
             }
             if ($link->getTarget() === 'php') {
                 $myTarget = $link->getConstraint()->getLowerBound()->getVersion();
@@ -191,7 +190,7 @@ class Transformer extends EventHandler
                 }
             }
         }
-        $this->processed = true;
+        $this->processed = \true;
         if (!$havePhabel) {
             if ($target === Php::TARGET_IGNORE) {
                 $this->log("Skipping " . $package->getName() . "={$newName}", IOInterface::VERY_VERBOSE);
@@ -353,7 +352,7 @@ class Transformer extends EventHandler
             $byName[$name] = $package;
         }
         do {
-            $changed = false;
+            $changed = \false;
             foreach ($byName as $name => $package) {
                 $parentConfigs = $package['phabelConfig'];
                 foreach (isset($package['require']) ? $package['require'] : [] as $subName => $constraint) {
@@ -367,7 +366,7 @@ class Transformer extends EventHandler
                     foreach ($parentConfigs as $config) {
                         if (!\in_array($config, $byName[$subName]['phabelConfig'])) {
                             $byName[$subName]['phabelConfig'][] = $config;
-                            $changed = true;
+                            $changed = \true;
                         }
                     }
                 }
@@ -405,7 +404,7 @@ class Transformer extends EventHandler
                 }
                 \gc_disable();
             }
-            $phabelReturn = false;
+            $phabelReturn = \false;
             if (!\is_bool($phabelReturn)) {
                 if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
                     throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -415,7 +414,7 @@ class Transformer extends EventHandler
             return $phabelReturn;
         }
         if ($lock && $lock === $old) {
-            $phabelReturn = true;
+            $phabelReturn = \true;
             if (!\is_bool($phabelReturn)) {
                 if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
                     throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -425,7 +424,7 @@ class Transformer extends EventHandler
             return $phabelReturn;
         }
         if (!$byName) {
-            $phabelReturn = true;
+            $phabelReturn = \true;
             if (!\is_bool($phabelReturn)) {
                 if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
                     throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -458,7 +457,7 @@ class Transformer extends EventHandler
             }
             \gc_disable();
         }
-        $phabelReturn = true;
+        $phabelReturn = \true;
         if (!\is_bool($phabelReturn)) {
             if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
                 throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());

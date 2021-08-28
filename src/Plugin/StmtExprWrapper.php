@@ -4,9 +4,8 @@ namespace Phabel\Plugin;
 
 use Phabel\Context;
 use Phabel\Plugin;
-use PhpParser\Node\Expr;
-use PhpParser\Node\Stmt\Expression;
-
+use Phabel\PhpParser\Node\Expr;
+use Phabel\PhpParser\Node\Stmt\Expression;
 /**
  * Wraps standalone expressions in statements into Stmt\Expressions.
  */

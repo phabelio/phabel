@@ -2,39 +2,38 @@
 
 namespace Phabel;
 
-use PhpParser\Node;
-use PhpParser\Node\Arg;
-use PhpParser\Node\Expr;
-use PhpParser\Node\Expr\ArrayDimFetch;
-use PhpParser\Node\Expr\Assign;
-use PhpParser\Node\Expr\AssignOp;
-use PhpParser\Node\Expr\AssignRef;
-use PhpParser\Node\Expr\Cast\String_;
-use PhpParser\Node\Expr\Clone_;
-use PhpParser\Node\Expr\Eval_;
-use PhpParser\Node\Expr\FuncCall;
-use PhpParser\Node\Expr\Include_;
-use PhpParser\Node\Expr\List_;
-use PhpParser\Node\Expr\MethodCall;
-use PhpParser\Node\Expr\New_;
-use PhpParser\Node\Expr\NullsafeMethodCall;
-use PhpParser\Node\Expr\NullsafePropertyFetch;
-use PhpParser\Node\Expr\PostDec;
-use PhpParser\Node\Expr\PostInc;
-use PhpParser\Node\Expr\PreDec;
-use PhpParser\Node\Expr\PreInc;
-use PhpParser\Node\Expr\PropertyFetch;
-use PhpParser\Node\Expr\ShellExec;
-use PhpParser\Node\Expr\StaticCall;
-use PhpParser\Node\Expr\Variable;
-use PhpParser\Node\Expr\Yield_;
-use PhpParser\Node\Expr\YieldFrom;
-use PhpParser\Node\Name;
-use PhpParser\Node\Name\FullyQualified;
-use PhpParser\Node\Stmt\Expression;
-use PhpParser\ParserFactory;
+use Phabel\PhpParser\Node;
+use Phabel\PhpParser\Node\Arg;
+use Phabel\PhpParser\Node\Expr;
+use Phabel\PhpParser\Node\Expr\ArrayDimFetch;
+use Phabel\PhpParser\Node\Expr\Assign;
+use Phabel\PhpParser\Node\Expr\AssignOp;
+use Phabel\PhpParser\Node\Expr\AssignRef;
+use Phabel\PhpParser\Node\Expr\Cast\String_;
+use Phabel\PhpParser\Node\Expr\Clone_;
+use Phabel\PhpParser\Node\Expr\Eval_;
+use Phabel\PhpParser\Node\Expr\FuncCall;
+use Phabel\PhpParser\Node\Expr\Include_;
+use Phabel\PhpParser\Node\Expr\List_;
+use Phabel\PhpParser\Node\Expr\MethodCall;
+use Phabel\PhpParser\Node\Expr\New_;
+use Phabel\PhpParser\Node\Expr\NullsafeMethodCall;
+use Phabel\PhpParser\Node\Expr\NullsafePropertyFetch;
+use Phabel\PhpParser\Node\Expr\PostDec;
+use Phabel\PhpParser\Node\Expr\PostInc;
+use Phabel\PhpParser\Node\Expr\PreDec;
+use Phabel\PhpParser\Node\Expr\PreInc;
+use Phabel\PhpParser\Node\Expr\PropertyFetch;
+use Phabel\PhpParser\Node\Expr\ShellExec;
+use Phabel\PhpParser\Node\Expr\StaticCall;
+use Phabel\PhpParser\Node\Expr\Variable;
+use Phabel\PhpParser\Node\Expr\Yield_;
+use Phabel\PhpParser\Node\Expr\YieldFrom;
+use Phabel\PhpParser\Node\Name;
+use Phabel\PhpParser\Node\Name\FullyQualified;
+use Phabel\PhpParser\Node\Stmt\Expression;
+use Phabel\PhpParser\ParserFactory;
 use ReflectionClass;
-
 /**
  * Various tools.
  *
@@ -77,7 +76,7 @@ abstract class Tools
             }
             return $phabelReturn;
         }
-        $phabelReturn = new $class(...\array_merge(\array_map(function ($name) use ($node) {
+        $phabelReturn = new $class(...\array_merge(\array_map(function ($name) use($node) {
             if (!\is_string($name)) {
                 if (!(\is_string($name) || \is_object($name) && \method_exists($name, '__toString') || (\is_bool($name) || \is_numeric($name)))) {
                     throw new \TypeError(__METHOD__ . '(): Argument #1 ($name) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($name) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -186,7 +185,7 @@ abstract class Tools
      */
     public static function fromLiteral($data)
     {
-        $phabelReturn = self::toNode(\var_export($data, true) . ';');
+        $phabelReturn = self::toNode(\var_export($data, \true) . ';');
         if (!$phabelReturn instanceof Node) {
             throw new \TypeError(__METHOD__ . '(): Return value must be of type Node, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
         }
@@ -232,7 +231,7 @@ abstract class Tools
             throw new \TypeError(__METHOD__ . '(): Argument #1 ($node) must be of type ?Expr, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($node) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
         }
         if (!$node) {
-            $phabelReturn = false;
+            $phabelReturn = \false;
             if (!\is_bool($phabelReturn)) {
                 if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
                     throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -242,8 +241,8 @@ abstract class Tools
             return $phabelReturn;
         }
         if ($node->hasAttribute('hasSideEffects') || $node instanceof String_ || $node instanceof ArrayDimFetch || $node instanceof Assign || $node instanceof AssignOp || $node instanceof AssignRef || $node instanceof Clone_ || $node instanceof Eval_ || $node instanceof FuncCall || $node instanceof Include_ || $node instanceof List_ || $node instanceof MethodCall || $node instanceof New_ || $node instanceof NullsafeMethodCall || $node instanceof NullsafePropertyFetch || $node instanceof PostDec || $node instanceof PostInc || $node instanceof PreDec || $node instanceof PreInc || $node instanceof PropertyFetch || $node instanceof StaticCall || $node instanceof Yield_ || $node instanceof YieldFrom || $node instanceof ShellExec) {
-            $node->setAttribute('hasSideEffects', true);
-            $phabelReturn = true;
+            $node->setAttribute('hasSideEffects', \true);
+            $phabelReturn = \true;
             if (!\is_bool($phabelReturn)) {
                 if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
                     throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -256,8 +255,8 @@ abstract class Tools
         foreach ($node->getSubNodeNames() as $name) {
             if ($node->{$name} instanceof Expr) {
                 if (self::hasSideEffects($node->{$name})) {
-                    $node->setAttribute('hasSideEffects', true);
-                    $phabelReturn = true;
+                    $node->setAttribute('hasSideEffects', \true);
+                    $phabelReturn = \true;
                     if (!\is_bool($phabelReturn)) {
                         if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
                             throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -270,8 +269,8 @@ abstract class Tools
                 /** @var Node|Node[]|string */
                 foreach ($node->{$name} as $var) {
                     if ($var instanceof Expr && self::hasSideEffects($var)) {
-                        $node->setAttribute('hasSideEffects', true);
-                        $phabelReturn = true;
+                        $node->setAttribute('hasSideEffects', \true);
+                        $phabelReturn = \true;
                         if (!\is_bool($phabelReturn)) {
                             if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
                                 throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -283,7 +282,7 @@ abstract class Tools
                 }
             }
         }
-        $phabelReturn = false;
+        $phabelReturn = \false;
         if (!\is_bool($phabelReturn)) {
             if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
                 throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -339,7 +338,7 @@ abstract class Tools
                 }
                 return $phabelReturn;
             }
-            throw new UnresolvedNameException();
+            throw new \Phabel\UnresolvedNameException();
         }
         $phabelReturn = (string) $node->getAttribute('resolvedName', $node->getAttribute('namespacedName'));
         if (!\is_string($phabelReturn)) {
@@ -384,7 +383,7 @@ abstract class Tools
         $extend = "extends \\" . $r->getName();
         if (isset($memoized["{$trait} {$extend}"])) {
             /** @psalm-suppress MixedMethodCall */
-            $newObj = ($phabel_a2ec9a4ca43bd91b = $memoized["{$trait} {$extend}"]) || true ? new $phabel_a2ec9a4ca43bd91b() : false;
+            $newObj = ($phabel_a2ec9a4ca43bd91b = $memoized["{$trait} {$extend}"]) || \true ? new $phabel_a2ec9a4ca43bd91b() : \false;
         } else {
             $memoized["{$trait} {$extend}"] = "phabelTmpClass{$count}";
             $eval = "class phabelTmpClass{$count} {$extend} {\n                use \\{$trait};\n                public function __construct() {}\n            }\n            return new phabelTmpClass{$count};";
@@ -400,8 +399,8 @@ abstract class Tools
             foreach ($reflect->getProperties() as $prop) {
                 if ($reflectNew->hasProperty($prop->getName())) {
                     $propNew = $reflectNew->getProperty($prop->getName());
-                    $propNew->setAccessible(true);
-                    $prop->setAccessible(true);
+                    $propNew->setAccessible(\true);
+                    $prop->setAccessible(\true);
                     $propNew->setValue($newObj, $prop->getValue($obj));
                 }
             }
@@ -438,7 +437,7 @@ abstract class Tools
             }
             $var = (string) $var;
         }
-        $phabelReturn = \Closure::bind(function () use ($var) {
+        $phabelReturn = \Closure::bind(function () use($var) {
             $phabelReturn = isset($this->{$var});
             if (!\is_bool($phabelReturn)) {
                 if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
@@ -479,7 +478,7 @@ abstract class Tools
         }
         return \Closure::bind(
             /** @return mixed */
-            function &() use ($var) {
+            function &() use($var) {
                 return $this->{$var};
             },
             $obj,
@@ -508,7 +507,7 @@ abstract class Tools
             }
             $var = (string) $var;
         }
-        \Closure::bind(function () use ($var, &$val) {
+        \Closure::bind(function () use($var, &$val) {
             $this->{$var} =& $val;
         }, $obj, \get_class($obj))->__invoke();
     }
@@ -575,7 +574,7 @@ abstract class Tools
             $ret = @\shell_exec('nproc');
             if (\is_string($ret)) {
                 $ret = \trim($ret);
-                $tmp = \filter_var($ret, FILTER_VALIDATE_INT);
+                $tmp = \filter_var($ret, \FILTER_VALIDATE_INT);
                 if (\is_int($tmp)) {
                     $phabelReturn = $result = $tmp;
                     if (!\is_int($phabelReturn)) {
@@ -591,7 +590,7 @@ abstract class Tools
         $ret = @\shell_exec('sysctl -n hw.ncpu');
         if (\is_string($ret)) {
             $ret = \trim($ret);
-            $tmp = \filter_var($ret, FILTER_VALIDATE_INT);
+            $tmp = \filter_var($ret, \FILTER_VALIDATE_INT);
             if (\is_int($tmp)) {
                 $phabelReturn = $result = $tmp;
                 if (!\is_int($phabelReturn)) {

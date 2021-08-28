@@ -3,9 +3,8 @@
 namespace Phabel\Target\Php70;
 
 use Phabel\Plugin;
-use PhpParser\Node\Expr\BinaryOp\Spaceship;
-use PhpParser\Node\Expr\StaticCall;
-
+use Phabel\PhpParser\Node\Expr\BinaryOp\Spaceship;
+use Phabel\PhpParser\Node\Expr\StaticCall;
 /**
  * Polyfill spaceship operator.
  */

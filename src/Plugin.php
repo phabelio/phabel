@@ -3,18 +3,17 @@
 namespace Phabel;
 
 use Phabel\PluginGraph\PackageContext;
-use PhpParser\Node\Arg;
-use PhpParser\Node\Expr;
-use PhpParser\Node\Expr\StaticCall;
-use PhpParser\Node\Name;
-
+use Phabel\PhpParser\Node\Arg;
+use Phabel\PhpParser\Node\Expr;
+use Phabel\PhpParser\Node\Expr\StaticCall;
+use Phabel\PhpParser\Node\Name;
 /**
  * Plugin.
  *
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT
  */
-abstract class Plugin extends Tools implements PluginInterface
+abstract class Plugin extends \Phabel\Tools implements \Phabel\PluginInterface
 {
     /**
      * Configuration array.
@@ -110,7 +109,7 @@ abstract class Plugin extends Tools implements PluginInterface
             }
             $file = (string) $file;
         }
-        $phabelReturn = true;
+        $phabelReturn = \true;
         if (!\is_bool($phabelReturn)) {
             if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
                 throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -193,7 +192,7 @@ abstract class Plugin extends Tools implements PluginInterface
     public static function mergeConfigs(array ...$configs)
     {
         $final = [];
-        foreach (\array_unique($configs, SORT_REGULAR) as $config) {
+        foreach (\array_unique($configs, \SORT_REGULAR) as $config) {
             foreach ($final as $k => $compare) {
                 if (empty($intersect = \array_intersect_key($config, $compare)) || $intersect === \array_intersect_key($compare, $config)) {
                     $final[$k] = $config + $compare;
@@ -213,7 +212,7 @@ abstract class Plugin extends Tools implements PluginInterface
      */
     public static function splitConfig(array $config)
     {
-        $phabelReturn = empty($config) ? [[]] : \array_chunk($config, 1, true);
+        $phabelReturn = empty($config) ? [[]] : \array_chunk($config, 1, \true);
         if (!\is_array($phabelReturn)) {
             throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
         }

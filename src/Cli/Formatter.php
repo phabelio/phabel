@@ -2,9 +2,8 @@
 
 namespace Phabel\Cli;
 
-use Symfony\Component\Console\Formatter\OutputFormatter;
-use Symfony\Component\Console\Formatter\OutputFormatterStyle;
-
+use Phabel\Symfony\Component\Console\Formatter\OutputFormatter;
+use Phabel\Symfony\Component\Console\Formatter\OutputFormatterStyle;
 class Formatter
 {
     const BANNER = "<bold>＊＊＊＊＊＊＊＊＊</>\n<bold>＊</bold><phabel> Ｐｈａｂｅｌ </><bold>＊</bold>\n<bold>＊＊＊＊＊＊＊＊＊</>\n\n<phabel>PHP transpiler - Write and deploy modern PHP 8 code, today: https://phabel.io</phabel>";
@@ -12,7 +11,7 @@ class Formatter
     public static function getFormatter()
     {
         if (!self::$instance) {
-            self::$instance = new OutputFormatter(true, ['bold' => new OutputFormatterStyle('white', 'default', ['bold']), 'phabel' => new OutputFormatterStyle('blue', 'default', ['bold']), 'error' => new OutputFormatterStyle('red', 'default', ['bold'])]);
+            self::$instance = new OutputFormatter(\true, ['bold' => new OutputFormatterStyle('white', 'default', ['bold']), 'phabel' => new OutputFormatterStyle('blue', 'default', ['bold']), 'error' => new OutputFormatterStyle('red', 'default', ['bold'])]);
         }
         $phabelReturn = self::$instance;
         if (!$phabelReturn instanceof OutputFormatter) {

@@ -8,16 +8,15 @@ use Phabel\Target\Php70\NullCoalesce\DisallowedExpressions;
 use Phabel\Target\Php74\NullCoalesceAssignment;
 use Phabel\Target\Php80\NullSafeTransformer;
 use Phabel\Tools;
-use PhpParser\Node\Expr;
-use PhpParser\Node\Expr\ArrayDimFetch;
-use PhpParser\Node\Expr\Assign;
-use PhpParser\Node\Expr\BinaryOp\BooleanAnd;
-use PhpParser\Node\Expr\BinaryOp\Coalesce;
-use PhpParser\Node\Expr\BinaryOp\NotIdentical;
-use PhpParser\Node\Expr\Isset_;
-use PhpParser\Node\Expr\PropertyFetch;
-use PhpParser\Node\Expr\Ternary;
-
+use Phabel\PhpParser\Node\Expr;
+use Phabel\PhpParser\Node\Expr\ArrayDimFetch;
+use Phabel\PhpParser\Node\Expr\Assign;
+use Phabel\PhpParser\Node\Expr\BinaryOp\BooleanAnd;
+use Phabel\PhpParser\Node\Expr\BinaryOp\Coalesce;
+use Phabel\PhpParser\Node\Expr\BinaryOp\NotIdentical;
+use Phabel\PhpParser\Node\Expr\Isset_;
+use Phabel\PhpParser\Node\Expr\PropertyFetch;
+use Phabel\PhpParser\Node\Expr\Ternary;
 /**
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT

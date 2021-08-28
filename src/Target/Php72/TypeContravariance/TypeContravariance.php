@@ -6,10 +6,9 @@ use Phabel\ClassStorage;
 use Phabel\ClassStorage\Storage;
 use Phabel\ClassStorageProvider;
 use Phabel\Plugin\TypeHintReplacer;
-use PhpParser\Node\Stmt\Class_;
-use PhpParser\Node\Stmt\ClassMethod;
+use Phabel\PhpParser\Node\Stmt\Class_;
+use Phabel\PhpParser\Node\Stmt\ClassMethod;
 use SplStack;
-
 /**
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT
@@ -18,7 +17,7 @@ class TypeContravariance extends ClassStorageProvider
 {
     public static function processClassGraph(ClassStorage $storage)
     {
-        $changed = false;
+        $changed = \false;
         foreach ($storage->getClasses() as $class) {
             // Can override abstract methods
             foreach ($class->getMethods(Class_::MODIFIER_ABSTRACT) as $name => $method) {
@@ -50,13 +49,13 @@ class TypeContravariance extends ClassStorageProvider
                     }
                     continue;
                 }
-                $act = \array_fill(0, \count($method->params), false);
+                $act = \array_fill(0, \count($method->params), \false);
                 $parentMethods = new SplStack();
                 $parentMethods->push($method);
                 foreach ($class->getOverriddenMethods($name) as $childMethod) {
                     foreach ($childMethod->params as $k => $param) {
                         if (isset($method->params[$k]->type) && TypeHintReplacer::replaced($param->type)) {
-                            $act[$k] = true;
+                            $act[$k] = \true;
                         }
                     }
                     $parentMethods->push($childMethod);

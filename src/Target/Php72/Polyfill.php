@@ -5,7 +5,6 @@ namespace Phabel\Target\Php72;
 use __PHP_Incomplete_Class;
 use Phabel\Plugin;
 use Phabel\Target\Polyfill as TargetPolyfill;
-
 /**
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT
@@ -46,7 +45,7 @@ class Polyfill extends Plugin
             }
             $flags = (int) $flags;
         }
-        $associative = isset($associative) ? $associative : !!($flags & JSON_OBJECT_AS_ARRAY);
+        $associative = isset($associative) ? $associative : !!($flags & \JSON_OBJECT_AS_ARRAY);
         return \json_decode($json, $associative, $depth, $flags);
     }
     public static function mb_convert_encoding($string, $to_encoding, $from_encoding = null)
@@ -164,7 +163,7 @@ class Polyfill extends Plugin
     }
     public static function is_object($stuff)
     {
-        $phabelReturn = $stuff instanceof __PHP_Incomplete_Class ? true : \is_object($stuff);
+        $phabelReturn = $stuff instanceof __PHP_Incomplete_Class ? \true : \is_object($stuff);
         if (!\is_bool($phabelReturn)) {
             if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
                 throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -178,7 +177,7 @@ class Polyfill extends Plugin
      */
     public static function withNext(array $config)
     {
-        $phabelReturn = [TargetPolyfill::class => [self::class => true]];
+        $phabelReturn = [TargetPolyfill::class => [self::class => \true]];
         if (!\is_array($phabelReturn)) {
             throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
         }

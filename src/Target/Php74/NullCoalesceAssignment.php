@@ -3,10 +3,9 @@
 namespace Phabel\Target\Php74;
 
 use Phabel\Plugin;
-use PhpParser\Node\Expr\Assign;
-use PhpParser\Node\Expr\AssignOp\Coalesce;
-use PhpParser\Node\Expr\BinaryOp\Coalesce as BinaryOpCoalesce;
-
+use Phabel\PhpParser\Node\Expr\Assign;
+use Phabel\PhpParser\Node\Expr\AssignOp\Coalesce;
+use Phabel\PhpParser\Node\Expr\BinaryOp\Coalesce as BinaryOpCoalesce;
 /**
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT

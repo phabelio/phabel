@@ -6,7 +6,6 @@ use Phabel\Exception;
 use Phabel\Plugin\ClassStoragePlugin;
 use Phabel\PluginInterface;
 use SplQueue;
-
 /**
  * Resolved graph.
  *

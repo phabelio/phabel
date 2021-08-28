@@ -9,7 +9,6 @@ use Phabel\Target\Php;
 use Phabel\Target\Polyfill as TargetPolyfill;
 use Phabel\Tools;
 use ValueError;
-
 \define('BIG_ENDIAN', \pack('L', 1) === \pack('N', 1));
 /**
  * @author Daniil Gentili <daniil@daniil.it>
@@ -17,7 +16,7 @@ use ValueError;
  */
 class Polyfill extends Plugin
 {
-    const IS_WINDOWS = PHP_OS_FAMILY === 'Windows';
+    const IS_WINDOWS = \PHP_OS_FAMILY === 'Windows';
     const CONSTANTS = [IntlChar::class => ['NO_NUMERIC_VALUE' => -123456789.0]];
     // Todo: dns_get_record CAA
     // Todo: filters
@@ -47,7 +46,7 @@ class Polyfill extends Plugin
             }
         }
         if ($assertion || Tools::ini_get('zend.assertions') !== 1) {
-            $phabelReturn = true;
+            $phabelReturn = \true;
             if (!\is_bool($phabelReturn)) {
                 if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
                     throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -66,7 +65,7 @@ class Polyfill extends Plugin
             throw $exception;
         }
         \trigger_error("Uncaught {$exception}");
-        $phabelReturn = true;
+        $phabelReturn = \true;
         if (!\is_bool($phabelReturn)) {
             if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
                 throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -117,7 +116,7 @@ class Polyfill extends Plugin
         }
         return $phabelReturn;
     }
-    public static function get_defined_functions($exclude_disabled = true)
+    public static function get_defined_functions($exclude_disabled = \true)
     {
         if (!\is_bool($exclude_disabled)) {
             if (!(\is_bool($exclude_disabled) || \is_numeric($exclude_disabled) || \is_string($exclude_disabled))) {
@@ -302,7 +301,7 @@ class Polyfill extends Plugin
      */
     public static function withNext(array $config)
     {
-        $phabelReturn = [TargetPolyfill::class => [self::class => true]];
+        $phabelReturn = [TargetPolyfill::class => [self::class => \true]];
         if (!\is_array($phabelReturn)) {
             throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
         }

@@ -31,7 +31,7 @@ class PackageContext
             }
             $package = (string) $package;
         }
-        $this->packages[$package] = true;
+        $this->packages[$package] = \true;
     }
     /**
      * Merge two contexts.

@@ -1,0 +1,240 @@
+<?php
+
+/*
+ * This file is part of the Symfony package.
+ *
+ * (c) Fabien Potencier <fabien@symfony.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+namespace Phabel\Symfony\Component\Console\Input;
+
+use Phabel\Symfony\Component\Console\Exception\InvalidArgumentException;
+use Phabel\Symfony\Component\Console\Exception\RuntimeException;
+/**
+ * Input is the base class for all concrete Input classes.
+ *
+ * Three concrete classes are provided by default:
+ *
+ *  * `ArgvInput`: The input comes from the CLI arguments (argv)
+ *  * `StringInput`: The input is provided as a string
+ *  * `ArrayInput`: The input is provided as an array
+ *
+ * @author Fabien Potencier <fabien@symfony.com>
+ */
+abstract class Input implements InputInterface, StreamableInputInterface
+{
+    protected $definition;
+    protected $stream;
+    protected $options = [];
+    protected $arguments = [];
+    protected $interactive = \true;
+    public function __construct(InputDefinition $definition = null)
+    {
+        if (null === $definition) {
+            $this->definition = new InputDefinition();
+        } else {
+            $this->bind($definition);
+            $this->validate();
+        }
+    }
+    /**
+     * {@inheritdoc}
+     */
+    public function bind(InputDefinition $definition)
+    {
+        $this->arguments = [];
+        $this->options = [];
+        $this->definition = $definition;
+        $this->parse();
+    }
+    /**
+     * Processes command line arguments.
+     */
+    protected abstract function parse();
+    /**
+     * {@inheritdoc}
+     */
+    public function validate()
+    {
+        $definition = $this->definition;
+        $givenArguments = $this->arguments;
+        $missingArguments = \array_filter(\array_keys($definition->getArguments()), function ($argument) use($definition, $givenArguments) {
+            return !\array_key_exists($argument, $givenArguments) && $definition->getArgument($argument)->isRequired();
+        });
+        if (\count($missingArguments) > 0) {
+            throw new RuntimeException(\sprintf('Not enough arguments (missing: "%s").', \implode(', ', $missingArguments)));
+        }
+    }
+    /**
+     * {@inheritdoc}
+     */
+    public function isInteractive()
+    {
+        return $this->interactive;
+    }
+    /**
+     * {@inheritdoc}
+     */
+    public function setInteractive($interactive)
+    {
+        if (!\is_bool($interactive)) {
+            if (!(\is_bool($interactive) || \is_numeric($interactive) || \is_string($interactive))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($interactive) must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($interactive) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            } else {
+                $interactive = (bool) $interactive;
+            }
+        }
+        $this->interactive = $interactive;
+    }
+    /**
+     * {@inheritdoc}
+     */
+    public function getArguments()
+    {
+        return \array_merge($this->definition->getArgumentDefaults(), $this->arguments);
+    }
+    /**
+     * {@inheritdoc}
+     */
+    public function getArgument($name)
+    {
+        if (!\is_string($name)) {
+            if (!(\is_string($name) || \is_object($name) && \method_exists($name, '__toString') || (\is_bool($name) || \is_numeric($name)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($name) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($name) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            } else {
+                $name = (string) $name;
+            }
+        }
+        if (!$this->definition->hasArgument($name)) {
+            throw new InvalidArgumentException(\sprintf('The "%s" argument does not exist.', $name));
+        }
+        return isset($this->arguments[$name]) ? $this->arguments[$name] : $this->definition->getArgument($name)->getDefault();
+    }
+    /**
+     * {@inheritdoc}
+     */
+    public function setArgument($name, $value)
+    {
+        if (!\is_string($name)) {
+            if (!(\is_string($name) || \is_object($name) && \method_exists($name, '__toString') || (\is_bool($name) || \is_numeric($name)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($name) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($name) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            } else {
+                $name = (string) $name;
+            }
+        }
+        if (!$this->definition->hasArgument($name)) {
+            throw new InvalidArgumentException(\sprintf('The "%s" argument does not exist.', $name));
+        }
+        $this->arguments[$name] = $value;
+    }
+    /**
+     * {@inheritdoc}
+     */
+    public function hasArgument($name)
+    {
+        if (!\is_string($name)) {
+            if (!(\is_string($name) || \is_object($name) && \method_exists($name, '__toString') || (\is_bool($name) || \is_numeric($name)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($name) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($name) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            } else {
+                $name = (string) $name;
+            }
+        }
+        return $this->definition->hasArgument($name);
+    }
+    /**
+     * {@inheritdoc}
+     */
+    public function getOptions()
+    {
+        return \array_merge($this->definition->getOptionDefaults(), $this->options);
+    }
+    /**
+     * {@inheritdoc}
+     */
+    public function getOption($name)
+    {
+        if (!\is_string($name)) {
+            if (!(\is_string($name) || \is_object($name) && \method_exists($name, '__toString') || (\is_bool($name) || \is_numeric($name)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($name) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($name) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            } else {
+                $name = (string) $name;
+            }
+        }
+        if ($this->definition->hasNegation($name)) {
+            if (null === ($value = $this->getOption($this->definition->negationToName($name)))) {
+                return $value;
+            }
+            return !$value;
+        }
+        if (!$this->definition->hasOption($name)) {
+            throw new InvalidArgumentException(\sprintf('The "%s" option does not exist.', $name));
+        }
+        return \array_key_exists($name, $this->options) ? $this->options[$name] : $this->definition->getOption($name)->getDefault();
+    }
+    /**
+     * {@inheritdoc}
+     */
+    public function setOption($name, $value)
+    {
+        if (!\is_string($name)) {
+            if (!(\is_string($name) || \is_object($name) && \method_exists($name, '__toString') || (\is_bool($name) || \is_numeric($name)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($name) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($name) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            } else {
+                $name = (string) $name;
+            }
+        }
+        if ($this->definition->hasNegation($name)) {
+            $this->options[$this->definition->negationToName($name)] = !$value;
+            return;
+        } elseif (!$this->definition->hasOption($name)) {
+            throw new InvalidArgumentException(\sprintf('The "%s" option does not exist.', $name));
+        }
+        $this->options[$name] = $value;
+    }
+    /**
+     * {@inheritdoc}
+     */
+    public function hasOption($name)
+    {
+        if (!\is_string($name)) {
+            if (!(\is_string($name) || \is_object($name) && \method_exists($name, '__toString') || (\is_bool($name) || \is_numeric($name)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($name) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($name) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            } else {
+                $name = (string) $name;
+            }
+        }
+        return $this->definition->hasOption($name) || $this->definition->hasNegation($name);
+    }
+    /**
+     * Escapes a token through escapeshellarg if it contains unsafe chars.
+     *
+     * @return string
+     */
+    public function escapeToken($token)
+    {
+        if (!\is_string($token)) {
+            if (!(\is_string($token) || \is_object($token) && \method_exists($token, '__toString') || (\is_bool($token) || \is_numeric($token)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($token) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($token) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            } else {
+                $token = (string) $token;
+            }
+        }
+        return \preg_match('{^[\\w-]+$}', $token) ? $token : \escapeshellarg($token);
+    }
+    /**
+     * {@inheritdoc}
+     */
+    public function setStream($stream)
+    {
+        $this->stream = $stream;
+    }
+    /**
+     * {@inheritdoc}
+     */
+    public function getStream()
+    {
+        return $this->stream;
+    }
+}

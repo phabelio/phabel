@@ -40,7 +40,7 @@ class VariableContext
             }
             $var = (string) $var;
         }
-        $this->variables[$var] = true;
+        $this->variables[$var] = \true;
     }
     /**
      * Add variables.
@@ -103,7 +103,7 @@ class VariableContext
         do {
             $var = 'phabel_' . \bin2hex(\random_bytes(8));
         } while (isset($this->variables[$var]));
-        $this->variables[$var] = true;
+        $this->variables[$var] = \true;
         $phabelReturn = $var;
         if (!\is_string($phabelReturn)) {
             if (!(\is_string($phabelReturn) || \is_object($phabelReturn) && \method_exists($phabelReturn, '__toString') || (\is_bool($phabelReturn) || \is_numeric($phabelReturn)))) {

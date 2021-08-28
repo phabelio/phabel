@@ -3,22 +3,21 @@
 namespace Phabel\Plugin;
 
 use Phabel\Plugin;
-use PhpParser\Node;
-use PhpParser\Node\Expr;
-use PhpParser\Node\Expr\ArrayDimFetch;
-use PhpParser\Node\Expr\ClassConstFetch;
-use PhpParser\Node\Expr\Isset_;
-use PhpParser\Node\Expr\PropertyFetch;
-use PhpParser\Node\Expr\StaticPropertyFetch;
-use PhpParser\Node\Expr\Ternary;
-use PhpParser\Node\Expr\Variable;
-use PhpParser\Node\Scalar\LNumber;
-use PhpParser\Node\Scalar\String_;
-use PhpParser\Node\VarLikeIdentifier;
+use Phabel\PhpParser\Node;
+use Phabel\PhpParser\Node\Expr;
+use Phabel\PhpParser\Node\Expr\ArrayDimFetch;
+use Phabel\PhpParser\Node\Expr\ClassConstFetch;
+use Phabel\PhpParser\Node\Expr\Isset_;
+use Phabel\PhpParser\Node\Expr\PropertyFetch;
+use Phabel\PhpParser\Node\Expr\StaticPropertyFetch;
+use Phabel\PhpParser\Node\Expr\Ternary;
+use Phabel\PhpParser\Node\Expr\Variable;
+use Phabel\PhpParser\Node\Scalar\LNumber;
+use Phabel\PhpParser\Node\Scalar\String_;
+use Phabel\PhpParser\Node\VarLikeIdentifier;
 use ReflectionClass;
 use ReflectionClassConstant;
 use ReflectionException;
-
 /**
  * Replace nested expressions in isset.
  *
@@ -67,15 +66,15 @@ class IssetExpressionFixer extends Plugin
     {
         foreach ($isset->vars as $key => &$var) {
             /** @var array<string, array<class-string<Expr>, true>> */
-            $subNodes = $this->getConfig(\get_class($var), false);
+            $subNodes = $this->getConfig(\get_class($var), \false);
             if (!$subNodes) {
                 continue;
             }
             $workVar =& $this->extractWorkVar($var);
-            $needsFixing = false;
+            $needsFixing = \false;
             foreach ($subNodes as $key => $types) {
                 if (isset($types[self::getClass(isset($workVar->{$key}) ? $workVar->{$key} : '')])) {
-                    $needsFixing = true;
+                    $needsFixing = \true;
                     break;
                 }
             }
@@ -92,10 +91,10 @@ class IssetExpressionFixer extends Plugin
                     }
                     break;
                 case StaticPropertyFetch::class:
-                    $workVar = $this->wrapBoolean(self::callPoly('staticExists', $workVar->class, $workVar->name instanceof VarLikeIdentifier ? new String_($workVar->name->name) : $workVar->name, self::fromLiteral(true)));
+                    $workVar = $this->wrapBoolean(self::callPoly('staticExists', $workVar->class, $workVar->name instanceof VarLikeIdentifier ? new String_($workVar->name->name) : $workVar->name, self::fromLiteral(\true)));
                     break;
                 case ClassConstFetch::class:
-                    $workVar = $this->wrapBoolean(self::callPoly('staticExists', $workVar->class, new String_($workVar->name->name), self::fromLiteral(false)));
+                    $workVar = $this->wrapBoolean(self::callPoly('staticExists', $workVar->class, new String_($workVar->name->name), self::fromLiteral(\false)));
                     break;
                 case Variable::class:
                     $workVar->name = self::callPoly('returnMe', $workVar->name);
@@ -169,7 +168,7 @@ class IssetExpressionFixer extends Plugin
             try {
                 $reflection = $reflectionClass->getProperty($property);
             } catch (ReflectionException $e) {
-                $phabelReturn = false;
+                $phabelReturn = \false;
                 if (!\is_bool($phabelReturn)) {
                     if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
                         throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -178,11 +177,11 @@ class IssetExpressionFixer extends Plugin
                 }
                 return $phabelReturn;
             }
-        } elseif (PHP_VERSION_ID >= 70100) {
+        } elseif (\PHP_VERSION_ID >= 70100) {
             try {
                 $reflection = new ReflectionClassConstant($class, $property);
             } catch (ReflectionException $e) {
-                $phabelReturn = false;
+                $phabelReturn = \false;
                 if (!\is_bool($phabelReturn)) {
                     if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
                         throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -201,18 +200,18 @@ class IssetExpressionFixer extends Plugin
             }
             return $phabelReturn;
         }
-        $classCaller = null !== ($phabel_698a1ed91fd0737e = \debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)) && isset($phabel_698a1ed91fd0737e[1]['class']) ? $phabel_698a1ed91fd0737e[1]['class'] : '';
-        $allowProtected = false;
-        $allowPrivate = false;
+        $classCaller = null !== ($phabel_698a1ed91fd0737e = \debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 2)) && isset($phabel_698a1ed91fd0737e[1]['class']) ? $phabel_698a1ed91fd0737e[1]['class'] : '';
+        $allowProtected = \false;
+        $allowPrivate = \false;
         if ($classCaller) {
             if ($class === $classCaller) {
-                $allowProtected = $allowPrivate = true;
+                $allowProtected = $allowPrivate = \true;
             } elseif ($reflectionClass->isSubclassOf($classCaller) || (new ReflectionClass($classCaller))->isSubclassOf($class)) {
-                $allowProtected = true;
+                $allowProtected = \true;
             }
         }
         if ($reflection->isPrivate()) {
-            $phabelReturn = $allowPrivate ? $reflection->getValue() !== null : false;
+            $phabelReturn = $allowPrivate ? $reflection->getValue() !== null : \false;
             if (!\is_bool($phabelReturn)) {
                 if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
                     throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -222,7 +221,7 @@ class IssetExpressionFixer extends Plugin
             return $phabelReturn;
         }
         if ($reflection->isProtected()) {
-            $phabelReturn = $allowProtected ? $reflection->getValue() !== null : false;
+            $phabelReturn = $allowProtected ? $reflection->getValue() !== null : \false;
             if (!\is_bool($phabelReturn)) {
                 if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
                     throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());

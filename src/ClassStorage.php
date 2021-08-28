@@ -5,11 +5,10 @@ namespace Phabel;
 use Phabel\ClassStorage\Storage;
 use Phabel\Plugin\ClassStoragePlugin;
 use Phabel\Plugin\TypeHintReplacer;
-use PhpParser\Node\Identifier;
-use PhpParser\Node\Name;
-use PhpParser\Node\NullableType;
-use PhpParser\Node\UnionType;
-
+use Phabel\PhpParser\Node\Identifier;
+use Phabel\PhpParser\Node\Name;
+use Phabel\PhpParser\Node\NullableType;
+use Phabel\PhpParser\Node\UnionType;
 final class ClassStorage
 {
     const FILE_KEY = 'ClassStorage:file';
@@ -50,14 +49,14 @@ final class ClassStorage
             foreach ($fileTraits as $file => $trait) {
                 $trait = $trait->build();
                 $this->traits[$name][$file] = $trait;
-                $this->files[$file] = true;
+                $this->files[$file] = \true;
             }
         }
         foreach ($plugin->classes as $name => $fileClasses) {
             foreach ($fileClasses as $file => $class) {
                 $class = $class->build();
                 $this->classes[$name][$file] = $class;
-                $this->files[$file] = true;
+                $this->files[$file] = \true;
             }
         }
     }
@@ -188,7 +187,7 @@ final class ClassStorage
         if (\count($typeA) + \count($typeB) === 2) {
             $typeA = $typeA[0];
             $typeB = $typeB[0];
-            if ($typeA instanceof Name && $typeB instanceof Name && ($classA = $typeA->parts === ['self'] ? $ctxA : $this->getClassByName(Tools::getFqdn($typeA))) && ($classB = $typeA->parts === ['self'] ? $ctxB : $this->getClassByName(Tools::getFqdn($typeB)))) {
+            if ($typeA instanceof Name && $typeB instanceof Name && ($classA = $typeA->parts === ['self'] ? $ctxA : $this->getClassByName(\Phabel\Tools::getFqdn($typeA))) && ($classB = $typeA->parts === ['self'] ? $ctxB : $this->getClassByName(\Phabel\Tools::getFqdn($typeB)))) {
                 foreach ($classA->getAllChildren() as $child) {
                     if ($child === $classB) {
                         $phabelReturn = 1;

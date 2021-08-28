@@ -1,0 +1,187 @@
+<?php
+
+/*
+ * This file is part of the Symfony package.
+ *
+ * (c) Fabien Potencier <fabien@symfony.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+namespace Phabel\Symfony\Component\Console\Output;
+
+use Phabel\Symfony\Component\Console\Formatter\OutputFormatterInterface;
+/**
+ * ConsoleOutput is the default class for all CLI output. It uses STDOUT and STDERR.
+ *
+ * This class is a convenient wrapper around `StreamOutput` for both STDOUT and STDERR.
+ *
+ *     $output = new ConsoleOutput();
+ *
+ * This is equivalent to:
+ *
+ *     $output = new StreamOutput(fopen('php://stdout', 'w'));
+ *     $stdErr = new StreamOutput(fopen('php://stderr', 'w'));
+ *
+ * @author Fabien Potencier <fabien@symfony.com>
+ */
+class ConsoleOutput extends StreamOutput implements ConsoleOutputInterface
+{
+    private $stderr;
+    private $consoleSectionOutputs = [];
+    /**
+     * @param int                           $verbosity The verbosity level (one of the VERBOSITY constants in OutputInterface)
+     * @param bool|null                     $decorated Whether to decorate messages (null for auto-guessing)
+     * @param OutputFormatterInterface|null $formatter Output formatter instance (null to use default OutputFormatter)
+     */
+    public function __construct($verbosity = self::VERBOSITY_NORMAL, $decorated = null, $formatter = null)
+    {
+        if (!($formatter instanceof OutputFormatterInterface || \is_null($formatter))) {
+            throw new \TypeError(__METHOD__ . '(): Argument #3 ($formatter) must be of type ?OutputFormatterInterface, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($formatter) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        if (!\is_int($verbosity)) {
+            if (!(\is_bool($verbosity) || \is_numeric($verbosity))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($verbosity) must be of type int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($verbosity) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            } else {
+                $verbosity = (int) $verbosity;
+            }
+        }
+        if (!\is_null($decorated)) {
+            if (!\is_bool($decorated)) {
+                if (!(\is_bool($decorated) || \is_numeric($decorated) || \is_string($decorated))) {
+                    throw new \TypeError(__METHOD__ . '(): Argument #2 ($decorated) must be of type ?bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($decorated) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                } else {
+                    $decorated = (bool) $decorated;
+                }
+            }
+        }
+        parent::__construct($this->openOutputStream(), $verbosity, $decorated, $formatter);
+        if (null === $formatter) {
+            // for BC reasons, stdErr has it own Formatter only when user don't inject a specific formatter.
+            $this->stderr = new StreamOutput($this->openErrorStream(), $verbosity, $decorated);
+            return;
+        }
+        $actualDecorated = $this->isDecorated();
+        $this->stderr = new StreamOutput($this->openErrorStream(), $verbosity, $decorated, $this->getFormatter());
+        if (null === $decorated) {
+            $this->setDecorated($actualDecorated && $this->stderr->isDecorated());
+        }
+    }
+    /**
+     * Creates a new output section.
+     */
+    public function section()
+    {
+        $phabelReturn = new ConsoleSectionOutput($this->getStream(), $this->consoleSectionOutputs, $this->getVerbosity(), $this->isDecorated(), $this->getFormatter());
+        if (!$phabelReturn instanceof ConsoleSectionOutput) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ConsoleSectionOutput, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
+    }
+    /**
+     * {@inheritdoc}
+     */
+    public function setDecorated($decorated)
+    {
+        if (!\is_bool($decorated)) {
+            if (!(\is_bool($decorated) || \is_numeric($decorated) || \is_string($decorated))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($decorated) must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($decorated) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            } else {
+                $decorated = (bool) $decorated;
+            }
+        }
+        parent::setDecorated($decorated);
+        $this->stderr->setDecorated($decorated);
+    }
+    /**
+     * {@inheritdoc}
+     */
+    public function setFormatter(OutputFormatterInterface $formatter)
+    {
+        parent::setFormatter($formatter);
+        $this->stderr->setFormatter($formatter);
+    }
+    /**
+     * {@inheritdoc}
+     */
+    public function setVerbosity($level)
+    {
+        if (!\is_int($level)) {
+            if (!(\is_bool($level) || \is_numeric($level))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($level) must be of type int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($level) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            } else {
+                $level = (int) $level;
+            }
+        }
+        parent::setVerbosity($level);
+        $this->stderr->setVerbosity($level);
+    }
+    /**
+     * {@inheritdoc}
+     */
+    public function getErrorOutput()
+    {
+        return $this->stderr;
+    }
+    /**
+     * {@inheritdoc}
+     */
+    public function setErrorOutput(OutputInterface $error)
+    {
+        $this->stderr = $error;
+    }
+    /**
+     * Returns true if current environment supports writing console output to
+     * STDOUT.
+     *
+     * @return bool
+     */
+    protected function hasStdoutSupport()
+    {
+        return \false === $this->isRunningOS400();
+    }
+    /**
+     * Returns true if current environment supports writing console output to
+     * STDERR.
+     *
+     * @return bool
+     */
+    protected function hasStderrSupport()
+    {
+        return \false === $this->isRunningOS400();
+    }
+    /**
+     * Checks if current executing environment is IBM iSeries (OS400), which
+     * doesn't properly convert character-encodings between ASCII to EBCDIC.
+     */
+    private function isRunningOS400()
+    {
+        $checks = [\function_exists('php_uname') ? \php_uname('s') : '', \getenv('OSTYPE'), \PHP_OS];
+        $phabelReturn = \false !== \stripos(\implode(';', $checks), 'OS400');
+        if (!\is_bool($phabelReturn)) {
+            if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            } else {
+                $phabelReturn = (bool) $phabelReturn;
+            }
+        }
+        return $phabelReturn;
+    }
+    /**
+     * @return resource
+     */
+    private function openOutputStream()
+    {
+        if (!$this->hasStdoutSupport()) {
+            return \fopen('php://output', 'w');
+        }
+        return @\fopen('php://stdout', 'w') ?: \fopen('php://output', 'w');
+    }
+    /**
+     * @return resource
+     */
+    private function openErrorStream()
+    {
+        return \fopen($this->hasStderrSupport() ? 'php://stderr' : 'php://output', 'w');
+    }
+}

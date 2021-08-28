@@ -51,11 +51,11 @@ class ReGenerator implements \Iterator
     /**
      * Whether the generator has returned.
      */
-    public $returned = false;
+    public $returned = \false;
     /**
      * Whether the generator was started.
      */
-    public $started = false;
+    public $started = \false;
     /**
      * Actual generator function.
      */
@@ -88,7 +88,7 @@ class ReGenerator implements \Iterator
         if (!$this->started) {
             $phabel_1679ff392dd5e7d5 = $this->generator;
             $phabel_1679ff392dd5e7d5($this->state, $this->variables, $this->yieldKey, $this->yieldValue, $this->sentValue, $this->sentException, $this->returnValue, $this->returned);
-            $this->started = true;
+            $this->started = \true;
         }
     }
     /**
@@ -108,10 +108,10 @@ class ReGenerator implements \Iterator
                 $phabel_9fa9aa2d4dbb1eb4 = $this->generator;
                 $phabel_9fa9aa2d4dbb1eb4($this->state, $this->variables, $this->yieldKey, $this->yieldValue, $this->sentValue, $this->sentException, $this->returnValue, $this->returned);
             } catch (\Exception $e) {
-                $this->returned = true;
+                $this->returned = \true;
                 throw $e;
             } catch (\Error $e) {
-                $this->returned = true;
+                $this->returned = \true;
                 throw $e;
             } finally {
                 $this->sentValue = null;
@@ -136,10 +136,10 @@ class ReGenerator implements \Iterator
                 $phabel_eabcc7a56b2bce11 = $this->generator;
                 $phabel_eabcc7a56b2bce11($this->state, $this->variables, $this->yieldKey, $this->yieldValue, $this->sentValue, $this->sentException, $this->returnValue, $this->returned);
             } catch (\Exception $e) {
-                $this->returned = true;
+                $this->returned = \true;
                 throw $e;
             } catch (\Error $e) {
-                $this->returned = true;
+                $this->returned = \true;
                 throw $e;
             } finally {
                 $this->sentException = null;
@@ -187,8 +187,8 @@ class ReGenerator implements \Iterator
             throw new \Exception('Cannot rewind a generator that was already run');
         }
         $this->state = 0;
-        $this->started = false;
-        $this->returned = false;
+        $this->started = \false;
+        $this->returned = \false;
         $this->returnValue = null;
         $this->yieldKey = null;
         $this->yieldValue = null;

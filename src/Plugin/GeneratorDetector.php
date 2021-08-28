@@ -4,10 +4,9 @@ namespace Phabel\Plugin;
 
 use Phabel\Context;
 use Phabel\Plugin;
-use PhpParser\Node\Expr\Yield_;
-use PhpParser\Node\Expr\YieldFrom;
-use PhpParser\Node\FunctionLike;
-
+use Phabel\PhpParser\Node\Expr\Yield_;
+use Phabel\PhpParser\Node\Expr\YieldFrom;
+use Phabel\PhpParser\Node\FunctionLike;
 /**
  * Detect usages of yield and yield from.
  *
@@ -27,7 +26,7 @@ class GeneratorDetector extends Plugin
      */
     public static function isGenerator(FunctionLike $node)
     {
-        $phabelReturn = $node->getAttribute(self::IS_GENERATOR, false);
+        $phabelReturn = $node->getAttribute(self::IS_GENERATOR, \false);
         if (!\is_bool($phabelReturn)) {
             if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
                 throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -40,7 +39,7 @@ class GeneratorDetector extends Plugin
     {
         foreach ($ctx->parents as $parent) {
             if ($parent instanceof FunctionLike) {
-                $parent->setAttribute(self::IS_GENERATOR, true);
+                $parent->setAttribute(self::IS_GENERATOR, \true);
                 return;
             }
         }
@@ -49,7 +48,7 @@ class GeneratorDetector extends Plugin
     {
         foreach ($ctx->parents as $parent) {
             if ($parent instanceof FunctionLike) {
-                $parent->setAttribute(self::IS_GENERATOR, true);
+                $parent->setAttribute(self::IS_GENERATOR, \true);
                 return;
             }
         }

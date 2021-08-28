@@ -2,9 +2,8 @@
 
 namespace Phabel\ClassStorage;
 
-use PhpParser\Node\Stmt\Class_;
-use PhpParser\Node\Stmt\ClassMethod;
-
+use Phabel\PhpParser\Node\Stmt\Class_;
+use Phabel\PhpParser\Node\Stmt\ClassMethod;
 /**
  * Stores information about a class.
  */
@@ -66,16 +65,16 @@ class Storage
         $this->methods = $methods;
         $this->abstractMethods = $abstractMethods;
         foreach ($methods as $method) {
-            if ($method->getAttribute(Builder::STORAGE_KEY)) {
-                $method->setAttribute(self::STORAGE_KEY, $method->getAttribute(Builder::STORAGE_KEY)->build());
-                $method->setAttribute(Builder::STORAGE_KEY, null);
+            if ($method->getAttribute(\Phabel\ClassStorage\Builder::STORAGE_KEY)) {
+                $method->setAttribute(self::STORAGE_KEY, $method->getAttribute(\Phabel\ClassStorage\Builder::STORAGE_KEY)->build());
+                $method->setAttribute(\Phabel\ClassStorage\Builder::STORAGE_KEY, null);
             }
             $method->flags |= self::MODIFIER_NORMAL;
         }
         foreach ($abstractMethods as $method) {
-            if ($method->getAttribute(Builder::STORAGE_KEY)) {
-                $method->setAttribute(self::STORAGE_KEY, $method->getAttribute(Builder::STORAGE_KEY)->build());
-                $method->setAttribute(Builder::STORAGE_KEY, null);
+            if ($method->getAttribute(\Phabel\ClassStorage\Builder::STORAGE_KEY)) {
+                $method->setAttribute(self::STORAGE_KEY, $method->getAttribute(\Phabel\ClassStorage\Builder::STORAGE_KEY)->build());
+                $method->setAttribute(\Phabel\ClassStorage\Builder::STORAGE_KEY, null);
             }
         }
         foreach ($extends as $name => $class) {
@@ -246,9 +245,9 @@ class Storage
         $name = $method->name->name;
         if ($method->stmts !== null) {
             if (isset($this->methods[$name])) {
-                $this->removedMethods[$name] = true;
+                $this->removedMethods[$name] = \true;
                 unset($this->methods[$name]);
-                $phabelReturn = true;
+                $phabelReturn = \true;
                 if (!\is_bool($phabelReturn)) {
                     if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
                         throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -258,9 +257,9 @@ class Storage
                 return $phabelReturn;
             }
         } elseif (isset($this->abstractMethods[$name])) {
-            $this->removedMethods[$name] = true;
+            $this->removedMethods[$name] = \true;
             unset($this->abstractMethods[$name]);
-            $phabelReturn = true;
+            $phabelReturn = \true;
             if (!\is_bool($phabelReturn)) {
                 if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
                     throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -269,7 +268,7 @@ class Storage
             }
             return $phabelReturn;
         }
-        $phabelReturn = false;
+        $phabelReturn = \false;
         if (!\is_bool($phabelReturn)) {
             if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
                 throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -287,7 +286,7 @@ class Storage
     {
         $name = $method->name->name;
         if (isset($this->removedMethods[$name])) {
-            $phabelReturn = true;
+            $phabelReturn = \true;
             if (!\is_bool($phabelReturn)) {
                 if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
                     throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -308,7 +307,7 @@ class Storage
                 $method->setAttribute($key, $attribute);
             }
         }
-        $phabelReturn = false;
+        $phabelReturn = \false;
         if (!\is_bool($phabelReturn)) {
             if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
                 throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());

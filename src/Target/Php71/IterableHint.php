@@ -4,7 +4,6 @@ namespace Phabel\Target\Php71;
 
 use Phabel\Plugin;
 use Phabel\Plugin\TypeHintReplacer;
-
 /**
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT

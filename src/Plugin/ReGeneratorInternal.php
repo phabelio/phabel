@@ -3,10 +3,9 @@
 namespace Phabel\Plugin;
 
 use Phabel\Plugin;
-use PhpParser\Node;
-use PhpParser\Node\FunctionLike;
+use Phabel\PhpParser\Node;
+use Phabel\PhpParser\Node\FunctionLike;
 use SplQueue;
-
 /**
  * Internal regenerator traversor.
  *

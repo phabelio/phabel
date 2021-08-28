@@ -4,11 +4,10 @@ namespace Phabel;
 
 use JsonSerializable;
 use Phabel\ClassStorage\Storage;
-use PhpParser\Node\Stmt\ClassLike;
-use PhpParser\Node\Stmt\ClassMethod;
-use PhpParser\Node\Stmt\Nop;
-
-abstract class ClassStorageProvider extends Plugin implements JsonSerializable
+use Phabel\PhpParser\Node\Stmt\ClassLike;
+use Phabel\PhpParser\Node\Stmt\ClassMethod;
+use Phabel\PhpParser\Node\Stmt\Nop;
+abstract class ClassStorageProvider extends \Phabel\Plugin implements JsonSerializable
 {
     const PROCESSED = 'ClassStorageProvider:processed';
     /**
@@ -21,14 +20,14 @@ abstract class ClassStorageProvider extends Plugin implements JsonSerializable
      * @param ClassStorage $storage
      * @return bool
      */
-    abstract public static function processClassGraph(ClassStorage $storage);
+    public static abstract function processClassGraph(\Phabel\ClassStorage $storage);
     /**
      * Enter file.
      *
      * @param RootNode $_
      * @return void
      */
-    public function enterRoot(RootNode $_, Context $context)
+    public function enterRoot(\Phabel\RootNode $_, \Phabel\Context $context)
     {
         $this->count[$context->getFile()] = [];
     }
@@ -38,12 +37,12 @@ abstract class ClassStorageProvider extends Plugin implements JsonSerializable
      * @param ClassLike $classLike
      * @return void
      */
-    public function enterClassStorage(ClassLike $class, Context $context)
+    public function enterClassStorage(ClassLike $class, \Phabel\Context $context)
     {
         if ($class->hasAttribute(self::PROCESSED)) {
             return;
         }
-        $class->setAttribute(self::PROCESSED, true);
+        $class->setAttribute(self::PROCESSED, \true);
         $file = $context->getFile();
         if ($class->name) {
             $name = self::getFqdn($class);
@@ -66,8 +65,8 @@ abstract class ClassStorageProvider extends Plugin implements JsonSerializable
      */
     public function getGlobalClassStorage()
     {
-        $phabelReturn = $this->getConfig(ClassStorage::class, null);
-        if (!$phabelReturn instanceof ClassStorage) {
+        $phabelReturn = $this->getConfig(\Phabel\ClassStorage::class, null);
+        if (!$phabelReturn instanceof \Phabel\ClassStorage) {
             throw new \TypeError(__METHOD__ . '(): Return value must be of type ClassStorage, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
         }
         return $phabelReturn;

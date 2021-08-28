@@ -1,0 +1,758 @@
+<?php
+
+/*
+ * This file is part of the Symfony package.
+ *
+ * (c) Fabien Potencier <fabien@symfony.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+namespace Phabel\Symfony\Component\Console\Command;
+
+use Phabel\Symfony\Component\Console\Application;
+use Phabel\Symfony\Component\Console\Attribute\AsCommand;
+use Phabel\Symfony\Component\Console\Exception\ExceptionInterface;
+use Phabel\Symfony\Component\Console\Exception\InvalidArgumentException;
+use Phabel\Symfony\Component\Console\Exception\LogicException;
+use Phabel\Symfony\Component\Console\Helper\HelperSet;
+use Phabel\Symfony\Component\Console\Input\InputArgument;
+use Phabel\Symfony\Component\Console\Input\InputDefinition;
+use Phabel\Symfony\Component\Console\Input\InputInterface;
+use Phabel\Symfony\Component\Console\Input\InputOption;
+use Phabel\Symfony\Component\Console\Output\OutputInterface;
+/**
+ * Base class for all commands.
+ *
+ * @author Fabien Potencier <fabien@symfony.com>
+ */
+class Command
+{
+    // see https://tldp.org/LDP/abs/html/exitcodes.html
+    const SUCCESS = 0;
+    const FAILURE = 1;
+    const INVALID = 2;
+    /**
+     * @var string|null The default command name
+     */
+    protected static $defaultName;
+    /**
+     * @var string|null The default command description
+     */
+    protected static $defaultDescription;
+    private $application;
+    private $name;
+    private $processTitle;
+    private $aliases = [];
+    private $definition;
+    private $hidden = \false;
+    private $help = '';
+    private $description = '';
+    private $fullDefinition;
+    private $ignoreValidationErrors = \false;
+    private $code;
+    private $synopsis = [];
+    private $usages = [];
+    private $helperSet;
+    /**
+     * @return string|null The default command name or null when no default name is set
+     */
+    public static function getDefaultName()
+    {
+        $class = static::class;
+        if (\PHP_VERSION_ID >= 80000 && ($attribute = (new \ReflectionClass($class))->getAttributes(AsCommand::class))) {
+            return $attribute[0]->newInstance()->name;
+        }
+        $r = new \ReflectionProperty($class, 'defaultName');
+        return $class === $r->class ? static::$defaultName : null;
+    }
+    /**
+     * @return string|null The default command description or null when no default description is set
+     */
+    public static function getDefaultDescription()
+    {
+        $class = static::class;
+        if (\PHP_VERSION_ID >= 80000 && ($attribute = (new \ReflectionClass($class))->getAttributes(AsCommand::class))) {
+            $phabelReturn = $attribute[0]->newInstance()->description;
+            if (!\is_null($phabelReturn)) {
+                if (!\is_string($phabelReturn)) {
+                    if (!(\is_string($phabelReturn) || \is_object($phabelReturn) && \method_exists($phabelReturn, '__toString') || (\is_bool($phabelReturn) || \is_numeric($phabelReturn)))) {
+                        throw new \TypeError(__METHOD__ . '(): Return value must be of type ?string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                    } else {
+                        $phabelReturn = (string) $phabelReturn;
+                    }
+                }
+            }
+            return $phabelReturn;
+        }
+        $r = new \ReflectionProperty($class, 'defaultDescription');
+        $phabelReturn = $class === $r->class ? static::$defaultDescription : null;
+        if (!\is_null($phabelReturn)) {
+            if (!\is_string($phabelReturn)) {
+                if (!(\is_string($phabelReturn) || \is_object($phabelReturn) && \method_exists($phabelReturn, '__toString') || (\is_bool($phabelReturn) || \is_numeric($phabelReturn)))) {
+                    throw new \TypeError(__METHOD__ . '(): Return value must be of type ?string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                } else {
+                    $phabelReturn = (string) $phabelReturn;
+                }
+            }
+        }
+        return $phabelReturn;
+    }
+    /**
+     * @param string|null $name The name of the command; passing null means it must be set in configure()
+     *
+     * @throws LogicException When the command name is empty
+     */
+    public function __construct($name = null)
+    {
+        if (!\is_null($name)) {
+            if (!\is_string($name)) {
+                if (!(\is_string($name) || \is_object($name) && \method_exists($name, '__toString') || (\is_bool($name) || \is_numeric($name)))) {
+                    throw new \TypeError(__METHOD__ . '(): Argument #1 ($name) must be of type ?string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($name) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                } else {
+                    $name = (string) $name;
+                }
+            }
+        }
+        $this->definition = new InputDefinition();
+        if (null === $name && null !== ($name = static::getDefaultName())) {
+            $aliases = \explode('|', $name);
+            if ('' === ($name = \array_shift($aliases))) {
+                $this->setHidden(\true);
+                $name = \array_shift($aliases);
+            }
+            $this->setAliases($aliases);
+        }
+        if (null !== $name) {
+            $this->setName($name);
+        }
+        if ('' === $this->description) {
+            $this->setDescription(NULL !== ($phabel_187db3ce20c580af = static::getDefaultDescription()) ? $phabel_187db3ce20c580af : '');
+        }
+        $this->configure();
+    }
+    /**
+     * Ignores validation errors.
+     *
+     * This is mainly useful for the help command.
+     */
+    public function ignoreValidationErrors()
+    {
+        $this->ignoreValidationErrors = \true;
+    }
+    public function setApplication(Application $application = null)
+    {
+        $this->application = $application;
+        if ($application) {
+            $this->setHelperSet($application->getHelperSet());
+        } else {
+            $this->helperSet = null;
+        }
+        $this->fullDefinition = null;
+    }
+    public function setHelperSet(HelperSet $helperSet)
+    {
+        $this->helperSet = $helperSet;
+    }
+    /**
+     * Gets the helper set.
+     *
+     * @return HelperSet|null A HelperSet instance
+     */
+    public function getHelperSet()
+    {
+        return $this->helperSet;
+    }
+    /**
+     * Gets the application instance for this command.
+     *
+     * @return Application|null An Application instance
+     */
+    public function getApplication()
+    {
+        return $this->application;
+    }
+    /**
+     * Checks whether the command is enabled or not in the current environment.
+     *
+     * Override this to check for x or y and return false if the command can not
+     * run properly under the current conditions.
+     *
+     * @return bool
+     */
+    public function isEnabled()
+    {
+        return \true;
+    }
+    /**
+     * Configures the current command.
+     */
+    protected function configure()
+    {
+    }
+    /**
+     * Executes the current command.
+     *
+     * This method is not abstract because you can use this class
+     * as a concrete class. In this case, instead of defining the
+     * execute() method, you set the code to execute by passing
+     * a Closure to the setCode() method.
+     *
+     * @return int 0 if everything went fine, or an exit code
+     *
+     * @throws LogicException When this abstract method is not implemented
+     *
+     * @see setCode()
+     */
+    protected function execute(InputInterface $input, OutputInterface $output)
+    {
+        throw new LogicException('You must override the execute() method in the concrete command class.');
+    }
+    /**
+     * Interacts with the user.
+     *
+     * This method is executed before the InputDefinition is validated.
+     * This means that this is the only place where the command can
+     * interactively ask for values of missing required arguments.
+     */
+    protected function interact(InputInterface $input, OutputInterface $output)
+    {
+    }
+    /**
+     * Initializes the command after the input has been bound and before the input
+     * is validated.
+     *
+     * This is mainly useful when a lot of commands extends one main command
+     * where some things need to be initialized based on the input arguments and options.
+     *
+     * @see InputInterface::bind()
+     * @see InputInterface::validate()
+     */
+    protected function initialize(InputInterface $input, OutputInterface $output)
+    {
+    }
+    /**
+     * Runs the command.
+     *
+     * The code to execute is either defined directly with the
+     * setCode() method or by overriding the execute() method
+     * in a sub-class.
+     *
+     * @return int The command exit code
+     *
+     * @throws \Exception When binding input fails. Bypass this by calling {@link ignoreValidationErrors()}.
+     *
+     * @see setCode()
+     * @see execute()
+     */
+    public function run(InputInterface $input, OutputInterface $output)
+    {
+        // add the application arguments and options
+        $this->mergeApplicationDefinition();
+        // bind the input against the command specific arguments/options
+        try {
+            $input->bind($this->getDefinition());
+        } catch (ExceptionInterface $e) {
+            if (!$this->ignoreValidationErrors) {
+                throw $e;
+            }
+        }
+        $this->initialize($input, $output);
+        if (null !== $this->processTitle) {
+            if (\function_exists('cli_set_process_title')) {
+                if (!@\cli_set_process_title($this->processTitle)) {
+                    if ('Darwin' === \PHP_OS) {
+                        $output->writeln('<comment>Running "cli_set_process_title" as an unprivileged user is not supported on MacOS.</comment>', OutputInterface::VERBOSITY_VERY_VERBOSE);
+                    } else {
+                        \cli_set_process_title($this->processTitle);
+                    }
+                }
+            } elseif (\function_exists('Phabel\\setproctitle')) {
+                setproctitle($this->processTitle);
+            } elseif (OutputInterface::VERBOSITY_VERY_VERBOSE === $output->getVerbosity()) {
+                $output->writeln('<comment>Install the proctitle PECL to be able to change the process title.</comment>');
+            }
+        }
+        if ($input->isInteractive()) {
+            $this->interact($input, $output);
+        }
+        // The command name argument is often omitted when a command is executed directly with its run() method.
+        // It would fail the validation if we didn't make sure the command argument is present,
+        // since it's required by the application.
+        if ($input->hasArgument('command') && null === $input->getArgument('command')) {
+            $input->setArgument('command', $this->getName());
+        }
+        $input->validate();
+        if ($this->code) {
+            $phabel_8da28ba4668d03f7 = $this->code;
+            $statusCode = $phabel_8da28ba4668d03f7($input, $output);
+        } else {
+            $statusCode = $this->execute($input, $output);
+            if (!\is_int($statusCode)) {
+                throw new \TypeError(\sprintf('Return value of "%s::execute()" must be of the type int, "%s" returned.', static::class, \get_debug_type($statusCode)));
+            }
+        }
+        return \is_numeric($statusCode) ? (int) $statusCode : 0;
+    }
+    /**
+     * Sets the code to execute when running this command.
+     *
+     * If this method is used, it overrides the code defined
+     * in the execute() method.
+     *
+     * @param callable $code A callable(InputInterface $input, OutputInterface $output)
+     *
+     * @return $this
+     *
+     * @throws InvalidArgumentException
+     *
+     * @see execute()
+     */
+    public function setCode(callable $code)
+    {
+        if ($code instanceof \Closure) {
+            $r = new \ReflectionFunction($code);
+            if (null === $r->getClosureThis()) {
+                \set_error_handler(static function () {
+                });
+                try {
+                    if ($c = \Closure::bind($code, $this)) {
+                        $code = $c;
+                    }
+                } finally {
+                    \restore_error_handler();
+                }
+            }
+        }
+        $this->code = $code;
+        return $this;
+    }
+    /**
+     * Merges the application definition with the command definition.
+     *
+     * This method is not part of public API and should not be used directly.
+     *
+     * @param bool $mergeArgs Whether to merge or not the Application definition arguments to Command definition arguments
+     *
+     * @internal
+     */
+    public function mergeApplicationDefinition($mergeArgs = \true)
+    {
+        if (!\is_bool($mergeArgs)) {
+            if (!(\is_bool($mergeArgs) || \is_numeric($mergeArgs) || \is_string($mergeArgs))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($mergeArgs) must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($mergeArgs) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            } else {
+                $mergeArgs = (bool) $mergeArgs;
+            }
+        }
+        if (null === $this->application) {
+            return;
+        }
+        $this->fullDefinition = new InputDefinition();
+        $this->fullDefinition->setOptions($this->definition->getOptions());
+        $this->fullDefinition->addOptions($this->application->getDefinition()->getOptions());
+        if ($mergeArgs) {
+            $this->fullDefinition->setArguments($this->application->getDefinition()->getArguments());
+            $this->fullDefinition->addArguments($this->definition->getArguments());
+        } else {
+            $this->fullDefinition->setArguments($this->definition->getArguments());
+        }
+    }
+    /**
+     * Sets an array of argument and option instances.
+     *
+     * @param array|InputDefinition $definition An array of argument and option instances or a definition instance
+     *
+     * @return $this
+     */
+    public function setDefinition($definition)
+    {
+        if ($definition instanceof InputDefinition) {
+            $this->definition = $definition;
+        } else {
+            $this->definition->setDefinition($definition);
+        }
+        $this->fullDefinition = null;
+        return $this;
+    }
+    /**
+     * Gets the InputDefinition attached to this Command.
+     *
+     * @return InputDefinition An InputDefinition instance
+     */
+    public function getDefinition()
+    {
+        return isset($this->fullDefinition) ? $this->fullDefinition : $this->getNativeDefinition();
+    }
+    /**
+     * Gets the InputDefinition to be used to create representations of this Command.
+     *
+     * Can be overridden to provide the original command representation when it would otherwise
+     * be changed by merging with the application InputDefinition.
+     *
+     * This method is not part of public API and should not be used directly.
+     *
+     * @return InputDefinition An InputDefinition instance
+     */
+    public function getNativeDefinition()
+    {
+        if (null === $this->definition) {
+            throw new LogicException(\sprintf('Command class "%s" is not correctly initialized. You probably forgot to call the parent constructor.', static::class));
+        }
+        return $this->definition;
+    }
+    /**
+     * Adds an argument.
+     *
+     * @param int|null $mode    The argument mode: InputArgument::REQUIRED or InputArgument::OPTIONAL
+     * @param mixed    $default The default value (for InputArgument::OPTIONAL mode only)
+     *
+     * @throws InvalidArgumentException When argument mode is not valid
+     *
+     * @return $this
+     */
+    public function addArgument($name, $mode = null, $description = '', $default = null)
+    {
+        if (!\is_string($name)) {
+            if (!(\is_string($name) || \is_object($name) && \method_exists($name, '__toString') || (\is_bool($name) || \is_numeric($name)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($name) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($name) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            } else {
+                $name = (string) $name;
+            }
+        }
+        if (!\is_null($mode)) {
+            if (!\is_int($mode)) {
+                if (!(\is_bool($mode) || \is_numeric($mode))) {
+                    throw new \TypeError(__METHOD__ . '(): Argument #2 ($mode) must be of type ?int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($mode) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                } else {
+                    $mode = (int) $mode;
+                }
+            }
+        }
+        if (!\is_string($description)) {
+            if (!(\is_string($description) || \is_object($description) && \method_exists($description, '__toString') || (\is_bool($description) || \is_numeric($description)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #3 ($description) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($description) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            } else {
+                $description = (string) $description;
+            }
+        }
+        $this->definition->addArgument(new InputArgument($name, $mode, $description, $default));
+        if (null !== $this->fullDefinition) {
+            $this->fullDefinition->addArgument(new InputArgument($name, $mode, $description, $default));
+        }
+        return $this;
+    }
+    /**
+     * Adds an option.
+     *
+     * @param string|array|null $shortcut The shortcuts, can be null, a string of shortcuts delimited by | or an array of shortcuts
+     * @param int|null          $mode     The option mode: One of the InputOption::VALUE_* constants
+     * @param mixed             $default  The default value (must be null for InputOption::VALUE_NONE)
+     *
+     * @throws InvalidArgumentException If option mode is invalid or incompatible
+     *
+     * @return $this
+     */
+    public function addOption($name, $shortcut = null, $mode = null, $description = '', $default = null)
+    {
+        if (!\is_string($name)) {
+            if (!(\is_string($name) || \is_object($name) && \method_exists($name, '__toString') || (\is_bool($name) || \is_numeric($name)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($name) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($name) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            } else {
+                $name = (string) $name;
+            }
+        }
+        if (!\is_null($mode)) {
+            if (!\is_int($mode)) {
+                if (!(\is_bool($mode) || \is_numeric($mode))) {
+                    throw new \TypeError(__METHOD__ . '(): Argument #3 ($mode) must be of type ?int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($mode) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                } else {
+                    $mode = (int) $mode;
+                }
+            }
+        }
+        if (!\is_string($description)) {
+            if (!(\is_string($description) || \is_object($description) && \method_exists($description, '__toString') || (\is_bool($description) || \is_numeric($description)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #4 ($description) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($description) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            } else {
+                $description = (string) $description;
+            }
+        }
+        $this->definition->addOption(new InputOption($name, $shortcut, $mode, $description, $default));
+        if (null !== $this->fullDefinition) {
+            $this->fullDefinition->addOption(new InputOption($name, $shortcut, $mode, $description, $default));
+        }
+        return $this;
+    }
+    /**
+     * Sets the name of the command.
+     *
+     * This method can set both the namespace and the name if
+     * you separate them by a colon (:)
+     *
+     *     $command->setName('foo:bar');
+     *
+     * @return $this
+     *
+     * @throws InvalidArgumentException When the name is invalid
+     */
+    public function setName($name)
+    {
+        if (!\is_string($name)) {
+            if (!(\is_string($name) || \is_object($name) && \method_exists($name, '__toString') || (\is_bool($name) || \is_numeric($name)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($name) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($name) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            } else {
+                $name = (string) $name;
+            }
+        }
+        $this->validateName($name);
+        $this->name = $name;
+        return $this;
+    }
+    /**
+     * Sets the process title of the command.
+     *
+     * This feature should be used only when creating a long process command,
+     * like a daemon.
+     *
+     * @return $this
+     */
+    public function setProcessTitle($title)
+    {
+        if (!\is_string($title)) {
+            if (!(\is_string($title) || \is_object($title) && \method_exists($title, '__toString') || (\is_bool($title) || \is_numeric($title)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($title) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($title) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            } else {
+                $title = (string) $title;
+            }
+        }
+        $this->processTitle = $title;
+        return $this;
+    }
+    /**
+     * Returns the command name.
+     *
+     * @return string|null
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+    /**
+     * @param bool $hidden Whether or not the command should be hidden from the list of commands
+     *                     The default value will be true in Symfony 6.0
+     *
+     * @return $this
+     *
+     * @final since Symfony 5.1
+     */
+    public function setHidden($hidden)
+    {
+        if (!\is_bool($hidden)) {
+            if (!(\is_bool($hidden) || \is_numeric($hidden) || \is_string($hidden))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($hidden) must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($hidden) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            } else {
+                $hidden = (bool) $hidden;
+            }
+        }
+        $this->hidden = $hidden;
+        return $this;
+    }
+    /**
+     * @return bool whether the command should be publicly shown or not
+     */
+    public function isHidden()
+    {
+        return $this->hidden;
+    }
+    /**
+     * Sets the description for the command.
+     *
+     * @return $this
+     */
+    public function setDescription($description)
+    {
+        if (!\is_string($description)) {
+            if (!(\is_string($description) || \is_object($description) && \method_exists($description, '__toString') || (\is_bool($description) || \is_numeric($description)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($description) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($description) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            } else {
+                $description = (string) $description;
+            }
+        }
+        $this->description = $description;
+        return $this;
+    }
+    /**
+     * Returns the description for the command.
+     *
+     * @return string The description for the command
+     */
+    public function getDescription()
+    {
+        return $this->description;
+    }
+    /**
+     * Sets the help for the command.
+     *
+     * @return $this
+     */
+    public function setHelp($help)
+    {
+        if (!\is_string($help)) {
+            if (!(\is_string($help) || \is_object($help) && \method_exists($help, '__toString') || (\is_bool($help) || \is_numeric($help)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($help) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($help) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            } else {
+                $help = (string) $help;
+            }
+        }
+        $this->help = $help;
+        return $this;
+    }
+    /**
+     * Returns the help for the command.
+     *
+     * @return string The help for the command
+     */
+    public function getHelp()
+    {
+        return $this->help;
+    }
+    /**
+     * Returns the processed help for the command replacing the %command.name% and
+     * %command.full_name% patterns with the real values dynamically.
+     *
+     * @return string The processed help for the command
+     */
+    public function getProcessedHelp()
+    {
+        $name = $this->name;
+        $isSingleCommand = $this->application && $this->application->isSingleCommand();
+        $placeholders = ['%command.name%', '%command.full_name%'];
+        $replacements = [$name, $isSingleCommand ? $_SERVER['PHP_SELF'] : $_SERVER['PHP_SELF'] . ' ' . $name];
+        return \str_replace($placeholders, $replacements, $this->getHelp() ?: $this->getDescription());
+    }
+    /**
+     * Sets the aliases for the command.
+     *
+     * @param string[] $aliases An array of aliases for the command
+     *
+     * @return $this
+     *
+     * @throws InvalidArgumentException When an alias is invalid
+     */
+    public function setAliases($aliases)
+    {
+        if (!(\is_array($aliases) || $aliases instanceof \Traversable)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($aliases) must be of type iterable, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($aliases) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        $list = [];
+        foreach ($aliases as $alias) {
+            $this->validateName($alias);
+            $list[] = $alias;
+        }
+        $this->aliases = \is_array($aliases) ? $aliases : $list;
+        return $this;
+    }
+    /**
+     * Returns the aliases for the command.
+     *
+     * @return array An array of aliases for the command
+     */
+    public function getAliases()
+    {
+        return $this->aliases;
+    }
+    /**
+     * Returns the synopsis for the command.
+     *
+     * @param bool $short Whether to show the short version of the synopsis (with options folded) or not
+     *
+     * @return string The synopsis
+     */
+    public function getSynopsis($short = \false)
+    {
+        if (!\is_bool($short)) {
+            if (!(\is_bool($short) || \is_numeric($short) || \is_string($short))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($short) must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($short) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            } else {
+                $short = (bool) $short;
+            }
+        }
+        $key = $short ? 'short' : 'long';
+        if (!isset($this->synopsis[$key])) {
+            $this->synopsis[$key] = \trim(\sprintf('%s %s', $this->name, $this->definition->getSynopsis($short)));
+        }
+        return $this->synopsis[$key];
+    }
+    /**
+     * Add a command usage example, it'll be prefixed with the command name.
+     *
+     * @return $this
+     */
+    public function addUsage($usage)
+    {
+        if (!\is_string($usage)) {
+            if (!(\is_string($usage) || \is_object($usage) && \method_exists($usage, '__toString') || (\is_bool($usage) || \is_numeric($usage)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($usage) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($usage) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            } else {
+                $usage = (string) $usage;
+            }
+        }
+        if (!\str_starts_with($usage, $this->name)) {
+            $usage = \sprintf('%s %s', $this->name, $usage);
+        }
+        $this->usages[] = $usage;
+        return $this;
+    }
+    /**
+     * Returns alternative usages of the command.
+     *
+     * @return array
+     */
+    public function getUsages()
+    {
+        return $this->usages;
+    }
+    /**
+     * Gets a helper instance by name.
+     *
+     * @return mixed The helper value
+     *
+     * @throws LogicException           if no HelperSet is defined
+     * @throws InvalidArgumentException if the helper is not defined
+     */
+    public function getHelper($name)
+    {
+        if (!\is_string($name)) {
+            if (!(\is_string($name) || \is_object($name) && \method_exists($name, '__toString') || (\is_bool($name) || \is_numeric($name)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($name) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($name) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            } else {
+                $name = (string) $name;
+            }
+        }
+        if (null === $this->helperSet) {
+            throw new LogicException(\sprintf('Cannot retrieve helper "%s" because there is no HelperSet defined. Did you forget to add your command to the application or to set the application on the command using the setApplication() method? You can also set the HelperSet directly using the setHelperSet() method.', $name));
+        }
+        return $this->helperSet->get($name);
+    }
+    /**
+     * Validates a command name.
+     *
+     * It must be non-empty and parts can optionally be separated by ":".
+     *
+     * @throws InvalidArgumentException When the name is invalid
+     */
+    private function validateName($name)
+    {
+        if (!\is_string($name)) {
+            if (!(\is_string($name) || \is_object($name) && \method_exists($name, '__toString') || (\is_bool($name) || \is_numeric($name)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($name) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($name) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            } else {
+                $name = (string) $name;
+            }
+        }
+        if (!\preg_match('/^[^\\:]++(\\:[^\\:]++)*$/', $name)) {
+            throw new InvalidArgumentException(\sprintf('Command name "%s" is invalid.', $name));
+        }
+    }
+}

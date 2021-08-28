@@ -6,16 +6,15 @@ use Phabel\Exception;
 use Phabel\Plugin\ClassStoragePlugin;
 use Phabel\PluginGraph\CircularException;
 use Phabel\Tools;
-use PhpParser\Node\Stmt\Class_ as StmtClass_;
-use PhpParser\Node\Stmt\ClassLike;
-use PhpParser\Node\Stmt\ClassMethod;
-use PhpParser\Node\Stmt\Interface_;
-use PhpParser\Node\Stmt\TraitUse;
-use PhpParser\Node\Stmt\TraitUseAdaptation\Alias;
-use PhpParser\Node\Stmt\TraitUseAdaptation\Precedence;
+use Phabel\PhpParser\Node\Stmt\Class_ as StmtClass_;
+use Phabel\PhpParser\Node\Stmt\ClassLike;
+use Phabel\PhpParser\Node\Stmt\ClassMethod;
+use Phabel\PhpParser\Node\Stmt\Interface_;
+use Phabel\PhpParser\Node\Stmt\TraitUse;
+use Phabel\PhpParser\Node\Stmt\TraitUseAdaptation\Alias;
+use Phabel\PhpParser\Node\Stmt\TraitUseAdaptation\Precedence;
 use RecursiveArrayIterator;
 use RecursiveIteratorIterator;
-
 /**
  * Builds information about a class.
  */
@@ -57,11 +56,11 @@ class Builder
     /**
      * Whether we're resolving.
      */
-    private $resolving = false;
+    private $resolving = \false;
     /**
      * Whether we resolved.
      */
-    private $resolved = false;
+    private $resolved = \false;
     /**
      * Storage.
      */
@@ -86,10 +85,10 @@ class Builder
         $this->name = Tools::getFqdn($class, $customName);
         if ($class instanceof Interface_ || $class instanceof StmtClass_) {
             foreach (\is_array($class->extends) ? $class->extends : ($class->extends ? [$class->extends] : []) as $name) {
-                $this->extended[Tools::getFqdn($name)] = true;
+                $this->extended[Tools::getFqdn($name)] = \true;
             }
             foreach (isset($class->implements) ? $class->implements : [] as $name) {
-                $this->extended[Tools::getFqdn($name)] = true;
+                $this->extended[Tools::getFqdn($name)] = \true;
             }
         }
         foreach ($class->stmts as $stmt) {
@@ -98,7 +97,7 @@ class Builder
             }
             if ($stmt instanceof TraitUse) {
                 foreach ($stmt->traits as $trait) {
-                    $this->use[Tools::getFqdn($trait)] = true;
+                    $this->use[Tools::getFqdn($trait)] = \true;
                 }
                 foreach ($stmt->adaptations as $adapt) {
                     $trait = Tools::getFqdn($adapt->trait);
@@ -143,7 +142,7 @@ class Builder
         }
         if ($this->resolving) {
             $plugins = [$this->name];
-            foreach (\debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, DEBUG_BACKTRACE_PROVIDE_OBJECT) as $frame) {
+            foreach (\debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, \DEBUG_BACKTRACE_PROVIDE_OBJECT) as $frame) {
                 $plugins[] = $frame['object']->name;
                 if ($frame['object'] === $this) {
                     break;
@@ -151,7 +150,7 @@ class Builder
             }
             throw new CircularException($plugins);
         }
-        $this->resolving = true;
+        $this->resolving = \true;
         foreach ($this->use as $trait => $_) {
             if (!isset($plugin->traits[$trait])) {
                 continue;
@@ -185,8 +184,8 @@ class Builder
                 unset($this->extended[$class]);
             }
         }
-        $this->resolving = false;
-        $this->resolved = true;
+        $this->resolving = \false;
+        $this->resolved = \true;
         $phabelReturn = $this;
         if (!$phabelReturn instanceof self) {
             throw new \TypeError(__METHOD__ . '(): Return value must be of type ' . self::class . ', ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -204,11 +203,11 @@ class Builder
             throw new Exception("Trying to build an unresolved class!");
         }
         if (!isset($this->storage)) {
-            $this->storage = new Storage();
+            $this->storage = new \Phabel\ClassStorage\Storage();
             $this->storage->build($this->name, $this->methods, $this->abstractMethods, $this->extended);
         }
         $phabelReturn = $this->storage;
-        if (!$phabelReturn instanceof Storage) {
+        if (!$phabelReturn instanceof \Phabel\ClassStorage\Storage) {
             throw new \TypeError(__METHOD__ . '(): Return value must be of type Storage, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
         }
         return $phabelReturn;

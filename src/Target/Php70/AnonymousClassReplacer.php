@@ -9,19 +9,18 @@ use Phabel\Target\Php70\AnonymousClass\AnonymousClassInterface;
 use Phabel\Target\Php71\NullableType;
 use Phabel\Target\Php74\ArrowClosure;
 use Phabel\Target\Php80\UnionTypeStripper;
-use PhpParser\Builder\Method;
-use PhpParser\Node;
-use PhpParser\Node\Expr\BinaryOp\Concat;
-use PhpParser\Node\Expr\BooleanNot;
-use PhpParser\Node\Expr\ClassConstFetch;
-use PhpParser\Node\Expr\New_;
-use PhpParser\Node\Identifier;
-use PhpParser\Node\Name\FullyQualified;
-use PhpParser\Node\Scalar\String_;
-use PhpParser\Node\Stmt\Class_;
-use PhpParser\Node\Stmt\If_;
-use PhpParser\Node\Stmt\Return_;
-
+use Phabel\PhpParser\Builder\Method;
+use Phabel\PhpParser\Node;
+use Phabel\PhpParser\Node\Expr\BinaryOp\Concat;
+use Phabel\PhpParser\Node\Expr\BooleanNot;
+use Phabel\PhpParser\Node\Expr\ClassConstFetch;
+use Phabel\PhpParser\Node\Expr\New_;
+use Phabel\PhpParser\Node\Identifier;
+use Phabel\PhpParser\Node\Name\FullyQualified;
+use Phabel\PhpParser\Node\Scalar\String_;
+use Phabel\PhpParser\Node\Stmt\Class_;
+use Phabel\PhpParser\Node\Stmt\If_;
+use Phabel\PhpParser\Node\Stmt\Return_;
 /**
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT
@@ -82,7 +81,7 @@ class AnonymousClassReplacer extends Plugin
     }
     public static function previous(array $config)
     {
-        $phabelReturn = [ArrowClosure::class, ReturnTypeHints::class, NullableType::class, UnionTypeStripper::class];
+        $phabelReturn = [ArrowClosure::class, \Phabel\Target\Php70\ReturnTypeHints::class, NullableType::class, UnionTypeStripper::class];
         if (!\is_array($phabelReturn)) {
             throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
         }

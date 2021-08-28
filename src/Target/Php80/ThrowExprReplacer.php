@@ -3,9 +3,8 @@
 namespace Phabel\Target\Php80;
 
 use Phabel\Plugin;
-use PhpParser\Node\Expr\StaticCall;
-use PhpParser\Node\Expr\Throw_ as ExprThrow_;
-
+use Phabel\PhpParser\Node\Expr\StaticCall;
+use Phabel\PhpParser\Node\Expr\Throw_ as ExprThrow_;
 /**
  * Polyfill throw expression.
  */
