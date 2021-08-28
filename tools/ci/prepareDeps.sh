@@ -11,6 +11,6 @@ fi
 
 php tools/ci/prepareDeps.php $VERSION
 
-sed 's/die[(]1[)];//g' -i vendor-bin/phpunit/vendor/phpunit/phpunit/phpunit
+sed 's/die[(]1[)];//g' -i vendor-bin/check/vendor/phpunit/phpunit/phpunit
 
 chmod +x vendor/bin/*

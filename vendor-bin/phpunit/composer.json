@@ -1,6 +1,0 @@
-{
-    "require": {
-        "phpunit/phpunit": "^7|^8|^9",
-        "phpunit/php-code-coverage": "*"
-    }
-}

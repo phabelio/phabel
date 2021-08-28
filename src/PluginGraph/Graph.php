@@ -62,6 +62,7 @@ class Graph
     {
         $this->resolvedGraph ??= new ResolvedGraph(...$this->graph->flatten());
         $this->graph = null;
+        while (gc_collect_cycles());
         return $this->resolvedGraph;
     }
 }

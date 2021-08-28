@@ -26,7 +26,8 @@ foreach (Php::VERSIONS as $version) {
         ->setOutput("tests/Target$version")
         ->setCoverage("test$version")
         ->run(\getenv('PHABEL_PARALLEL') ?: -1);
-    $packagesSecondary += (new Traverser(EventHandler::create()))
+
+    (new Traverser(EventHandler::create()))
         ->setPlugins([
             PhabelTestGenerator::class => ['target' => 1000+$version]
         ])

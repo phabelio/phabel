@@ -72,7 +72,7 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
     \chdir("../phabelConvertedInput");
     r("rm -rf vendor-bin/*/vendor");
     if (!empty($packages)) {
-        $cmd = "composer require --update-no-dev -n ";
+        $cmd = "composer require -n ";
         foreach ($packages as $package => $constraint) {
             if ($package === 'php') {
                 continue;
@@ -80,10 +80,9 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
             $cmd .= \escapeshellarg("{$package}:{$constraint}")." ";
         }
         r($cmd);
-    } else {
-        r("composer update --no-dev");
     }
-
+    r("composer update --no-dev");
+    r("rm -rf tests testsGenerated");
 
     foreach ([Php::VERSIONS[\count(Php::VERSIONS)-1], $realTarget] as $k => $target) {
         if ($k === 0) {
@@ -112,6 +111,8 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
             commit("phabel.io: transpile to {$target}");
         }
     }
+    \chdir($home);
+    r("cp -a testsGenerated tests ../phabelConvertedOutput");
     \chdir("../phabelConvertedOutput");
     r("$home/vendor/bin/php-scoper add-prefix -c $home/scoper.inc.php");
     r("rm -rf vendor");

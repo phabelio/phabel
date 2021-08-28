@@ -1,5 +1,0 @@
-{
-    "require": {
-        "amphp/php-cs-fixer-config": "dev-master"
-    }
-}

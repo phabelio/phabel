@@ -18,16 +18,16 @@ foreach (Php::VERSIONS as $version) {
 
 $packages = (new Traverser(EventHandler::create()))
     ->setPlugins([Php::class => ['target' => $version]])
-    ->setInput('vendor-bin/check/')
+    ->setInput('vendor-bin/')
     ->setOutput('../phabelConverted')
     ->setCoverage('coverage/convertVendor.php')
     ->run(\getenv('PHABEL_PARALLEL') ?: 1);
 
-`rm -rf vendor-bin/check`;
-`mv ../phabelConverted/ vendor-bin/check`;
+`rm -rf vendor-bin/`;
+`mv ../phabelConverted/ vendor-bin/`;
 
 if (!empty($packages)) {
-    $cmd = "composer require --dev ";
+    $cmd = "php $(which composer) require --dev --ignore-platform-reqs ";
     foreach ($packages as $package => $constraint) {
         $cmd .= \escapeshellarg("{$package}:{$constraint}")." ";
     }
