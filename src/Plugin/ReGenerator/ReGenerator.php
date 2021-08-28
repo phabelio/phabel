@@ -43,23 +43,23 @@ class ReGenerator implements \Iterator
     /**
      * Exception sent from the outside.
      */
-    public ?\Throwable $sentException = null;
+    public $sentException = null;
     /**
      * Current state of state machine.
      */
-    public int $state = 0;
+    public $state = 0;
     /**
      * Whether the generator has returned.
      */
-    public bool $returned = false;
+    public $returned = false;
     /**
      * Whether the generator was started.
      */
-    public bool $started = false;
+    public $started = false;
     /**
      * Actual generator function.
      */
-    public \Closure $generator;
+    public $generator;
     /**
      * Construct regenerator.
      *
@@ -83,10 +83,11 @@ class ReGenerator implements \Iterator
      *
      * @return void
      */
-    private function start(): void
+    private function start()
     {
         if (!$this->started) {
-            ($this->generator)($this->state, $this->variables, $this->yieldKey, $this->yieldValue, $this->sentValue, $this->sentException, $this->returnValue, $this->returned);
+            $phabel_1679ff392dd5e7d5 = $this->generator;
+            $phabel_1679ff392dd5e7d5($this->state, $this->variables, $this->yieldKey, $this->yieldValue, $this->sentValue, $this->sentException, $this->returnValue, $this->returned);
             $this->started = true;
         }
     }
@@ -104,8 +105,12 @@ class ReGenerator implements \Iterator
         if (!$this->returned) {
             $this->sentValue = $value;
             try {
-                ($this->generator)($this->state, $this->variables, $this->yieldKey, $this->yieldValue, $this->sentValue, $this->sentException, $this->returnValue, $this->returned);
-            } catch (\Throwable $e) {
+                $phabel_9fa9aa2d4dbb1eb4 = $this->generator;
+                $phabel_9fa9aa2d4dbb1eb4($this->state, $this->variables, $this->yieldKey, $this->yieldValue, $this->sentValue, $this->sentException, $this->returnValue, $this->returned);
+            } catch (\Exception $e) {
+                $this->returned = true;
+                throw $e;
+            } catch (\Error $e) {
                 $this->returned = true;
                 throw $e;
             } finally {
@@ -128,8 +133,12 @@ class ReGenerator implements \Iterator
         if (!$this->returned) {
             $this->sentException = $value;
             try {
-                ($this->generator)($this->state, $this->variables, $this->yieldKey, $this->yieldValue, $this->sentValue, $this->sentException, $this->returnValue, $this->returned);
-            } catch (\Throwable $e) {
+                $phabel_eabcc7a56b2bce11 = $this->generator;
+                $phabel_eabcc7a56b2bce11($this->state, $this->variables, $this->yieldKey, $this->yieldValue, $this->sentValue, $this->sentException, $this->returnValue, $this->returned);
+            } catch (\Exception $e) {
+                $this->returned = true;
+                throw $e;
+            } catch (\Error $e) {
                 $this->returned = true;
                 throw $e;
             } finally {
@@ -163,7 +172,7 @@ class ReGenerator implements \Iterator
      *
      * @return void
      */
-    public function next(): void
+    public function next()
     {
         $this->send(null);
     }
@@ -172,7 +181,7 @@ class ReGenerator implements \Iterator
      *
      * @return void
      */
-    public function rewind(): void
+    public function rewind()
     {
         if ($this->started && !$this->returned) {
             throw new \Exception('Cannot rewind a generator that was already run');
@@ -193,8 +202,15 @@ class ReGenerator implements \Iterator
      *
      * @return boolean
      */
-    public function valid(): bool
+    public function valid()
     {
-        return !$this->returned;
+        $phabelReturn = !$this->returned;
+        if (!\is_bool($phabelReturn)) {
+            if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $phabelReturn = (bool) $phabelReturn;
+        }
+        return $phabelReturn;
     }
 }

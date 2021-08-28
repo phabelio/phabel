@@ -18,9 +18,13 @@ class SpaceshipOperatorReplacer extends Plugin
      *
      * @return StaticCall
      */
-    public function enter(Spaceship $node): StaticCall
+    public function enter(Spaceship $node)
     {
-        return self::callPoly('spaceship', $node->left, $node->right);
+        $phabelReturn = self::callPoly('spaceship', $node->left, $node->right);
+        if (!$phabelReturn instanceof StaticCall) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type StaticCall, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Spacesip operator.
@@ -30,8 +34,15 @@ class SpaceshipOperatorReplacer extends Plugin
      *
      * @return integer
      */
-    public static function spaceship($a, $b): int
+    public static function spaceship($a, $b)
     {
-        return $a < $b ? -1 : ($a === $b ? 0 : 1);
+        $phabelReturn = $a < $b ? -1 : ($a === $b ? 0 : 1);
+        if (!\is_int($phabelReturn)) {
+            if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $phabelReturn = (int) $phabelReturn;
+        }
+        return $phabelReturn;
     }
 }

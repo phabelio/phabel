@@ -17,13 +17,13 @@ class PluginCache
      *
      * @var array<class-string<PluginInterface>, string[]>
      */
-    private static array $enterMethods = [];
+    private static $enterMethods = [];
     /**
      * Leave method names.
      *
      * @var array<class-string<PluginInterface>, string[]>
      */
-    private static array $leaveMethods = [];
+    private static $leaveMethods = [];
     /**
      * Cache method information.
      *
@@ -31,8 +31,14 @@ class PluginCache
      *
      * @return void
      */
-    private static function cacheMethods(string $plugin): void
+    private static function cacheMethods($plugin)
     {
+        if (!\is_string($plugin)) {
+            if (!(\is_string($plugin) || \is_object($plugin) && \method_exists($plugin, '__toString') || (\is_bool($plugin) || \is_numeric($plugin)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($plugin) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($plugin) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $plugin = (string) $plugin;
+        }
         if (!isset(self::$enterMethods[$plugin])) {
             self::$enterMethods[$plugin] = [];
             self::$leaveMethods[$plugin] = [];
@@ -58,10 +64,23 @@ class PluginCache
      *
      * @return boolean
      */
-    public static function canBeRequired(string $plugin): bool
+    public static function canBeRequired($plugin)
     {
+        if (!\is_string($plugin)) {
+            if (!(\is_string($plugin) || \is_object($plugin) && \method_exists($plugin, '__toString') || (\is_bool($plugin) || \is_numeric($plugin)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($plugin) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($plugin) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $plugin = (string) $plugin;
+        }
         self::cacheMethods($plugin);
-        return empty(self::$leaveMethods[$plugin]);
+        $phabelReturn = empty(self::$leaveMethods[$plugin]);
+        if (!\is_bool($phabelReturn)) {
+            if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $phabelReturn = (bool) $phabelReturn;
+        }
+        return $phabelReturn;
     }
     /**
      * Return whether this plugin is empty.
@@ -70,10 +89,23 @@ class PluginCache
      *
      * @return boolean
      */
-    public static function isEmpty(string $plugin): bool
+    public static function isEmpty($plugin)
     {
+        if (!\is_string($plugin)) {
+            if (!(\is_string($plugin) || \is_object($plugin) && \method_exists($plugin, '__toString') || (\is_bool($plugin) || \is_numeric($plugin)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($plugin) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($plugin) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $plugin = (string) $plugin;
+        }
         self::cacheMethods($plugin);
-        return empty(self::$leaveMethods[$plugin]) && empty(self::$enterMethods[$plugin]);
+        $phabelReturn = empty(self::$leaveMethods[$plugin]) && empty(self::$enterMethods[$plugin]);
+        if (!\is_bool($phabelReturn)) {
+            if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $phabelReturn = (bool) $phabelReturn;
+        }
+        return $phabelReturn;
     }
     /**
      * Get enter methods array.
@@ -82,10 +114,20 @@ class PluginCache
      *
      * @return array<string, string[]>
      */
-    public static function enterMethods(string $plugin): array
+    public static function enterMethods($plugin)
     {
+        if (!\is_string($plugin)) {
+            if (!(\is_string($plugin) || \is_object($plugin) && \method_exists($plugin, '__toString') || (\is_bool($plugin) || \is_numeric($plugin)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($plugin) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($plugin) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $plugin = (string) $plugin;
+        }
         self::cacheMethods($plugin);
-        return self::$enterMethods[$plugin];
+        $phabelReturn = self::$enterMethods[$plugin];
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Get leave methods array.
@@ -94,10 +136,20 @@ class PluginCache
      *
      * @return array<string, string[]>
      */
-    public static function leaveMethods(string $plugin): array
+    public static function leaveMethods($plugin)
     {
+        if (!\is_string($plugin)) {
+            if (!(\is_string($plugin) || \is_object($plugin) && \method_exists($plugin, '__toString') || (\is_bool($plugin) || \is_numeric($plugin)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($plugin) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($plugin) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $plugin = (string) $plugin;
+        }
         self::cacheMethods($plugin);
-        return self::$leaveMethods[$plugin];
+        $phabelReturn = self::$leaveMethods[$plugin];
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Get previous requirements.
@@ -108,15 +160,29 @@ class PluginCache
      * @return array<string, array>
      * @psalm-return array<class-string<PluginInterface>, array>
      */
-    public static function previous(string $plugin, array $config): array
+    public static function previous($plugin, array $config)
     {
+        if (!\is_string($plugin)) {
+            if (!(\is_string($plugin) || \is_object($plugin) && \method_exists($plugin, '__toString') || (\is_bool($plugin) || \is_numeric($plugin)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($plugin) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($plugin) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $plugin = (string) $plugin;
+        }
         $pluginConfig = $plugin . \json_encode($config);
         /** @var array<class-string<PluginInterface>, array<class-string<PluginInterface>, array>> */
         static $cache = [];
         if (isset($cache[$pluginConfig])) {
-            return $cache[$pluginConfig];
+            $phabelReturn = $cache[$pluginConfig];
+            if (!\is_array($phabelReturn)) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         }
-        return $cache[$pluginConfig] = self::simplify($plugin::previous($config));
+        $phabelReturn = $cache[$pluginConfig] = self::simplify($plugin::previous($config));
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Get next requirements.
@@ -127,15 +193,29 @@ class PluginCache
      * @return array<string, array>
      * @psalm-return array<class-string<PluginInterface>, array>
      */
-    public static function next(string $plugin, array $config): array
+    public static function next($plugin, array $config)
     {
+        if (!\is_string($plugin)) {
+            if (!(\is_string($plugin) || \is_object($plugin) && \method_exists($plugin, '__toString') || (\is_bool($plugin) || \is_numeric($plugin)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($plugin) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($plugin) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $plugin = (string) $plugin;
+        }
         $pluginConfig = $plugin . \json_encode($config);
         /** @var array<class-string<PluginInterface>, array<class-string<PluginInterface>, array>> */
         static $cache = [];
         if (isset($cache[$pluginConfig])) {
-            return $cache[$pluginConfig];
+            $phabelReturn = $cache[$pluginConfig];
+            if (!\is_array($phabelReturn)) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         }
-        return $cache[$pluginConfig] = self::simplify($plugin::next($config));
+        $phabelReturn = $cache[$pluginConfig] = self::simplify($plugin::next($config));
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Get withPrevious requirements.
@@ -146,15 +226,29 @@ class PluginCache
      * @return array<string, array>
      * @psalm-return array<class-string<PluginInterface>, array>
      */
-    public static function withPrevious(string $plugin, array $config): array
+    public static function withPrevious($plugin, array $config)
     {
+        if (!\is_string($plugin)) {
+            if (!(\is_string($plugin) || \is_object($plugin) && \method_exists($plugin, '__toString') || (\is_bool($plugin) || \is_numeric($plugin)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($plugin) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($plugin) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $plugin = (string) $plugin;
+        }
         $pluginConfig = $plugin . \json_encode($config);
         /** @var array<class-string<PluginInterface>, array<class-string<PluginInterface>, array>> */
         static $cache = [];
         if (isset($cache[$pluginConfig])) {
-            return $cache[$pluginConfig];
+            $phabelReturn = $cache[$pluginConfig];
+            if (!\is_array($phabelReturn)) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         }
-        return $cache[$pluginConfig] = self::simplify($plugin::withPrevious($config));
+        $phabelReturn = $cache[$pluginConfig] = self::simplify($plugin::withPrevious($config));
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Get withNext requirements.
@@ -165,15 +259,29 @@ class PluginCache
      * @return array<string, array>
      * @psalm-return array<class-string<PluginInterface>, array>
      */
-    public static function withNext(string $plugin, array $config): array
+    public static function withNext($plugin, array $config)
     {
+        if (!\is_string($plugin)) {
+            if (!(\is_string($plugin) || \is_object($plugin) && \method_exists($plugin, '__toString') || (\is_bool($plugin) || \is_numeric($plugin)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($plugin) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($plugin) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $plugin = (string) $plugin;
+        }
         $pluginConfig = $plugin . \json_encode($config);
         /** @var array<class-string<PluginInterface>, array<class-string<PluginInterface>, array>> */
         static $cache = [];
         if (isset($cache[$pluginConfig])) {
-            return $cache[$pluginConfig];
+            $phabelReturn = $cache[$pluginConfig];
+            if (!\is_array($phabelReturn)) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         }
-        return $cache[$pluginConfig] = self::simplify($plugin::withNext($config));
+        $phabelReturn = $cache[$pluginConfig] = self::simplify($plugin::withNext($config));
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Simplify requirements.
@@ -183,8 +291,12 @@ class PluginCache
      * @return array<string, array>
      * @psalm-return array<class-string<PluginInterface>, array>
      */
-    private static function simplify(array $requirements): array
+    private static function simplify(array $requirements)
     {
-        return isset($requirements[0]) ? \array_fill_keys($requirements, []) : $requirements;
+        $phabelReturn = isset($requirements[0]) ? \array_fill_keys($requirements, []) : $requirements;
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
 }

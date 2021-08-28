@@ -40,16 +40,36 @@ class Php extends Plugin
      * @param string $target
      * @return integer
      */
-    public static function normalizeVersion(string $target): int
+    public static function normalizeVersion($target)
     {
+        if (!\is_string($target)) {
+            if (!(\is_string($target) || \is_object($target) && \method_exists($target, '__toString') || (\is_bool($target) || \is_numeric($target)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($target) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($target) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $target = (string) $target;
+        }
         if ($target === 'auto') {
-            return (int) self::DEFAULT_TARGET;
+            $phabelReturn = (int) self::DEFAULT_TARGET;
+            if (!\is_int($phabelReturn)) {
+                if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn))) {
+                    throw new \TypeError(__METHOD__ . '(): Return value must be of type int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                }
+                $phabelReturn = (int) $phabelReturn;
+            }
+            return $phabelReturn;
         }
         if (\preg_match(":^\\D*(\\d+\\.\\d+)\\..*:", $target, $matches)) {
             $target = $matches[1];
         }
         $target = \str_replace('.', '', $target);
-        return (int) (\in_array($target, self::VERSIONS) ? $target : self::DEFAULT_TARGET);
+        $phabelReturn = (int) (\in_array($target, self::VERSIONS) ? $target : self::DEFAULT_TARGET);
+        if (!\is_int($phabelReturn)) {
+            if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $phabelReturn = (int) $phabelReturn;
+        }
+        return $phabelReturn;
     }
     /**
      * Unnormalize version string.
@@ -57,10 +77,23 @@ class Php extends Plugin
      * @param int $target
      * @return string
      */
-    public static function unnormalizeVersion(int $target): string
+    public static function unnormalizeVersion($target)
     {
+        if (!\is_int($target)) {
+            if (!(\is_bool($target) || \is_numeric($target))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($target) must be of type int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($target) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $target = (int) $target;
+        }
         $target = (string) $target;
-        return $target[0] . '.' . $target[1];
+        $phabelReturn = $target[0] . '.' . $target[1];
+        if (!\is_string($phabelReturn)) {
+            if (!(\is_string($phabelReturn) || \is_object($phabelReturn) && \method_exists($phabelReturn, '__toString') || (\is_bool($phabelReturn) || \is_numeric($phabelReturn)))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $phabelReturn = (string) $phabelReturn;
+        }
+        return $phabelReturn;
     }
     /**
      * Get PHP version range to target.
@@ -68,25 +101,39 @@ class Php extends Plugin
      * @param int $target
      * @return int[]
      */
-    private static function getRange(int $target): array
+    private static function getRange($target)
     {
+        if (!\is_int($target)) {
+            if (!(\is_bool($target) || \is_numeric($target))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($target) must be of type int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($target) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $target = (int) $target;
+        }
         $key = \array_search($target, self::VERSIONS);
-        return $key === false ? self::getRange((int) self::DEFAULT_TARGET) : \array_slice(self::VERSIONS, 1 + $key);
+        $phabelReturn = $key === false ? self::getRange((int) self::DEFAULT_TARGET) : \array_slice(self::VERSIONS, 1 + $key);
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
-    public static function getComposerRequires(array $config): array
+    public static function getComposerRequires(array $config)
     {
-        $target = Php::normalizeVersion($config['target'] ?? self::DEFAULT_TARGET);
+        $target = Php::normalizeVersion(isset($config['target']) ? $config['target'] : self::DEFAULT_TARGET);
         $res = ['php' => '>=' . Php::unnormalizeVersion($target) . ' <' . Php::unnormalizeVersion($target + 1)];
         foreach (self::getRange($target) as $version) {
             $version = "symfony/polyfill-php{$version}";
             $res[$version] = self::POLYFILL_VERSIONS[$version];
         }
-        return $res;
+        $phabelReturn = $res;
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
-    public static function previous(array $config): array
+    public static function previous(array $config)
     {
         $classes = [ComposerSanitizer::class => []];
-        foreach (self::getRange((int) ($config['target'] ?? self::DEFAULT_TARGET)) as $version) {
+        foreach (self::getRange((int) (isset($config['target']) ? $config['target'] : self::DEFAULT_TARGET)) as $version) {
             if (!\file_exists($dir = __DIR__ . "/Php{$version}")) {
                 continue;
             }
@@ -100,15 +147,19 @@ class Php extends Plugin
                 /** @var class-string<PluginInterface> */
                 $class = self::class . $version . '\\' . \basename($file, '.php');
                 /** @var array */
-                $classes[$class] = $config[$class] ?? [];
+                $classes[$class] = isset($config[$class]) ? $config[$class] : [];
             }
         }
-        return $classes;
+        $phabelReturn = $classes;
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
-    public static function next(array $config): array
+    public static function next(array $config)
     {
-        $classes = [StmtExprWrapper::class => $config[StmtExprWrapper::class] ?? [], NewFixer::class => []];
-        foreach (self::getRange((int) ($config['target'] ?? self::DEFAULT_TARGET)) as $version) {
+        $classes = [StmtExprWrapper::class => isset($config[StmtExprWrapper::class]) ? $config[StmtExprWrapper::class] : [], NewFixer::class => []];
+        foreach (self::getRange((int) (isset($config['target']) ? $config['target'] : self::DEFAULT_TARGET)) as $version) {
             if (!\file_exists(__DIR__ . "/Php{$version}")) {
                 continue;
             }
@@ -116,9 +167,13 @@ class Php extends Plugin
                 /** @var class-string<PluginInterface> */
                 $class = self::class . $version . "\\{$t}" . "ExpressionFixer";
                 /** @var array */
-                $classes[$class] = $config[$class] ?? [];
+                $classes[$class] = isset($config[$class]) ? $config[$class] : [];
             }
         }
-        return $classes;
+        $phabelReturn = $classes;
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
 }

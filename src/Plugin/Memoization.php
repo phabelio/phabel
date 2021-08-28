@@ -33,7 +33,7 @@ class Memoization extends Plugin
      *
      * @var SplStack<null|ArrayDimFetch>
      */
-    private SplStack $cache;
+    private $cache;
     /**
      * Constructor function.
      */
@@ -48,9 +48,9 @@ class Memoization extends Plugin
      *
      * @return void
      */
-    public function enterFunctionLike(FunctionLike $node, Context $ctx): void
+    public function enterFunctionLike(FunctionLike $node, Context $ctx)
     {
-        if (!\preg_match_all('/@memoize \\$([\\w\\d_]+)/', (string) ($node->getDocComment() ?? ''), $matches)) {
+        if (!\preg_match_all('/@memoize \\$([\\w\\d_]+)/', (string) (null !== ($phabel_66a466f6f2606534 = $node->getDocComment()) ? $phabel_66a466f6f2606534 : ''), $matches)) {
             $this->cache->push(null);
             return;
         }
@@ -111,7 +111,7 @@ class Memoization extends Plugin
      *
      * @return void
      */
-    public function leaveFunctionLike(FunctionLike $fun, Context $context): void
+    public function leaveFunctionLike(FunctionLike $fun, Context $context)
     {
         $this->cache->pop();
     }

@@ -23,23 +23,23 @@ final class ClassStoragePlugin extends Plugin
      *
      * @var array<string, array<string, Builder>>
      */
-    public array $classes = [];
+    public $classes = [];
     /**
      * Storage.
      *
      * @var array<string, array<string, Builder>>
      */
-    public array $traits = [];
+    public $traits = [];
     /**
      * Count.
      */
-    private array $count = [];
+    private $count = [];
     /**
      * Plugins to call during final iteration.
      *
      * @var array<class-string<ClassStorageProvider>, true>
      */
-    protected array $finalPlugins = [];
+    protected $finalPlugins = [];
     /**
      * Check if plugin should run.
      *
@@ -47,9 +47,22 @@ final class ClassStoragePlugin extends Plugin
      *
      * @return boolean
      */
-    public function shouldRun(string $package): bool
+    public function shouldRun($package)
     {
-        return true;
+        if (!\is_string($package)) {
+            if (!(\is_string($package) || \is_object($package) && \method_exists($package, '__toString') || (\is_bool($package) || \is_numeric($package)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($package) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($package) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $package = (string) $package;
+        }
+        $phabelReturn = true;
+        if (!\is_bool($phabelReturn)) {
+            if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $phabelReturn = (bool) $phabelReturn;
+        }
+        return $phabelReturn;
     }
     /**
      * Check if plugin should run.
@@ -58,9 +71,22 @@ final class ClassStoragePlugin extends Plugin
      *
      * @return boolean
      */
-    public function shouldRunFile(string $file): bool
+    public function shouldRunFile($file)
     {
-        return true;
+        if (!\is_string($file)) {
+            if (!(\is_string($file) || \is_object($file) && \method_exists($file, '__toString') || (\is_bool($file) || \is_numeric($file)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($file) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($file) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $file = (string) $file;
+        }
+        $phabelReturn = true;
+        if (!\is_bool($phabelReturn)) {
+            if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $phabelReturn = (bool) $phabelReturn;
+        }
+        return $phabelReturn;
     }
     /**
      * Set configuration array.
@@ -68,7 +94,7 @@ final class ClassStoragePlugin extends Plugin
      * @param array $config
      * @return void
      */
-    public function setConfigArray(array $config): void
+    public function setConfigArray(array $config)
     {
         parent::setConfigArray($config);
         $this->finalPlugins += $config;
@@ -79,7 +105,7 @@ final class ClassStoragePlugin extends Plugin
      * @param RootNode $_
      * @return void
      */
-    public function enterRoot(RootNode $_, Context $context): void
+    public function enterRoot(RootNode $_, Context $context)
     {
         $file = $context->getFile();
         $this->count[$file] = [];
@@ -101,14 +127,14 @@ final class ClassStoragePlugin extends Plugin
      *
      * @return void
      */
-    public function enter(ClassLike $class, Context $context): void
+    public function enter(ClassLike $class, Context $context)
     {
         $file = $context->getFile();
         if ($class->name) {
             $name = self::getFqdn($class);
         } else {
             $name = "class@anonymous{$file}";
-            $this->count[$file][$name] ??= 0;
+            $this->count[$file][$name] = isset($this->count[$file][$name]) ? $this->count[$file][$name] : 0;
             $name .= "@" . $this->count[$file][$name]++;
         }
         $class = clone $class;
@@ -133,7 +159,7 @@ final class ClassStoragePlugin extends Plugin
      * @param self $other
      * @return void
      */
-    public function merge($other): void
+    public function merge($other)
     {
         foreach ($other->classes as $class => $classes) {
             foreach ($classes as $file => $builder) {
@@ -158,7 +184,7 @@ final class ClassStoragePlugin extends Plugin
      *
      * @return array{0: array, 1: array<string, true>} Config to pass to new Traverser instance
      */
-    public function finish(): array
+    public function finish()
     {
         $storage = new ClassStorage($this);
         $processedAny = false;
@@ -170,9 +196,17 @@ final class ClassStoragePlugin extends Plugin
             $processedAny = $processed || $processedAny;
         } while ($processed);
         if (!$processedAny) {
-            return [[], []];
+            $phabelReturn = [[], []];
+            if (!\is_array($phabelReturn)) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         }
         $result = \array_fill_keys(\array_keys($this->finalPlugins), [ClassStorage::class => $storage]);
-        return [$result, $storage->getFiles()];
+        $phabelReturn = [$result, $storage->getFiles()];
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
 }

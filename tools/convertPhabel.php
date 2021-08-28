@@ -22,7 +22,7 @@ EOF;
     die(1);
 }
 $target = $argv[1];
-$dry = (bool) ($argv[2] ?? '');
+$dry = (bool) (isset($argv[2]) ? $argv[2] : '');
 $branch = 'master';
 $tag = \getenv('shouldTag') ?: null;
 $home = \realpath(__DIR__ . '/../');
@@ -33,8 +33,14 @@ if (!$dry) {
     r("cp -a {$home} ../phabelConvertedRepo");
     r("rm -rf ../phabelConvertedRepo/vendor");
 }
-function commit(string $message)
+function commit($message)
 {
+    if (!\is_string($message)) {
+        if (!(\is_string($message) || \is_object($message) && \method_exists($message, '__toString') || (\is_bool($message) || \is_numeric($message)))) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($message) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($message) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        $message = (string) $message;
+    }
     r("cp -a ../phabelConvertedOutput/* ../phabelConvertedRepo");
     \chdir("../phabelConvertedRepo/");
     r("git add -A");
@@ -116,16 +122,22 @@ PHP
         if ($name === 'phabel/phabel') {
             continue;
         }
-        $json['require'] += \array_filter($package['require'], fn ($s) => \str_starts_with($s, 'ext-'), ARRAY_FILTER_USE_KEY);
+        $json['require'] += \array_filter($package['require'], function ($s) {
+            return \str_starts_with($s, 'ext-');
+        }, ARRAY_FILTER_USE_KEY);
         foreach (['psr-4', 'psr-0'] as $type) {
-            foreach ($package['autoload'][$type] ?? [] as $namespace => $path) {
+            foreach (isset($package['autoload'][$type]) ? $package['autoload'][$type] : [] as $namespace => $path) {
                 $namespace = "Phabel\\{$namespace}";
                 $paths = \is_string($path) ? [$path] : $path;
-                $paths = \array_map(fn ($path) => ("vendor-bundle/{$name}/{$path}"), $paths);
+                $paths = \array_map(function ($path) use ($name) {
+                    return "vendor-bundle/{$name}/{$path}";
+                }, $paths);
                 $json['autoload'][$type][$namespace] = $paths;
             }
         }
-        $json['autoload']['files'] = \array_merge($json['autoload']['files'] ?? [], \array_map(fn ($path) => ("vendor-bundle/{$name}/{$path}"), $package['autoload']['files'] ?? []));
+        $json['autoload']['files'] = \array_merge(isset($json['autoload']['files']) ? $json['autoload']['files'] : [], \array_map(function ($path) use ($name) {
+            return "vendor-bundle/{$name}/{$path}";
+        }, isset($package['autoload']['files']) ? $package['autoload']['files'] : []));
     }
     $json['autoload-dev'] = ['psr-4' => ['PhabelTest\\' => 'tests/']];
     \file_put_contents('composer.json', \json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));

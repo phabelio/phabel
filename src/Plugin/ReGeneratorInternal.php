@@ -20,7 +20,7 @@ class ReGeneratorInternal extends Plugin
      *
      * @var SplQueue<SplQueue<Node>>
      */
-    private SplQueue $states;
+    private $states;
     public function __construct()
     {
         $this->states = new SplQueue();
@@ -33,14 +33,21 @@ class ReGeneratorInternal extends Plugin
      *
      * @return void
      */
-    private function pushNode(Node $node): void
+    private function pushNode(Node $node)
     {
         $this->states->top()->enqueue($node);
     }
-    private function pushState(): int
+    private function pushState()
     {
         $this->states->enqueue(new SplQueue());
-        return $this->states->count() - 1;
+        $phabelReturn = $this->states->count() - 1;
+        if (!\is_int($phabelReturn)) {
+            if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $phabelReturn = (int) $phabelReturn;
+        }
+        return $phabelReturn;
     }
     public function enterRoot(FunctionLike $func)
     {

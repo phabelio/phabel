@@ -12,8 +12,12 @@ use Phabel\Target\Php72\TypeContravariance\TypeContravariance as T;
  */
 class TypeContravariance extends Plugin
 {
-    public static function previous(array $config): array
+    public static function previous(array $config)
     {
-        return [ClassStoragePlugin::class => [T::class => true]];
+        $phabelReturn = [ClassStoragePlugin::class => [T::class => true]];
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
 }

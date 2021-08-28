@@ -18,18 +18,25 @@ class GeneratorDetector extends Plugin
     /**
      * Whether this function is a generator.
      */
-    private const IS_GENERATOR = 'isGenerator';
+    const IS_GENERATOR = 'isGenerator';
     /**
      * Return whether this function is a generator.
      *
      * @param FunctionLike $node
      * @return boolean
      */
-    public static function isGenerator(FunctionLike $node): bool
+    public static function isGenerator(FunctionLike $node)
     {
-        return $node->getAttribute(self::IS_GENERATOR, false);
+        $phabelReturn = $node->getAttribute(self::IS_GENERATOR, false);
+        if (!\is_bool($phabelReturn)) {
+            if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $phabelReturn = (bool) $phabelReturn;
+        }
+        return $phabelReturn;
     }
-    public function enterYield(Yield_ $node, Context $ctx): void
+    public function enterYield(Yield_ $node, Context $ctx)
     {
         foreach ($ctx->parents as $parent) {
             if ($parent instanceof FunctionLike) {
@@ -38,7 +45,7 @@ class GeneratorDetector extends Plugin
             }
         }
     }
-    public function enterYieldFrom(YieldFrom $node, Context $ctx): void
+    public function enterYieldFrom(YieldFrom $node, Context $ctx)
     {
         foreach ($ctx->parents as $parent) {
             if ($parent instanceof FunctionLike) {

@@ -10,15 +10,15 @@ class Version
     /**
      * Latest git tag.
      */
-    public const VERSION = '^1.0';
+    const VERSION = '^1.0';
     /**
      * Latest revision.
      */
-    public const LATEST = 0;
+    const LATEST = 0;
     /**
      * Changelog.
      */
-    public const CHANGELOG = [0 => '<bold>Welcome! You can now use PHP 8 features in your code.</bold>
+    const CHANGELOG = [0 => '<bold>Welcome! You can now use PHP 8 features in your code.</bold>
 
 <bold>Config recap:</bold>
 <bold>✅</bold> Source PHP version: <phabel>8.0</phabel>

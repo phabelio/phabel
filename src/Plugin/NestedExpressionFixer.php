@@ -34,24 +34,36 @@ class NestedExpressionFixer extends Plugin
      * @param Node $var
      * @return Node
      */
-    private static function &extractWorkVar(Expr &$var): Expr
+    private static function &extractWorkVar(Expr &$var)
     {
         if ($var instanceof ArrayDimFetch && $var->var instanceof ArrayDimFetch) {
-            return self::extractWorkVar($var->var);
+            $phabelReturn =& self::extractWorkVar($var->var);
+            if (!$phabelReturn instanceof Expr) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type Expr, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         }
-        return $var;
+        $phabelReturn =& $var;
+        if (!$phabelReturn instanceof Expr) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type Expr, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
-    public function leave(Expr $expr, Context $context): ?Expr
+    public function leave(Expr $expr, Context $context)
     {
         /** @var array<string, array<class-string<Expr>, true>> */
         $subNodes = $this->getConfig($class = \get_class($expr), false);
         if (!$subNodes) {
-            return null;
+            $phabelReturn = null;
+            if (!($phabelReturn instanceof Expr || \is_null($phabelReturn))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type ?Expr, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         }
         foreach ($subNodes as $key => $types) {
             /** @var Expr $value */
             $value =& $expr->{$key};
-            if (!isset($types[IssetExpressionFixer::getClass($value ?? '')])) {
+            if (!isset($types[IssetExpressionFixer::getClass(isset($value) ? $value : '')])) {
                 if (!$value instanceof Expr) {
                     continue;
                 }
@@ -73,14 +85,22 @@ class NestedExpressionFixer extends Plugin
                 case MethodCall::class:
                 case Instanceof_::class:
                     if ($expr instanceof Instanceof_ && $key === 'class') {
-                        return self::callPoly('instanceOf', $expr->expr, $expr->class);
+                        $phabelReturn = self::callPoly('instanceOf', $expr->expr, $expr->class);
+                        if (!($phabelReturn instanceof Expr || \is_null($phabelReturn))) {
+                            throw new \TypeError(__METHOD__ . '(): Return value must be of type ?Expr, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                        }
+                        return $phabelReturn;
                     }
                     $value = self::callPoly('returnMe', $value);
                     break;
                 case New_::class:
                 case ClassConstFetch::class:
                     $valueCopy = $value;
-                    return new Ternary(new BooleanOr(new Assign($value = $context->getVariable(), $valueCopy), self::fromLiteral(true)), $expr, self::fromLiteral(false));
+                    $phabelReturn = new Ternary(new BooleanOr(new Assign($value = $context->getVariable(), $valueCopy), self::fromLiteral(true)), $expr, self::fromLiteral(false));
+                    if (!($phabelReturn instanceof Expr || \is_null($phabelReturn))) {
+                        throw new \TypeError(__METHOD__ . '(): Return value must be of type ?Expr, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                    }
+                    return $phabelReturn;
                 case StaticCall::class:
                 case StaticPropertyFetch::class:
                 case FuncCall::class:
@@ -91,7 +111,11 @@ class NestedExpressionFixer extends Plugin
                     throw new \RuntimeException("Trying to fix unknown nested expression {$class}");
             }
         }
-        return null;
+        $phabelReturn = null;
+        if (!($phabelReturn instanceof Expr || \is_null($phabelReturn))) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ?Expr, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Returns the data provided.
@@ -133,12 +157,23 @@ class NestedExpressionFixer extends Plugin
      *
      * @return boolean
      */
-    public static function instanceOf($a, $b): bool
+    public static function instanceOf($a, $b)
     {
-        return $a instanceof $b;
+        $phabelReturn = \Phabel\Target\Php70\ThrowableReplacer::isInstanceofThrowable($a, $b);
+        if (!\is_bool($phabelReturn)) {
+            if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $phabelReturn = (bool) $phabelReturn;
+        }
+        return $phabelReturn;
     }
-    public static function next(array $config): array
+    public static function next(array $config)
     {
-        return [NewFixer::class];
+        $phabelReturn = [NewFixer::class];
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
 }

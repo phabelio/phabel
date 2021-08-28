@@ -1,6 +1,5 @@
 <?php
 
-declare (strict_types=1);
 use Isolated\Symfony\Component\Finder\Finder;
 return [
     // The prefix configuration. If a non null value will be used, a random prefix will be generated.

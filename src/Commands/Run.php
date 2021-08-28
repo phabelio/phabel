@@ -17,7 +17,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class Run extends Command
 {
     protected static $defaultName = 'run';
-    protected function configure(): void
+    protected function configure()
     {
         $target = \getenv('PHABEL_TARGET') ?: null;
         $coverage = \getenv('PHABEL_COVERAGE') ?: false;
@@ -32,7 +32,19 @@ class Run extends Command
             $output->write("<error>Missing --target parameter or PHABEL_TARGET environment variable!</error>" . PHP_EOL . PHP_EOL);
             return Command::INVALID;
         }
-        $packages = (new Traverser(new CliEventHandler(new SimpleConsoleLogger($output), !\getenv('CI') && !$output->isDebug() ? fn (int $max): ProgressBar => (new ProgressBar($output, $max, -1)) : null)))->setPlugins([Php::class => ['target' => Php::normalizeVersion($input->getOption('target'))]])->setInput($input->getArgument('input'))->setOutput($input->getArgument('output'))->setCoverage($input->getOption('coverage') ?: '')->run($input->getOption('parallel'));
+        $packages = (new Traverser(new CliEventHandler(new SimpleConsoleLogger($output), !\getenv('CI') && !$output->isDebug() ? function ($max) use ($output) {
+            if (!\is_int($max)) {
+                if (!(\is_bool($max) || \is_numeric($max))) {
+                    throw new \TypeError(__METHOD__ . '(): Argument #1 ($max) must be of type int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($max) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                }
+                $max = (int) $max;
+            }
+            $phabelReturn = new ProgressBar($output, $max, -1);
+            if (!$phabelReturn instanceof ProgressBar) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type ProgressBar, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
+        } : null)))->setPlugins([Php::class => ['target' => Php::normalizeVersion($input->getOption('target'))]])->setInput($input->getArgument('input'))->setOutput($input->getArgument('output'))->setCoverage($input->getOption('coverage') ?: '')->run($input->getOption('parallel'));
         if (!empty($packages)) {
             $cmd = "composer require --dev ";
             foreach ($packages as $package => $constraint) {

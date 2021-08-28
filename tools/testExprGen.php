@@ -18,7 +18,8 @@ try {
     $filter->includeDirectory(\realpath(__DIR__ . '/../src'));
     (new Selector())->forLineCoverage($filter);
     $canCoverage = true;
-} catch (\Throwable $e) {
+} catch (\Exception $e) {
+} catch (\Error $e) {
 }
 if ($canCoverage) {
     pool(new DefaultPool(\getenv('CI') ? 3 : \count(Php::VERSIONS) + 2));

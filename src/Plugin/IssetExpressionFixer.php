@@ -33,12 +33,20 @@ class IssetExpressionFixer extends Plugin
      * @param Node $var
      * @return Node
      */
-    private static function &extractWorkVar(Node &$var): Node
+    private static function &extractWorkVar(Node &$var)
     {
         if ($var instanceof ArrayDimFetch && $var->var instanceof ArrayDimFetch) {
-            return self::extractWorkVar($var->var);
+            $phabelReturn =& self::extractWorkVar($var->var);
+            if (!$phabelReturn instanceof Node) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type Node, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         }
-        return $var;
+        $phabelReturn =& $var;
+        if (!$phabelReturn instanceof Node) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type Node, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Wrap boolean isset check.
@@ -47,11 +55,15 @@ class IssetExpressionFixer extends Plugin
      *
      * @return ArrayDimFetch
      */
-    private static function wrapBoolean(Expr $node): ArrayDimFetch
+    private static function wrapBoolean(Expr $node)
     {
-        return new ArrayDimFetch(self::callPoly('returnMe', new Ternary($node, self::fromLiteral([0]), self::fromLiteral([]))), new LNumber(0));
+        $phabelReturn = new ArrayDimFetch(self::callPoly('returnMe', new Ternary($node, self::fromLiteral([0]), self::fromLiteral([]))), new LNumber(0));
+        if (!$phabelReturn instanceof ArrayDimFetch) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ArrayDimFetch, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
-    public function enter(Isset_ $isset): void
+    public function enter(Isset_ $isset)
     {
         foreach ($isset->vars as $key => &$var) {
             /** @var array<string, array<class-string<Expr>, true>> */
@@ -62,7 +74,7 @@ class IssetExpressionFixer extends Plugin
             $workVar =& $this->extractWorkVar($var);
             $needsFixing = false;
             foreach ($subNodes as $key => $types) {
-                if (isset($types[self::getClass($workVar->{$key} ?? '')])) {
+                if (isset($types[self::getClass(isset($workVar->{$key}) ? $workVar->{$key} : '')])) {
                     $needsFixing = true;
                     break;
                 }
@@ -117,9 +129,16 @@ class IssetExpressionFixer extends Plugin
      *
      * @return class-string
      */
-    public static function getClass($class): string
+    public static function getClass($class)
     {
-        return \is_string($class) ? $class : \get_class($class);
+        $phabelReturn = \is_string($class) ? $class : \get_class($class);
+        if (!\is_string($phabelReturn)) {
+            if (!(\is_string($phabelReturn) || \is_object($phabelReturn) && \method_exists($phabelReturn, '__toString') || (\is_bool($phabelReturn) || \is_numeric($phabelReturn)))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $phabelReturn = (string) $phabelReturn;
+        }
+        return $phabelReturn;
     }
     /**
      * Check if static property is set.
@@ -130,26 +149,59 @@ class IssetExpressionFixer extends Plugin
      *
      * @return boolean
      */
-    public static function staticExists($class, string $property, bool $propertyOrConstant): bool
+    public static function staticExists($class, $property, $propertyOrConstant)
     {
+        if (!\is_string($property)) {
+            if (!(\is_string($property) || \is_object($property) && \method_exists($property, '__toString') || (\is_bool($property) || \is_numeric($property)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #2 ($property) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($property) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $property = (string) $property;
+        }
+        if (!\is_bool($propertyOrConstant)) {
+            if (!(\is_bool($propertyOrConstant) || \is_numeric($propertyOrConstant) || \is_string($propertyOrConstant))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #3 ($propertyOrConstant) must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($propertyOrConstant) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $propertyOrConstant = (bool) $propertyOrConstant;
+        }
         $reflectionClass = new ReflectionClass($class);
         $class = self::getClass($class);
         if ($propertyOrConstant) {
             try {
                 $reflection = $reflectionClass->getProperty($property);
             } catch (ReflectionException $e) {
-                return false;
+                $phabelReturn = false;
+                if (!\is_bool($phabelReturn)) {
+                    if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
+                        throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                    }
+                    $phabelReturn = (bool) $phabelReturn;
+                }
+                return $phabelReturn;
             }
         } elseif (PHP_VERSION_ID >= 70100) {
             try {
                 $reflection = new ReflectionClassConstant($class, $property);
             } catch (ReflectionException $e) {
-                return false;
+                $phabelReturn = false;
+                if (!\is_bool($phabelReturn)) {
+                    if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
+                        throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                    }
+                    $phabelReturn = (bool) $phabelReturn;
+                }
+                return $phabelReturn;
             }
         } else {
-            return isset($reflectionClass->getConstants()[$property]);
+            $phabelReturn = isset($reflectionClass->getConstants()[$property]);
+            if (!\is_bool($phabelReturn)) {
+                if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
+                    throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                }
+                $phabelReturn = (bool) $phabelReturn;
+            }
+            return $phabelReturn;
         }
-        $classCaller = \debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['class'] ?? '';
+        $classCaller = null !== ($phabel_698a1ed91fd0737e = \debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)) && isset($phabel_698a1ed91fd0737e[1]['class']) ? $phabel_698a1ed91fd0737e[1]['class'] : '';
         $allowProtected = false;
         $allowPrivate = false;
         if ($classCaller) {
@@ -160,11 +212,32 @@ class IssetExpressionFixer extends Plugin
             }
         }
         if ($reflection->isPrivate()) {
-            return $allowPrivate ? $reflection->getValue() !== null : false;
+            $phabelReturn = $allowPrivate ? $reflection->getValue() !== null : false;
+            if (!\is_bool($phabelReturn)) {
+                if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
+                    throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                }
+                $phabelReturn = (bool) $phabelReturn;
+            }
+            return $phabelReturn;
         }
         if ($reflection->isProtected()) {
-            return $allowProtected ? $reflection->getValue() !== null : false;
+            $phabelReturn = $allowProtected ? $reflection->getValue() !== null : false;
+            if (!\is_bool($phabelReturn)) {
+                if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
+                    throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                }
+                $phabelReturn = (bool) $phabelReturn;
+            }
+            return $phabelReturn;
         }
-        return $reflection->getValue() !== null;
+        $phabelReturn = $reflection->getValue() !== null;
+        if (!\is_bool($phabelReturn)) {
+            if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $phabelReturn = (bool) $phabelReturn;
+        }
+        return $phabelReturn;
     }
 }

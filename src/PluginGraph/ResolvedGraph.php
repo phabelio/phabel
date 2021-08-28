@@ -20,17 +20,17 @@ final class ResolvedGraph
      *
      * @psalm-var SplQueue<SplQueue<PluginInterface>>
      */
-    private SplQueue $plugins;
+    private $plugins;
     /**
      * Packages.
      *
      * @var array<string, string>
      */
-    private array $packages = [];
+    private $packages = [];
     /**
      * Class storage.
      */
-    private ?ClassStoragePlugin $classStorage = null;
+    private $classStorage = null;
     /**
      * Constructor.
      *
@@ -39,7 +39,16 @@ final class ResolvedGraph
      */
     public function __construct(SplQueue $plugins, array $packages = [])
     {
-        $this->packages = \array_map(fn (array $constraints): string => \implode(':', \array_unique($constraints)), $packages);
+        $this->packages = \array_map(function (array $constraints) {
+            $phabelReturn = \implode(':', \array_unique($constraints));
+            if (!\is_string($phabelReturn)) {
+                if (!(\is_string($phabelReturn) || \is_object($phabelReturn) && \method_exists($phabelReturn, '__toString') || (\is_bool($phabelReturn) || \is_numeric($phabelReturn)))) {
+                    throw new \TypeError(__METHOD__ . '(): Return value must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                }
+                $phabelReturn = (string) $phabelReturn;
+            }
+            return $phabelReturn;
+        }, $packages);
         $this->plugins = new SplQueue();
         foreach ($plugins as $queue) {
             $newQueue = new SplQueue();
@@ -68,9 +77,13 @@ final class ResolvedGraph
      * @return SplQueue
      * @psalm-return SplQueue<SplQueue<PluginInterface>>
      */
-    public function getPlugins(): SplQueue
+    public function getPlugins()
     {
-        return $this->plugins;
+        $phabelReturn = $this->plugins;
+        if (!$phabelReturn instanceof SplQueue) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type SplQueue, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Get packages.
@@ -78,25 +91,33 @@ final class ResolvedGraph
      * @return array
      * @psalm-return array<string, string>
      */
-    public function getPackages(): array
+    public function getPackages()
     {
-        return $this->packages;
+        $phabelReturn = $this->packages;
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Get class storage.
      *
      * @return ?ClassStoragePlugin
      */
-    public function getClassStorage(): ?ClassStoragePlugin
+    public function getClassStorage()
     {
-        return $this->classStorage;
+        $phabelReturn = $this->classStorage;
+        if (!($phabelReturn instanceof ClassStoragePlugin || \is_null($phabelReturn))) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ?ClassStoragePlugin, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Returns graph debug information.
      *
      * @return array
      */
-    public function __debugInfo(): array
+    public function __debugInfo()
     {
         $res = [];
         foreach ($this->plugins as $queue) {
@@ -107,6 +128,10 @@ final class ResolvedGraph
             }
             $res[] = $cur;
         }
-        return $res;
+        $phabelReturn = $res;
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
 }

@@ -6,7 +6,7 @@ use Phabel\Traverser;
 
 require 'vendor/autoload.php';
 require 'functions.php';
-$tail = $argv[1] ?? '';
+$tail = isset($argv[1]) ? $argv[1] : '';
 foreach (Php::VERSIONS as $version) {
     if ($tail === "-{$version}") {
         break;

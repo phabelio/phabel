@@ -24,12 +24,23 @@ class RootNode extends NodeAbstract
         $this->stmts = $stmts;
         parent::__construct($attributes);
     }
-    public function getSubNodeNames(): array
+    public function getSubNodeNames()
     {
-        return ['stmts'];
+        $phabelReturn = ['stmts'];
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
-    public function getType(): string
+    public function getType()
     {
-        return 'rootNode';
+        $phabelReturn = 'rootNode';
+        if (!\is_string($phabelReturn)) {
+            if (!(\is_string($phabelReturn) || \is_object($phabelReturn) && \method_exists($phabelReturn, '__toString') || (\is_bool($phabelReturn) || \is_numeric($phabelReturn)))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $phabelReturn = (string) $phabelReturn;
+        }
+        return $phabelReturn;
     }
 }

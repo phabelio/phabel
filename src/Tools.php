@@ -57,17 +57,39 @@ abstract class Tools
      *
      * @return Node
      */
-    public static function replaceType(Node $node, string $class, array $propertyMap = []): Node
+    public static function replaceType(Node $node, $class, array $propertyMap = [])
     {
+        if (!\is_string($class)) {
+            if (!(\is_string($class) || \is_object($class) && \method_exists($class, '__toString') || (\is_bool($class) || \is_numeric($class)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #2 ($class) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($class) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $class = (string) $class;
+        }
         if ($propertyMap) {
             $nodeNew = (new ReflectionClass($class))->newInstanceWithoutConstructor();
             foreach ($propertyMap as $old => $new) {
                 $nodeNew->{$new} = $node->{$old};
             }
             $nodeNew->setAttributes($node->getAttributes());
-            return $nodeNew;
+            $phabelReturn = $nodeNew;
+            if (!$phabelReturn instanceof Node) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type Node, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         }
-        return new $class(...[...\array_map(fn (string $name) => $node->{$name}, $node->getSubNodeNames()), $node->getAttributes()]);
+        $phabelReturn = new $class(...\array_merge(\array_map(function ($name) use ($node) {
+            if (!\is_string($name)) {
+                if (!(\is_string($name) || \is_object($name) && \method_exists($name, '__toString') || (\is_bool($name) || \is_numeric($name)))) {
+                    throw new \TypeError(__METHOD__ . '(): Argument #1 ($name) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($name) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                }
+                $name = (string) $name;
+            }
+            return $node->{$name};
+        }, $node->getSubNodeNames()), [$node->getAttributes()]));
+        if (!$phabelReturn instanceof Node) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type Node, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Replace type in-place.
@@ -83,8 +105,14 @@ abstract class Tools
      *
      * @return void
      */
-    public static function replaceTypeInPlace(Node &$node, string $class, array $propertyMap = []): void
+    public static function replaceTypeInPlace(Node &$node, $class, array $propertyMap = [])
     {
+        if (!\is_string($class)) {
+            if (!(\is_string($class) || \is_object($class) && \method_exists($class, '__toString') || (\is_bool($class) || \is_numeric($class)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #2 ($class) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($class) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $class = (string) $class;
+        }
         $node = self::replaceType($node, $class, $propertyMap);
     }
     /**
@@ -95,9 +123,13 @@ abstract class Tools
      *
      * @return Expression
      */
-    public static function assign(Variable $name, Expr $expression): Expression
+    public static function assign(Variable $name, Expr $expression)
     {
-        return new Expression(new Assign($name, $expression));
+        $phabelReturn = new Expression(new Assign($name, $expression));
+        if (!$phabelReturn instanceof Expression) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type Expression, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Call function.
@@ -114,7 +146,9 @@ abstract class Tools
      */
     public static function call($name, ...$parameters)
     {
-        $parameters = \array_map(fn ($data) => ($data instanceof Arg ? $data : new Arg($data)), $parameters);
+        $parameters = \array_map(function ($data) {
+            return $data instanceof Arg ? $data : new Arg($data);
+        }, $parameters);
         return \is_array($name) ? new StaticCall(new FullyQualified($name[0]), $name[1], $parameters) : new FuncCall(new FullyQualified($name), $parameters);
     }
     /**
@@ -126,10 +160,22 @@ abstract class Tools
      *
      * @return MethodCall
      */
-    public static function callMethod(Expr $name, string $method, ...$parameters): MethodCall
+    public static function callMethod(Expr $name, $method, ...$parameters)
     {
-        $parameters = \array_map(fn ($data) => ($data instanceof Arg ? $data : new Arg($data)), $parameters);
-        return new MethodCall($name, $method, $parameters);
+        if (!\is_string($method)) {
+            if (!(\is_string($method) || \is_object($method) && \method_exists($method, '__toString') || (\is_bool($method) || \is_numeric($method)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #2 ($method) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($method) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $method = (string) $method;
+        }
+        $parameters = \array_map(function ($data) {
+            return $data instanceof Arg ? $data : new Arg($data);
+        }, $parameters);
+        $phabelReturn = new MethodCall($name, $method, $parameters);
+        if (!$phabelReturn instanceof MethodCall) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type MethodCall, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Convert array, int or other literal to node.
@@ -138,9 +184,13 @@ abstract class Tools
      *
      * @return Node
      */
-    public static function fromLiteral($data): Node
+    public static function fromLiteral($data)
     {
-        return self::toNode(\var_export($data, true) . ';');
+        $phabelReturn = self::toNode(\var_export($data, true) . ';');
+        if (!$phabelReturn instanceof Node) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type Node, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Convert code to node.
@@ -151,13 +201,23 @@ abstract class Tools
      *
      * @return Node
      */
-    public static function toNode(string $code): Node
+    public static function toNode($code)
     {
+        if (!\is_string($code)) {
+            if (!(\is_string($code) || \is_object($code) && \method_exists($code, '__toString') || (\is_bool($code) || \is_numeric($code)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($code) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($code) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $code = (string) $code;
+        }
         $res = (new ParserFactory())->create(ParserFactory::PREFER_PHP7)->parse('<?php ' . $code);
         if ($res === null || empty($res) || !$res[0] instanceof Expression || !isset($res[0]->expr)) {
             throw new \RuntimeException('Invalid code was provided!');
         }
-        return $res[0]->expr;
+        $phabelReturn = $res[0]->expr;
+        if (!$phabelReturn instanceof Node) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type Node, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Check if this node or any child node have any side effects (like calling other methods, or assigning variables).
@@ -166,33 +226,71 @@ abstract class Tools
      *
      * @return bool
      */
-    public static function hasSideEffects(?Expr $node): bool
+    public static function hasSideEffects($node)
     {
+        if (!($node instanceof Expr || \is_null($node))) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($node) must be of type ?Expr, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($node) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
         if (!$node) {
-            return false;
+            $phabelReturn = false;
+            if (!\is_bool($phabelReturn)) {
+                if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
+                    throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                }
+                $phabelReturn = (bool) $phabelReturn;
+            }
+            return $phabelReturn;
         }
         if ($node->hasAttribute('hasSideEffects') || $node instanceof String_ || $node instanceof ArrayDimFetch || $node instanceof Assign || $node instanceof AssignOp || $node instanceof AssignRef || $node instanceof Clone_ || $node instanceof Eval_ || $node instanceof FuncCall || $node instanceof Include_ || $node instanceof List_ || $node instanceof MethodCall || $node instanceof New_ || $node instanceof NullsafeMethodCall || $node instanceof NullsafePropertyFetch || $node instanceof PostDec || $node instanceof PostInc || $node instanceof PreDec || $node instanceof PreInc || $node instanceof PropertyFetch || $node instanceof StaticCall || $node instanceof Yield_ || $node instanceof YieldFrom || $node instanceof ShellExec) {
             $node->setAttribute('hasSideEffects', true);
-            return true;
+            $phabelReturn = true;
+            if (!\is_bool($phabelReturn)) {
+                if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
+                    throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                }
+                $phabelReturn = (bool) $phabelReturn;
+            }
+            return $phabelReturn;
         }
         /** @var string */
         foreach ($node->getSubNodeNames() as $name) {
             if ($node->{$name} instanceof Expr) {
                 if (self::hasSideEffects($node->{$name})) {
                     $node->setAttribute('hasSideEffects', true);
-                    return true;
+                    $phabelReturn = true;
+                    if (!\is_bool($phabelReturn)) {
+                        if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
+                            throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                        }
+                        $phabelReturn = (bool) $phabelReturn;
+                    }
+                    return $phabelReturn;
                 }
             } elseif (\is_array($node->{$name})) {
                 /** @var Node|Node[]|string */
                 foreach ($node->{$name} as $var) {
                     if ($var instanceof Expr && self::hasSideEffects($var)) {
                         $node->setAttribute('hasSideEffects', true);
-                        return true;
+                        $phabelReturn = true;
+                        if (!\is_bool($phabelReturn)) {
+                            if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
+                                throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                            }
+                            $phabelReturn = (bool) $phabelReturn;
+                        }
+                        return $phabelReturn;
                     }
                 }
             }
         }
-        return false;
+        $phabelReturn = false;
+        if (!\is_bool($phabelReturn)) {
+            if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $phabelReturn = (bool) $phabelReturn;
+        }
+        return $phabelReturn;
     }
     /**
      * Get fully qualified name.
@@ -202,21 +300,55 @@ abstract class Tools
      *
      * @return class-string
      */
-    public static function getFqdn(Node $node, string $alt = ''): string
+    public static function getFqdn(Node $node, $alt = '')
     {
+        if (!\is_string($alt)) {
+            if (!(\is_string($alt) || \is_object($alt) && \method_exists($alt, '__toString') || (\is_bool($alt) || \is_numeric($alt)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #2 ($alt) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($alt) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $alt = (string) $alt;
+        }
         if ($node instanceof FullyQualified) {
-            return (string) $node;
+            $phabelReturn = (string) $node;
+            if (!\is_string($phabelReturn)) {
+                if (!(\is_string($phabelReturn) || \is_object($phabelReturn) && \method_exists($phabelReturn, '__toString') || (\is_bool($phabelReturn) || \is_numeric($phabelReturn)))) {
+                    throw new \TypeError(__METHOD__ . '(): Return value must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                }
+                $phabelReturn = (string) $phabelReturn;
+            }
+            return $phabelReturn;
         }
         if (isset($node->namespacedName)) {
-            return (string) $node->namespacedName;
+            $phabelReturn = (string) $node->namespacedName;
+            if (!\is_string($phabelReturn)) {
+                if (!(\is_string($phabelReturn) || \is_object($phabelReturn) && \method_exists($phabelReturn, '__toString') || (\is_bool($phabelReturn) || \is_numeric($phabelReturn)))) {
+                    throw new \TypeError(__METHOD__ . '(): Return value must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                }
+                $phabelReturn = (string) $phabelReturn;
+            }
+            return $phabelReturn;
         }
         if (!$node->getAttribute('resolvedName')) {
             if ($alt) {
-                return $alt;
+                $phabelReturn = $alt;
+                if (!\is_string($phabelReturn)) {
+                    if (!(\is_string($phabelReturn) || \is_object($phabelReturn) && \method_exists($phabelReturn, '__toString') || (\is_bool($phabelReturn) || \is_numeric($phabelReturn)))) {
+                        throw new \TypeError(__METHOD__ . '(): Return value must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                    }
+                    $phabelReturn = (string) $phabelReturn;
+                }
+                return $phabelReturn;
             }
             throw new UnresolvedNameException();
         }
-        return (string) $node->getAttribute('resolvedName', $node->getAttribute('namespacedName'));
+        $phabelReturn = (string) $node->getAttribute('resolvedName', $node->getAttribute('namespacedName'));
+        if (!\is_string($phabelReturn)) {
+            if (!(\is_string($phabelReturn) || \is_object($phabelReturn) && \method_exists($phabelReturn, '__toString') || (\is_bool($phabelReturn) || \is_numeric($phabelReturn)))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $phabelReturn = (string) $phabelReturn;
+        }
+        return $phabelReturn;
     }
     /**
      * Create a new object extended from this object, with the specified additional trait + interface.
@@ -229,8 +361,17 @@ abstract class Tools
      *
      * @return object
      */
-    public static function cloneWithTrait(object $obj, string $trait): object
+    public static function cloneWithTrait($obj, $trait)
     {
+        if (!\is_object($obj)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($obj) must be of type object, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($obj) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        if (!\is_string($trait)) {
+            if (!(\is_string($trait) || \is_object($trait) && \method_exists($trait, '__toString') || (\is_bool($trait) || \is_numeric($trait)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #2 ($trait) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($trait) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $trait = (string) $trait;
+        }
         /** @psalm-var int */
         static $count = 0;
         /** @psalm-var array<string, class-string<T>> $memoized */
@@ -265,7 +406,11 @@ abstract class Tools
                 }
             }
         } while ($reflect = $reflect->getParentClass());
-        return $newObj;
+        $phabelReturn = $newObj;
+        if (!\is_object($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type object, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Checks private property exists in an object.
@@ -282,11 +427,34 @@ abstract class Tools
      * @return bool
      * @access public
      */
-    public static function hasVar(object $obj, string $var): bool
+    public static function hasVar($obj, $var)
     {
-        return \Closure::bind(function () use ($var): bool {
-            return isset($this->{$var});
+        if (!\is_object($obj)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($obj) must be of type object, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($obj) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        if (!\is_string($var)) {
+            if (!(\is_string($var) || \is_object($var) && \method_exists($var, '__toString') || (\is_bool($var) || \is_numeric($var)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #2 ($var) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($var) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $var = (string) $var;
+        }
+        $phabelReturn = \Closure::bind(function () use ($var) {
+            $phabelReturn = isset($this->{$var});
+            if (!\is_bool($phabelReturn)) {
+                if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
+                    throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                }
+                $phabelReturn = (bool) $phabelReturn;
+            }
+            return $phabelReturn;
         }, $obj, \get_class($obj))->__invoke();
+        if (!\is_bool($phabelReturn)) {
+            if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $phabelReturn = (bool) $phabelReturn;
+        }
+        return $phabelReturn;
     }
     /**
      * Accesses a private variable from an object.
@@ -301,8 +469,14 @@ abstract class Tools
      * @return mixed
      * @access public
      */
-    public static function &getVar($obj, string $var)
+    public static function &getVar($obj, $var)
     {
+        if (!\is_string($var)) {
+            if (!(\is_string($var) || \is_object($var) && \method_exists($var, '__toString') || (\is_bool($var) || \is_numeric($var)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #2 ($var) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($var) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $var = (string) $var;
+        }
         return \Closure::bind(
             /** @return mixed */
             function &() use ($var) {
@@ -326,8 +500,14 @@ abstract class Tools
      *
      * @access public
      */
-    public static function setVar($obj, string $var, &$val): void
+    public static function setVar($obj, $var, &$val)
     {
+        if (!\is_string($var)) {
+            if (!(\is_string($var) || \is_object($var) && \method_exists($var, '__toString') || (\is_bool($var) || \is_numeric($var)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #2 ($var) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($var) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $var = (string) $var;
+        }
         \Closure::bind(function () use ($var, &$val) {
             $this->{$var} =& $val;
         }, $obj, \get_class($obj))->__invoke();
@@ -340,13 +520,27 @@ abstract class Tools
      * @throws \LogicException
      * @psalm-suppress ForbiddenCode
      */
-    public static function getCpuCount(): int
+    public static function getCpuCount()
     {
         static $result = -1;
         if ($result !== -1) {
-            return $result;
+            $phabelReturn = $result;
+            if (!\is_int($phabelReturn)) {
+                if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn))) {
+                    throw new \TypeError(__METHOD__ . '(): Return value must be of type int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                }
+                $phabelReturn = (int) $phabelReturn;
+            }
+            return $phabelReturn;
         }
         if (\defined('PHP_WINDOWS_VERSION_MAJOR')) {
+            $phabelReturn = $result = 1;
+            if (!\is_int($phabelReturn)) {
+                if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn))) {
+                    throw new \TypeError(__METHOD__ . '(): Return value must be of type int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                }
+                $phabelReturn = (int) $phabelReturn;
+            }
             /*
             $str = trim((string) shell_exec('wmic cpu get NumberOfCores 2>&1'));
             if (!preg_match('/(\d+)/', $str, $matches)) {
@@ -354,13 +548,27 @@ abstract class Tools
             }
             return ((int) $matches [1]);
             */
-            return $result = 1;
+            return $phabelReturn;
         }
         if (self::ini_get('pcre.jit') === '1' && \PHP_OS === 'Darwin' && \version_compare(\PHP_VERSION, '7.3.0') >= 0 && \version_compare(\PHP_VERSION, '7.4.0') < 0) {
-            return $result = 1;
+            $phabelReturn = $result = 1;
+            if (!\is_int($phabelReturn)) {
+                if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn))) {
+                    throw new \TypeError(__METHOD__ . '(): Return value must be of type int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                }
+                $phabelReturn = (int) $phabelReturn;
+            }
+            return $phabelReturn;
         }
         if (!\extension_loaded('pcntl')) {
-            return $result = 1;
+            $phabelReturn = $result = 1;
+            if (!\is_int($phabelReturn)) {
+                if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn))) {
+                    throw new \TypeError(__METHOD__ . '(): Return value must be of type int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                }
+                $phabelReturn = (int) $phabelReturn;
+            }
+            return $phabelReturn;
         }
         $has_nproc = \trim((string) @\shell_exec('command -v nproc'));
         if ($has_nproc) {
@@ -369,7 +577,14 @@ abstract class Tools
                 $ret = \trim($ret);
                 $tmp = \filter_var($ret, FILTER_VALIDATE_INT);
                 if (\is_int($tmp)) {
-                    return $result = $tmp;
+                    $phabelReturn = $result = $tmp;
+                    if (!\is_int($phabelReturn)) {
+                        if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn))) {
+                            throw new \TypeError(__METHOD__ . '(): Return value must be of type int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                        }
+                        $phabelReturn = (int) $phabelReturn;
+                    }
+                    return $phabelReturn;
                 }
             }
         }
@@ -378,17 +593,38 @@ abstract class Tools
             $ret = \trim($ret);
             $tmp = \filter_var($ret, FILTER_VALIDATE_INT);
             if (\is_int($tmp)) {
-                return $result = $tmp;
+                $phabelReturn = $result = $tmp;
+                if (!\is_int($phabelReturn)) {
+                    if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn))) {
+                        throw new \TypeError(__METHOD__ . '(): Return value must be of type int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                    }
+                    $phabelReturn = (int) $phabelReturn;
+                }
+                return $phabelReturn;
             }
         }
         if (\is_readable('/proc/cpuinfo')) {
             $cpuinfo = \file_get_contents('/proc/cpuinfo');
             $count = \substr_count($cpuinfo, 'processor');
             if ($count > 0) {
-                return $result = $count;
+                $phabelReturn = $result = $count;
+                if (!\is_int($phabelReturn)) {
+                    if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn))) {
+                        throw new \TypeError(__METHOD__ . '(): Return value must be of type int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                    }
+                    $phabelReturn = (int) $phabelReturn;
+                }
+                return $phabelReturn;
             }
         }
-        return $result = 1;
+        $phabelReturn = $result = 1;
+        if (!\is_int($phabelReturn)) {
+            if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $phabelReturn = (int) $phabelReturn;
+        }
+        return $phabelReturn;
     }
     /**
      * Safely get value from php.ini.
@@ -397,13 +633,20 @@ abstract class Tools
      * @param mixed $default
      * @return mixed
      */
-    public static function ini_get(string $key, $default = null)
+    public static function ini_get($key, $default = null)
     {
+        if (!\is_string($key)) {
+            if (!(\is_string($key) || \is_object($key) && \method_exists($key, '__toString') || (\is_bool($key) || \is_numeric($key)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($key) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($key) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $key = (string) $key;
+        }
         try {
             if (\function_exists('ini_get')) {
                 return @\ini_get($key);
             }
-        } catch (\Throwable $e) {
+        } catch (\Exception $e) {
+        } catch (\Error $e) {
         }
         return $default;
     }

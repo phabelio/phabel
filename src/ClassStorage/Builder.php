@@ -27,25 +27,25 @@ class Builder
      *
      * @psalm-var array<string, ClassMethod>
      */
-    private array $methods = [];
+    private $methods = [];
     /**
      * Abstract method list.
      *
      * @psalm-var array<string, ClassMethod>
      */
-    private array $abstractMethods = [];
+    private $abstractMethods = [];
     /**
      * Extended classes/interfaces.
      *
      * @var array<class-string, Builder|true>
      */
-    private array $extended = [];
+    private $extended = [];
     /**
      * Used classes/interfaces.
      *
      * @var array<trait-string, Builder|true>
      */
-    private array $use = [];
+    private $use = [];
     /**
      * Use aliases.
      *
@@ -53,36 +53,42 @@ class Builder
      *
      * @var array<trait-string, array<string, array{0: trait-string, 1: string}>>
      */
-    private array $useAlias = [];
+    private $useAlias = [];
     /**
      * Whether we're resolving.
      */
-    private bool $resolving = false;
+    private $resolving = false;
     /**
      * Whether we resolved.
      */
-    private bool $resolved = false;
+    private $resolved = false;
     /**
      * Storage.
      */
-    private ?Storage $storage = null;
+    private $storage = null;
     /**
      * Class name.
      */
-    private string $name;
+    private $name;
     /**
      * Constructor.
      *
      * @param ClassLike $class Class or trait
      */
-    public function __construct(ClassLike $class, string $customName = '')
+    public function __construct(ClassLike $class, $customName = '')
     {
+        if (!\is_string($customName)) {
+            if (!(\is_string($customName) || \is_object($customName) && \method_exists($customName, '__toString') || (\is_bool($customName) || \is_numeric($customName)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #2 ($customName) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($customName) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $customName = (string) $customName;
+        }
         $this->name = Tools::getFqdn($class, $customName);
         if ($class instanceof Interface_ || $class instanceof StmtClass_) {
             foreach (\is_array($class->extends) ? $class->extends : ($class->extends ? [$class->extends] : []) as $name) {
                 $this->extended[Tools::getFqdn($name)] = true;
             }
-            foreach ($class->implements ?? [] as $name) {
+            foreach (isset($class->implements) ? $class->implements : [] as $name) {
                 $this->extended[Tools::getFqdn($name)] = true;
             }
         }
@@ -126,10 +132,14 @@ class Builder
     /**
      * Resolve class tree.
      */
-    public function resolve(ClassStoragePlugin $plugin): self
+    public function resolve(ClassStoragePlugin $plugin)
     {
         if ($this->resolved) {
-            return $this;
+            $phabelReturn = $this;
+            if (!$phabelReturn instanceof self) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type ' . self::class . ', ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         }
         if ($this->resolving) {
             $plugins = [$this->name];
@@ -149,7 +159,7 @@ class Builder
             $resolved = \array_values($plugin->traits[$trait])[0]->resolve($plugin);
             foreach (new RecursiveIteratorIterator(new RecursiveArrayIterator([$resolved->methods, $resolved->abstractMethods])) as $name => $method) {
                 if (isset($this->useAlias[$trait][$name])) {
-                    [$newTrait, $name] = $this->useAlias[$trait][$name];
+                    list($newTrait, $name) = $this->useAlias[$trait][$name];
                     if (!isset($plugin->traits[$newTrait])) {
                         continue;
                     }
@@ -177,14 +187,18 @@ class Builder
         }
         $this->resolving = false;
         $this->resolved = true;
-        return $this;
+        $phabelReturn = $this;
+        if (!$phabelReturn instanceof self) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ' . self::class . ', ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Build storage.
      *
      * @return Storage
      */
-    public function build(): Storage
+    public function build()
     {
         if (!$this->resolved) {
             throw new Exception("Trying to build an unresolved class!");
@@ -193,13 +207,21 @@ class Builder
             $this->storage = new Storage();
             $this->storage->build($this->name, $this->methods, $this->abstractMethods, $this->extended);
         }
-        return $this->storage;
+        $phabelReturn = $this->storage;
+        if (!$phabelReturn instanceof Storage) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type Storage, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Debug info.
      */
-    public function __debugInfo(): array
+    public function __debugInfo()
     {
-        return ['name' => $this->name, 'methods' => \array_keys($this->methods), 'abstractMethods' => \array_keys($this->abstractMethods), 'extended' => $this->extended, 'useAlias' => $this->useAlias, 'use' => $this->use];
+        $phabelReturn = ['name' => $this->name, 'methods' => \array_keys($this->methods), 'abstractMethods' => \array_keys($this->abstractMethods), 'extended' => $this->extended, 'useAlias' => $this->useAlias, 'use' => $this->use];
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
 }

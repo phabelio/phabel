@@ -17,7 +17,7 @@ class ClassConstantVisibilityModifiersRemover extends Plugin
      *
      * @return void
      */
-    public function enter(ClassConst $node): void
+    public function enter(ClassConst $node)
     {
         $node->flags = 0;
         // Remove constant modifier

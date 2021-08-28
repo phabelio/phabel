@@ -35,43 +35,43 @@ class Traverser
      *
      * @var ResolvedGraph
      */
-    private ResolvedGraph $graph;
+    private $graph;
     /**
      * Parser instance.
      */
-    private Parser $parser;
+    private $parser;
     /**
      * Printer instance.
      */
-    private Standard $printer;
+    private $printer;
     /**
      * Plugin queue for specific package.
      *
      * @var SplQueue<SplQueue<PluginInterface>>|null
      */
-    private ?SplQueue $packageQueue = null;
+    private $packageQueue = null;
     /**
      * Event handler.
      *
      * @var EventHandlerInterface|null
      */
-    private ?EventHandlerInterface $eventHandler = null;
+    private $eventHandler = null;
     /**
      * Input.
      *
      * @var string
      */
-    private string $input = '';
+    private $input = '';
     /**
      * Output.
      *
      * @var string
      */
-    private string $output = '';
+    private $output = '';
     /**
      * File whitelist.
      */
-    private ?array $fileWhitelist = null;
+    private $fileWhitelist = null;
     /**
      * Callable to extract package name from path.
      *
@@ -83,25 +83,25 @@ class Traverser
      *
      * @var string
      */
-    private string $coverage = '';
+    private $coverage = '';
     /**
      * Current file.
      */
-    private string $file = '';
+    private $file = '';
     /**
      * Current input file.
      */
-    private string $inputFile = '';
+    private $inputFile = '';
     /**
      * Current output file.
      */
-    private string $outputFile = '';
+    private $outputFile = '';
     /**
      * Number of times we traversed directories.
      *
      * @var integer
      */
-    private int $count = 0;
+    private $count = 0;
     /**
      * Generate traverser from basic plugin instances.
      *
@@ -109,7 +109,7 @@ class Traverser
      *
      * @return self
      */
-    public static function fromPlugin(Plugin ...$plugin): self
+    public static function fromPlugin(Plugin ...$plugin)
     {
         $queue = new SplQueue();
         foreach ($plugin as $p) {
@@ -119,15 +119,22 @@ class Traverser
         $final->enqueue($queue);
         $res = new self();
         $res->graph = new ResolvedGraph($final);
-        return $res;
+        $phabelReturn = $res;
+        if (!$phabelReturn instanceof self) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ' . self::class . ', ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Constructor.
      *
      * @param ?EventHandlerInterface $EventHandlerInterface Event handler
      */
-    public function __construct(?EventHandlerInterface $eventHandler = null)
+    public function __construct($eventHandler = null)
     {
+        if (!($eventHandler instanceof EventHandlerInterface || \is_null($eventHandler))) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($eventHandler) must be of type ?EventHandlerInterface, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($eventHandler) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
         $this->parser = (new ParserFactory())->create(ParserFactory::PREFER_PHP7);
         $this->printer = new Standard();
         $this->eventHandler = $eventHandler;
@@ -141,16 +148,20 @@ class Traverser
      *
      * @return self
      */
-    public function setPlugins(array $plugins): self
+    public function setPlugins(array $plugins)
     {
-        $this->eventHandler?->onBeginPluginGraphResolution();
+        \Phabel\Plugin\NestedExpressionFixer::returnMe(isset($this->eventHandler) ? $this->eventHandler : \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->onBeginPluginGraphResolution();
         $graph = new Graph();
         foreach ($plugins as $plugin => $config) {
             $graph->addPlugin($plugin, $config, $graph->getPackageContext());
         }
         $this->graph = $graph->flatten();
-        $this->eventHandler?->onEndPluginGraphResolution();
-        return $this;
+        \Phabel\Plugin\NestedExpressionFixer::returnMe(isset($this->eventHandler) ? $this->eventHandler : \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->onEndPluginGraphResolution();
+        $phabelReturn = $this;
+        if (!$phabelReturn instanceof self) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ' . self::class . ', ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Set plugin graph.
@@ -159,21 +170,29 @@ class Traverser
      *
      * @return self
      */
-    public function setPluginGraph(Graph $graph): self
+    public function setPluginGraph(Graph $graph)
     {
-        $this->eventHandler?->onBeginPluginGraphResolution();
+        \Phabel\Plugin\NestedExpressionFixer::returnMe(isset($this->eventHandler) ? $this->eventHandler : \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->onBeginPluginGraphResolution();
         $this->graph = $graph->flatten();
-        $this->eventHandler?->onEndPluginGraphResolution();
-        return $this;
+        \Phabel\Plugin\NestedExpressionFixer::returnMe(isset($this->eventHandler) ? $this->eventHandler : \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->onEndPluginGraphResolution();
+        $phabelReturn = $this;
+        if (!$phabelReturn instanceof self) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ' . self::class . ', ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Get resolved plugin graph.
      *
      * @return ResolvedGraph
      */
-    public function getGraph(): ResolvedGraph
+    public function getGraph()
     {
-        return $this->graph;
+        $phabelReturn = $this->graph;
+        if (!$phabelReturn instanceof ResolvedGraph) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ResolvedGraph, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Set resolved plugin graph.
@@ -182,10 +201,14 @@ class Traverser
      *
      * @return self
      */
-    public function setGraph(ResolvedGraph $graph): self
+    public function setGraph(ResolvedGraph $graph)
     {
         $this->graph = $graph;
-        return $this;
+        $phabelReturn = $this;
+        if (!$phabelReturn instanceof self) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ' . self::class . ', ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Set input path.
@@ -193,13 +216,23 @@ class Traverser
      * @param string $input
      * @return self
      */
-    public function setInput(string $input): self
+    public function setInput($input)
     {
+        if (!\is_string($input)) {
+            if (!(\is_string($input) || \is_object($input) && \method_exists($input, '__toString') || (\is_bool($input) || \is_numeric($input)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($input) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($input) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $input = (string) $input;
+        }
         if (!\file_exists($input)) {
             throw new \RuntimeException("File {$input} does not exist!");
         }
         $this->input = $input;
-        return $this;
+        $phabelReturn = $this;
+        if (!$phabelReturn instanceof self) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ' . self::class . ', ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Set output path.
@@ -207,10 +240,20 @@ class Traverser
      * @param string $output
      * @return self
      */
-    public function setOutput(string $output): self
+    public function setOutput($output)
     {
+        if (!\is_string($output)) {
+            if (!(\is_string($output) || \is_object($output) && \method_exists($output, '__toString') || (\is_bool($output) || \is_numeric($output)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($output) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($output) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $output = (string) $output;
+        }
         $this->output = $output;
-        return $this;
+        $phabelReturn = $this;
+        if (!$phabelReturn instanceof self) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ' . self::class . ', ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Set callable to extract composer package name from path.
@@ -219,10 +262,14 @@ class Traverser
      *
      * @return self
      */
-    public function setComposer(callable $composer): self
+    public function setComposer(callable $composer)
     {
         $this->composerPackageName = $composer;
-        return $this;
+        $phabelReturn = $this;
+        if (!$phabelReturn instanceof self) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ' . self::class . ', ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Set coverage path.
@@ -230,10 +277,20 @@ class Traverser
      * @param string $coverage
      * @return self
      */
-    public function setCoverage(string $coverage): self
+    public function setCoverage($coverage)
     {
+        if (!\is_string($coverage)) {
+            if (!(\is_string($coverage) || \is_object($coverage) && \method_exists($coverage, '__toString') || (\is_bool($coverage) || \is_numeric($coverage)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($coverage) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($coverage) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $coverage = (string) $coverage;
+        }
         $this->coverage = $coverage;
-        return $this;
+        $phabelReturn = $this;
+        if (!$phabelReturn instanceof self) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ' . self::class . ', ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Start code coverage.
@@ -242,62 +299,81 @@ class Traverser
      *
      * @return ?object
      */
-    public static function startCoverage(string $coveragePath): ?object
+    public static function startCoverage($coveragePath)
     {
+        if (!\is_string($coveragePath)) {
+            if (!(\is_string($coveragePath) || \is_object($coveragePath) && \method_exists($coveragePath, '__toString') || (\is_bool($coveragePath) || \is_numeric($coveragePath)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($coveragePath) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($coveragePath) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $coveragePath = (string) $coveragePath;
+        }
         if (!$coveragePath || !\class_exists(CodeCoverage::class)) {
-            return null;
+            $phabelReturn = null;
+            if (!(\is_object($phabelReturn) || \is_null($phabelReturn))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type ?object, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         }
         try {
             $filter = new Filter();
             $filter->includeDirectory(\realpath(__DIR__ . '/../src'));
             $coverage = new CodeCoverage((new Selector())->forLineCoverage($filter), $filter);
             $coverage->start('phabel');
-            return new class($coverage, $coveragePath) {
-                private string $coveragePath;
-                private CodeCoverage $coverage;
-                public function __construct(CodeCoverage $coverage, string $coveragePath)
-                {
-                    $this->coverage = $coverage;
-                    $this->coveragePath = $coveragePath;
-                }
-                public function __destruct()
-                {
-                    $this->coverage->stop();
-                    if (\file_exists($this->coveragePath)) {
-                        $this->coverage->merge(require $this->coveragePath);
-                    }
-                    (new PHP())->process($this->coverage, $this->coveragePath);
-                }
-            };
-        } catch (\Throwable $e) {
+            $phabelReturn = new PhabelAnonymousClass063d10f883fe83b0c12eba721edc03b9cc7383d4550ab4363c290322abe45bb50($coverage, $coveragePath);
+            if (!(\is_object($phabelReturn) || \is_null($phabelReturn))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type ?object, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
+        } catch (\Exception $e) {
+        } catch (\Error $e) {
         }
-        return null;
+        $phabelReturn = null;
+        if (!(\is_object($phabelReturn) || \is_null($phabelReturn))) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ?object, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Run phabel asynchronously.
      *
      * @return array
      */
-    public function runAsync(int $threads = -1): array
+    public function runAsync($threads = -1)
     {
-        return wait($this->runAsyncPromise($threads));
+        if (!\is_int($threads)) {
+            if (!(\is_bool($threads) || \is_numeric($threads))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($threads) must be of type int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($threads) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $threads = (int) $threads;
+        }
+        $phabelReturn = wait($this->runAsyncPromise($threads));
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Run phabel asynchronously.
      *
      * @return Promise<array>
      */
-    public function runAsyncPromise(int $threads = -1): Promise
+    public function runAsyncPromise($threads = -1)
     {
+        if (!\is_int($threads)) {
+            if (!(\is_bool($threads) || \is_numeric($threads))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($threads) must be of type int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($threads) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $threads = (int) $threads;
+        }
         if (!\interface_exists(Promise::class)) {
             throw new Exception("amphp/parallel must be installed to parallelize transforms!");
         }
-        $this->eventHandler?->onStart();
+        \Phabel\Plugin\NestedExpressionFixer::returnMe(isset($this->eventHandler) ? $this->eventHandler : \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->onStart();
         if ($threads === -1) {
             $threads = Tools::getCpuCount();
         }
         $coverages = [];
-        return call(function () use (&$coverages, $threads) {
+        $phabelReturn = call(function () use (&$coverages, $threads) {
             $packages = [];
             $first = !$this->count++;
             if (!\file_exists($this->output)) {
@@ -335,10 +411,11 @@ class Traverser
                 } elseif ($file->isFile()) {
                     if ($file->getExtension() == 'php') {
                         $promise = call(function () use ($pool, $file, $rel, $targetPath, $count, $first, &$promises, &$coverages) {
-                            $this->eventHandler?->onBeginAstTraversal($file->getRealPath());
+                            \Phabel\Plugin\NestedExpressionFixer::returnMe(isset($this->eventHandler) ? $this->eventHandler : \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->onBeginAstTraversal($file->getRealPath());
                             $package = null;
                             if ($this->composerPackageName) {
-                                $package = ($this->composerPackageName)($rel);
+                                $phabel_c507848c74a74245 = $this->composerPackageName;
+                                $package = $phabel_c507848c74a74245($rel);
                             }
                             $res = (yield $pool->enqueue(new Run($rel, $file->getRealPath(), $targetPath, $package, $this->coverage ? "{$this->coverage}{$count}.php" : '')));
                             if ($this->coverage) {
@@ -354,7 +431,7 @@ class Traverser
                                 }
                             }
                             \chmod($targetPath, \fileperms($file->getRealPath()));
-                            $this->eventHandler?->onEndAstTraversal($file->getRealPath(), $res);
+                            \Phabel\Plugin\NestedExpressionFixer::returnMe(isset($this->eventHandler) ? $this->eventHandler : \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->onEndAstTraversal($file->getRealPath(), $res);
                             unset($promises[$count]);
                         });
                         $promises[$count] = $promise;
@@ -366,8 +443,8 @@ class Traverser
                 }
             }
             (yield $promises);
-            $this->eventHandler?->onEndDirectoryTraversal();
-            $this->eventHandler?->onBeginClassGraphMerge($threads);
+            \Phabel\Plugin\NestedExpressionFixer::returnMe(isset($this->eventHandler) ? $this->eventHandler : \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->onEndDirectoryTraversal();
+            \Phabel\Plugin\NestedExpressionFixer::returnMe(isset($this->eventHandler) ? $this->eventHandler : \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->onBeginClassGraphMerge($threads);
             $promises = [];
             /** @var ClassStoragePlugin|null */
             $classStorage = null;
@@ -380,15 +457,15 @@ class Traverser
                     } else {
                         $classStorage->merge($newClassStorage);
                     }
-                    $this->eventHandler?->onClassGraphMerged();
+                    \Phabel\Plugin\NestedExpressionFixer::returnMe(isset($this->eventHandler) ? $this->eventHandler : \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->onClassGraphMerged();
                 });
             }
             (yield $promises);
-            $this->eventHandler?->onEndClassGraphMerge();
+            \Phabel\Plugin\NestedExpressionFixer::returnMe(isset($this->eventHandler) ? $this->eventHandler : \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->onEndClassGraphMerge();
             (yield $pool->shutdown());
             unset($pool);
             if ($classStorage) {
-                [$plugins, $files] = $classStorage->finish();
+                list($plugins, $files) = $classStorage->finish();
                 unset($classStorage);
                 if ($plugins && $files) {
                     $this->input = $this->output;
@@ -416,29 +493,75 @@ class Traverser
             if ($coverage) {
                 (new PHP())->process($coverage, $this->coverage);
             }
-            $this->eventHandler?->onEnd();
+            \Phabel\Plugin\NestedExpressionFixer::returnMe(isset($this->eventHandler) ? $this->eventHandler : \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->onEnd();
             return $packages;
         });
+        if (!$phabelReturn instanceof Promise) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type Promise, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Run phabel.
      *
      * @return array<string, string>
      */
-    public function run(int $threads = 1): array
+    public function run($threads = 1)
     {
-        if ($threads > 1 || $threads === -1) {
-            return $this->runAsync($threads);
+        if (!\is_int($threads)) {
+            if (!(\is_bool($threads) || \is_numeric($threads))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($threads) must be of type int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($threads) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $threads = (int) $threads;
         }
-        \set_error_handler(function (int $errno = 0, string $errstr = '', string $errfile = '', int $errline = -1): bool {
+        if ($threads > 1 || $threads === -1) {
+            $phabelReturn = $this->runAsync($threads);
+            if (!\is_array($phabelReturn)) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
+        }
+        \set_error_handler(function ($errno = 0, $errstr = '', $errfile = '', $errline = -1) {
+            if (!\is_int($errno)) {
+                if (!(\is_bool($errno) || \is_numeric($errno))) {
+                    throw new \TypeError(__METHOD__ . '(): Argument #1 ($errno) must be of type int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($errno) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                }
+                $errno = (int) $errno;
+            }
+            if (!\is_string($errstr)) {
+                if (!(\is_string($errstr) || \is_object($errstr) && \method_exists($errstr, '__toString') || (\is_bool($errstr) || \is_numeric($errstr)))) {
+                    throw new \TypeError(__METHOD__ . '(): Argument #2 ($errstr) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($errstr) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                }
+                $errstr = (string) $errstr;
+            }
+            if (!\is_string($errfile)) {
+                if (!(\is_string($errfile) || \is_object($errfile) && \method_exists($errfile, '__toString') || (\is_bool($errfile) || \is_numeric($errfile)))) {
+                    throw new \TypeError(__METHOD__ . '(): Argument #3 ($errfile) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($errfile) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                }
+                $errfile = (string) $errfile;
+            }
+            if (!\is_int($errline)) {
+                if (!(\is_bool($errline) || \is_numeric($errline))) {
+                    throw new \TypeError(__METHOD__ . '(): Argument #4 ($errline) must be of type int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($errline) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                }
+                $errline = (int) $errline;
+            }
             // If error is suppressed with @, don't throw an exception
             if (\error_reporting() === 0) {
-                return false;
+                $phabelReturn = false;
+                if (!\is_bool($phabelReturn)) {
+                    if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
+                        throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                    }
+                    $phabelReturn = (bool) $phabelReturn;
+                }
+                return $phabelReturn;
             }
             throw new Exception($errstr, $errno, null, $errfile, $errline);
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, none returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
         });
         $packages = [];
-        $this->eventHandler?->onStart();
+        \Phabel\Plugin\NestedExpressionFixer::returnMe(isset($this->eventHandler) ? $this->eventHandler : \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->onStart();
         while (true) {
             $this->runInternal();
             $packages += $this->graph->getPackages();
@@ -446,7 +569,7 @@ class Traverser
             if (!$classStorage) {
                 break;
             }
-            [$plugins, $files] = $classStorage->finish();
+            list($plugins, $files) = $classStorage->finish();
             unset($classStorage);
             if (!$plugins || !$files) {
                 break;
@@ -456,16 +579,20 @@ class Traverser
             $this->composerPackageName = null;
             $this->setPlugins($plugins);
         }
-        $this->eventHandler?->onEnd();
+        \Phabel\Plugin\NestedExpressionFixer::returnMe(isset($this->eventHandler) ? $this->eventHandler : \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->onEnd();
         \restore_error_handler();
-        return $packages;
+        $phabelReturn = $packages;
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Run phabel (internal function).
      *
      * @internal
      */
-    public function runInternal(): void
+    public function runInternal()
     {
         $_ = self::startCoverage($this->coverage);
         $first = !$this->count++;
@@ -498,20 +625,29 @@ class Traverser
                 if ($file->getExtension() == 'php') {
                     $_ = self::startCoverage($this->coverage);
                     if ($this->composerPackageName) {
-                        $this->setPackage(($this->composerPackageName)($rel));
+                        $phabel_b1a55408243b319b = $this->composerPackageName;
+                        $this->setPackage($phabel_b1a55408243b319b($rel));
                     } else {
                         $this->packageQueue = null;
                     }
                     try {
                         $it = $this->traverse($rel, $file->getRealPath(), $targetPath);
-                    } catch (\Throwable $e) {
+                    } catch (\Exception $e) {
                         if (!($first && $e instanceof Exception && \str_contains($e->getMessage(), ' while parsing '))) {
                             throw $e;
                         }
                         if (\realpath($targetPath) !== $file->getRealPath()) {
                             \copy($file->getRealPath(), $targetPath);
                         }
-                        $this->eventHandler?->onEndAstTraversal($file->getRealPath(), $e);
+                        \Phabel\Plugin\NestedExpressionFixer::returnMe(isset($this->eventHandler) ? $this->eventHandler : \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->onEndAstTraversal($file->getRealPath(), $e);
+                    } catch (\Error $e) {
+                        if (!($first && $e instanceof Exception && \str_contains($e->getMessage(), ' while parsing '))) {
+                            throw $e;
+                        }
+                        if (\realpath($targetPath) !== $file->getRealPath()) {
+                            \copy($file->getRealPath(), $targetPath);
+                        }
+                        \Phabel\Plugin\NestedExpressionFixer::returnMe(isset($this->eventHandler) ? $this->eventHandler : \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->onEndAstTraversal($file->getRealPath(), $e);
                     }
                 } elseif (\realpath($targetPath) !== $file->getRealPath()) {
                     \copy($file->getRealPath(), $targetPath);
@@ -519,7 +655,7 @@ class Traverser
                 \chmod($targetPath, \fileperms($file->getRealPath()));
             }
         }
-        $this->eventHandler?->onEndDirectoryTraversal();
+        \Phabel\Plugin\NestedExpressionFixer::returnMe(isset($this->eventHandler) ? $this->eventHandler : \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->onEndDirectoryTraversal();
     }
     /**
      * Set package name.
@@ -528,8 +664,16 @@ class Traverser
      *
      * @return void
      */
-    public function setPackage(?string $package): void
+    public function setPackage($package)
     {
+        if (!\is_null($package)) {
+            if (!\is_string($package)) {
+                if (!(\is_string($package) || \is_object($package) && \method_exists($package, '__toString') || (\is_bool($package) || \is_numeric($package)))) {
+                    throw new \TypeError(__METHOD__ . '(): Argument #1 ($package) must be of type ?string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($package) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                }
+                $package = (string) $package;
+            }
+        }
         /** @var SplQueue<SplQueue<PluginInterface>> */
         if (!$package) {
             $this->packageQueue = null;
@@ -564,14 +708,32 @@ class Traverser
      *
      * @return int
      */
-    public function traverse(string $file, string $input, string $output): int
+    public function traverse($file, $input, $output)
     {
-        $this->eventHandler?->onBeginAstTraversal($input);
+        if (!\is_string($file)) {
+            if (!(\is_string($file) || \is_object($file) && \method_exists($file, '__toString') || (\is_bool($file) || \is_numeric($file)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($file) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($file) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $file = (string) $file;
+        }
+        if (!\is_string($input)) {
+            if (!(\is_string($input) || \is_object($input) && \method_exists($input, '__toString') || (\is_bool($input) || \is_numeric($input)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #2 ($input) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($input) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $input = (string) $input;
+        }
+        if (!\is_string($output)) {
+            if (!(\is_string($output) || \is_object($output) && \method_exists($output, '__toString') || (\is_bool($output) || \is_numeric($output)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #3 ($output) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($output) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $output = (string) $output;
+        }
+        \Phabel\Plugin\NestedExpressionFixer::returnMe(isset($this->eventHandler) ? $this->eventHandler : \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->onBeginAstTraversal($input);
         /** @var SplQueue<SplQueue<PluginInterface>> */
         $reducedQueue = new SplQueue();
         /** @var SplQueue<PluginInterface> */
         $newQueue = new SplQueue();
-        foreach ($this->packageQueue ?? $this->graph->getPlugins() as $queue) {
+        foreach (isset($this->packageQueue) ? $this->packageQueue : $this->graph->getPlugins() as $queue) {
             if ($newQueue->count()) {
                 $reducedQueue->enqueue($newQueue);
                 /** @var SplQueue<PluginInterface> */
@@ -587,12 +749,24 @@ class Traverser
         if ($newQueue->count()) {
             $reducedQueue->enqueue($newQueue);
         } elseif (!$reducedQueue->count()) {
-            $this->eventHandler?->onEndAstTraversal($input, 0);
-            return 0;
+            \Phabel\Plugin\NestedExpressionFixer::returnMe(isset($this->eventHandler) ? $this->eventHandler : \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->onEndAstTraversal($input, 0);
+            $phabelReturn = 0;
+            if (!\is_int($phabelReturn)) {
+                if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn))) {
+                    throw new \TypeError(__METHOD__ . '(): Return value must be of type int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                }
+                $phabelReturn = (int) $phabelReturn;
+            }
+            return $phabelReturn;
         }
         try {
-            $ast = new RootNode($this->parser->parse(\file_get_contents($input)) ?? []);
-        } catch (\Throwable $e) {
+            $ast = new RootNode(null !== ($phabel_6f5fa46f697baa56 = $this->parser->parse(\file_get_contents($input))) ? $phabel_6f5fa46f697baa56 : []);
+        } catch (\Exception $e) {
+            $message = $e->getMessage();
+            $message .= " while parsing ";
+            $message .= $input;
+            throw new Exception($message, (int) $e->getCode(), $e, $e->getFile(), $e->getLine());
+        } catch (\Error $e) {
             $message = $e->getMessage();
             $message .= " while parsing ";
             $message .= $input;
@@ -601,10 +775,17 @@ class Traverser
         $this->file = $file;
         $this->inputFile = $input;
         $this->outputFile = $output;
-        [$it, $result] = $this->traverseAstInternal($ast, $reducedQueue);
+        list($it, $result) = $this->traverseAstInternal($ast, $reducedQueue);
         \file_put_contents($output, $result);
-        $this->eventHandler?->onEndAstTraversal($input, $it);
-        return $it;
+        \Phabel\Plugin\NestedExpressionFixer::returnMe(isset($this->eventHandler) ? $this->eventHandler : \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->onEndAstTraversal($input, $it);
+        $phabelReturn = $it;
+        if (!\is_int($phabelReturn)) {
+            if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $phabelReturn = (int) $phabelReturn;
+        }
+        return $phabelReturn;
     }
     /**
      * Traverse AST.
@@ -617,13 +798,26 @@ class Traverser
      *
      * @return int
      */
-    public function traverseAst(Node &$node, SplQueue $pluginQueue = null, bool $allowMulti = true): int
+    public function traverseAst(Node &$node, SplQueue $pluginQueue = null, $allowMulti = true)
     {
+        if (!\is_bool($allowMulti)) {
+            if (!(\is_bool($allowMulti) || \is_numeric($allowMulti) || \is_string($allowMulti))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #3 ($allowMulti) must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($allowMulti) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $allowMulti = (bool) $allowMulti;
+        }
         $this->file = '';
         $this->inputFile = '';
         $this->outputFile = '';
         $n = new RootNode([&$node]);
-        return $this->traverseAstInternal($n, $pluginQueue, $allowMulti)[0] ?? 0;
+        $phabelReturn = null !== ($phabel_99db884988fa8271 = $this->traverseAstInternal($n, $pluginQueue, $allowMulti)) && isset($phabel_99db884988fa8271[0]) ? $phabel_99db884988fa8271[0] : 0;
+        if (!\is_int($phabelReturn)) {
+            if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $phabelReturn = (int) $phabelReturn;
+        }
+        return $phabelReturn;
     }
     /**
      * Traverse AST.
@@ -640,14 +834,20 @@ class Traverser
      * @return array{0: int, 1: string}|null
      * @psalm-return (T is true ? array{0: int, 1: string} : null)
      */
-    private function traverseAstInternal(RootNode &$node, SplQueue $pluginQueue = null, bool $allowMulti = true): ?array
+    private function traverseAstInternal(RootNode &$node, SplQueue $pluginQueue = null, $allowMulti = true)
     {
+        if (!\is_bool($allowMulti)) {
+            if (!(\is_bool($allowMulti) || \is_numeric($allowMulti) || \is_string($allowMulti))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #3 ($allowMulti) must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($allowMulti) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $allowMulti = (bool) $allowMulti;
+        }
         $it = 0;
         $result = $this->printer->prettyPrintFile($node->stmts);
         do {
             $context = null;
             try {
-                foreach ($pluginQueue ?? $this->packageQueue ?? $this->graph->getPlugins() as $queue) {
+                foreach (isset($pluginQueue) ? $pluginQueue : (isset($this->packageQueue) ? $this->packageQueue : $this->graph->getPlugins()) as $queue) {
                     $context = new Context();
                     $context->setFile($this->file);
                     $context->setInputFile($this->inputFile);
@@ -657,16 +857,35 @@ class Traverser
                     /** @var RootNode $node */
                 }
                 if (!$allowMulti) {
-                    return null;
+                    $phabelReturn = null;
+                    if (!(\is_array($phabelReturn) || \is_null($phabelReturn))) {
+                        throw new \TypeError(__METHOD__ . '(): Return value must be of type ?array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                    }
+                    return $phabelReturn;
                 }
-            } catch (\Throwable $e) {
+            } catch (\Exception $e) {
                 $message = $e->getMessage();
                 $message .= " while processing ";
                 $message .= $this->file;
                 $message .= ":";
                 try {
                     $message .= $context ? $context->getCurrentChild($context->parents[0])->getStartLine() : "-1";
-                } catch (\Throwable $e) {
+                } catch (\Exception $e) {
+                    $message .= "-1";
+                } catch (\Error $e) {
+                    $message .= "-1";
+                }
+                throw new Exception($message, (int) $e->getCode(), $e, $e->getFile(), $e->getLine());
+            } catch (\Error $e) {
+                $message = $e->getMessage();
+                $message .= " while processing ";
+                $message .= $this->file;
+                $message .= ":";
+                try {
+                    $message .= $context ? $context->getCurrentChild($context->parents[0])->getStartLine() : "-1";
+                } catch (\Exception $e) {
+                    $message .= "-1";
+                } catch (\Error $e) {
                     $message .= "-1";
                 }
                 throw new Exception($message, (int) $e->getCode(), $e, $e->getFile(), $e->getLine());
@@ -675,7 +894,11 @@ class Traverser
             $result = $this->printer->prettyPrintFile($node->stmts);
             $it++;
         } while ($result !== $oldResult);
-        return [$it, $result];
+        $phabelReturn = [$it, $result];
+        if (!(\is_array($phabelReturn) || \is_null($phabelReturn))) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ?array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Traverse node.
@@ -686,19 +909,19 @@ class Traverser
      *
      * @return void
      */
-    private function traverseNode(Node &$node, SplQueue $plugins, Context $context): void
+    private function traverseNode(Node &$node, SplQueue $plugins, Context $context)
     {
         $context->pushResolve($node);
         foreach ($plugins as $plugin) {
             foreach (PluginCache::enterMethods(\get_class($plugin)) as $type => $methods) {
-                if (!$node instanceof $type) {
+                if (!\Phabel\Target\Php70\ThrowableReplacer::isInstanceofThrowable($node, $type)) {
                     continue;
                 }
                 foreach ($methods as $method) {
                     /** @var Node|null */
                     $result = $plugin->{$method}($node, $context);
                     if ($result instanceof Node) {
-                        if (!$result instanceof $node) {
+                        if (!\Phabel\Target\Php70\ThrowableReplacer::isInstanceofThrowable($result, $node)) {
                             $node = $result;
                             continue 2;
                         }
@@ -736,14 +959,14 @@ class Traverser
         $context->pop();
         foreach ($plugins as $plugin) {
             foreach (PluginCache::leaveMethods(\get_class($plugin)) as $type => $methods) {
-                if (!$node instanceof $type) {
+                if (!\Phabel\Target\Php70\ThrowableReplacer::isInstanceofThrowable($node, $type)) {
                     continue;
                 }
                 foreach ($methods as $method) {
                     /** @var Node|null */
                     $result = $plugin->{$method}($node, $context);
                     if ($result instanceof Node) {
-                        if (!$result instanceof $node) {
+                        if (!\Phabel\Target\Php70\ThrowableReplacer::isInstanceofThrowable($result, $node)) {
                             $node = $result;
                             continue 2;
                         }
@@ -757,6 +980,36 @@ class Traverser
     {
         unset($this->graph);
         while (\gc_collect_cycles()) {
+        }
+    }
+}
+if (!\class_exists(PhabelAnonymousClass063d10f883fe83b0c12eba721edc03b9cc7383d4550ab4363c290322abe45bb50::class)) {
+    class PhabelAnonymousClass063d10f883fe83b0c12eba721edc03b9cc7383d4550ab4363c290322abe45bb50 implements \Phabel\Target\Php70\AnonymousClass\AnonymousClassInterface
+    {
+        private $coveragePath;
+        private $coverage;
+        public function __construct(CodeCoverage $coverage, $coveragePath)
+        {
+            if (!\is_string($coveragePath)) {
+                if (!(\is_string($coveragePath) || \is_object($coveragePath) && \method_exists($coveragePath, '__toString') || (\is_bool($coveragePath) || \is_numeric($coveragePath)))) {
+                    throw new \TypeError(__METHOD__ . '(): Argument #2 ($coveragePath) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($coveragePath) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                }
+                $coveragePath = (string) $coveragePath;
+            }
+            $this->coverage = $coverage;
+            $this->coveragePath = $coveragePath;
+        }
+        public function __destruct()
+        {
+            $this->coverage->stop();
+            if (\file_exists($this->coveragePath)) {
+                $this->coverage->merge(require $this->coveragePath);
+            }
+            (new PHP())->process($this->coverage, $this->coveragePath);
+        }
+        public static function getPhabelOriginalName()
+        {
+            return 'class@anonymous';
         }
     }
 }

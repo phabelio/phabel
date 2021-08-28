@@ -21,61 +21,61 @@ class Node
      *
      * @var Plugins
      */
-    public Plugins $plugin;
+    public $plugin;
     /**
      * Original plugin name.
      *
      * @var class-string<PluginInterface>
      */
-    private string $name;
+    private $name;
     /**
      * Original plugin name.
      *
      * @var class-string<PluginInterface>
      */
-    private string $nameConcat;
+    private $nameConcat;
     /**
      * Associated package context.
      *
      * @var PackageContext
      */
-    private PackageContext $packageContext;
+    private $packageContext;
     /**
      * Nodes that this node requires.
      *
      * @var SplObjectStorage<Node, null>
      */
-    private SplObjectStorage $requires;
+    private $requires;
     /**
      * Nodes that this node extends.
      *
      * @var SplObjectStorage<Node, null>
      */
-    private SplObjectStorage $extends;
+    private $extends;
     /**
      * Nodes that require this node.
      *
      * @var SplObjectStorage<Node, null>
      */
-    private SplObjectStorage $requiredBy;
+    private $requiredBy;
     /**
      * Nodes that extend this node.
      *
      * @var SplObjectStorage<Node, null>
      */
-    private SplObjectStorage $extendedBy;
+    private $extendedBy;
     /**
      * Graph instance.
      */
-    private GraphInternal $graph;
+    private $graph;
     /**
      * Whether this node was visited when looking for circular requirements.
      */
-    private bool $visitedCircular = false;
+    private $visitedCircular = false;
     /**
      * Whether this node can be required, or only extended.
      */
-    private bool $canBeRequired = true;
+    private $canBeRequired = true;
     /**
      * Constructor.
      *
@@ -101,8 +101,14 @@ class Node
      *
      * @return self
      */
-    public function init(string $plugin, array $pluginConfig): self
+    public function init($plugin, array $pluginConfig)
     {
+        if (!\is_string($plugin)) {
+            if (!(\is_string($plugin) || \is_object($plugin) && \method_exists($plugin, '__toString') || (\is_bool($plugin) || \is_numeric($plugin)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($plugin) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($plugin) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $plugin = (string) $plugin;
+        }
         $this->name = $plugin;
         $this->plugin = new Plugins($plugin, $pluginConfig);
         $this->canBeRequired = PluginCache::canBeRequired($plugin);
@@ -126,7 +132,11 @@ class Node
                 $this->extend($node);
             }
         }
-        return $this;
+        $phabelReturn = $this;
+        if (!$phabelReturn instanceof self) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ' . self::class . ', ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Make node require another node.
@@ -135,7 +145,7 @@ class Node
      *
      * @return void
      */
-    private function require(self $node): void
+    private function require(self $node)
     {
         if (!$node->canBeRequired) {
             $this->extend($node);
@@ -156,7 +166,7 @@ class Node
      *
      * @return void
      */
-    private function extend(self $node): void
+    private function extend(self $node)
     {
         if ($this->requires->contains($node) || $node->requiredBy->contains($this)) {
             return;
@@ -172,7 +182,7 @@ class Node
      *
      * @return Node
      */
-    public function merge(self $other): Node
+    public function merge(self $other)
     {
         if ($other->requires->count() || $other->extends->count()) {
             throw new Exception('Cannot merge a node that requires other nodes!');
@@ -190,14 +200,18 @@ class Node
         $other->requiredBy = new SplObjectStorage();
         $other->extendedBy = new SplObjectStorage();
         $this->graph->unprocessedNode->detach($other);
-        return $this;
+        $phabelReturn = $this;
+        if (!$phabelReturn instanceof Node) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type Node, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Look for circular references, while merging package contexts.
      *
      * @return self
      */
-    public function circular(): self
+    public function circular()
     {
         if ($this->visitedCircular) {
             $plugins = [$this->name];
@@ -217,14 +231,18 @@ class Node
             $this->packageContext->merge($that->circular()->packageContext);
         }
         $this->visitedCircular = false;
-        return $this;
+        $phabelReturn = $this;
+        if (!$phabelReturn instanceof self) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ' . self::class . ', ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Flatten tree.
      *
      * @return array{0: SplQueue<SplQueue<PluginInterface>>, array<string, list<string>>}
      */
-    public function flatten(): array
+    public function flatten()
     {
         /** @var SplQueue<PluginInterface> */
         $initQueue = new SplQueue();
@@ -236,7 +254,11 @@ class Node
         if ($this->extendedBy->count() || $this->requiredBy->count()) {
             throw new Exception('Graph resolution has stalled');
         }
-        return [$queue, $packages];
+        $phabelReturn = [$queue, $packages];
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Internal flattening.
@@ -245,7 +267,7 @@ class Node
      *
      * @return void
      */
-    private function flattenInternal(SplQueue $queueOfQueues, array &$packages): void
+    private function flattenInternal(SplQueue $queueOfQueues, array &$packages)
     {
         $queue = $queueOfQueues->top();
         $this->plugin->enqueue($queue, $this->packageContext, $packages);
@@ -320,9 +342,13 @@ class Node
      *
      * @return self
      */
-    public function addPackages(PackageContext $ctx): self
+    public function addPackages(PackageContext $ctx)
     {
         $this->packageContext->merge($ctx);
-        return $this;
+        $phabelReturn = $this;
+        if (!$phabelReturn instanceof self) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ' . self::class . ', ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
 }

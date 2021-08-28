@@ -25,7 +25,7 @@ class ListSplitter extends Plugin
      *
      * @return void
      */
-    public function enterForeach(Foreach_ $node, Context $ctx): void
+    public function enterForeach(Foreach_ $node, Context $ctx)
     {
         if (!($node->valueVar instanceof List_ || $node->valueVar instanceof Array_)) {
             return;
@@ -72,7 +72,7 @@ class ListSplitter extends Plugin
      * @return (Assign|AssignRef)[]
      * @psalm-return array<int, Assign|AssignRef>
      */
-    public static function splitList($list, Variable $var): array
+    public static function splitList($list, Variable $var)
     {
         $assignments = [];
         $key = 0;
@@ -82,14 +82,18 @@ class ListSplitter extends Plugin
                 $key++;
                 continue;
             }
-            $curKey = $item->key ?? new LNumber($key++);
+            $curKey = isset($item->key) ? $item->key : new LNumber($key++);
             if ($item->byRef) {
                 $assignments[] = new AssignRef($item->value, new ArrayDimFetch($var, $curKey));
             } else {
                 $assignments[] = new Assign($item->value, new ArrayDimFetch($var, $curKey));
             }
         }
-        return $assignments;
+        $phabelReturn = $assignments;
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Whether we should act on this list.
@@ -98,13 +102,20 @@ class ListSplitter extends Plugin
      *
      * @return boolean
      */
-    private function hasReference($list): bool
+    private function hasReference($list)
     {
         $c = $this->getConfigArray();
         $this->setConfigArray(['byRef' => true]);
         $res = $this->shouldSplit($list);
         $this->setConfigArray($c);
-        return $res;
+        $phabelReturn = $res;
+        if (!\is_bool($phabelReturn)) {
+            if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $phabelReturn = (bool) $phabelReturn;
+        }
+        return $phabelReturn;
     }
     /**
      * Whether we should act on this list.
@@ -113,22 +124,50 @@ class ListSplitter extends Plugin
      *
      * @return boolean
      */
-    private function shouldSplit($list): bool
+    private function shouldSplit($list)
     {
         foreach ($list->items as $item) {
             if (!$item) {
                 continue;
             }
             if ($this->getConfig('byRef', false) && $item->byRef) {
-                return true;
+                $phabelReturn = true;
+                if (!\is_bool($phabelReturn)) {
+                    if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
+                        throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                    }
+                    $phabelReturn = (bool) $phabelReturn;
+                }
+                return $phabelReturn;
             } elseif ($this->getConfig('key', false) && isset($item->key)) {
-                return true;
+                $phabelReturn = true;
+                if (!\is_bool($phabelReturn)) {
+                    if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
+                        throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                    }
+                    $phabelReturn = (bool) $phabelReturn;
+                }
+                return $phabelReturn;
             } elseif ($item->value instanceof List_ || $item->value instanceof Array_) {
                 if ($this->shouldSplit($item->value)) {
-                    return true;
+                    $phabelReturn = true;
+                    if (!\is_bool($phabelReturn)) {
+                        if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
+                            throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                        }
+                        $phabelReturn = (bool) $phabelReturn;
+                    }
+                    return $phabelReturn;
                 }
             }
         }
-        return false;
+        $phabelReturn = false;
+        if (!\is_bool($phabelReturn)) {
+            if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $phabelReturn = (bool) $phabelReturn;
+        }
+        return $phabelReturn;
     }
 }

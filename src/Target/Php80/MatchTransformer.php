@@ -26,7 +26,7 @@ use PhpParser\Node\Stmt\Throw_;
  */
 class MatchTransformer extends Plugin
 {
-    public function enter(Match_ $match, Context $context): FuncCall
+    public function enter(Match_ $match, Context $context)
     {
         $closure = new Closure(['params' => [new Param($var = $context->getVariable())], 'uses' => \array_values(VariableFinder::find($match, true))]);
         $cases = [];
@@ -47,13 +47,17 @@ class MatchTransformer extends Plugin
         if (empty($cases)) {
             $closure->stmts = [$default];
         } else {
-            [$ifCond, $ifBody] = \array_shift($cases);
+            list($ifCond, $ifBody) = \array_shift($cases);
             foreach ($cases as &$case) {
-                [$cond, $body] = $case;
+                list($cond, $body) = $case;
                 $case = new ElseIf_($cond, [$body]);
             }
             $closure->stmts = [new If_($ifCond, ['stmts' => [$ifBody], 'elseifs' => $cases, 'else' => new Else_([$default])])];
         }
-        return new FuncCall($closure, [new Arg($match->cond)]);
+        $phabelReturn = new FuncCall($closure, [new Arg($match->cond)]);
+        if (!$phabelReturn instanceof FuncCall) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type FuncCall, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
 }

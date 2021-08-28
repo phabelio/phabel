@@ -12,11 +12,19 @@ use PhpParser\Node\Stmt\Expression;
  */
 class StmtExprWrapper extends Plugin
 {
-    public function enter(Expr $expr, Context $ctx): ?Expression
+    public function enter(Expr $expr, Context $ctx)
     {
         if ($ctx->parents[0]->getAttribute('currentNode') === 'stmts') {
-            return new Expression($expr);
+            $phabelReturn = new Expression($expr);
+            if (!($phabelReturn instanceof Expression || \is_null($phabelReturn))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type ?Expression, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         }
-        return null;
+        $phabelReturn = null;
+        if (!($phabelReturn instanceof Expression || \is_null($phabelReturn))) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ?Expression, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
 }

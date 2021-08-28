@@ -26,9 +26,13 @@ class NullSafeTransformer extends Plugin
      * @param NullsafePropertyFetch $fetch
      * @return PropertyFetch
      */
-    public function enterPropertyFetch(NullsafePropertyFetch $fetch): PropertyFetch
+    public function enterPropertyFetch(NullsafePropertyFetch $fetch)
     {
-        return new PropertyFetch(new Coalesce($fetch->var, new StaticPropertyFetch(new FullyQualified(NullSafe::class), 'singleton')), $fetch->name);
+        $phabelReturn = new PropertyFetch(new Coalesce($fetch->var, new StaticPropertyFetch(new FullyQualified(NullSafe::class), 'singleton')), $fetch->name);
+        if (!$phabelReturn instanceof PropertyFetch) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type PropertyFetch, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Method call.
@@ -36,12 +40,20 @@ class NullSafeTransformer extends Plugin
      * @param NullsafeMethodCall $fetch
      * @return MethodCall
      */
-    public function enterMethodCall(NullsafeMethodCall $fetch): MethodCall
+    public function enterMethodCall(NullsafeMethodCall $fetch)
     {
-        return new MethodCall(new Coalesce($fetch->var, new StaticPropertyFetch(new FullyQualified(NullSafe::class), 'singleton')), $fetch->name, $fetch->args);
+        $phabelReturn = new MethodCall(new Coalesce($fetch->var, new StaticPropertyFetch(new FullyQualified(NullSafe::class), 'singleton')), $fetch->name, $fetch->args);
+        if (!$phabelReturn instanceof MethodCall) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type MethodCall, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
-    public static function previous(array $config): array
+    public static function previous(array $config)
     {
-        return [NestedExpressionFixer::class => [New_::class => ['class' => [NullsafePropertyFetch::class => true, NullsafeMethodCall::class => true]]]];
+        $phabelReturn = [NestedExpressionFixer::class => [New_::class => ['class' => [NullsafePropertyFetch::class => true, NullsafeMethodCall::class => true]]]];
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
 }

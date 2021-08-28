@@ -12,8 +12,12 @@ use Phabel\Plugin\TypeHintReplacer;
  */
 class VoidReturnType extends Plugin
 {
-    public static function previous(array $config): array
+    public static function previous(array $config)
     {
-        return [TypeHintReplacer::class => ['void' => true]];
+        $phabelReturn = [TypeHintReplacer::class => ['void' => true]];
+        if (!\is_array($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
 }

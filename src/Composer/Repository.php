@@ -10,7 +10,7 @@ use Composer\Package\PackageInterface;
  */
 trait Repository
 {
-    private Transformer $phabelTransformer;
+    private $phabelTransformer;
     /**
      * TODO v3 should make this private once we can drop PHP 5.3 support.
      *
@@ -19,7 +19,7 @@ trait Repository
      */
     public function isVersionAcceptable($constraint, $name, $versionData, array $acceptableStabilities = null, array $stabilityFlags = null)
     {
-        [$name] = $this->phabelTransformer->extractTarget($name);
+        list($name) = $this->phabelTransformer->extractTarget($name);
         return parent::isVersionAcceptable($constraint, $name, $versionData, $acceptableStabilities, $stabilityFlags);
     }
     /**
@@ -37,22 +37,22 @@ trait Repository
         $newPackageNameMap = [];
         $transformInfo = [];
         foreach ($packageNameMap as $key => $constraint) {
-            [$package, $target] = $this->phabelTransformer->extractTarget($key);
-            $newPackageNameMap[$target] ??= [];
+            list($package, $target) = $this->phabelTransformer->extractTarget($key);
+            $newPackageNameMap[$target] = isset($newPackageNameMap[$target]) ? $newPackageNameMap[$target] : [];
             $newPackageNameMap[$target][$package] = $constraint;
-            $transformInfo[$target] ??= [];
+            $transformInfo[$target] = isset($transformInfo[$target]) ? $transformInfo[$target] : [];
             $transformInfo[$target][$package] = $key;
         }
         foreach ($alreadyLoaded as $key => $versions) {
-            [$package, $target] = $this->phabelTransformer->extractTarget($key);
-            $newAlreadyLoaded[$target] ??= [];
+            list($package, $target) = $this->phabelTransformer->extractTarget($key);
+            $newAlreadyLoaded[$target] = isset($newAlreadyLoaded[$target]) ? $newAlreadyLoaded[$target] : [];
             $newAlreadyLoaded[$target][$package] = $versions;
         }
         $finalNamesFound = [];
         $finalPackages = [];
         foreach ($newPackageNameMap as $target => $map) {
             $t = $transformInfo[$target];
-            $packages = parent::loadPackages($map, $acceptableStabilities, $stabilityFlags, $newAlreadyLoaded[$target] ?? []);
+            $packages = parent::loadPackages($map, $acceptableStabilities, $stabilityFlags, isset($newAlreadyLoaded[$target]) ? $newAlreadyLoaded[$target] : []);
             foreach ($packages['namesFound'] as $package) {
                 $finalNamesFound[] = $t[$package];
             }
@@ -82,7 +82,7 @@ trait Repository
      */
     public function findPackage($fullName, $constraint)
     {
-        [$name, $target] = $this->phabelTransformer->extractTarget($fullName);
+        list($name, $target) = $this->phabelTransformer->extractTarget($fullName);
         if (!($package = parent::findPackage($name, $constraint))) {
             return null;
         }
@@ -100,7 +100,7 @@ trait Repository
      */
     public function findPackages($fullName, $constraint = null)
     {
-        [$name, $target] = $this->phabelTransformer->extractTarget($fullName);
+        list($name, $target) = $this->phabelTransformer->extractTarget($fullName);
         $packages = parent::findPackages($name, $constraint);
         foreach ($packages as &$package) {
             $package = clone $package;
@@ -129,9 +129,13 @@ trait Repository
      *
      * @return self
      */
-    public function setPhabelTransformer(Transformer $phabelTransformer): self
+    public function setPhabelTransformer(Transformer $phabelTransformer)
     {
         $this->phabelTransformer = $phabelTransformer;
-        return $this;
+        $phabelReturn = $this;
+        if (!$phabelReturn instanceof self) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ' . self::class . ', ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
 }

@@ -17,20 +17,46 @@ use Symfony\Component\Process\Process;
 class Publish extends Command
 {
     protected static $defaultName = 'publish';
-    private function exec(array $command, bool $ignoreResult = false): string
+    private function exec(array $command, $ignoreResult = false)
     {
+        if (!\is_bool($ignoreResult)) {
+            if (!(\is_bool($ignoreResult) || \is_numeric($ignoreResult) || \is_string($ignoreResult))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #2 ($ignoreResult) must be of type bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($ignoreResult) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $ignoreResult = (bool) $ignoreResult;
+        }
         $proc = new Process($command);
         $proc->run();
         if (!$proc->isSuccessful() && !$ignoreResult) {
             throw new ProcessFailedException($proc);
         }
-        return $proc->getOutput();
+        $phabelReturn = $proc->getOutput();
+        if (!\is_string($phabelReturn)) {
+            if (!(\is_string($phabelReturn) || \is_object($phabelReturn) && \method_exists($phabelReturn, '__toString') || (\is_bool($phabelReturn) || \is_numeric($phabelReturn)))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $phabelReturn = (string) $phabelReturn;
+        }
+        return $phabelReturn;
     }
-    private function getMessage(string $ref): string
+    private function getMessage($ref)
     {
-        return $this->exec(['git', 'log', '--format=%B', '-n', '1', $ref]);
+        if (!\is_string($ref)) {
+            if (!(\is_string($ref) || \is_object($ref) && \method_exists($ref, '__toString') || (\is_bool($ref) || \is_numeric($ref)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($ref) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($ref) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $ref = (string) $ref;
+        }
+        $phabelReturn = $this->exec(['git', 'log', '--format=%B', '-n', '1', $ref]);
+        if (!\is_string($phabelReturn)) {
+            if (!(\is_string($phabelReturn) || \is_object($phabelReturn) && \method_exists($phabelReturn, '__toString') || (\is_bool($phabelReturn) || \is_numeric($phabelReturn)))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $phabelReturn = (string) $phabelReturn;
+        }
+        return $phabelReturn;
     }
-    protected function configure(): void
+    protected function configure()
     {
         $tags = new Process(['git', 'tag']);
         $tags->run();
@@ -43,8 +69,20 @@ class Publish extends Command
         }
         $this->setDescription('Transpile a release.')->setHelp('This command transpiles the specified (or the latest) git tag.')->addOption("remote", 'r', InputOption::VALUE_OPTIONAL, 'Remote where to push tags', 'origin')->addArgument('source', $tag ? InputArgument::OPTIONAL : InputArgument::REQUIRED, 'Source tag name', $tag);
     }
-    private function prepare(string $src, string $dest, callable $cb): void
+    private function prepare($src, $dest, callable $cb)
     {
+        if (!\is_string($src)) {
+            if (!(\is_string($src) || \is_object($src) && \method_exists($src, '__toString') || (\is_bool($src) || \is_numeric($src)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #1 ($src) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($src) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $src = (string) $src;
+        }
+        if (!\is_string($dest)) {
+            if (!(\is_string($dest) || \is_object($dest) && \method_exists($dest, '__toString') || (\is_bool($dest) || \is_numeric($dest)))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #2 ($dest) must be of type string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($dest) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $dest = (string) $dest;
+        }
         $this->exec(['git', 'checkout', $src]);
         $message = $this->getMessage($src);
         if (!\file_exists('composer.json')) {
@@ -65,20 +103,30 @@ class Publish extends Command
         $branch = \trim($this->exec(["git", 'rev-parse', '--abbrev-ref', 'HEAD']));
         $stashed = \trim($this->exec(['git', 'stash'])) !== 'No local changes to save';
         $output->write("<phabel>Tagging transpiled release <bold>{$src}.9998</bold>...</phabel>" . PHP_EOL);
-        $this->prepare($src, "{$src}.9998", function (array $json): array {
-            $json['phabel'] ??= [];
-            $json['phabel']['extra'] ??= [];
+        $this->prepare($src, "{$src}.9998", function (array $json) {
+            $json['phabel'] = isset($json['phabel']) ? $json['phabel'] : [];
+            $json['phabel']['extra'] = isset($json['phabel']['extra']) ? $json['phabel']['extra'] : [];
             $json['phabel']['extra']['require'] = $json['require'];
             $json['require'] = ['phabel/phabel' => Version::VERSION, 'php' => $json['require']['php']];
-            \file_put_contents(ComposerSanitizer::FILE_NAME, ComposerSanitizer::getContents($json['name'] ?? 'phabel'));
+            \file_put_contents(ComposerSanitizer::FILE_NAME, ComposerSanitizer::getContents(isset($json['name']) ? $json['name'] : 'phabel'));
             $this->exec(['git', 'add', ComposerSanitizer::FILE_NAME]);
-            $json['autoload'] ??= [];
-            $json['autoload']['files'] ??= [];
+            $json['autoload'] = isset($json['autoload']) ? $json['autoload'] : [];
+            $json['autoload']['files'] = isset($json['autoload']['files']) ? $json['autoload']['files'] : [];
             $json['autoload']['files'][] = ComposerSanitizer::FILE_NAME;
-            return $json;
+            $phabelReturn = $json;
+            if (!\is_array($phabelReturn)) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         });
         $output->write("<phabel>Tagging original release as <bold>{$src}.9999</bold>...</phabel>" . PHP_EOL);
-        $this->prepare($src, "{$src}.9999", fn (array $json): array => $json);
+        $this->prepare($src, "{$src}.9999", function (array $json) {
+            $phabelReturn = $json;
+            if (!\is_array($phabelReturn)) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
+        });
         $this->exec(['git', 'checkout', $branch]);
         if ($stashed) {
             $this->exec(['git', 'stash', 'pop']);
