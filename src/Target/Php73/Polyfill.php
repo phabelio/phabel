@@ -14,7 +14,7 @@ class Polyfill extends Plugin
     // Todo: setrawcookie
     // Todo: password_hash
 
-    public function getComposerRequires(): array
+    public static function getComposerRequires(array $config): array
     {
         return ['ralouphie/getallheaders' => '^3|^2'];
     }

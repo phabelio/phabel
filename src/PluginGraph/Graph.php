@@ -60,7 +60,7 @@ class Graph
      */
     public function flatten(): ResolvedGraph
     {
-        $this->resolvedGraph ??= new ResolvedGraph($this->graph->flatten());
+        $this->resolvedGraph ??= new ResolvedGraph(...$this->graph->flatten());
         $this->graph = null;
         return $this->resolvedGraph;
     }

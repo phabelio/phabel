@@ -36,6 +36,8 @@ foreach (Php::VERSIONS as $version) {
         ->run(\getenv('PHABEL_PARALLEL') ?: -1);
 }
 
+unset($packages['php']);
+
 if (!empty($packages)) {
     $cmd = "composer require --dev ";
     foreach ($packages as $package => $constraint) {

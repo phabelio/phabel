@@ -72,7 +72,7 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
     \chdir("../phabelConvertedInput");
     r("rm -rf vendor-bin/*/vendor");
     if (!empty($packages)) {
-        $cmd = "composer require --update-no-dev ";
+        $cmd = "composer require --update-no-dev -n ";
         foreach ($packages as $package => $constraint) {
             if ($package === 'php') {
                 continue;

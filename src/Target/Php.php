@@ -95,9 +95,9 @@ class Php extends Plugin
                 1 + $key
             );
     }
-    public function getComposerRequires(): array
+    public static function getComposerRequires(array $config): array
     {
-        $target = (int) $this->getConfig('target', self::DEFAULT_TARGET);
+        $target = Php::normalizeVersion($config['target'] ?? self::DEFAULT_TARGET);
         $res = [
             'php' => '>='.Php::unnormalizeVersion($target).' <'.Php::unnormalizeVersion($target+1)
         ];

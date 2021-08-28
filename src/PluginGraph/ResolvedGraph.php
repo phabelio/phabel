@@ -4,7 +4,6 @@ namespace Phabel\PluginGraph;
 
 use Phabel\Exception;
 use Phabel\Plugin\ClassStoragePlugin;
-use Phabel\PluginCache;
 use Phabel\PluginInterface;
 use SplQueue;
 
@@ -36,23 +35,19 @@ final class ResolvedGraph
     /**
      * Constructor.
      *
-     * @param SplQueue $plugins Resolved plugins
-     * @psalm-param SplQueue<SplQueue<PluginInterface>> $plugins Resolved plugins
+     * @param SplQueue<SplQueue<PluginInterface>> $plugins Resolved plugins
+     * @param array<string, list<string>> $packages
      */
-    public function __construct(SplQueue $plugins)
+    public function __construct(SplQueue $plugins, array $packages = [])
     {
+        $this->packages = \array_map(
+            fn (array $constraints): string => \implode(':', \array_unique($constraints)),
+            $packages
+        );
         $this->plugins = new SplQueue;
-        $requires = [];
         foreach ($plugins as $queue) {
             $newQueue = new SplQueue;
             foreach ($queue as $plugin) {
-                foreach ($plugin->getComposerRequires() as $package => $constraint) {
-                    $requires[$package] ??= [];
-                    $requires[$package][]= $constraint;
-                }
-                if (PluginCache::isEmpty(\get_class($plugin))) {
-                    continue;
-                }
                 if ($plugin instanceof ClassStoragePlugin) {
                     if ($this->classStorage) {
                         $config = $this->classStorage->mergeConfigs(
@@ -73,10 +68,6 @@ final class ResolvedGraph
                 $this->plugins->enqueue($newQueue);
             }
         }
-        $this->packages = \array_map(
-            fn (array $constraints): string => \implode(':', \array_unique($constraints)),
-            $requires
-        );
     }
     /**
      * Get plugins.

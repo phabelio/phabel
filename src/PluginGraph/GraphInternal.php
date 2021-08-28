@@ -115,13 +115,13 @@ class GraphInternal
     /**
      * Flatten graph.
      *
-     * @return SplQueue<SplQueue<PluginInterface>>
+     * @return array{0: SplQueue<SplQueue<PluginInterface>>, 1: array<string, list<string>>}
      */
-    public function flatten(): SplQueue
+    public function flatten(): array
     {
         if (!$this->plugins) {
             /** @psalm-var SplQueue<SplQueue<PluginInterface>> */
-            return new SplQueue();
+            return [new SplQueue(), []];
         }
         if ($this->unlinkedNodes->count()) {
             /** @var Node|null $initNode */
@@ -135,7 +135,7 @@ class GraphInternal
             }
             $this->unlinkedNodes = new SplObjectStorage;
             $this->unlinkedNodes->attach($initNode);
-            $this->unprocessedNode->attach($initNode);;
+            $this->unprocessedNode->attach($initNode);
             $result = $initNode->circular()->flatten();
         } else {
             $result = \array_values(\array_values($this->plugins)[0])[0]->circular()->flatten();

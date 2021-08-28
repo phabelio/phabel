@@ -2,6 +2,7 @@
 
 namespace Phabel\PluginGraph;
 
+use Phabel\PluginCache;
 use Phabel\PluginInterface;
 use SplQueue;
 
@@ -56,10 +57,17 @@ class Plugins
      *
      * @return void
      */
-    public function enqueue(SplQueue $queue, PackageContext $ctx): void
+    public function enqueue(SplQueue $queue, PackageContext $ctx, array &$packages): void
     {
         foreach ($this->plugins as $plugin => $configs) {
             foreach ($plugin::mergeConfigs(...$configs) as $config) {
+                foreach ($plugin::getComposerRequires($config) as $package => $constraint) {
+                    $packages[$package] ??= [];
+                    $packages[$package][]= $constraint;
+                }
+                if (PluginCache::isEmpty($plugin)) {
+                    continue;
+                }
                 $pluginObj = new $plugin;
                 $pluginObj->setConfigArray($config);
                 $pluginObj->setPackageContext($ctx);

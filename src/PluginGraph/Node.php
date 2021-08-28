@@ -241,9 +241,9 @@ class Node
     /**
      * Flatten tree.
      *
-     * @return SplQueue<SplQueue<PluginInterface>>
+     * @return array{0: SplQueue<SplQueue<PluginInterface>>, array<string, list<string>>}
      */
-    public function flatten(): SplQueue
+    public function flatten(): array
     {
         /** @var SplQueue<PluginInterface> */
         $initQueue = new SplQueue;
@@ -252,12 +252,13 @@ class Node
         $queue = new SplQueue;
         $queue->enqueue($initQueue);
 
-        $this->flattenInternal($queue);
+        $packages = [];
+        $this->flattenInternal($queue, $packages);
         if ($this->extendedBy->count() || $this->requiredBy->count()) {
             throw new Exception('Graph resolution has stalled');
         }
 
-        return $queue;
+        return [$queue, $packages];
     }
     /**
      * Internal flattening.
@@ -266,10 +267,10 @@ class Node
      *
      * @return void
      */
-    private function flattenInternal(SplQueue $queueOfQueues)
+    private function flattenInternal(SplQueue $queueOfQueues, array &$packages): void
     {
         $queue = $queueOfQueues->top();
-        $this->plugin->enqueue($queue, $this->packageContext);
+        $this->plugin->enqueue($queue, $this->packageContext, $packages);
         $this->graph->unprocessedNode->detach($this);
         do {
             $processedAny = false;
@@ -313,7 +314,7 @@ class Node
             foreach ($this->extendedBy as $node) {
                 if (\count($node->extends) + \count($node->requires) === 0) {
                     $toDetach->enqueue($node);
-                    $node->flattenInternal($queueOfQueues);
+                    $node->flattenInternal($queueOfQueues, $packages);
                     $processedAny = true;
                 }
             }
@@ -328,7 +329,7 @@ class Node
                     if (!$queue->isEmpty()) {
                         $queueOfQueues->enqueue(new SplQueue);
                     }
-                    $node->flattenInternal($queueOfQueues);
+                    $node->flattenInternal($queueOfQueues, $packages);
                     $processedAny = true;
                 }
             }

@@ -30,7 +30,7 @@ class Polyfill extends Plugin
      *
      * @return array
      */
-    public function getComposerRequires(): array
+    public static function getComposerRequires(array $config): array
     {
         return [
             'symfony/polyfill-php72' => Php::POLYFILL_VERSIONS['symfony/polyfill-php72']

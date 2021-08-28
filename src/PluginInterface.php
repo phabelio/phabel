@@ -59,7 +59,7 @@ interface PluginInterface
      *
      * @return array
      */
-    public function getComposerRequires(): array;
+    public static function getComposerRequires(array $config): array;
     /**
      * Set configuration array.
      *
