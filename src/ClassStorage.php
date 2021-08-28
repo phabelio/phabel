@@ -13,7 +13,6 @@ use PhpParser\Node\UnionType;
 final class ClassStorage
 {
     const FILE_KEY = 'ClassStorage:file';
-
     /**
      * Classes.
      *
@@ -26,14 +25,12 @@ final class ClassStorage
      * @var array<string, array<string, Storage>>
      */
     private array $traits = [];
-
     /**
      * Files to process.
      *
      * @var array<string, true>
      */
     private array $files = [];
-
     /**
      * Constructor.
      */
@@ -49,7 +46,6 @@ final class ClassStorage
                 $class->resolve($plugin);
             }
         }
-
         foreach ($plugin->traits as $name => $fileTraits) {
             foreach ($fileTraits as $file => $trait) {
                 $trait = $trait->build();
@@ -65,7 +61,6 @@ final class ClassStorage
             }
         }
     }
-
     /**
      * Get all files to process.
      *
@@ -75,7 +70,6 @@ final class ClassStorage
     {
         return $this->files;
     }
-
     /**
      * Get class.
      *
@@ -99,7 +93,6 @@ final class ClassStorage
     {
         return \array_values($this->classes[$class] ?? [])[0] ?? null;
     }
-
     /**
      * Get storage.
      *
@@ -109,11 +102,10 @@ final class ClassStorage
     {
         foreach ($this->classes as $class => $classes) {
             foreach ($classes as $_ => $storage) {
-                yield $class => $storage;
+                (yield $class => $storage);
             }
         }
     }
-
     private static function typeArray(null|Identifier|Name|NullableType|UnionType $type): array
     {
         $types = [];
@@ -146,10 +138,7 @@ final class ClassStorage
         if (\count($typeA) + \count($typeB) === 2) {
             $typeA = $typeA[0];
             $typeB = $typeB[0];
-            if ($typeA instanceof Name && $typeB instanceof Name
-                && ($classA = $typeA->parts === ['self'] ? $ctxA : $this->getClassByName(Tools::getFqdn($typeA)))
-                && ($classB = $typeA->parts === ['self'] ? $ctxB : $this->getClassByName(Tools::getFqdn($typeB)))
-            ) {
+            if ($typeA instanceof Name && $typeB instanceof Name && ($classA = $typeA->parts === ['self'] ? $ctxA : $this->getClassByName(Tools::getFqdn($typeA))) && ($classB = $typeA->parts === ['self'] ? $ctxB : $this->getClassByName(Tools::getFqdn($typeB)))) {
                 foreach ($classA->getAllChildren() as $child) {
                     if ($child === $classB) {
                         return 1;

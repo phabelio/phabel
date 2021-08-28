@@ -15,10 +15,6 @@ class StaticReplacer extends Plugin
 {
     public static function previous(array $config): array
     {
-        return [
-            TypeHintReplacer::class => [
-                'types' => ['static']
-            ]
-        ];
+        return [TypeHintReplacer::class => ['types' => ['static']]];
     }
 }

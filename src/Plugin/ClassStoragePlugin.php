@@ -30,7 +30,6 @@ final class ClassStoragePlugin extends Plugin
      * @var array<string, array<string, Builder>>
      */
     public array $traits = [];
-
     /**
      * Count.
      */
@@ -41,7 +40,6 @@ final class ClassStoragePlugin extends Plugin
      * @var array<class-string<ClassStorageProvider>, true>
      */
     protected array $finalPlugins = [];
-
     /**
      * Check if plugin should run.
      *
@@ -64,7 +62,6 @@ final class ClassStoragePlugin extends Plugin
     {
         return true;
     }
-
     /**
      * Set configuration array.
      *
@@ -76,7 +73,6 @@ final class ClassStoragePlugin extends Plugin
         parent::setConfigArray($config);
         $this->finalPlugins += $config;
     }
-
     /**
      * Enter file.
      *
@@ -111,29 +107,26 @@ final class ClassStoragePlugin extends Plugin
         if ($class->name) {
             $name = self::getFqdn($class);
         } else {
-            $name = "class@anonymous$file";
+            $name = "class@anonymous{$file}";
             $this->count[$file][$name] ??= 0;
-            $name .= "@".$this->count[$file][$name]++;
+            $name .= "@" . $this->count[$file][$name]++;
         }
-
         $class = clone $class;
         $stmts = [];
         foreach ($class->stmts as $stmt) {
             if (!$stmt instanceof ClassMethod) {
                 continue;
             }
-            $stmts []= $stmt;
+            $stmts[] = $stmt;
         }
         $class->stmts = $stmts;
         $class->setAttribute(ClassStorage::FILE_KEY, $file);
-
         if ($class instanceof Trait_) {
             $this->traits[$name][$file] = new Builder($class);
         } else {
             $this->classes[$name][$file] = new Builder($class, $name);
         }
     }
-
     /**
      * Merge storage with another.
      *
@@ -160,7 +153,6 @@ final class ClassStoragePlugin extends Plugin
         }
         $this->finalPlugins += $other->finalPlugins;
     }
-
     /**
      * Resolve all classes, optionally fixing up a few methods.
      *
