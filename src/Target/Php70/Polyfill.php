@@ -2,9 +2,13 @@
 
 namespace Phabel\Target\Php70;
 
+use AssertionError;
 use IntlChar;
 use Phabel\Plugin;
 use Phabel\Target\Php;
+use Phabel\Target\Polyfill as TargetPolyfill;
+use Phabel\Tools;
+use Throwable;
 use ValueError;
 
 \define('BIG_ENDIAN', \pack('L', 1) === \pack('N', 1));
@@ -24,6 +28,8 @@ class Polyfill extends Plugin
 
     // Todo: dns_get_record CAA
     // Todo: filters
+    // Todo: getenv/putenv
+    // Todo: unpack
 
     /**
      * Get composer requirements.
@@ -37,35 +43,22 @@ class Polyfill extends Plugin
         ];
     }
 
-    /**
-     * Environment variables modified with putenv.
-     *
-     * @var array
-     */
-    private static array $modifiedVars = [];
-
-    public static function putenv(string $assignment): bool
+    public static function assert($assertion, string|Throwable|null $exception = null): bool
     {
-        [$key, $var] = \explode("=", $assignment, 2);
-        self::$modifiedVars[$key] = $var;
-        return \putenv($assignment);
-    }
-    public static function getenv(string $varname, bool $local_only = false): string|bool
-    {
-        if ($local_only) {
-            if (\array_key_exists($varname, self::$modifiedVars)) {
-                return self::$modifiedVars[$varname];
-            }
-            if (\array_key_exists($varname, $_ENV)) {
-                return $_ENV[$varname];
-            }
-            return false;
+        if ($assertion || Tools::ini_get('zend.assertions') !== 1) {
+            return true;
         }
-        return \getenv($varname);
-    }
-
-    public static function assert($assertion, $exception): bool
-    {
+        $exception = new AssertionError('assert(false)');
+        if (\is_null($exception)) {
+            $exception = new AssertionError('assert(false)');
+        } elseif (\is_string($exception)) {
+            $exception = new AssertionError($exception);
+        }
+        if (Tools::ini_get('assert.exception')) {
+            throw $exception;
+        }
+        \trigger_error("Uncaught $exception");
+        return true;
     }
 
 
@@ -86,16 +79,10 @@ class Polyfill extends Plugin
         return $path === '' ? '.' : $path;
     }
 
-    public static function get_defined_functions(bool $exclude_disabled = false): array
+    public static function get_defined_functions(bool $exclude_disabled = true): array
     {
         if ($exclude_disabled) {
-            $disabled = [];
-            try {
-                if (\function_exists('ini_get')) {
-                    $disabled = \explode(",", @\ini_get('disable_functions'));
-                }
-            } catch (\Throwable $e) {
-            }
+            $disabled = \explode(',', Tools::ini_get('disable_functions') ?: '');
             $res = \get_defined_functions();
             $res['internal'] = \array_diff($res['internal'], $disabled);
             return $res;
@@ -162,5 +149,13 @@ class Polyfill extends Plugin
         }
 
         return \pack($newFormat, ...$values);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public static function withNext(array $config): array
+    {
+        return [TargetPolyfill::class => [self::class => true]];
     }
 }

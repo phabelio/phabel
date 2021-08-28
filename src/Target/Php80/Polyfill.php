@@ -3,6 +3,12 @@
 namespace Phabel\Target\Php80;
 
 use Phabel\Plugin;
+use Phabel\Target\Polyfill as TargetPolyfill;
+use Phabel\Tools;
+
+if (!\defined('CAL_EASTER_DEFAULT')) {
+    \define('CAL_EASTER_DEFAULT', 0);
+}
 
 /**
  * @author Daniil Gentili <daniil@daniil.it>
@@ -38,9 +44,9 @@ class Polyfill extends Plugin
         ?float $zenith = null,
         ?float $utcOffset = null
     ): string|int|float|bool {
-        $latitude ??= \ini_get('date.default_latitude');
-        $longitude ??= \ini_get('date.default_longitude');
-        $zenith ??= \ini_get('date.sunrise_zenith');
+        $latitude ??= Tools::ini_get('date.default_latitude');
+        $longitude ??= Tools::ini_get('date.default_longitude');
+        $zenith ??= Tools::ini_get('date.sunrise_zenith');
         $utcOffset ??= 0;
         return \date_sunrise($timestamp, $returnFormat, $latitude, $longitude, $zenith, $utcOffset);
     }
@@ -52,9 +58,9 @@ class Polyfill extends Plugin
         ?float $zenith = null,
         ?float $utcOffset = null
     ): string|int|float|bool {
-        $latitude ??= \ini_get('date.default_latitude');
-        $longitude ??= \ini_get('date.default_longitude');
-        $zenith ??= \ini_get('date.sunset_zenith');
+        $latitude ??= Tools::ini_get('date.default_latitude');
+        $longitude ??= Tools::ini_get('date.default_longitude');
+        $zenith ??= Tools::ini_get('date.sunset_zenith');
         $utcOffset ??= 0;
         return \date_sunset($timestamp, $returnFormat, $latitude, $longitude, $zenith, $utcOffset);
     }
@@ -102,11 +108,6 @@ class Polyfill extends Plugin
     public static function error_reporting(?int $error_level = null): int
     {
         return $error_level === null ? \error_reporting() : \error_reporting($error_level);
-    }
-
-    public static function get_defined_functions(?bool $exclude_disabled = null): array
-    {
-        return \get_defined_functions($exclude_disabled === null ? true : $exclude_disabled);
     }
 
     public static function hash_update_file($context, string $filename, $stream_context = null): bool
@@ -276,7 +277,7 @@ class Polyfill extends Plugin
 
     public static function html_entity_decode(string $string, int $flags = ENT_COMPAT, ?string $encoding = null): string
     {
-        return \html_entity_decode($string, $flags, $encoding ?? \ini_get('default_charset'));
+        return \html_entity_decode($string, $flags, $encoding ?? Tools::ini_get('default_charset'));
     }
 
     public static function htmlentities(
@@ -285,7 +286,7 @@ class Polyfill extends Plugin
         ?string $encoding = null,
         bool $double_encode = true
     ): string {
-        return \htmlentities($string, $flags, $encoding  ?? \ini_get('default_charset'), $double_encode);
+        return \htmlentities($string, $flags, $encoding  ?? Tools::ini_get('default_charset'), $double_encode);
     }
 
     public static function str_word_count(string $string, int $format = 0, ?string $characters = null): array|int
@@ -343,5 +344,13 @@ class Polyfill extends Plugin
     public static function substr(string $string, int $offset, ?int $length = null): string
     {
         return $length === null ? \substr($string, $offset) : \substr($string, $offset, $length);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public static function withNext(array $config): array
+    {
+        return [TargetPolyfill::class => [self::class => true]];
     }
 }

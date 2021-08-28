@@ -3,6 +3,7 @@
 namespace Phabel\Target\Php71;
 
 use Phabel\Plugin;
+use Phabel\Target\Polyfill as TargetPolyfill;
 
 /**
  * @author Daniil Gentili <daniil@daniil.it>
@@ -16,14 +17,8 @@ class Polyfill extends Plugin
     // Todo: hashes w/ phpseclib
     // Todo: mb_ereg functions
     // Todo: grapheme_extract
+    // Todo: getenv
     // Skip: output buffer functions
-
-    public function getenv($params): string|false|array
-    {
-        if (\count($params) === 0) {
-        }
-        return \getenv(...$params);
-    }
 
     public static function unpack(string $format, string $string, int $offset = 0): array|bool
     {
@@ -70,10 +65,13 @@ class Polyfill extends Plugin
         return $headers;
     }
 
-    public static function substr_count(string $haystack, string $needle, int $offset = 0, int $length = 0): int
+    public static function substr_count(string $haystack, string $needle, int $offset = 0, ?int $length = null): int
     {
         if ($offset < 0) {
             $offset = \strlen($haystack) + $offset;
+        }
+        if ($length === null) {
+            return \substr_count($haystack, $needle, $offset);
         }
         if ($length === 0) {
             return \substr_count($haystack, $needle, $offset);
@@ -124,5 +122,13 @@ class Polyfill extends Plugin
     public static function grapheme_stripos(string $haystack, string $needle, int $offset = 0): int|bool
     {
         return \grapheme_stripos($haystack, $needle, $offset < 0 ? \grapheme_strlen($haystack) + $offset : $offset);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public static function withNext(array $config): array
+    {
+        return [TargetPolyfill::class => [self::class => true]];
     }
 }

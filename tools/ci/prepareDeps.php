@@ -27,10 +27,10 @@ $packages = (new Traverser(EventHandler::create()))
 `mv ../phabelConverted/ vendor-bin/`;
 
 if (!empty($packages)) {
+    \chdir("vendor-bin/check");
     $cmd = "php $(which composer) require --dev --ignore-platform-reqs ";
     foreach ($packages as $package => $constraint) {
         $cmd .= \escapeshellarg("{$package}:{$constraint}")." ";
     }
-    \chdir("vendor-bin/check");
     r($cmd);
 }

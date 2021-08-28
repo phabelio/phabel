@@ -3,6 +3,7 @@
 namespace Phabel\Target\Php74;
 
 use Phabel\Plugin;
+use Phabel\Target\Polyfill as TargetPolyfill;
 
 /**
  * @author Daniil Gentili <daniil@daniil.it>
@@ -26,5 +27,13 @@ class Polyfill extends Plugin
     ): array {
         $length ??= \max(\count($array) - $offset, 0);
         return \array_splice($array, $offset, $length, $replacement);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public static function withNext(array $config): array
+    {
+        return [TargetPolyfill::class => [self::class => true]];
     }
 }

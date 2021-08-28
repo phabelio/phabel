@@ -3,6 +3,7 @@
 namespace Phabel\Target\Php73;
 
 use Phabel\Plugin;
+use Phabel\Target\Polyfill as TargetPolyfill;
 
 /**
  * @author Daniil Gentili <daniil@daniil.it>
@@ -32,5 +33,13 @@ class Polyfill extends Plugin
             return \count($array);
         }
         return \array_unshift($array, ...$values);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public static function withNext(array $config): array
+    {
+        return [TargetPolyfill::class => [self::class => true]];
     }
 }

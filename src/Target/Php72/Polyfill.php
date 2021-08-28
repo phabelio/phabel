@@ -4,6 +4,7 @@ namespace Phabel\Target\Php72;
 
 use __PHP_Incomplete_Class;
 use Phabel\Plugin;
+use Phabel\Target\Polyfill as TargetPolyfill;
 
 /**
  * @author Daniil Gentili <daniil@daniil.it>
@@ -53,5 +54,13 @@ class Polyfill extends Plugin
     public static function is_object($stuff): bool
     {
         return $stuff instanceof __PHP_Incomplete_Class ? true : \is_object($stuff);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public static function withNext(array $config): array
+    {
+        return [TargetPolyfill::class => [self::class => true]];
     }
 }

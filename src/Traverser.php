@@ -18,7 +18,6 @@ use SebastianBergmann\CodeCoverage\CodeCoverage;
 use SebastianBergmann\CodeCoverage\Driver\Selector;
 use SebastianBergmann\CodeCoverage\Filter;
 use SebastianBergmann\CodeCoverage\Report\PHP;
-use SplFileInfo;
 use SplQueue;
 
 use function Amp\call;
@@ -820,6 +819,6 @@ class Traverser
     public function __destruct()
     {
         unset($this->graph);
-        while (gc_collect_cycles());
+        while (\gc_collect_cycles());
     }
 }

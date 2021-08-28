@@ -414,7 +414,7 @@ abstract class Tools
             return $result = 1;
         }
 
-        if (\ini_get('pcre.jit') === '1'
+        if (self::ini_get('pcre.jit') === '1'
             && \PHP_OS === 'Darwin'
             && \version_compare(\PHP_VERSION, '7.3.0') >= 0
             && \version_compare(\PHP_VERSION, '7.4.0') < 0
@@ -456,5 +456,22 @@ abstract class Tools
         }
 
         return $result = 1;
+    }
+    /**
+     * Safely get value from php.ini.
+     *
+     * @param string $key
+     * @param mixed $default
+     * @return mixed
+     */
+    public static function ini_get(string $key, $default = null)
+    {
+        try {
+            if (\function_exists('ini_get')) {
+                return @\ini_get($key);
+            }
+        } catch (\Throwable $e) {
+        }
+        return $default;
     }
 }
