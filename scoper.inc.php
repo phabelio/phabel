@@ -19,13 +19,14 @@ return [
             ->files()
             ->ignoreVCS(true)
             ->notName('/LICENSE|.*\\.md|.*\\.dist|Makefile|composer\\.json|composer\\.lock/')
+            ->notPath('/vendor\/symfony\/polyfill.*/')
             ->exclude([
                 'doc',
                 'test',
                 'test_old',
                 'tests',
                 'Tests',
-                'vendor-bin',
+                'vendor-bin'
             ])
             ->in('vendor'),
         Finder::create()->append([

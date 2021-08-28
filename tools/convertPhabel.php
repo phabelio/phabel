@@ -129,12 +129,14 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
 
     $lock = \json_decode(\file_get_contents('composer.lock'), true);
     $json = \json_decode(\file_get_contents('composer.json'), true);
+    $jsonDev = \json_decode(\file_get_contents('vendor-bin/check/composer.json'), true);
 
     $json['require'] = [
         'php' => $packages['php'],
         'ext-json' => $json['require']['ext-json'],
         'composer-plugin-api' => $json['require']['composer-plugin-api'],
     ];
+    $json['require-dev'] = $jsonDev['require-dev'];
 
     foreach ($lock['packages'] as $package) {
         $name = $package['name'];
@@ -147,7 +149,7 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
 
         foreach (['psr-4', 'psr-0'] as $type) {
             foreach ($package['autoload'][$type] ?? [] as $namespace => $path) {
-                $namespace = "Phabel\\$namespace";
+                $namespace = str_starts_with($namespace, 'Symfony\\Polyfill') ? $namespace : "Phabel\\$namespace";
                 $paths = \is_string($path) ? [$path] : $path;
                 $paths = \array_map(fn ($path) => "vendor-bundle/$name/$path", $paths);
                 $json['autoload'][$type][$namespace] = $paths;

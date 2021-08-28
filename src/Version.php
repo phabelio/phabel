@@ -23,7 +23,7 @@ class Version
 
 <bold>Config recap:</bold>
 <bold>✅</bold> Source PHP version: <phabel>8.0</phabel>
-<bold>✅</bold> Target PHP version: <phabel>auto</phabel> <bold>(5.6|7.0|7.1|7.2|7.3|7.4|8.0)</bold>
+<bold>✅</bold> Target PHP version: <phabel>auto</phabel> <bold>(7.0|7.1|7.2|7.3|7.4|8.0)</bold>
 <bold>✅</bold> Dependency transpilation: <phabel>Enabled</phabel>
 
 <phabel>To publish your composer package using phabel, run this command after git tagging a release:</phabel>

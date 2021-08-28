@@ -14,23 +14,9 @@ foreach (Php::VERSIONS as $version) {
     }
 }
 
-`rm -rf ../phabelConverted`;
-
 $packages = (new Traverser(EventHandler::create()))
     ->setPlugins([Php::class => ['target' => $version]])
-    ->setInput('vendor-bin/')
-    ->setOutput('../phabelConverted')
+    ->setInput('vendor')
+    ->setOutput('vendor')
     ->setCoverage('coverage/convertVendor.php')
     ->run(\getenv('PHABEL_PARALLEL') ?: 1);
-
-`rm -rf vendor-bin/`;
-`mv ../phabelConverted/ vendor-bin/`;
-
-if (!empty($packages)) {
-    \chdir("vendor-bin/check");
-    $cmd = "php $(which composer) require --dev --ignore-platform-reqs ";
-    foreach ($packages as $package => $constraint) {
-        $cmd .= \escapeshellarg("{$package}:{$constraint}")." ";
-    }
-    r($cmd);
-}
