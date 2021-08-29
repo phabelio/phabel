@@ -8,7 +8,7 @@ if ($argc < 2) {
     die("Need a tag name!".PHP_EOL);
 }
 
-$tag = escapeshellarg($argv[1]);
+$tag = \escapeshellarg($argv[1]);
 r("git pull");
 r("git checkout master");
 foreach ($versions as $version) {

@@ -72,7 +72,7 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
     \chdir("../phabelConvertedInput");
     r("rm -rf vendor-bin/*/vendor");
     if (!empty($packages)) {
-        $json = json_decode(file_get_contents('composer.json'), true);
+        $json = \json_decode(\file_get_contents('composer.json'), true);
         foreach ($packages as $package => $constraint) {
             if ($package === 'php') {
                 continue;
@@ -82,7 +82,7 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
             }
             $json['require'][$package] = $constraint;
         }
-        file_put_contents('composer.json', json_encode($json, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES));
+        \file_put_contents('composer.json', \json_encode($json, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES));
     }
     r("composer update --no-dev");
     r("rm -rf tests testsGenerated");
@@ -139,6 +139,10 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
         \str_replace(['return $matches;', '\\PREG_UNMATCHED_AS_NULL'], ["$replace; return \$matches;", "0"], \file_get_contents('vendor/symfony/string/ByteString.php'))
     );
 
+    \file_put_contents(
+        'src/Composer/Plugin.php',
+        \str_replace('Phabel\\Symfony', 'Symfony', \file_get_contents('src/Composer/Plugin.php'))
+    );
 
     \rename("vendor", "vendor-bundle");
     r("find src -type f -exec sed 's/\\\\Phabel\\\\self/self/g' -i {} +");

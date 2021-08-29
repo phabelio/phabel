@@ -26,7 +26,7 @@ $packages = (new Traverser(EventHandler::create()))
     ->setOutput('../phabelConvertedVendor')
     ->setCoverage('coverage/convertVendor.php')
     ->run(\getenv('PHABEL_PARALLEL') ?: 1);
-    
+
 r("cp -a vendor-bin/check/vendor/composer ../phabelConvertedVendor");
 r("rm -rf vendor-bin/check/vendor");
 \rename("../phabelConvertedVendor", "vendor-bin/check/vendor");

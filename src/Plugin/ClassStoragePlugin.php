@@ -13,9 +13,7 @@ use Phabel\RootNode;
 use PhpParser\Builder\Method;
 use PhpParser\Builder\Param;
 use PhpParser\Node\Stmt\ClassLike;
-use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Trait_;
-use PhpParser\Node\Stmt\TraitUse;
 
 final class ClassStoragePlugin extends Plugin
 {
