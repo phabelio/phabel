@@ -7,9 +7,7 @@ use Phabel\Traverser;
 require 'functions.php';
 
 r("composer update --prefer-dist --ignore-platform-reqs");
-if (\file_exists('vendor-bin')) {
-    r("composer bin check update --prefer-dist --ignore-platform-reqs");
-}
+r("composer bin check update --prefer-dist --ignore-platform-reqs");
 
 require 'vendor/autoload.php';
 
@@ -22,17 +20,16 @@ if ($branch !== 'master') {
 
 r("rm -rf ../phabelConvertedVendor");
 
-$vendor = \file_exists('vendor-bin') ? 'vendor-bin/check/vendor' : 'vendor';
 $packages = (new Traverser(EventHandler::create()))
     ->setPlugins([Php::class => ['target' => $version]])
-    ->setInput($vendor)
+    ->setInput('vendor-bin/check/vendor')
     ->setOutput('../phabelConvertedVendor')
     ->setCoverage('coverage/convertVendor.php')
     ->run(\getenv('PHABEL_PARALLEL') ?: 1);
-
-r("cp -a $vendor/composer ../phabelConvertedVendor");
-r("rm -rf $vendor");
-\rename("../phabelConvertedVendor", $vendor);
+    
+r("cp -a vendor-bin/check/vendor/composer ../phabelConvertedVendor");
+r("rm -rf vendor-bin/check/vendor");
+\rename("../phabelConvertedVendor", "vendor-bin/check/vendor");
 
 $phpunit = \realpath("vendor/bin/phpunit");
 \file_put_contents($phpunit, \str_replace('die(1);', '', \file_get_contents($phpunit)));

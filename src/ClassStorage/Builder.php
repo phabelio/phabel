@@ -102,13 +102,13 @@ class Builder
                 foreach ($stmt->traits as $trait) {
                     $this->use[Tools::getFqdn($trait)] = true;
                 }
-                foreach ($stmt->adaptations as $adapt) {
-                    $trait = Tools::getFqdn($adapt->trait);
-                    $method = Tools::getFqdn($adapt->method);
+                foreach ($stmt->adaptations as $k => $adapt) {
+                    $trait = Tools::getFqdn($adapt->trait ?? $stmt->traits[0]);
+                    $method = $adapt->method->name;
                     if ($adapt instanceof Alias) {
                         $this->useAlias[$trait][$method] = [
                             $trait,
-                            Tools::getFqdn($adapt->newName)
+                            $adapt->newName?->name ?? $method
                         ];
                     } elseif ($adapt instanceof Precedence) {
                         foreach ($adapt->insteadof as $name) {

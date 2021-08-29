@@ -3,7 +3,7 @@
 **Write and deploy modern PHP 8 code, today.**
 
 
-This is a transpiler that will allow native usage of php8 features and especially syntax in projects and libraries, while allowing maintainers to publish a version targeting 7.0 or even lower versions of php.
+This is a transpiler that will allow native usage of php8 features and especially syntax in projects and libraries, while allowing maintainers to publish a version targeting 7.1 or even lower versions of php.
 
 The transpiler will seamlessly hook into composer to transpile the package (and all dependencies down the current branch of the dependency tree!) on installation, on the user's machine, targeting the user's specific php version (or another one specified in the config).
 
@@ -14,7 +14,7 @@ Created by [Daniil Gentili](https://daniil.it)
 ## Usage
 
 ```
-PHABEL_TARGET=70 php src/phabel.php run src transpiledSrc
+PHABEL_TARGET=71 php src/phabel.php run src transpiledSrc
 ```
 
 ## Design
