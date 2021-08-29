@@ -105,9 +105,9 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
             ->run((int) (\getenv('PHABEL_PARALLEL') ?: 1));
 
         \chdir($output);
-        r("$home/vendor/bin/php-cs-fixer fix");
 
         if (!$dry) {
+            r("$home/vendor/bin/php-cs-fixer fix");
             commit("phabel.io: transpile to {$target}");
         }
     }
@@ -117,6 +117,7 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
     r("$home/vendor/bin/php-scoper add-prefix -c $home/scoper.inc.php");
     r("rm -rf vendor");
     r("cp -a build/. .");
+    r("cp -a $home/vendor/symfony/polyfill* vendor/symfony");
     r("rm -rf build vendor/composer vendor/autoload.php vendor/scoper-autoload.php vendor/bin");
     \rename("vendor", "vendor-bundle");
     r("find src -type f -exec sed 's/\\\\Phabel\\\\self/self/g' -i {} +");
@@ -149,24 +150,27 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
 
         foreach (['psr-4', 'psr-0'] as $type) {
             foreach ($package['autoload'][$type] ?? [] as $namespace => $path) {
-                $namespace = str_starts_with($namespace, 'Symfony\\Polyfill') ? $namespace : "Phabel\\$namespace";
+                $namespace = \str_starts_with($namespace, 'Symfony\\Polyfill') ? $namespace : "Phabel\\$namespace";
                 $paths = \is_string($path) ? [$path] : $path;
                 $paths = \array_map(fn ($path) => "vendor-bundle/$name/$path", $paths);
                 $json['autoload'][$type][$namespace] = $paths;
             }
         }
 
-        $json['autoload']['files'] = \array_merge(
-            $json['autoload']['files'] ?? [],
-            \array_map(
-                fn ($path) => "vendor-bundle/$name/$path",
-                $package['autoload']['files'] ?? []
-            )
-        );
+        foreach (['classmap', 'files'] as $type) {
+            $json['autoload'][$type] = \array_merge(
+                $json['autoload'][$type] ?? [],
+                \array_map(
+                    fn ($path) => "vendor-bundle/$name/$path",
+                    $package['autoload'][$type] ?? []
+                )
+            );
+        }
     }
     $json['autoload-dev'] = ['psr-4' => ['PhabelTest\\' => 'tests/']];
 
     \file_put_contents('composer.json', \json_encode($json, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES));
+    r("rm -rf vendor-bin");
 
     if (!$dry) {
         commit("phabel.io: add dependencies");
