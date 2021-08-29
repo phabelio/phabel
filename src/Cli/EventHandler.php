@@ -3,7 +3,6 @@
 namespace Phabel\Cli;
 
 use Phabel\EventHandler as PhabelEventHandler;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Output\ConsoleOutput;
@@ -34,7 +33,7 @@ class EventHandler extends PhabelEventHandler
         );
     }
 
-    public function __construct(private LoggerInterface $logger, ?callable $getProgressBar)
+    public function __construct(private $logger, ?callable $getProgressBar)
     {
         $this->outputFormatter = Formatter::getFormatter();
         $this->getProgressBar = $getProgressBar;

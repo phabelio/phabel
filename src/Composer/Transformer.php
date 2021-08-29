@@ -20,8 +20,6 @@ use Phabel\PluginGraph\Graph;
 use Phabel\Target\Php;
 use Phabel\Traverser;
 use ReflectionClass;
-use Symfony\Component\Console\Formatter\OutputFormatter;
-use Symfony\Component\Console\Helper\ProgressBar;
 
 class Transformer extends EventHandler
 {
@@ -34,7 +32,7 @@ class Transformer extends EventHandler
     /**
      * IO interface.
      */
-    private OutputFormatter $outputFormatter;
+    private $outputFormatter;
 
     /**
      * Version parser.
@@ -345,7 +343,7 @@ class Transformer extends EventHandler
                 $this->doProgress
                     && $this->io instanceof ConsoleIO
                     && !\getenv('CI')
-                    && !$this->io->isDebug() ? fn (int $progress): ProgressBar => $this->io->getProgressBar($progress) : null
+                    && !$this->io->isDebug() ? fn (int $progress) => $this->io->getProgressBar($progress) : null
             )
         );
         $traverser->setPluginGraph($graph);

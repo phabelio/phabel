@@ -29,7 +29,6 @@ class SimpleConsoleLogger extends AbstractLogger
     public const INFO = 'info';
     public const ERROR = 'error';
 
-    private $output;
     private $verbosityLevelMap = [
         LogLevel::EMERGENCY => OutputInterface::VERBOSITY_NORMAL,
         LogLevel::ALERT => OutputInterface::VERBOSITY_NORMAL,
@@ -52,9 +51,8 @@ class SimpleConsoleLogger extends AbstractLogger
     ];
     private $errored = false;
 
-    public function __construct(OutputInterface $output, array $verbosityLevelMap = [], array $formatLevelMap = [])
+    public function __construct(private $output, array $verbosityLevelMap = [], array $formatLevelMap = [])
     {
-        $this->output = $output;
         $this->verbosityLevelMap = $verbosityLevelMap + $this->verbosityLevelMap;
         $this->formatLevelMap = $formatLevelMap + $this->formatLevelMap;
     }

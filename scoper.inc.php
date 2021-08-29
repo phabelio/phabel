@@ -58,9 +58,7 @@ return [
     // Fore more see https://github.com/humbug/php-scoper#whitelist
     'whitelist' => [
         'Phabel\*',
-        'Composer\*',
-        'Psr\Log\*',
-        'Symfony\Component\Console\Helper\ProgressBar'
+        'Composer\*'
     ],
 
     // If `true` then the user defined constants belonging to the global namespace will not be prefixed.
