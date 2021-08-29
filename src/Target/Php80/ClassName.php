@@ -5,6 +5,7 @@ namespace Phabel\Target\Php80;
 use Phabel\Context;
 use Phabel\Plugin;
 use Phabel\Tools;
+use PhpParser\Node\Expr\ClassConstFetch;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\StaticPropertyFetch;
@@ -18,7 +19,7 @@ use PhpParser\Node\Stmt\Catch_;
  */
 class ClassName extends Plugin
 {
-    public function enter(StaticPropertyFetch $fetch): ?FuncCall
+    public function enter(ClassConstFetch $fetch): ?FuncCall
     {
         if ($fetch->name instanceof Identifier && $fetch->name->name === 'class' && !$fetch->class instanceof Name) {
             return Tools::call('get_class', $fetch->class);
