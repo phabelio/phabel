@@ -174,9 +174,9 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
     r("rm -rf vendor-bin");
 
     if (!$dry) {
+        r("rm -rf vendor-bin");
         commit("phabel.io: add dependencies");
         \chdir("../phabelConvertedRepo");
-        r("rm -rf vendor-bin");
         if ($tag) {
             r("git tag ".\escapeshellarg("$tag.$target"));
             r("git push -f origin " . \escapeshellarg("$tag.$target"));
