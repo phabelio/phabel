@@ -4,22 +4,21 @@ namespace Phabel\Plugin;
 
 use Phabel\Context;
 use Phabel\Plugin;
-use PhpParser\Node;
-use PhpParser\Node\Expr;
-use PhpParser\Node\Expr\ArrayDimFetch;
-use PhpParser\Node\Expr\Assign;
-use PhpParser\Node\Expr\BinaryOp\BooleanOr;
-use PhpParser\Node\Expr\ClassConstFetch;
-use PhpParser\Node\Expr\FuncCall;
-use PhpParser\Node\Expr\Instanceof_;
-use PhpParser\Node\Expr\MethodCall;
-use PhpParser\Node\Expr\New_;
-use PhpParser\Node\Expr\PropertyFetch;
-use PhpParser\Node\Expr\StaticCall;
-use PhpParser\Node\Expr\StaticPropertyFetch;
-use PhpParser\Node\Expr\Ternary;
-use PhpParser\Node\Expr\Throw_;
-
+use Phabel\PhpParser\Node;
+use Phabel\PhpParser\Node\Expr;
+use Phabel\PhpParser\Node\Expr\ArrayDimFetch;
+use Phabel\PhpParser\Node\Expr\Assign;
+use Phabel\PhpParser\Node\Expr\BinaryOp\BooleanOr;
+use Phabel\PhpParser\Node\Expr\ClassConstFetch;
+use Phabel\PhpParser\Node\Expr\FuncCall;
+use Phabel\PhpParser\Node\Expr\Instanceof_;
+use Phabel\PhpParser\Node\Expr\MethodCall;
+use Phabel\PhpParser\Node\Expr\New_;
+use Phabel\PhpParser\Node\Expr\PropertyFetch;
+use Phabel\PhpParser\Node\Expr\StaticCall;
+use Phabel\PhpParser\Node\Expr\StaticPropertyFetch;
+use Phabel\PhpParser\Node\Expr\Ternary;
+use Phabel\PhpParser\Node\Expr\Throw_;
 /**
  * Fix nested expressions.
  *
@@ -34,7 +33,7 @@ class NestedExpressionFixer extends Plugin
      * @param Node $var
      * @return Node
      */
-    private static function &extractWorkVar(Expr &$var): Expr
+    private static function &extractWorkVar(Expr &$var) : Expr
     {
         if ($var instanceof ArrayDimFetch && $var->var instanceof ArrayDimFetch) {
             return self::extractWorkVar($var->var);
@@ -44,7 +43,7 @@ class NestedExpressionFixer extends Plugin
     public function leave(Expr $expr, Context $context)
     {
         /** @var array<string, array<class-string<Expr>, true>> */
-        $subNodes = $this->getConfig($class = \get_class($expr), false);
+        $subNodes = $this->getConfig($class = \get_class($expr), \false);
         if (!$subNodes) {
             $phabelReturn = null;
             if (!($phabelReturn instanceof Expr || \is_null($phabelReturn))) {
@@ -55,7 +54,7 @@ class NestedExpressionFixer extends Plugin
         foreach ($subNodes as $key => $types) {
             /** @var Expr $value */
             $value =& $expr->{$key};
-            if (!isset($types[IssetExpressionFixer::getClass($value ?? '')])) {
+            if (!isset($types[\Phabel\Plugin\IssetExpressionFixer::getClass($value ?? '')])) {
                 if (!$value instanceof Expr) {
                     continue;
                 }
@@ -88,7 +87,7 @@ class NestedExpressionFixer extends Plugin
                 case New_::class:
                 case ClassConstFetch::class:
                     $valueCopy = $value;
-                    $phabelReturn = new Ternary(new BooleanOr(new Assign($value = $context->getVariable(), $valueCopy), self::fromLiteral(true)), $expr, self::fromLiteral(false));
+                    $phabelReturn = new Ternary(new BooleanOr(new Assign($value = $context->getVariable(), $valueCopy), self::fromLiteral(\true)), $expr, self::fromLiteral(\false));
                     if (!($phabelReturn instanceof Expr || \is_null($phabelReturn))) {
                         throw new \TypeError(__METHOD__ . '(): Return value must be of type ?Expr, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
                     }
@@ -149,12 +148,12 @@ class NestedExpressionFixer extends Plugin
      *
      * @return boolean
      */
-    public static function instanceOf($a, $b): bool
+    public static function instanceOf($a, $b) : bool
     {
         return $a instanceof $b;
     }
-    public static function next(array $config): array
+    public static function next(array $config) : array
     {
-        return [NewFixer::class];
+        return [\Phabel\Plugin\NewFixer::class];
     }
 }

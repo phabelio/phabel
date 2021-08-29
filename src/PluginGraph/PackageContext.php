@@ -25,7 +25,7 @@ class PackageContext
      */
     public function addPackage(string $package)
     {
-        $this->packages[$package] = true;
+        $this->packages[$package] = \true;
     }
     /**
      * Merge two contexts.
@@ -34,7 +34,7 @@ class PackageContext
      *
      * @return self New context
      */
-    public function merge(self $other): self
+    public function merge(self $other) : self
     {
         $this->packages += $other->packages;
         return $this;
@@ -46,7 +46,7 @@ class PackageContext
      *
      * @return boolean
      */
-    public function has(string $package): bool
+    public function has(string $package) : bool
     {
         return isset($this->packages[$package]);
     }
@@ -55,7 +55,7 @@ class PackageContext
      *
      * @return array
      */
-    public function getPackages(): array
+    public function getPackages() : array
     {
         return \array_values($this->packages);
     }

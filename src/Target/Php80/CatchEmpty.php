@@ -4,8 +4,7 @@ namespace Phabel\Target\Php80;
 
 use Phabel\Context;
 use Phabel\Plugin;
-use PhpParser\Node\Stmt\Catch_;
-
+use Phabel\PhpParser\Node\Stmt\Catch_;
 /**
  * Polyfill empty catch expression.
  */

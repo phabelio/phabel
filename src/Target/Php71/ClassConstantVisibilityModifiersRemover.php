@@ -3,8 +3,7 @@
 namespace Phabel\Target\Php71;
 
 use Phabel\Plugin;
-use PhpParser\Node\Stmt\ClassConst;
-
+use Phabel\PhpParser\Node\Stmt\ClassConst;
 /**
  * Removes the class constant visibility modifiers (PHP 7.1).
  */

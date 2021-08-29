@@ -3,10 +3,9 @@
 namespace Phabel\Target\Php70;
 
 use Phabel\Plugin;
-use PhpParser\Node\Stmt\Declare_;
-use PhpParser\Node\Stmt\DeclareDeclare;
-use PhpParser\Node\Stmt\Nop;
-
+use Phabel\PhpParser\Node\Stmt\Declare_;
+use Phabel\PhpParser\Node\Stmt\DeclareDeclare;
+use Phabel\PhpParser\Node\Stmt\Nop;
 /**
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT

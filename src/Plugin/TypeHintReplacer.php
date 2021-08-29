@@ -6,50 +6,49 @@ use Phabel\Context;
 use Phabel\Plugin;
 use Phabel\Target\Php70\AnonymousClass\AnonymousClassInterface;
 use Phabel\Tools;
-use PhpParser\BuilderHelpers;
-use PhpParser\Node;
-use PhpParser\Node\Arg;
-use PhpParser\Node\Expr;
-use PhpParser\Node\Expr\Assign;
-use PhpParser\Node\Expr\AssignRef;
-use PhpParser\Node\Expr\BinaryOp\BooleanAnd;
-use PhpParser\Node\Expr\BinaryOp\BooleanOr;
-use PhpParser\Node\Expr\BinaryOp\Concat;
-use PhpParser\Node\Expr\BinaryOp\Plus;
-use PhpParser\Node\Expr\BooleanNot;
-use PhpParser\Node\Expr\Cast;
-use PhpParser\Node\Expr\Cast\Bool_;
-use PhpParser\Node\Expr\Cast\Double;
-use PhpParser\Node\Expr\Cast\Int_;
-use PhpParser\Node\Expr\Cast\String_ as CastString_;
-use PhpParser\Node\Expr\ClassConstFetch;
-use PhpParser\Node\Expr\ConstFetch;
-use PhpParser\Node\Expr\Instanceof_;
-use PhpParser\Node\Expr\New_;
-use PhpParser\Node\Expr\Variable;
-use PhpParser\Node\FunctionLike;
-use PhpParser\Node\Identifier;
-use PhpParser\Node\Name;
-use PhpParser\Node\Name\FullyQualified;
-use PhpParser\Node\NullableType;
-use PhpParser\Node\Param;
-use PhpParser\Node\Scalar\LNumber;
-use PhpParser\Node\Scalar\MagicConst\Function_ as MagicConstFunction_;
-use PhpParser\Node\Scalar\MagicConst\Method;
-use PhpParser\Node\Scalar\String_;
-use PhpParser\Node\Stmt\Class_ as StmtClass_;
-use PhpParser\Node\Stmt\ClassLike;
-use PhpParser\Node\Stmt\ClassMethod;
-use PhpParser\Node\Stmt\Else_;
-use PhpParser\Node\Stmt\Expression;
-use PhpParser\Node\Stmt\Foreach_;
-use PhpParser\Node\Stmt\If_;
-use PhpParser\Node\Stmt\Interface_;
-use PhpParser\Node\Stmt\Return_;
-use PhpParser\Node\Stmt\Throw_;
-use PhpParser\Node\UnionType;
+use Phabel\PhpParser\BuilderHelpers;
+use Phabel\PhpParser\Node;
+use Phabel\PhpParser\Node\Arg;
+use Phabel\PhpParser\Node\Expr;
+use Phabel\PhpParser\Node\Expr\Assign;
+use Phabel\PhpParser\Node\Expr\AssignRef;
+use Phabel\PhpParser\Node\Expr\BinaryOp\BooleanAnd;
+use Phabel\PhpParser\Node\Expr\BinaryOp\BooleanOr;
+use Phabel\PhpParser\Node\Expr\BinaryOp\Concat;
+use Phabel\PhpParser\Node\Expr\BinaryOp\Plus;
+use Phabel\PhpParser\Node\Expr\BooleanNot;
+use Phabel\PhpParser\Node\Expr\Cast;
+use Phabel\PhpParser\Node\Expr\Cast\Bool_;
+use Phabel\PhpParser\Node\Expr\Cast\Double;
+use Phabel\PhpParser\Node\Expr\Cast\Int_;
+use Phabel\PhpParser\Node\Expr\Cast\String_ as CastString_;
+use Phabel\PhpParser\Node\Expr\ClassConstFetch;
+use Phabel\PhpParser\Node\Expr\ConstFetch;
+use Phabel\PhpParser\Node\Expr\Instanceof_;
+use Phabel\PhpParser\Node\Expr\New_;
+use Phabel\PhpParser\Node\Expr\Variable;
+use Phabel\PhpParser\Node\FunctionLike;
+use Phabel\PhpParser\Node\Identifier;
+use Phabel\PhpParser\Node\Name;
+use Phabel\PhpParser\Node\Name\FullyQualified;
+use Phabel\PhpParser\Node\NullableType;
+use Phabel\PhpParser\Node\Param;
+use Phabel\PhpParser\Node\Scalar\LNumber;
+use Phabel\PhpParser\Node\Scalar\MagicConst\Function_ as MagicConstFunction_;
+use Phabel\PhpParser\Node\Scalar\MagicConst\Method;
+use Phabel\PhpParser\Node\Scalar\String_;
+use Phabel\PhpParser\Node\Stmt\Class_ as StmtClass_;
+use Phabel\PhpParser\Node\Stmt\ClassLike;
+use Phabel\PhpParser\Node\Stmt\ClassMethod;
+use Phabel\PhpParser\Node\Stmt\Else_;
+use Phabel\PhpParser\Node\Stmt\Expression;
+use Phabel\PhpParser\Node\Stmt\Foreach_;
+use Phabel\PhpParser\Node\Stmt\If_;
+use Phabel\PhpParser\Node\Stmt\Interface_;
+use Phabel\PhpParser\Node\Stmt\Return_;
+use Phabel\PhpParser\Node\Stmt\Throw_;
+use Phabel\PhpParser\Node\UnionType;
 use SplStack;
-
 /**
  * Replace all usages of a certain type in typehints.
  *
@@ -87,19 +86,19 @@ class TypeHintReplacer extends Plugin
      *
      * @return bool
      */
-    public static function replace($type): bool
+    public static function replace($type) : bool
     {
         if (!($type instanceof Node || \is_null($type))) {
             throw new \TypeError(__METHOD__ . '(): Argument #1 ($type) must be of type ?Node, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($type) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
         }
         if ($type) {
-            if ($type->getAttribute(self::FORCE_ATTRIBUTE, false)) {
-                return false;
+            if ($type->getAttribute(self::FORCE_ATTRIBUTE, \false)) {
+                return \false;
             }
-            $type->setAttribute(self::FORCE_ATTRIBUTE, true);
-            return true;
+            $type->setAttribute(self::FORCE_ATTRIBUTE, \true);
+            return \true;
         }
-        return false;
+        return \false;
     }
     /**
      * Return whether we replaced this typehint.
@@ -108,15 +107,15 @@ class TypeHintReplacer extends Plugin
      *
      * @return boolean
      */
-    public static function replaced($type): bool
+    public static function replaced($type) : bool
     {
         if (!($type instanceof Node || \is_null($type))) {
             throw new \TypeError(__METHOD__ . '(): Argument #1 ($type) must be of type ?Node, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($type) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
         }
         if ($type) {
-            return $type->getAttribute(self::FORCE_ATTRIBUTE, false);
+            return $type->getAttribute(self::FORCE_ATTRIBUTE, \false);
         }
-        return true;
+        return \true;
     }
     /**
      * Check if we should replace a void return type.
@@ -124,7 +123,7 @@ class TypeHintReplacer extends Plugin
      * @param Node|null $returnType
      * @return bool
      */
-    private function checkVoid($returnType): bool
+    private function checkVoid($returnType) : bool
     {
         if (!($returnType instanceof Node || \is_null($returnType))) {
             throw new \TypeError(__METHOD__ . '(): Argument #1 ($returnType) must be of type ?Node, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($returnType) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -139,7 +138,7 @@ class TypeHintReplacer extends Plugin
      *
      * @return Expr
      */
-    private function resolveClassName($type, $className): Expr
+    private function resolveClassName($type, $className) : Expr
     {
         if (!($className instanceof Expr || \is_null($className))) {
             throw new \TypeError(__METHOD__ . '(): Argument #2 ($className) must be of type ?Expr, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($className) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -153,10 +152,10 @@ class TypeHintReplacer extends Plugin
      * @param non-empty-list<Expr> $conditions
      * @return BooleanNot
      */
-    private static function reduceConditions(array $conditions): BooleanNot
+    private static function reduceConditions(array $conditions) : BooleanNot
     {
         $initial = \array_shift($conditions);
-        return new BooleanNot(empty($conditions) ? $initial : \array_reduce($conditions, function (Expr $a, Expr $b): BooleanOr {
+        return new BooleanNot(empty($conditions) ? $initial : \array_reduce($conditions, function (Expr $a, Expr $b) : BooleanOr {
             return new BooleanOr($a, $b);
         }, $initial));
     }
@@ -170,7 +169,7 @@ class TypeHintReplacer extends Plugin
      *
      * @return array{0: Node, 1: (callable(Node...): If_)} Whether the polyfilled gettype should be used, the error message, the condition
      */
-    private function generateConditions(Variable $var, array $types, $className, bool $fromNullable = false): array
+    private function generateConditions(Variable $var, array $types, $className, bool $fromNullable = \false) : array
     {
         if (!($className instanceof Expr || \is_null($className))) {
             throw new \TypeError(__METHOD__ . '(): Argument #3 ($className) must be of type ?Expr, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($className) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -219,7 +218,7 @@ class TypeHintReplacer extends Plugin
                         break;
                     case 'mixed':
                         $stringType = new String_('mixed');
-                        $conditions[] = Tools::fromLiteral(true);
+                        $conditions[] = Tools::fromLiteral(\true);
                         $oopNames[] = $stringType;
                         break;
                     default:
@@ -251,7 +250,7 @@ class TypeHintReplacer extends Plugin
             if (\is_array($condition)) {
                 if ($currentConditions) {
                     $currentConditions = $this->reduceConditions($currentConditions);
-                    $splitConditions[] = function (Node ...$stmts) use ($currentConditions): If_ {
+                    $splitConditions[] = function (Node ...$stmts) use($currentConditions) : If_ {
                         return new If_($currentConditions, ['stmts' => $stmts]);
                     };
                 }
@@ -259,7 +258,7 @@ class TypeHintReplacer extends Plugin
                 list($conditionsStrict, $conditionsLoose, $castLoose) = $condition;
                 $conditionsStrict = new BooleanNot($conditionsStrict);
                 $conditionsLoose = new BooleanNot($conditionsLoose);
-                $splitConditions[] = function (Node ...$stmts) use ($conditionsStrict, $conditionsLoose, $var, $castLoose): If_ {
+                $splitConditions[] = function (Node ...$stmts) use($conditionsStrict, $conditionsLoose, $var, $castLoose) : If_ {
                     return new If_($conditionsStrict, ['stmts' => [new If_($conditionsLoose, ['stmts' => $stmts, 'else' => new Else_([new Expression(new Assign($var, new $castLoose($var)))])])]]);
                 };
             } else {
@@ -268,11 +267,11 @@ class TypeHintReplacer extends Plugin
         }
         if ($currentConditions) {
             $currentConditions = $this->reduceConditions($currentConditions);
-            $splitConditions[] = function (Node ...$stmts) use ($currentConditions): If_ {
+            $splitConditions[] = function (Node ...$stmts) use($currentConditions) : If_ {
                 return new If_($currentConditions, ['stmts' => $stmts]);
             };
         }
-        return [$stringType, function (Node ...$expr) use ($splitConditions): If_ {
+        return [$stringType, function (Node ...$expr) use($splitConditions) : If_ {
             $prev = $expr;
             foreach ($splitConditions as $func) {
                 $prev = [$func(...$prev)];
@@ -290,7 +289,7 @@ class TypeHintReplacer extends Plugin
      *
      * @return null|array{1: Node, 1: (callable(Node...): If_)} Whether the polyfilled gettype should be used, the error message, the condition
      */
-    private function strip(Variable $var, $type, $className, bool $nullish, bool $force = false)
+    private function strip(Variable $var, $type, $className, bool $nullish, bool $force = \false)
     {
         if (!($type instanceof Node || \is_null($type))) {
             throw new \TypeError(__METHOD__ . '(): Argument #2 ($type) must be of type ?Node, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($type) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -305,7 +304,7 @@ class TypeHintReplacer extends Plugin
             }
             return $phabelReturn;
         }
-        $force = $force || $type->getAttribute(self::FORCE_ATTRIBUTE, false);
+        $force = $force || $type->getAttribute(self::FORCE_ATTRIBUTE, \false);
         if ($type instanceof UnionType) {
             if (!$this->getConfig('union', $force)) {
                 $phabelReturn = null;
@@ -321,7 +320,7 @@ class TypeHintReplacer extends Plugin
             return $phabelReturn;
         }
         if ($type instanceof NullableType && $this->getConfig('nullable', $force)) {
-            $phabelReturn = $this->generateConditions($var, [$type->type], $className, true);
+            $phabelReturn = $this->generateConditions($var, [$type->type], $className, \true);
             if (!(\is_array($phabelReturn) || \is_null($phabelReturn))) {
                 throw new \TypeError(__METHOD__ . '(): Return value must be of type ?array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
             }
@@ -358,14 +357,14 @@ class TypeHintReplacer extends Plugin
             $parent = $ctx->parents->top();
             if ($parent instanceof Interface_ || $func->getStmts() === null) {
                 foreach ($func->getParams() as $param) {
-                    if ($this->strip(new Variable('phabelVariadic'), $param->type, null, false)) {
+                    if ($this->strip(new Variable('phabelVariadic'), $param->type, null, \false)) {
                         $param->type = null;
                     }
                 }
                 if ($this->checkVoid($returnType)) {
                     $func->returnType = null;
                 }
-                if ($this->strip(new Variable('phabelReturn'), $returnType, null, false, $this->getConfig('return', false))) {
+                if ($this->strip(new Variable('phabelReturn'), $returnType, null, \false, $this->getConfig('return', \false))) {
                     $func->returnType = null;
                 }
                 $this->stack->push([self::IGNORE_RETURN]);
@@ -433,7 +432,7 @@ class TypeHintReplacer extends Plugin
             return $phabelReturn;
         }
         $var = new Variable('phabelReturn');
-        if (!($condition = $this->strip($var, $returnType, $className, false, $this->getConfig('return', false)))) {
+        if (!($condition = $this->strip($var, $returnType, $className, \false, $this->getConfig('return', \false)))) {
             $this->stack->push([self::IGNORE_RETURN]);
             $phabelReturn = $func;
             if (!($phabelReturn instanceof FunctionLike || \is_null($phabelReturn))) {
@@ -442,7 +441,7 @@ class TypeHintReplacer extends Plugin
             return $phabelReturn;
         }
         $func->returnType = null;
-        if (GeneratorDetector::isGenerator($func)) {
+        if (\Phabel\Plugin\GeneratorDetector::isGenerator($func)) {
             $this->stack->push([self::IGNORE_RETURN]);
             $phabelReturn = $func;
             if (!($phabelReturn instanceof FunctionLike || \is_null($phabelReturn))) {
@@ -530,7 +529,7 @@ class TypeHintReplacer extends Plugin
      */
     public static function trace()
     {
-        $trace = \debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1)[0];
+        $trace = \debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 1)[0];
         return ($trace['file'] ?? '') . ' on line ' . ($trace['line'] ?? '');
     }
     /**
@@ -546,12 +545,12 @@ class TypeHintReplacer extends Plugin
         }
         return \get_debug_type($value);
     }
-    public static function next(array $config): array
+    public static function next(array $config) : array
     {
-        return [StringConcatOptimizer::class];
+        return [\Phabel\Plugin\StringConcatOptimizer::class];
     }
-    public static function previous(array $config): array
+    public static function previous(array $config) : array
     {
-        return [GeneratorDetector::class];
+        return [\Phabel\Plugin\GeneratorDetector::class];
     }
 }

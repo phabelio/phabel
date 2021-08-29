@@ -4,12 +4,11 @@ namespace Phabel\Target\Php71;
 
 use Closure;
 use Phabel\Plugin;
-use PhpParser\Node\Expr;
-use PhpParser\Node\Expr\StaticCall;
-use PhpParser\Node\Name;
+use Phabel\PhpParser\Node\Expr;
+use Phabel\PhpParser\Node\Expr\StaticCall;
+use Phabel\PhpParser\Node\Name;
 use ReflectionClass;
 use ReflectionFunction;
-
 /**
  * Polyfills Closure::fromCallable.
  */
@@ -56,7 +55,7 @@ class ClosureFromCallable extends Plugin
      * @param callable $callable
      * @return Closure
      */
-    public static function fromCallable($callable): Closure
+    public static function fromCallable($callable) : Closure
     {
         if ($callable instanceof Closure) {
             return $callable;

@@ -3,11 +3,10 @@
 namespace Phabel\Cli;
 
 use Phabel\EventHandler as PhabelEventHandler;
-use Psr\Log\LoggerInterface;
-use Symfony\Component\Console\Helper\ProgressBar;
-use Symfony\Component\Console\Output\ConsoleOutput;
+use Phabel\Psr\Log\LoggerInterface;
+use Phabel\Symfony\Component\Console\Helper\ProgressBar;
+use Phabel\Symfony\Component\Console\Output\ConsoleOutput;
 use Throwable;
-
 class EventHandler extends PhabelEventHandler
 {
     private $outputFormatter;
@@ -24,10 +23,10 @@ class EventHandler extends PhabelEventHandler
      *
      * @return self
      */
-    public static function create(): self
+    public static function create() : self
     {
         $output = new ConsoleOutput();
-        return new EventHandler(new SimpleConsoleLogger($output), function (int $max) use ($output): ProgressBar {
+        return new \Phabel\Cli\EventHandler(new \Phabel\Cli\SimpleConsoleLogger($output), function (int $max) use($output) : ProgressBar {
             return new ProgressBar($output, $max, -1);
         });
     }
@@ -37,7 +36,7 @@ class EventHandler extends PhabelEventHandler
             throw new \TypeError(__METHOD__ . '(): Argument #2 ($getProgressBar) must be of type ?callable, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($getProgressBar) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
         }
         $this->logger = $logger;
-        $this->outputFormatter = Formatter::getFormatter();
+        $this->outputFormatter = \Phabel\Cli\Formatter::getFormatter();
         $this->getProgressBar = $getProgressBar;
     }
     private $logger;
@@ -89,7 +88,7 @@ class EventHandler extends PhabelEventHandler
         }
         ($this->progress ?? \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->advance();
         if ($iterationsOrError instanceof Throwable) {
-            $this->logger->error($this->outputFormatter->format(PHP_EOL . "<error>{$iterationsOrError->getMessage()}!</error>"));
+            $this->logger->error($this->outputFormatter->format(\PHP_EOL . "<error>{$iterationsOrError->getMessage()}!</error>"));
             $this->logger->debug($this->outputFormatter->format("<error>{$iterationsOrError}</error>"));
         } else {
             $this->logger->debug($this->outputFormatter->format("<phabel>Transpiled {$file} in {$iterationsOrError} iterations!</phabel>"));

@@ -5,7 +5,6 @@ namespace Phabel\Plugin;
 use Phabel\Context;
 use Phabel\Plugin;
 use Phabel\RootNode;
-
 /**
  * Removes the file blocking inclusion of non-transpiled packages.
  *
@@ -24,11 +23,11 @@ PHP;
      * @param string $package
      * @return string
      */
-    public static function getContents(string $package): string
+    public static function getContents(string $package) : string
     {
         return \sprintf('<?php die("%s: %s");', $package, self::MESSAGE);
     }
-    public function shouldRunFile(string $file): bool
+    public function shouldRunFile(string $file) : bool
     {
         return \basename($file) === self::FILE_NAME;
     }

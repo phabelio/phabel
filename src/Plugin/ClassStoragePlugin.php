@@ -10,12 +10,11 @@ use Phabel\ClassStorageProvider;
 use Phabel\Context;
 use Phabel\Plugin;
 use Phabel\RootNode;
-use PhpParser\Builder\Method;
-use PhpParser\Builder\Param;
-use PhpParser\Node\Stmt\ClassLike;
-use PhpParser\Node\Stmt\ClassMethod;
-use PhpParser\Node\Stmt\Trait_;
-
+use Phabel\PhpParser\Builder\Method;
+use Phabel\PhpParser\Builder\Param;
+use Phabel\PhpParser\Node\Stmt\ClassLike;
+use Phabel\PhpParser\Node\Stmt\ClassMethod;
+use Phabel\PhpParser\Node\Stmt\Trait_;
 final class ClassStoragePlugin extends Plugin
 {
     /**
@@ -47,9 +46,9 @@ final class ClassStoragePlugin extends Plugin
      *
      * @return boolean
      */
-    public function shouldRun(string $package): bool
+    public function shouldRun(string $package) : bool
     {
-        return true;
+        return \true;
     }
     /**
      * Check if plugin should run.
@@ -58,9 +57,9 @@ final class ClassStoragePlugin extends Plugin
      *
      * @return boolean
      */
-    public function shouldRunFile(string $file): bool
+    public function shouldRunFile(string $file) : bool
     {
-        return true;
+        return \true;
     }
     /**
      * Set configuration array.
@@ -158,12 +157,12 @@ final class ClassStoragePlugin extends Plugin
      *
      * @return array{0: array, 1: array<string, true>} Config to pass to new Traverser instance
      */
-    public function finish(): array
+    public function finish() : array
     {
         $storage = new ClassStorage($this);
-        $processedAny = false;
+        $processedAny = \false;
         do {
-            $processed = false;
+            $processed = \false;
             foreach ($this->finalPlugins as $name => $_) {
                 $processed = $name::processClassGraph($storage) || $processed;
             }

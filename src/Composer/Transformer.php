@@ -20,8 +20,7 @@ use Phabel\PluginGraph\Graph;
 use Phabel\Target\Php;
 use Phabel\Traverser;
 use ReflectionClass;
-use Symfony\Component\Console\Helper\ProgressBar;
-
+use Phabel\Symfony\Component\Console\Helper\ProgressBar;
 class Transformer extends EventHandler
 {
     const HEADER = 'phabel/transpiler';
@@ -49,11 +48,11 @@ class Transformer extends EventHandler
     /**
      * Whether we processed any dependencies.
      */
-    private $processed = false;
+    private $processed = \false;
     /**
      * Whether a progress bar should be shown.
      */
-    private $doProgress = true;
+    private $doProgress = \true;
     /**
      * Instance.
      */
@@ -63,7 +62,7 @@ class Transformer extends EventHandler
      *
      * @return self
      */
-    public static function getInstance(IOInterface $io): self
+    public static function getInstance(IOInterface $io) : self
     {
         self::$instance = self::$instance ?? new self($io);
         return self::$instance;
@@ -87,7 +86,7 @@ class Transformer extends EventHandler
      * @param bool $newline
      * @return void
      */
-    public function log(string $text, int $verbosity = IOInterface::NORMAL, bool $newline = true)
+    public function log(string $text, int $verbosity = IOInterface::NORMAL, bool $newline = \true)
     {
         $this->io->writeError($this->format("<phabel>{$text}</phabel>"), $newline, $verbosity);
     }
@@ -97,7 +96,7 @@ class Transformer extends EventHandler
      * @param string $text
      * @return string
      */
-    public function format(string $text): string
+    public function format(string $text) : string
     {
         return $this->outputFormatter->format($text);
     }
@@ -108,10 +107,10 @@ class Transformer extends EventHandler
      */
     public function banner()
     {
-        static $printed = false;
+        static $printed = \false;
         if (!$printed) {
-            $printed = true;
-            $this->log(PHP_EOL . Formatter::BANNER . PHP_EOL);
+            $printed = \true;
+            $this->log(\PHP_EOL . Formatter::BANNER . \PHP_EOL);
         }
     }
     /**
@@ -131,11 +130,11 @@ class Transformer extends EventHandler
          */
         $config = $package->getExtra()['phabel'] ?? [];
         $myTarget = Php::normalizeVersion($config['target'] ?? Php::DEFAULT_TARGET);
-        $havePhabel = false;
+        $havePhabel = \false;
         foreach ($package->getRequires() as $link) {
             list($name) = $this->extractTarget($link->getTarget());
             if ($name === 'phabel/phabel') {
-                $havePhabel = true;
+                $havePhabel = \true;
             }
             if ($link->getTarget() === 'php') {
                 $myTarget = $link->getConstraint()->getLowerBound()->getVersion();
@@ -144,7 +143,7 @@ class Transformer extends EventHandler
                 }
             }
         }
-        $this->processed = true;
+        $this->processed = \true;
         if (!$havePhabel) {
             if ($target === Php::TARGET_IGNORE) {
                 $this->log("Skipping " . $package->getName() . "={$newName}", IOInterface::VERY_VERBOSE);
@@ -210,7 +209,7 @@ class Transformer extends EventHandler
      * @param int $target
      * @return string
      */
-    private function injectTarget(string $package, int $target): string
+    private function injectTarget(string $package, int $target) : string
     {
         list($package) = $this->extractTarget($package);
         return self::HEADER . $target . self::SEPARATOR . $package;
@@ -222,7 +221,7 @@ class Transformer extends EventHandler
      *
      * @return array{0: string, 1: int}
      */
-    public function extractTarget(string $package): array
+    public function extractTarget(string $package) : array
     {
         if (\str_starts_with($package, self::HEADER)) {
             list($version, $package) = \explode(self::SEPARATOR, \Phabel\Target\Php80\Polyfill::substr($package, \strlen(self::HEADER)), 2);
@@ -237,7 +236,7 @@ class Transformer extends EventHandler
      * @param ?array $old
      * @return bool Whether no more packages should be updated
      */
-    public function transform($lock, $old): bool
+    public function transform($lock, $old) : bool
     {
         if (!(\is_array($lock) || \is_null($lock))) {
             throw new \TypeError(__METHOD__ . '(): Argument #1 ($lock) must be of type ?array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($lock) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -261,7 +260,7 @@ class Transformer extends EventHandler
             $byName[$name] = $package;
         }
         do {
-            $changed = false;
+            $changed = \false;
             foreach ($byName as $name => $package) {
                 $parentConfigs = $package['phabelConfig'];
                 foreach ($package['require'] ?? [] as $subName => $constraint) {
@@ -275,7 +274,7 @@ class Transformer extends EventHandler
                     foreach ($parentConfigs as $config) {
                         if (!\in_array($config, $byName[$subName]['phabelConfig'])) {
                             $byName[$subName]['phabelConfig'][] = $config;
-                            $changed = true;
+                            $changed = \true;
                         }
                     }
                 }
@@ -290,7 +289,7 @@ class Transformer extends EventHandler
                 $graph->addPlugin(Php::class, $config + $target, $ctx);
             }
         }
-        $traverser = new Traverser(new CliEventHandler($this->io, $this->doProgress && $this->io instanceof ConsoleIO && !\getenv('CI') && !$this->io->isDebug() ? function (int $progress): ProgressBar {
+        $traverser = new Traverser(new CliEventHandler($this->io, $this->doProgress && $this->io instanceof ConsoleIO && !\getenv('CI') && !$this->io->isDebug() ? function (int $progress) : ProgressBar {
             return $this->io->getProgressBar($progress);
         } : null));
         $traverser->setPluginGraph($graph);
@@ -303,16 +302,16 @@ class Transformer extends EventHandler
                 }
                 \gc_disable();
             }
-            return false;
+            return \false;
         }
         if ($lock && $lock === $old) {
-            return true;
+            return \true;
         }
         if (!$byName) {
-            return true;
+            return \true;
         }
         $this->banner();
-        $traverser->setInput('vendor')->setOutput('vendor')->setComposer(function (string $rel): string {
+        $traverser->setInput('vendor')->setOutput('vendor')->setComposer(function (string $rel) : string {
             list($package) = $this->extractTarget(\str_replace('\\', '/', $rel));
             return \implode('/', \array_slice(\explode('/', $package), 0, 2));
         })->run((int) (\getenv('PHABEL_PARALLEL') ?: 1));
@@ -322,14 +321,14 @@ class Transformer extends EventHandler
             }
             \gc_disable();
         }
-        return true;
+        return \true;
     }
     /**
      * Get whether we processed any dependencies.
      *
      * @return bool
      */
-    public function processedRequires(): bool
+    public function processedRequires() : bool
     {
         return $this->processed && $this->processedRequires === $this->requires;
     }
@@ -338,7 +337,7 @@ class Transformer extends EventHandler
      *
      * @return IOInterface
      */
-    public function getIo(): IOInterface
+    public function getIo() : IOInterface
     {
         return $this->io;
     }

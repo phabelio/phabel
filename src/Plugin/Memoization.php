@@ -4,22 +4,21 @@ namespace Phabel\Plugin;
 
 use Phabel\Context;
 use Phabel\Plugin;
-use PhpParser\Comment\Doc;
-use PhpParser\Node;
-use PhpParser\Node\Expr\Array_;
-use PhpParser\Node\Expr\ArrayDimFetch;
-use PhpParser\Node\Expr\Assign;
-use PhpParser\Node\Expr\Isset_;
-use PhpParser\Node\Expr\Variable;
-use PhpParser\Node\FunctionLike;
-use PhpParser\Node\Identifier;
-use PhpParser\Node\Param;
-use PhpParser\Node\Stmt\If_;
-use PhpParser\Node\Stmt\Return_;
-use PhpParser\Node\Stmt\Static_;
-use PhpParser\Node\Stmt\StaticVar;
+use Phabel\PhpParser\Comment\Doc;
+use Phabel\PhpParser\Node;
+use Phabel\PhpParser\Node\Expr\Array_;
+use Phabel\PhpParser\Node\Expr\ArrayDimFetch;
+use Phabel\PhpParser\Node\Expr\Assign;
+use Phabel\PhpParser\Node\Expr\Isset_;
+use Phabel\PhpParser\Node\Expr\Variable;
+use Phabel\PhpParser\Node\FunctionLike;
+use Phabel\PhpParser\Node\Identifier;
+use Phabel\PhpParser\Node\Param;
+use Phabel\PhpParser\Node\Stmt\If_;
+use Phabel\PhpParser\Node\Stmt\Return_;
+use Phabel\PhpParser\Node\Stmt\Static_;
+use Phabel\PhpParser\Node\Stmt\StaticVar;
 use SplStack;
-
 /**
  * Enable memoization of results based on a parameter.
  *

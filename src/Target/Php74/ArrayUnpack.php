@@ -4,14 +4,13 @@ namespace Phabel\Target\Php74;
 
 use Phabel\Context;
 use Phabel\Plugin;
-use PhpParser\Node\Arg;
-use PhpParser\Node\Expr\Array_;
-use PhpParser\Node\Expr\ArrayItem;
-use PhpParser\Node\Expr\Assign;
-use PhpParser\Node\Expr\FuncCall;
-use PhpParser\Node\Expr\List_;
-use PhpParser\Node\Stmt\Foreach_;
-
+use Phabel\PhpParser\Node\Arg;
+use Phabel\PhpParser\Node\Expr\Array_;
+use Phabel\PhpParser\Node\Expr\ArrayItem;
+use Phabel\PhpParser\Node\Expr\Assign;
+use Phabel\PhpParser\Node\Expr\FuncCall;
+use Phabel\PhpParser\Node\Expr\List_;
+use Phabel\PhpParser\Node\Stmt\Foreach_;
 /**
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT
@@ -49,7 +48,7 @@ class ArrayUnpack extends Plugin
             }
             break;
         }
-        $hasUnpack = false;
+        $hasUnpack = \false;
         foreach ($array->items as $item) {
             if (!$item) {
                 $phabelReturn = null;
@@ -59,7 +58,7 @@ class ArrayUnpack extends Plugin
                 return $phabelReturn;
             }
             if ($item->unpack) {
-                $hasUnpack = true;
+                $hasUnpack = \true;
                 break;
             }
         }

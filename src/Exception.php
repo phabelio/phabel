@@ -13,7 +13,7 @@ class Exception extends \Exception
      *
      * @return string
      */
-    public function __toString(): string
+    public function __toString() : string
     {
         return $this->trace ?? parent::__toString();
     }
@@ -43,7 +43,7 @@ class Exception extends \Exception
      *
      * @return self
      */
-    public function setTrace($trace): self
+    public function setTrace($trace) : self
     {
         if (!\is_null($trace)) {
             if (!\is_string($trace)) {

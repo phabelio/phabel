@@ -4,11 +4,10 @@ namespace Phabel\Target\Php80;
 
 use Phabel\Plugin;
 use Phabel\Tools;
-use PhpParser\Node\Expr\ClassConstFetch;
-use PhpParser\Node\Expr\FuncCall;
-use PhpParser\Node\Identifier;
-use PhpParser\Node\Name;
-
+use Phabel\PhpParser\Node\Expr\ClassConstFetch;
+use Phabel\PhpParser\Node\Expr\FuncCall;
+use Phabel\PhpParser\Node\Identifier;
+use Phabel\PhpParser\Node\Name;
 /**
  * Polyfill fetching class name from object.
  */

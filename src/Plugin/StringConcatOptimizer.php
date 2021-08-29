@@ -4,11 +4,10 @@ namespace Phabel\Plugin;
 
 use Phabel\Context;
 use Phabel\Plugin;
-use PhpParser\Node;
-use PhpParser\Node\Expr\BinaryOp\Concat;
-use PhpParser\Node\Scalar\String_;
+use Phabel\PhpParser\Node;
+use Phabel\PhpParser\Node\Expr\BinaryOp\Concat;
+use Phabel\PhpParser\Node\Scalar\String_;
 use SplQueue;
-
 /**
  * Optimizes concatenation of multiple strings.
  *

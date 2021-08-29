@@ -3,9 +3,8 @@
 namespace Phabel\Target\Php70;
 
 use Phabel\Plugin;
-use PhpParser\Node;
-use PhpParser\Node\Identifier;
-
+use Phabel\PhpParser\Node;
+use Phabel\PhpParser\Node\Identifier;
 /**
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT

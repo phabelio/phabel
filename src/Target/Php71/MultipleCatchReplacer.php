@@ -3,8 +3,7 @@
 namespace Phabel\Target\Php71;
 
 use Phabel\Plugin;
-use PhpParser\Node\Stmt\TryCatch;
-
+use Phabel\PhpParser\Node\Stmt\TryCatch;
 /**
  * Replace compound catches.
  */
