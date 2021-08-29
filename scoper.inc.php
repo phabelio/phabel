@@ -59,6 +59,8 @@ return [
     'whitelist' => [
         'Phabel\*',
         'Composer\*',
+        'Psr\Log\*',
+        'Symfony\Component\Console\Helper\ProgressBar'
     ],
 
     // If `true` then the user defined constants belonging to the global namespace will not be prefixed.
