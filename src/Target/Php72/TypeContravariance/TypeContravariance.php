@@ -58,7 +58,7 @@ class TypeContravariance extends ClassStorageProvider
                 $parentMethods->push($method);
                 foreach ($class->getOverriddenMethods($name) as $childMethod) {
                     foreach ($childMethod->params as $k => $param) {
-                        if (isset($method->params[$k]->type) && TypeHintReplacer::replaced($param->type)) {
+                        if (!TypeHintReplacer::replaced($method->params[$k]->type ?? null) && TypeHintReplacer::replaced($param->type)) {
                             $act[$k] = true;
                         }
                     }

@@ -19,7 +19,7 @@ return [
             ->files()
             ->ignoreVCS(true)
             ->notName('/LICENSE|.*\\.md|.*\\.dist|Makefile|composer\\.json|composer\\.lock/')
-            ->notPath('/vendor\/symfony\/polyfill.*/')
+            ->notPath('/.*symfony\/polyfill.*/')
             ->exclude([
                 'doc',
                 'test',

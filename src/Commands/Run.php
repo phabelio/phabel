@@ -65,10 +65,13 @@ class Run extends Command
         if (!empty($packages)) {
             $cmd = "composer require --dev ";
             foreach ($packages as $package => $constraint) {
+                if ($package === 'php') {
+                    continue;
+                }
                 $cmd .= \escapeshellarg("$package:$constraint")." ";
             }
-            $output->write("Please run the following command to install required development dependencies:".PHP_EOL);
-            $output->write($cmd.PHP_EOL);
+            $output->write("Please run the following command to install required development dependencies:".PHP_EOL.PHP_EOL);
+            $output->write("<bold>$cmd</bold>".PHP_EOL.PHP_EOL);
         }
 
         return Command::SUCCESS;

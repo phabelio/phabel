@@ -4,19 +4,33 @@ use Phabel\Cli\EventHandler;
 use Phabel\Target\Php;
 use Phabel\Traverser;
 
-require 'vendor/autoload.php';
 require 'functions.php';
 
-$tail = $argv[1] ?? '';
-foreach (Php::VERSIONS as $version) {
-    if ($tail === "-$version") {
-        break;
-    }
+r("composer update --prefer-dist --ignore-platform-reqs");
+r("composer bin check update --prefer-dist --ignore-platform-reqs");
+
+require 'vendor/autoload.php';
+
+$branch = \getenv('BRANCH') ?: r("git rev-parse --abbrev-ref HEAD");
+
+$version = 80;
+if ($branch !== 'master') {
+    $version = \substr($version, -2);
 }
+
+r("rm -rf ../phabelConvertedVendor");
 
 $packages = (new Traverser(EventHandler::create()))
     ->setPlugins([Php::class => ['target' => $version]])
-    ->setInput('vendor')
-    ->setOutput('vendor')
+    ->setInput('vendor-bin/check/vendor')
+    ->setOutput('../phabelConvertedVendor')
     ->setCoverage('coverage/convertVendor.php')
     ->run(\getenv('PHABEL_PARALLEL') ?: 1);
+    
+r("cp -a vendor-bin/check/vendor/composer ../phabelConvertedVendor");
+r("rm -rf vendor-bin/check/vendor");
+\rename("../phabelConvertedVendor", "vendor-bin/check/vendor");
+
+$phpunit = \realpath("vendor/bin/phpunit");
+\file_put_contents($phpunit, \str_replace('die(1);', '', \file_get_contents($phpunit)));
+\chmod($phpunit, 0755);

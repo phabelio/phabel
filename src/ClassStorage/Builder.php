@@ -13,8 +13,6 @@ use PhpParser\Node\Stmt\Interface_;
 use PhpParser\Node\Stmt\TraitUse;
 use PhpParser\Node\Stmt\TraitUseAdaptation\Alias;
 use PhpParser\Node\Stmt\TraitUseAdaptation\Precedence;
-use RecursiveArrayIterator;
-use RecursiveIteratorIterator;
 
 /**
  * Builds information about a class.
@@ -104,13 +102,13 @@ class Builder
                 foreach ($stmt->traits as $trait) {
                     $this->use[Tools::getFqdn($trait)] = true;
                 }
-                foreach ($stmt->adaptations as $adapt) {
-                    $trait = Tools::getFqdn($adapt->trait);
-                    $method = Tools::getFqdn($adapt->method);
+                foreach ($stmt->adaptations as $k => $adapt) {
+                    $trait = Tools::getFqdn($adapt->trait ?? $stmt->traits[0]);
+                    $method = $adapt->method->name;
                     if ($adapt instanceof Alias) {
                         $this->useAlias[$trait][$method] = [
                             $trait,
-                            Tools::getFqdn($adapt->newName)
+                            $adapt->newName?->name ?? $method
                         ];
                     } elseif ($adapt instanceof Precedence) {
                         foreach ($adapt->insteadof as $name) {
@@ -164,24 +162,26 @@ class Builder
                 continue;
             }
             $resolved = \array_values($plugin->traits[$trait])[0]->resolve($plugin);
-            foreach (new RecursiveIteratorIterator(new RecursiveArrayIterator([$resolved->methods, $resolved->abstractMethods])) as $name => $method) {
-                if (isset($this->useAlias[$trait][$name])) {
-                    [$newTrait, $name] = $this->useAlias[$trait][$name];
-                    if (!isset($plugin->traits[$newTrait])) {
+            foreach ([$resolved->methods, $resolved->abstractMethods] as $list) {
+                foreach ($list as $name => $method) {
+                    if (isset($this->useAlias[$trait][$name])) {
+                        [$newTrait, $name] = $this->useAlias[$trait][$name];
+                        if (!isset($plugin->traits[$newTrait])) {
+                            continue;
+                        }
+                        $newTrait = \array_values($plugin->traits[$newTrait])[0]->resolve($plugin);
+                        if (isset($newTrait->methods[$name])) {
+                            $this->methods[$name] = $newTrait->methods[$name];
+                        } elseif (isset($newTrait->abstractMethods[$name])) {
+                            $this->abstractMethods[$name] = $newTrait->methods[$name];
+                        }
                         continue;
                     }
-                    $newTrait = \array_values($plugin->traits[$newTrait])[0]->resolve($plugin);
-                    if (isset($newTrait->methods[$name])) {
-                        $this->methods[$name] = $newTrait->methods[$name];
-                    } elseif (isset($newTrait->abstractMethods[$name])) {
-                        $this->abstractMethods[$name] = $newTrait->methods[$name];
+                    if ($method->stmts === null) {
+                        $this->abstractMethods[$name] = $method;
+                    } else {
+                        $this->methods[$name] = $method;
                     }
-                    continue;
-                }
-                if ($method->stmts === null) {
-                    $this->abstractMethods[$name] = $method;
-                } else {
-                    $this->methods[$name] = $method;
                 }
             }
         }

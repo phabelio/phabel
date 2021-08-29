@@ -53,18 +53,17 @@ jobs:
           key: ${{ matrix.os }}-phabel-${{ matrix.php }}-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ matrix.os }}-phabel-${{ matrix.php }}-
 
-      - name: Install dependencies
-        env:
-          PHABEL_TARGET: ${{ matrix.php }}
-        run: |
-          chmod +x tools/ci/prepareDeps.sh
-          tools/ci/prepareDeps.sh
-
       - name: Setup PHP ${{ matrix.php }}
         env:
           PHP_VERSION: ${{ matrix.php }}
         run: |
           echo "$HOME/.local/php/$PHP_VERSION" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        env:
+          PHABEL_TARGET: ${{ matrix.php }}
+        run: |
+          php tools/ci/prepareDeps.php
 
       - name: Run tests
         env:

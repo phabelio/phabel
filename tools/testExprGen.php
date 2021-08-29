@@ -1,7 +1,6 @@
 <?php
 
 use Amp\Parallel\Worker\DefaultPool;
-use Composer\Util\Filesystem;
 use Phabel\Cli\EventHandler;
 use Phabel\Plugin\PhabelTestGenerator;
 use Phabel\Plugin\TypeHintReplacer;
@@ -27,8 +26,6 @@ if ($canCoverage) {
     pool(new DefaultPool(\getenv('CI') ? 3 : \count(Php::VERSIONS) + 2));
 }
 
-$fs = new Filesystem();
-
 const BASE = \PhabelTest\Target\TypeHintReplacerTest::class;
 
 $packages = [];
@@ -47,8 +44,8 @@ foreach (Php::VERSIONS as $version) {
         $types []= \str_replace("Target", "Target$version", BASE);
         $types []= \str_replace("Target", "Target$version", $r);
     }
-    $fs->remove("testsGenerated/Target$version");
-    $fs->remove("testsGenerated/Target10$version");
+    `rm -rf "testsGenerated/Target$version"`;
+    `rm -rf "testsGenerated/Target10$version"`;
     $packages += (new Traverser(EventHandler::create()))
         ->setPlugins([
             PhabelTestGenerator::class => ['target' => $version],

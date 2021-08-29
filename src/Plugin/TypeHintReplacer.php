@@ -5,6 +5,7 @@ namespace Phabel\Plugin;
 use Phabel\Context;
 use Phabel\Plugin;
 use Phabel\Target\Php70\AnonymousClass\AnonymousClassInterface;
+use Phabel\Tools;
 use PhpParser\BuilderHelpers;
 use PhpParser\Node;
 use PhpParser\Node\Arg;
@@ -163,12 +164,10 @@ class TypeHintReplacer extends Plugin
      * @param ?Expr               $className    Whether the current class is anonymous
      * @param boolean             $fromNullable Whether this type is nullable
      *
-     * @return array{0: bool, 1: Node, 2: (callable(Node...): If_)} Whether the polyfilled gettype should be used, the error message, the condition
+     * @return array{0: Node, 1: (callable(Node...): If_)} Whether the polyfilled gettype should be used, the error message, the condition
      */
     private function generateConditions(Variable $var, array $types, ?Expr $className, bool $fromNullable = false): array
     {
-        /** @var bool Whether no explicit classes were referenced */
-        $noOopTypes = true;
         /** @var Expr[] */
         $typeNames = [];
         /** @var Expr[] */
@@ -245,16 +244,19 @@ class TypeHintReplacer extends Plugin
                             Plugin::call("is_array", $var),
                             new Instanceof_($var, new FullyQualified(\Traversable::class))
                         );
+                        $typeNames []= $stringType;
+                        break;
+                    case 'mixed':
+                        $stringType = new String_('mixed');
+                        $conditions []= Tools::fromLiteral(true);
                         $oopNames []= $stringType;
                         break;
                     default:
-                        $noOopTypes = false;
                         $stringType = $this->resolveClassName($type, $className);
                         $conditions []= new Instanceof_($var, new Name($typeName));
                         $oopNames []= $stringType;
                 }
             } else {
-                $noOopTypes = false;
                 $stringType = $this->resolveClassName($type, $className);
                 $conditions []= new Instanceof_($var, $type);
                 $oopNames []= $stringType;
@@ -314,7 +316,6 @@ class TypeHintReplacer extends Plugin
             );
         }
         return [
-            $noOopTypes,
             $stringType,
             function (Node ...$expr) use ($splitConditions): If_ {
                 $prev = $expr;
@@ -333,7 +334,7 @@ class TypeHintReplacer extends Plugin
      * @param ?Expr                                       $className Whether the current class is anonymous
      * @param bool                                        $force     Whether to force strip
      *
-     * @return null|array{0: bool, 1: Node, 2: (callable(Node...): If_)} Whether the polyfilled gettype should be used, the error message, the condition
+     * @return null|array{1: Node, 1: (callable(Node...): If_)} Whether the polyfilled gettype should be used, the error message, the condition
      */
     private function strip(Variable $var, ?Node $type, ?Expr $className, bool $nullish, bool $force = false): ?array
     {
@@ -414,7 +415,7 @@ class TypeHintReplacer extends Plugin
             $index++;
 
             $param->type = null;
-            [$noOop, $string, $condition] = $condition;
+            [$string, $condition] = $condition;
             $start = $param->variadic
                 ? new Concat(new String_("(): Argument #"), new Plus(new LNumber($index), new Variable('phabelVariadicIndex')))
                 : new String_("(): Argument #$index ($".$param->var->name.")");
@@ -490,7 +491,7 @@ class TypeHintReplacer extends Plugin
             }
             return null;
         }
-        [, $functionName, $byRef, $noOop, $string, $condition] = $current;
+        [, $functionName, $byRef, $string, $condition] = $current;
 
         $var = new Variable('phabelReturn');
         $assign = new Expression($byRef && $return->expr ? new AssignRef($var, $return->expr) : new Assign($var, $return->expr ?? BuilderHelpers::normalizeValue(null)));

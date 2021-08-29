@@ -72,14 +72,17 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
     \chdir("../phabelConvertedInput");
     r("rm -rf vendor-bin/*/vendor");
     if (!empty($packages)) {
-        $cmd = "composer require -n ";
+        $json = json_decode(file_get_contents('composer.json'), true);
         foreach ($packages as $package => $constraint) {
             if ($package === 'php') {
                 continue;
             }
-            $cmd .= \escapeshellarg("{$package}:{$constraint}")." ";
+            if (isset($json['require-dev'][$package])) {
+                unset($json['require-dev'][$package]);
+            }
+            $json['require'][$package] = $constraint;
         }
-        r($cmd);
+        file_put_contents('composer.json', json_encode($json, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES));
     }
     r("composer update --no-dev");
     r("rm -rf tests testsGenerated");
@@ -105,19 +108,38 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
             ->run((int) (\getenv('PHABEL_PARALLEL') ?: 1));
 
         \chdir($output);
-        r("$home/vendor/bin/php-cs-fixer fix");
 
         if (!$dry) {
+            r("$home/vendor/bin/php-cs-fixer fix");
             commit("phabel.io: transpile to {$target}");
         }
     }
     \chdir($home);
     r("cp -a testsGenerated tests ../phabelConvertedOutput");
+    \copy("tools/ci/matrix.php", "../phabelConvertedOutput/tools/ci/matrix.php");
     \chdir("../phabelConvertedOutput");
     r("$home/vendor/bin/php-scoper add-prefix -c $home/scoper.inc.php");
+    r("cp -a vendor/symfony/polyfill* build/vendor/symfony");
     r("rm -rf vendor");
     r("cp -a build/. .");
     r("rm -rf build vendor/composer vendor/autoload.php vendor/scoper-autoload.php vendor/bin");
+
+    // Patch symfony/string
+    \file_put_contents(
+        'vendor/symfony/string/AbstractString.php',
+        \str_replace('\\PREG_UNMATCHED_AS_NULL', "0", \file_get_contents('vendor/symfony/string/AbstractString.php'))
+    );
+    $replace = 'array_walk_recursive($match, function (&$v){return $v === "" ? null : $v;})';
+    \file_put_contents(
+        'vendor/symfony/string/AbstractUnicodeString.php',
+        \str_replace(['return $matches;', '\\PREG_UNMATCHED_AS_NULL'], ["$replace; return \$matches;", "0"], \file_get_contents('vendor/symfony/string/AbstractUnicodeString.php'))
+    );
+    \file_put_contents(
+        'vendor/symfony/string/ByteString.php',
+        \str_replace(['return $matches;', '\\PREG_UNMATCHED_AS_NULL'], ["$replace; return \$matches;", "0"], \file_get_contents('vendor/symfony/string/ByteString.php'))
+    );
+
+
     \rename("vendor", "vendor-bundle");
     r("find src -type f -exec sed 's/\\\\Phabel\\\\self/self/g' -i {} +");
 
@@ -129,14 +151,15 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
 
     $lock = \json_decode(\file_get_contents('composer.lock'), true);
     $json = \json_decode(\file_get_contents('composer.json'), true);
-    $jsonDev = \json_decode(\file_get_contents('vendor-bin/check/composer.json'), true);
 
     $json['require'] = [
         'php' => $packages['php'],
         'ext-json' => $json['require']['ext-json'],
         'composer-plugin-api' => $json['require']['composer-plugin-api'],
     ];
-    $json['require-dev'] = $jsonDev['require-dev'];
+    $json['require-dev'] = [
+        'bamarni/composer-bin-plugin' => $json['require-dev']['bamarni/composer-bin-plugin']
+    ];
 
     foreach ($lock['packages'] as $package) {
         $name = $package['name'];
@@ -149,28 +172,30 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
 
         foreach (['psr-4', 'psr-0'] as $type) {
             foreach ($package['autoload'][$type] ?? [] as $namespace => $path) {
-                $namespace = str_starts_with($namespace, 'Symfony\\Polyfill') ? $namespace : "Phabel\\$namespace";
+                $namespace = \str_starts_with($namespace, 'Symfony\\Polyfill') ? $namespace : "Phabel\\$namespace";
                 $paths = \is_string($path) ? [$path] : $path;
                 $paths = \array_map(fn ($path) => "vendor-bundle/$name/$path", $paths);
                 $json['autoload'][$type][$namespace] = $paths;
             }
         }
 
-        $json['autoload']['files'] = \array_merge(
-            $json['autoload']['files'] ?? [],
-            \array_map(
-                fn ($path) => "vendor-bundle/$name/$path",
-                $package['autoload']['files'] ?? []
-            )
-        );
+        foreach (['classmap', 'files'] as $type) {
+            $json['autoload'][$type] = \array_merge(
+                $json['autoload'][$type] ?? [],
+                \array_map(
+                    fn ($path) => "vendor-bundle/$name/$path",
+                    $package['autoload'][$type] ?? []
+                )
+            );
+        }
     }
     $json['autoload-dev'] = ['psr-4' => ['PhabelTest\\' => 'tests/']];
 
     \file_put_contents('composer.json', \json_encode($json, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES));
 
     if (!$dry) {
-        commit("phabel.io: add dependencies");
         \chdir("../phabelConvertedRepo");
+        commit("phabel.io: add dependencies");
         if ($tag) {
             r("git tag ".\escapeshellarg("$tag.$target"));
             r("git push -f origin " . \escapeshellarg("$tag.$target"));

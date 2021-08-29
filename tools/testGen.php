@@ -1,6 +1,5 @@
 <?php
 
-use Composer\Util\Filesystem;
 use Phabel\Cli\EventHandler;
 use Phabel\Plugin\PhabelTestGenerator;
 use Phabel\Target\Php;
@@ -8,16 +7,15 @@ use Phabel\Traverser;
 
 require_once 'vendor/autoload.php';
 
-$fs = new Filesystem();
-$fs->remove("coverage");
-\mkdir("coverage");
+
+`rm -rf coverage`;
 
 $packages = [];
 $packagesSecondary = [];
-foreach (Php::VERSIONS as $version) {
+foreach ([56, 70, ...Php::VERSIONS] as $version) {
     echo "$version\n";
-    $fs->remove("tests/Target$version");
-    $fs->remove("tests/Target10$version");
+    `rm -rf "tests/Target$version"`;
+    `rm -rf "tests/Target10$version"`;
     $packages += (new Traverser(EventHandler::create()))
         ->setPlugins([
             PhabelTestGenerator::class => ['target' => $version]

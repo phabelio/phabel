@@ -6,18 +6,18 @@ use Phabel\Plugin;
 use Phabel\Plugin\TypeHintReplacer;
 
 /**
- * Replace static typehint.
+ * Replace static and mixed typehint.
  *
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT
  */
-class StaticReplacer extends Plugin
+class StaticMixedReplacer extends Plugin
 {
     public static function previous(array $config): array
     {
         return [
             TypeHintReplacer::class => [
-                'types' => ['static']
+                'types' => ['static', 'mixed']
             ]
         ];
     }

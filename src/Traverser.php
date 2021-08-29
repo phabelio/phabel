@@ -58,21 +58,23 @@ class Traverser
      */
     private ?EventHandlerInterface $eventHandler = null;
     /**
-     * Input.
+     * Input directory.
      *
      * @var string
      */
     private string $input = '';
     /**
-     * Output.
+     * Output directory.
      *
      * @var string
      */
     private string $output = '';
     /**
-     * File whitelist.
+     * Files to work on.
+     *
+     * @var list<string>
      */
-    private ?array $fileWhitelist = null;
+    private ?array $files = null;
     /**
      * Callable to extract package name from path.
      *
@@ -298,6 +300,53 @@ class Traverser
         return null;
     }
     /**
+     * Prepare list of files to work on.
+     *
+     * @return void
+     */
+    private function prepareFiles(): void
+    {
+        if ($this->files === null && \is_dir($this->input)) {
+            if (!\file_exists($this->output)) {
+                \mkdir($this->output, 0777, true);
+            }
+            $this->output = \realpath($this->output);
+            $this->input = \realpath($this->input);
+            $this->files = [];
+            $it = new \RecursiveDirectoryIterator($this->input, \RecursiveDirectoryIterator::SKIP_DOTS);
+            $ri = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::SELF_FIRST);
+
+            /** @var \SplFileInfo $file */
+            foreach ($ri as $file) {
+                $rel = $ri->getSubPathname();
+                $targetPath = $this->output.DIRECTORY_SEPARATOR.$rel;
+                if ($file->isDir()) {
+                    if (!\file_exists($targetPath)) {
+                        \mkdir($targetPath, $file->getPerms(), true);
+                    }
+                } elseif ($file->isLink()) {
+                    $dest = $file->getRealPath();
+                    if ($dest !== false && \str_starts_with($dest, $this->input)) {
+                        $dest = \trim(\substr($dest, \strlen($this->input)), DIRECTORY_SEPARATOR);
+                        $dest = \str_repeat('..'.DIRECTORY_SEPARATOR, \substr_count($rel, DIRECTORY_SEPARATOR)).$dest;
+                        $link = $this->output.DIRECTORY_SEPARATOR.$rel;
+                        if (\file_exists($link)) {
+                            \unlink($link);
+                        }
+                        \symlink($dest, $link);
+                    }
+                } elseif ($file->isFile()) {
+                    if ($file->getExtension() == 'php') {
+                        $this->files []= $rel;
+                    } elseif (\realpath($targetPath) !== $file->getRealPath()) {
+                        \copy($file->getRealPath(), $targetPath);
+                        \chmod($targetPath, $file->getPerms());
+                    }
+                }
+            }
+        }
+    }
+    /**
      * Run phabel asynchronously.
      *
      * @return array
@@ -317,6 +366,7 @@ class Traverser
             throw new Exception("amphp/parallel must be installed to parallelize transforms!");
         }
         $this->eventHandler?->onStart();
+        $this->prepareFiles();
         if ($threads === -1) {
             $threads = Tools::getCpuCount();
         }
@@ -324,11 +374,6 @@ class Traverser
         return call(function () use (&$coverages, $threads) {
             $packages = [];
             $first = !$this->count++;
-
-            if (!\file_exists($this->output)) {
-                \mkdir($this->output, 0777, true);
-            }
-            $output = \realpath($this->output);
 
             $count = 0;
             $promises = [];
@@ -343,65 +388,45 @@ class Traverser
             $packages = $this->graph->getPackages();
             unset($this->graph);
 
-            $it = new \RecursiveDirectoryIterator($this->input, \RecursiveDirectoryIterator::SKIP_DOTS);
-            $ri = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::SELF_FIRST);
-
-            if ($this->eventHandler) {
-                $this->eventHandler->onBeginDirectoryTraversal($this->fileWhitelist ? \count($this->fileWhitelist) : \iterator_count($ri), $threads);
-            }
+            $this->eventHandler?->onBeginDirectoryTraversal(\count($this->files), $threads);
 
             $promises = [];
-            /** @var \SplFileInfo $file */
-            foreach ($ri as $file) {
-                $rel = $ri->getSubPathname();
-                if ($this->fileWhitelist && !isset($this->fileWhitelist[$rel])) {
-                    continue;
-                }
-                $targetPath = $output.DIRECTORY_SEPARATOR.$rel;
-                if ($file->isDir()) {
-                    if (!\file_exists($targetPath)) {
-                        \mkdir($targetPath, 0777, true);
+            foreach ($this->files as $rel) {
+                $output = $this->output.DIRECTORY_SEPARATOR.$rel;
+                $input = $this->input.DIRECTORY_SEPARATOR.$rel;
+                $promise = call(function () use ($pool, $rel, $input, $output, $count, $first, &$promises, &$coverages) {
+                    $this->eventHandler?->onBeginAstTraversal($input);
+                    $package = null;
+                    if ($this->composerPackageName) {
+                        $package = ($this->composerPackageName)($rel);
                     }
-                } elseif ($file->isFile()) {
-                    if ($file->getExtension() == 'php') {
-                        $promise = call(function () use ($pool, $file, $rel, $targetPath, $count, $first, &$promises, &$coverages) {
-                            $this->eventHandler?->onBeginAstTraversal($file->getRealPath());
-                            $package = null;
-                            if ($this->composerPackageName) {
-                                $package = ($this->composerPackageName)($rel);
-                            }
-                            $res = yield $pool->enqueue(
-                                new Run(
-                                    $rel,
-                                    $file->getRealPath(),
-                                    $targetPath,
-                                    $package,
-                                    $this->coverage ? "{$this->coverage}$count.php" : ''
-                                )
-                            );
-                            if ($this->coverage) {
-                                $coverages []= "{$this->coverage}$count.php";
-                            }
-                            if ($res instanceof ExceptionWrapper) {
-                                $res = $res->getException();
-                                if (!($first && \str_contains($res->getMessage(), ' while parsing '))) {
-                                    throw $res;
-                                }
-                                if (\realpath($targetPath) !== $file->getRealPath()) {
-                                    \copy($file->getRealPath(), $targetPath);
-                                }
-                            }
-                            \chmod($targetPath, \fileperms($file->getRealPath()));
-                            $this->eventHandler?->onEndAstTraversal($file->getRealPath(), $res);
-                            unset($promises[$count]);
-                        });
-                        $promises[$count] = $promise;
-                        $count++;
-                    } elseif (\realpath($targetPath) !== $file->getRealPath()) {
-                        \copy($file->getRealPath(), $targetPath);
-                        \chmod($targetPath, \fileperms($file->getRealPath()));
+                    $res = yield $pool->enqueue(
+                        new Run(
+                            $rel,
+                            $input,
+                            $output,
+                            $package,
+                            $this->coverage ? "{$this->coverage}$count.php" : ''
+                        )
+                    );
+                    if ($this->coverage) {
+                        $coverages []= "{$this->coverage}$count.php";
                     }
-                }
+                    if ($res instanceof ExceptionWrapper) {
+                        $res = $res->getException();
+                        if (!($first && \str_contains($res->getMessage(), ' while parsing '))) {
+                            throw $res;
+                        }
+                        if (\realpath($input) !== \realpath($output)) {
+                            \copy($input, $output);
+                        }
+                        $this->eventHandler?->onEndAstTraversal($input, $res);
+                    }
+                    \chmod($output, \fileperms($input));
+                    unset($promises[$count]);
+                });
+                $promises[$count] = $promise;
+                $count++;
             }
             yield $promises;
 
@@ -430,11 +455,10 @@ class Traverser
             unset($pool);
 
             if ($classStorage) {
-                [$plugins, $files] = $classStorage->finish();
+                [$plugins, $this->files] = $classStorage->finish();
                 unset($classStorage);
-                if ($plugins && $files) {
+                if ($plugins && $this->files) {
                     $this->input = $this->output;
-                    $this->fileWhitelist = $files;
                     $this->composerPackageName = null;
                     $this->setPlugins($plugins);
                     return $this->run();
@@ -489,6 +513,7 @@ class Traverser
         $packages = [];
 
         $this->eventHandler?->onStart();
+        $this->prepareFiles();
         while (true) {
             $this->runInternal();
             $packages += $this->graph->getPackages();
@@ -496,13 +521,12 @@ class Traverser
             if (!$classStorage) {
                 break;
             }
-            [$plugins, $files] = $classStorage->finish();
+            [$plugins, $this->files] = $classStorage->finish();
             unset($classStorage);
-            if (!$plugins || !$files) {
+            if (!$plugins || !$this->files) {
                 break;
             }
             $this->input = $this->output;
-            $this->fileWhitelist = $files;
             $this->composerPackageName = null;
             $this->setPlugins($plugins);
         }
@@ -528,51 +552,28 @@ class Traverser
             return;
         }
 
-        if (!\file_exists($this->output)) {
-            \mkdir($this->output, 0777, true);
-        }
-        $this->output = \realpath($this->output);
-
-        $it = new \RecursiveDirectoryIterator($this->input, \RecursiveDirectoryIterator::SKIP_DOTS);
-        $ri = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::SELF_FIRST);
-        if ($this->eventHandler) {
-            $this->eventHandler->onBeginDirectoryTraversal($this->fileWhitelist ? \count($this->fileWhitelist) : \iterator_count($ri), 1);
-        }
-        /** @var \SplFileInfo $file */
-        foreach ($ri as $file) {
-            $rel = $ri->getSubPathname();
-            if ($this->fileWhitelist && !isset($this->fileWhitelist[$rel])) {
-                continue;
+        $this->eventHandler->onBeginDirectoryTraversal(\count($this->files), 1);
+        foreach ($this->files as $rel) {
+            $_ = self::startCoverage($this->coverage);
+            if ($this->composerPackageName) {
+                $this->setPackage(($this->composerPackageName)($rel));
+            } else {
+                $this->packageQueue = null;
             }
-            $targetPath = $this->output.DIRECTORY_SEPARATOR.$rel;
-            if ($file->isDir()) {
-                if (!\file_exists($targetPath)) {
-                    \mkdir($targetPath, 0777, true);
+            $input = $this->input.DIRECTORY_SEPARATOR.$rel;
+            $output = $this->output.DIRECTORY_SEPARATOR.$rel;
+            try {
+                $it = $this->traverse($rel, $input, $output);
+            } catch (\Throwable $e) {
+                if (!($first && $e instanceof Exception && \str_contains($e->getMessage(), ' while parsing '))) {
+                    throw $e;
                 }
-            } elseif ($file->isFile()) {
-                if ($file->getExtension() == 'php') {
-                    $_ = self::startCoverage($this->coverage);
-                    if ($this->composerPackageName) {
-                        $this->setPackage(($this->composerPackageName)($rel));
-                    } else {
-                        $this->packageQueue = null;
-                    }
-                    try {
-                        $it = $this->traverse($rel, $file->getRealPath(), $targetPath);
-                    } catch (\Throwable $e) {
-                        if (!($first && $e instanceof Exception && \str_contains($e->getMessage(), ' while parsing '))) {
-                            throw $e;
-                        }
-                        if (\realpath($targetPath) !== $file->getRealPath()) {
-                            \copy($file->getRealPath(), $targetPath);
-                        }
-                        $this->eventHandler?->onEndAstTraversal($file->getRealPath(), $e);
-                    }
-                } elseif (\realpath($targetPath) !== $file->getRealPath()) {
-                    \copy($file->getRealPath(), $targetPath);
+                if (\realpath($input) !== \realpath($output)) {
+                    \copy($input, $output);
                 }
-                \chmod($targetPath, \fileperms($file->getRealPath()));
+                $this->eventHandler?->onEndAstTraversal($input, $e);
             }
+            \chmod($output, \fileperms($input));
         }
         $this->eventHandler?->onEndDirectoryTraversal();
     }
