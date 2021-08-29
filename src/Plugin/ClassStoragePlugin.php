@@ -118,6 +118,7 @@ final class ClassStoragePlugin extends Plugin
             $name .= "@".$this->count[$file][$name]++;
         }
         $class->setAttribute(self::NAME, $name);
+        $class->setAttribute(ClassStorage::FILE_KEY, $file);
     }
     /**
      * Add method.
@@ -130,16 +131,6 @@ final class ClassStoragePlugin extends Plugin
     {
         $file = $context->getFile();
         $name = $class->getAttribute(self::NAME);
-        $class = clone $class;
-        $stmts = [];
-        foreach ($class->stmts as $stmt) {
-            if (!$stmt instanceof ClassMethod && !$stmt instanceof TraitUse) {
-                continue;
-            }
-            $stmts []= $stmt;
-        }
-        $class->stmts = $stmts;
-        $class->setAttribute(ClassStorage::FILE_KEY, $file);
 
         if ($class instanceof Trait_) {
             $this->traits[$name][$file] = new Builder($class);
