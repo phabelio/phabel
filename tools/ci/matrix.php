@@ -7,7 +7,7 @@ $commit = \trim(\shell_exec("git log -1 --pretty=%H"));
 $branch = \trim(\shell_exec("git rev-parse --abbrev-ref HEAD"));
 $tag = \trim(\shell_exec("git describe --tags ".\escapeshellarg($commit)));
 
-$doBuild = false;
+$doBuild = true;
 
 $final = null;
 $tail = \substr($branch, -3);
@@ -15,6 +15,7 @@ foreach ($php as $version) {
     $version = (string) $version;
     $final = $version[0].".".$version[1];
     if ($tail === "-$version") {
+        $doBuild = false;
         break;
     }
 }
