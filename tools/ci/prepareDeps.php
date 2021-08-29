@@ -34,6 +34,6 @@ r("cp -a $vendor/composer ../phabelConvertedVendor");
 r("rm -rf $vendor");
 \rename("../phabelConvertedVendor", $vendor);
 
-$phpunit = \realpath("$vendor/bin/phpunit");
+$phpunit = \realpath("vendor/bin/phpunit");
 \file_put_contents($phpunit, \str_replace('die(1);', '', \file_get_contents($phpunit)));
 \chmod($phpunit, 0755);
