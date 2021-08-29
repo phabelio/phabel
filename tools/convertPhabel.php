@@ -120,6 +120,23 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
     r("cp -a build/. .");
     r("cp -a $home/vendor/symfony/polyfill* vendor/symfony");
     r("rm -rf build vendor/composer vendor/autoload.php vendor/scoper-autoload.php vendor/bin");
+
+    // Patch symfony/string
+    file_put_contents(
+        'vendor/symfony/string/AbstractString.php',
+        str_replace('\\PREG_UNMATCHED_AS_NULL', "0", file_get_contents('vendor/symfony/string/AbstractString.php'))
+    );
+    $replace = 'array_walk_recursive($match, function (&$v){return $v === "" ? null : $v;})';
+    file_put_contents(
+        'vendor/symfony/string/AbstractUnicodeString.php',
+        str_replace(['return $matches;', '\\PREG_UNMATCHED_AS_NULL'], ["$replace; return \$matches;", "0"], file_get_contents('vendor/symfony/string/AbstractUnicodeString.php'))
+    );
+    file_put_contents(
+        'vendor/symfony/string/ByteString.php',
+        str_replace(['return $matches;', '\\PREG_UNMATCHED_AS_NULL'], ["$replace; return \$matches;", "0"], file_get_contents('vendor/symfony/string/ByteString.php'))
+    );
+
+
     \rename("vendor", "vendor-bundle");
     r("find src -type f -exec sed 's/\\\\Phabel\\\\self/self/g' -i {} +");
 
