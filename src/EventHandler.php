@@ -4,37 +4,45 @@ namespace Phabel;
 
 abstract class EventHandler implements EventHandlerInterface
 {
-    public function onStart(): void
+    public function onStart()
     {
     }
-    public function onBeginPluginGraphResolution(): void
+    public function onBeginPluginGraphResolution()
     {
     }
-    public function onEndPluginGraphResolution(): void
+    public function onEndPluginGraphResolution()
     {
     }
-    public function onBeginDirectoryTraversal(int $total, int $workers): void
+    public function onBeginDirectoryTraversal(int $total, int $workers)
     {
     }
-    public function onBeginAstTraversal(string $file): void
+    public function onBeginAstTraversal(string $file)
     {
     }
-    public function onEndAstTraversal(string $file, int|\Throwable $iterationsOrError): void
+    public function onEndAstTraversal(string $file, $iterationsOrError)
+    {
+        if (!$iterationsOrError instanceof \Throwable) {
+            if (!\is_int($iterationsOrError)) {
+                if (!(\is_bool($iterationsOrError) || \is_numeric($iterationsOrError))) {
+                    throw new \TypeError(__METHOD__ . '(): Argument #2 ($iterationsOrError) must be of type Throwable|int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($iterationsOrError) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                }
+                $iterationsOrError = (int) $iterationsOrError;
+            }
+        }
+    }
+    public function onEndDirectoryTraversal()
     {
     }
-    public function onEndDirectoryTraversal(): void
+    public function onBeginClassGraphMerge(int $count)
     {
     }
-    public function onBeginClassGraphMerge(int $count): void
+    public function onClassGraphMerged()
     {
     }
-    public function onClassGraphMerged(): void
+    public function onEndClassGraphMerge()
     {
     }
-    public function onEndClassGraphMerge(): void
-    {
-    }
-    public function onEnd(): void
+    public function onEnd()
     {
     }
 }

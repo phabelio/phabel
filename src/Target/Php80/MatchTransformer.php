@@ -47,9 +47,9 @@ class MatchTransformer extends Plugin
         if (empty($cases)) {
             $closure->stmts = [$default];
         } else {
-            [$ifCond, $ifBody] = \array_shift($cases);
+            list($ifCond, $ifBody) = \array_shift($cases);
             foreach ($cases as &$case) {
-                [$cond, $body] = $case;
+                list($cond, $body) = $case;
                 $case = new ElseIf_($cond, [$body]);
             }
             $closure->stmts = [new If_($ifCond, ['stmts' => [$ifBody], 'elseifs' => $cases, 'else' => new Else_([$default])])];

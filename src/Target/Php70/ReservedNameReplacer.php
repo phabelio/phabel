@@ -15,7 +15,7 @@ class ReservedNameReplacer extends Plugin
     /**
      * {@inheritdoc}
      */
-    public function leaveNode(Node $node): void
+    public function leaveNode(Node $node)
     {
         if (!($node instanceof Node\Expr\MethodCall || $node instanceof Node\Expr\StaticCall || $node instanceof Node\Stmt\ClassMethod || $node instanceof Node\Expr\ClassConstFetch || $node instanceof Node\Const_) || !$node->name instanceof Identifier) {
             return;

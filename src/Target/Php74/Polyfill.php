@@ -12,14 +12,30 @@ use Phabel\Target\Polyfill as TargetPolyfill;
 class Polyfill extends Plugin
 {
     // Todo: gmmktime, mktime
-    public static function array_filter(array $array, ?callable $callback = null, int $mode = 0): array
+    public static function array_filter(array $array, $callback = null, int $mode = 0): array
     {
-        $callback ??= fn ($v) => $v;
+        if (!(\is_callable($callback) || \is_null($callback))) {
+            throw new \TypeError(__METHOD__ . '(): Argument #2 ($callback) must be of type ?callable, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($callback) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        $callback = $callback ?? function ($v) {
+            return $v;
+        };
         return \array_filter($array, $callback, $mode);
     }
-    public static function array_splice(array &$array, int $offset, ?int $length = null, mixed $replacement = []): array
+    public static function array_splice(array &$array, int $offset, $length = null, $replacement = []): array
     {
-        $length ??= \max(\count($array) - $offset, 0);
+        if (!true) {
+            throw new \TypeError(__METHOD__ . '(): Argument #4 ($replacement) must be of type mixed, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($replacement) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        if (!\is_null($length)) {
+            if (!\is_int($length)) {
+                if (!(\is_bool($length) || \is_numeric($length))) {
+                    throw new \TypeError(__METHOD__ . '(): Argument #3 ($length) must be of type ?int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($length) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                }
+                $length = (int) $length;
+            }
+        }
+        $length = $length ?? \max(\count($array) - $offset, 0);
         return \array_splice($array, $offset, $length, $replacement);
     }
     /**

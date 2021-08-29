@@ -22,10 +22,10 @@ use Symfony\Component\Console\Output\NullOutput;
  */
 class Plugin implements PluginInterface, EventSubscriberInterface
 {
-    private string $toRequire = '';
+    private $toRequire = '';
     /** @psalm-suppress MissingConstructor */
-    private Transformer $transformer;
-    private ?array $lock = null;
+    private $transformer;
+    private $lock = null;
     /**
      * Apply plugin modifications to Composer.
      *
@@ -34,10 +34,10 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      *
      * @return void
      */
-    public function activate(Composer $composer, IOInterface $io): void
+    public function activate(Composer $composer, IOInterface $io)
     {
         if (\file_exists('composer.lock')) {
-            $this->lock = \json_decode(\file_get_contents('composer.lock'), true);
+            $this->lock = \Phabel\Target\Php72\Polyfill::json_decode(\Phabel\Target\Php71\Polyfill::file_get_contents('composer.lock'), true);
         }
         $rootPackage = $composer->getPackage();
         $this->transformer = Transformer::getInstance($io);
@@ -89,17 +89,17 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     {
         return [ScriptEvents::POST_INSTALL_CMD => ['onInstall', 1], ScriptEvents::POST_UPDATE_CMD => ['onUpdate', 1]];
     }
-    public function onInstall(Event $event): void
+    public function onInstall(Event $event)
     {
         $this->run($event, false);
     }
-    public function onUpdate(Event $event): void
+    public function onUpdate(Event $event)
     {
         $this->run($event, true);
     }
-    private function run(Event $event, bool $isUpdate): void
+    private function run(Event $event, bool $isUpdate)
     {
-        $lock = \json_decode(\file_get_contents('composer.lock'), true);
+        $lock = \Phabel\Target\Php72\Polyfill::json_decode(\Phabel\Target\Php71\Polyfill::file_get_contents('composer.lock'), true);
         if (!$this->transformer->transform($lock, $this->lock)) {
             \register_shutdown_function(function () use ($isUpdate) {
                 /** @var Application */
@@ -115,7 +115,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             });
         } else {
             \register_shutdown_function(function () {
-                $json = \json_decode(\file_get_contents('composer.json'), true);
+                $json = \Phabel\Target\Php72\Polyfill::json_decode(\Phabel\Target\Php71\Polyfill::file_get_contents('composer.json'), true);
                 if (!isset($json['require']['phabel/phabel'])) {
                     return;
                 }
@@ -123,10 +123,10 @@ class Plugin implements PluginInterface, EventSubscriberInterface
                 if ($old === Version::LATEST) {
                     return;
                 }
-                $json['extra'] ??= [];
-                $json['extra']['phabel'] ??= [];
+                $json['extra'] = $json['extra'] ?? [];
+                $json['extra']['phabel'] = $json['extra']['phabel'] ?? [];
                 $json['extra']['phabel']['revision'] = Version::LATEST;
-                $json['require'] ??= [];
+                $json['require'] = $json['require'] ?? [];
                 $json['require']['php'] = '^8.0';
                 $this->transformer->banner();
                 $f = [$this->transformer, 'format'];
@@ -147,7 +147,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      *
      * @return void
      */
-    public function onDependencySolve(InstallerEvent $event): void
+    public function onDependencySolve(InstallerEvent $event)
     {
     }
 }

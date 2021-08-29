@@ -51,7 +51,7 @@ class IssetExpressionFixer extends Plugin
     {
         return new ArrayDimFetch(self::callPoly('returnMe', new Ternary($node, self::fromLiteral([0]), self::fromLiteral([]))), new LNumber(0));
     }
-    public function enter(Isset_ $isset): void
+    public function enter(Isset_ $isset)
     {
         foreach ($isset->vars as $key => &$var) {
             /** @var array<string, array<class-string<Expr>, true>> */

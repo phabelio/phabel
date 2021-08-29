@@ -11,7 +11,7 @@ use PhpParser\Node\Stmt\Catch_;
  */
 class CatchEmpty extends Plugin
 {
-    public function enter(Catch_ $catch_, Context $ctx): void
+    public function enter(Catch_ $catch_, Context $ctx)
     {
         if ($catch_->var === null) {
             $catch_->var = $ctx->getVariable();

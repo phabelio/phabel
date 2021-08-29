@@ -9,9 +9,27 @@ use Phabel\Traverser;
 
 class Run implements Task
 {
-    public function __construct(private string $relative, private string $input, private string $output, private ?string $package, private string $coverage)
+    public function __construct(string $relative, string $input, string $output, $package, string $coverage)
     {
+        if (!\is_null($package)) {
+            if (!\is_string($package)) {
+                if (!(\is_string($package) || \Phabel\Target\Php72\Polyfill::is_object($package) && \method_exists($package, '__toString') || (\is_bool($package) || \is_numeric($package)))) {
+                    throw new \TypeError(__METHOD__ . '(): Argument #4 ($package) must be of type ?string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($package) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                }
+                $package = (string) $package;
+            }
+        }
+        $this->coverage = $coverage;
+        $this->package = $package;
+        $this->output = $output;
+        $this->input = $input;
+        $this->relative = $relative;
     }
+    private $coverage;
+    private $package;
+    private $output;
+    private $input;
+    private $relative;
     public function run(Environment $environment)
     {
         try {

@@ -66,7 +66,7 @@ interface PluginInterface
      *
      * @return void
      */
-    public function setConfigArray(array $config): void;
+    public function setConfigArray(array $config);
     /**
      * Set package context.
      *
@@ -74,7 +74,7 @@ interface PluginInterface
      *
      * @return void
      */
-    public function setPackageContext(PackageContext $ctx): void;
+    public function setPackageContext(PackageContext $ctx);
     /**
      * Get package context.
      *
@@ -114,7 +114,7 @@ interface PluginInterface
      *
      * @return void
      */
-    public function setConfig(string $key, $value): void;
+    public function setConfig(string $key, $value);
     /**
      * Check if has configuration key.
      *

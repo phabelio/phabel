@@ -18,7 +18,7 @@ use PhpParser\Node\Stmt\PropertyProperty;
  */
 class ConstructorPromotion extends Plugin
 {
-    public function enter(ClassMethod $classMethod, Context $ctx): void
+    public function enter(ClassMethod $classMethod, Context $ctx)
     {
         if (\strtolower($classMethod->name) !== '__construct') {
             return;
@@ -26,7 +26,7 @@ class ConstructorPromotion extends Plugin
         foreach ($classMethod->params as $param) {
             if ($param->flags) {
                 $ctx->insertAfter($classMethod, new Property($param->flags, [new PropertyProperty($param->var->name)], [], $param->type));
-                \array_unshift($classMethod->stmts, new Expression(new Assign(new PropertyFetch(new Variable('this'), $param->var->name), new Variable($param->var->name))));
+                \Phabel\Target\Php73\Polyfill::array_unshift($classMethod->stmts, new Expression(new Assign(new PropertyFetch(new Variable('this'), $param->var->name), new Variable($param->var->name))));
                 $param->flags = 0;
             }
         }

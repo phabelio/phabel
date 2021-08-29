@@ -10,7 +10,7 @@ use Composer\Package\PackageInterface;
  */
 trait Repository
 {
-    private Transformer $phabelTransformer;
+    private $phabelTransformer;
     /**
      * TODO v3 should make this private once we can drop PHP 5.3 support.
      *
@@ -19,7 +19,7 @@ trait Repository
      */
     public function isVersionAcceptable($constraint, $name, $versionData, array $acceptableStabilities = null, array $stabilityFlags = null)
     {
-        [$name] = $this->phabelTransformer->extractTarget($name);
+        list($name) = $this->phabelTransformer->extractTarget($name);
         return parent::isVersionAcceptable($constraint, $name, $versionData, $acceptableStabilities, $stabilityFlags);
     }
     /**
@@ -37,15 +37,15 @@ trait Repository
         $newPackageNameMap = [];
         $transformInfo = [];
         foreach ($packageNameMap as $key => $constraint) {
-            [$package, $target] = $this->phabelTransformer->extractTarget($key);
-            $newPackageNameMap[$target] ??= [];
+            list($package, $target) = $this->phabelTransformer->extractTarget($key);
+            $newPackageNameMap[$target] = $newPackageNameMap[$target] ?? [];
             $newPackageNameMap[$target][$package] = $constraint;
-            $transformInfo[$target] ??= [];
+            $transformInfo[$target] = $transformInfo[$target] ?? [];
             $transformInfo[$target][$package] = $key;
         }
         foreach ($alreadyLoaded as $key => $versions) {
-            [$package, $target] = $this->phabelTransformer->extractTarget($key);
-            $newAlreadyLoaded[$target] ??= [];
+            list($package, $target) = $this->phabelTransformer->extractTarget($key);
+            $newAlreadyLoaded[$target] = $newAlreadyLoaded[$target] ?? [];
             $newAlreadyLoaded[$target][$package] = $versions;
         }
         $finalNamesFound = [];
@@ -82,7 +82,7 @@ trait Repository
      */
     public function findPackage($fullName, $constraint)
     {
-        [$name, $target] = $this->phabelTransformer->extractTarget($fullName);
+        list($name, $target) = $this->phabelTransformer->extractTarget($fullName);
         if (!($package = parent::findPackage($name, $constraint))) {
             return null;
         }
@@ -100,7 +100,7 @@ trait Repository
      */
     public function findPackages($fullName, $constraint = null)
     {
-        [$name, $target] = $this->phabelTransformer->extractTarget($fullName);
+        list($name, $target) = $this->phabelTransformer->extractTarget($fullName);
         $packages = parent::findPackages($name, $constraint);
         foreach ($packages as &$package) {
             $package = clone $package;

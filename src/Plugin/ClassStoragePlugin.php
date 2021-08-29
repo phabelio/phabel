@@ -23,23 +23,23 @@ final class ClassStoragePlugin extends Plugin
      *
      * @var array<string, array<string, Builder>>
      */
-    public array $classes = [];
+    public $classes = [];
     /**
      * Storage.
      *
      * @var array<string, array<string, Builder>>
      */
-    public array $traits = [];
+    public $traits = [];
     /**
      * Count.
      */
-    private array $count = [];
+    private $count = [];
     /**
      * Plugins to call during final iteration.
      *
      * @var array<class-string<ClassStorageProvider>, true>
      */
-    protected array $finalPlugins = [];
+    protected $finalPlugins = [];
     /**
      * Check if plugin should run.
      *
@@ -68,7 +68,7 @@ final class ClassStoragePlugin extends Plugin
      * @param array $config
      * @return void
      */
-    public function setConfigArray(array $config): void
+    public function setConfigArray(array $config)
     {
         parent::setConfigArray($config);
         $this->finalPlugins += $config;
@@ -79,7 +79,7 @@ final class ClassStoragePlugin extends Plugin
      * @param RootNode $_
      * @return void
      */
-    public function enterRoot(RootNode $_, Context $context): void
+    public function enterRoot(RootNode $_, Context $context)
     {
         $file = $context->getFile();
         $this->count[$file] = [];
@@ -101,14 +101,14 @@ final class ClassStoragePlugin extends Plugin
      *
      * @return void
      */
-    public function enter(ClassLike $class, Context $context): void
+    public function enter(ClassLike $class, Context $context)
     {
         $file = $context->getFile();
         if ($class->name) {
             $name = self::getFqdn($class);
         } else {
             $name = "class@anonymous{$file}";
-            $this->count[$file][$name] ??= 0;
+            $this->count[$file][$name] = $this->count[$file][$name] ?? 0;
             $name .= "@" . $this->count[$file][$name]++;
         }
         $class = clone $class;
@@ -133,7 +133,7 @@ final class ClassStoragePlugin extends Plugin
      * @param self $other
      * @return void
      */
-    public function merge($other): void
+    public function merge($other)
     {
         foreach ($other->classes as $class => $classes) {
             foreach ($classes as $file => $builder) {

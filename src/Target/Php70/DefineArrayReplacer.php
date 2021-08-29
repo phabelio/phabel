@@ -46,7 +46,7 @@ class DefineArrayReplacer extends Plugin
      * @param array $value
      * @return void
      */
-    public static function defineMe(string $name, array $value): void
+    public static function defineMe(string $name, array $value)
     {
         $name = \preg_replace("/[^A-Za-z0-9_]/", '', $name);
         $value = \var_export($value, true);

@@ -13,12 +13,22 @@ use PhpParser\Node\Stmt\Nop;
  */
 class StrictTypesDeclareStatementRemover extends Plugin
 {
-    public function leave(Declare_ $node): ?Nop
+    public function leave(Declare_ $node)
     {
-        $node->declares = \array_filter($node->declares, fn (DeclareDeclare $declare) => ($declare->key->name !== 'strict_types'));
+        $node->declares = \Phabel\Target\Php74\Polyfill::array_filter($node->declares, function (DeclareDeclare $declare) {
+            return $declare->key->name !== 'strict_types';
+        });
         if (empty($node->declares)) {
-            return new Nop();
+            $phabelReturn = new Nop();
+            if (!($phabelReturn instanceof Nop || \is_null($phabelReturn))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type ?Nop, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         }
-        return null;
+        $phabelReturn = null;
+        if (!($phabelReturn instanceof Nop || \is_null($phabelReturn))) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ?Nop, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
 }

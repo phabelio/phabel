@@ -15,24 +15,40 @@ use ReflectionFunction;
  */
 class ClosureFromCallable extends Plugin
 {
-    public function enter(StaticCall $staticCall): ?StaticCall
+    public function enter(StaticCall $staticCall)
     {
         if (!$staticCall->class instanceof Name || self::getFqdn($staticCall->class) !== Closure::class) {
-            return null;
+            $phabelReturn = null;
+            if (!($phabelReturn instanceof StaticCall || \is_null($phabelReturn))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type ?StaticCall, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         }
         if ($staticCall->name instanceof Expr) {
-            return self::callPoly('proxy', $staticCall->name, ...$staticCall->args);
+            $phabelReturn = self::callPoly('proxy', $staticCall->name, ...$staticCall->args);
+            if (!($phabelReturn instanceof StaticCall || \is_null($phabelReturn))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type ?StaticCall, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         } elseif (\strtolower($staticCall->name->name) === 'fromcallable') {
-            return self::callPoly('fromCallable', $staticCall->args[0]);
+            $phabelReturn = self::callPoly('fromCallable', $staticCall->args[0]);
+            if (!($phabelReturn instanceof StaticCall || \is_null($phabelReturn))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type ?StaticCall, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         }
-        return null;
+        $phabelReturn = null;
+        if (!($phabelReturn instanceof StaticCall || \is_null($phabelReturn))) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ?StaticCall, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     public static function proxy(string $method, ...$args)
     {
         if (\strtolower($method) === 'fromcallable') {
             return self::fromCallable($args[0]);
         }
-        return Closure::$method(...$args);
+        return \Phabel\Target\Php71\ClosureFromCallable::proxy($method, ...$args);
     }
     /**
      * Create closure from callable.
@@ -45,7 +61,7 @@ class ClosureFromCallable extends Plugin
         if ($callable instanceof Closure) {
             return $callable;
         }
-        if (\is_object($callable)) {
+        if (\Phabel\Target\Php72\Polyfill::is_object($callable)) {
             $callable = [$callable, '__invoke'];
         }
         if (\is_array($callable)) {

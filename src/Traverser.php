@@ -35,45 +35,45 @@ class Traverser
      *
      * @var ResolvedGraph
      */
-    private ResolvedGraph $graph;
+    private $graph;
     /**
      * Parser instance.
      */
-    private Parser $parser;
+    private $parser;
     /**
      * Printer instance.
      */
-    private Standard $printer;
+    private $printer;
     /**
      * Plugin queue for specific package.
      *
      * @var SplQueue<SplQueue<PluginInterface>>|null
      */
-    private ?SplQueue $packageQueue = null;
+    private $packageQueue = null;
     /**
      * Event handler.
      *
      * @var EventHandlerInterface|null
      */
-    private ?EventHandlerInterface $eventHandler = null;
+    private $eventHandler = null;
     /**
      * Input directory.
      *
      * @var string
      */
-    private string $input = '';
+    private $input = '';
     /**
      * Output directory.
      *
      * @var string
      */
-    private string $output = '';
+    private $output = '';
     /**
      * Files to work on.
      *
      * @var list<string>
      */
-    private ?array $files = null;
+    private $files = null;
     /**
      * Callable to extract package name from path.
      *
@@ -85,25 +85,25 @@ class Traverser
      *
      * @var string
      */
-    private string $coverage = '';
+    private $coverage = '';
     /**
      * Current file.
      */
-    private string $file = '';
+    private $file = '';
     /**
      * Current input file.
      */
-    private string $inputFile = '';
+    private $inputFile = '';
     /**
      * Current output file.
      */
-    private string $outputFile = '';
+    private $outputFile = '';
     /**
      * Number of times we traversed directories.
      *
      * @var integer
      */
-    private int $count = 0;
+    private $count = 0;
     /**
      * Generate traverser from basic plugin instances.
      *
@@ -128,8 +128,11 @@ class Traverser
      *
      * @param ?EventHandlerInterface $EventHandlerInterface Event handler
      */
-    public function __construct(?EventHandlerInterface $eventHandler = null)
+    public function __construct($eventHandler = null)
     {
+        if (!($eventHandler instanceof EventHandlerInterface || \is_null($eventHandler))) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($eventHandler) must be of type ?EventHandlerInterface, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($eventHandler) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
         $this->parser = (new ParserFactory())->create(ParserFactory::PREFER_PHP7);
         $this->printer = new Standard();
         $this->eventHandler = $eventHandler;
@@ -145,13 +148,13 @@ class Traverser
      */
     public function setPlugins(array $plugins): self
     {
-        $this->eventHandler?->onBeginPluginGraphResolution();
+        ($this->eventHandler ?? \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->onBeginPluginGraphResolution();
         $graph = new Graph();
         foreach ($plugins as $plugin => $config) {
             $graph->addPlugin($plugin, $config, $graph->getPackageContext());
         }
         $this->graph = $graph->flatten();
-        $this->eventHandler?->onEndPluginGraphResolution();
+        ($this->eventHandler ?? \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->onEndPluginGraphResolution();
         return $this;
     }
     /**
@@ -163,9 +166,9 @@ class Traverser
      */
     public function setPluginGraph(Graph $graph): self
     {
-        $this->eventHandler?->onBeginPluginGraphResolution();
+        ($this->eventHandler ?? \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->onBeginPluginGraphResolution();
         $this->graph = $graph->flatten();
-        $this->eventHandler?->onEndPluginGraphResolution();
+        ($this->eventHandler ?? \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->onEndPluginGraphResolution();
         return $this;
     }
     /**
@@ -244,19 +247,23 @@ class Traverser
      *
      * @return ?object
      */
-    public static function startCoverage(string $coveragePath): ?object
+    public static function startCoverage(string $coveragePath)
     {
         if (!$coveragePath || !\class_exists(CodeCoverage::class)) {
-            return null;
+            $phabelReturn = null;
+            if (!(\Phabel\Target\Php72\Polyfill::is_object($phabelReturn) || \is_null($phabelReturn))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type ?object, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         }
         try {
             $filter = new Filter();
             $filter->includeDirectory(\realpath(__DIR__ . '/../src'));
             $coverage = new CodeCoverage((new Selector())->forLineCoverage($filter), $filter);
             $coverage->start('phabel');
-            return new class($coverage, $coveragePath) {
-                private string $coveragePath;
-                private CodeCoverage $coverage;
+            $phabelReturn = new class($coverage, $coveragePath) {
+                private $coveragePath;
+                private $coverage;
                 public function __construct(CodeCoverage $coverage, string $coveragePath)
                 {
                     $this->coverage = $coverage;
@@ -271,16 +278,24 @@ class Traverser
                     (new PHP())->process($this->coverage, $this->coveragePath);
                 }
             };
+            if (!(\Phabel\Target\Php72\Polyfill::is_object($phabelReturn) || \is_null($phabelReturn))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type ?object, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         } catch (\Throwable $e) {
         }
-        return null;
+        $phabelReturn = null;
+        if (!(\Phabel\Target\Php72\Polyfill::is_object($phabelReturn) || \is_null($phabelReturn))) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ?object, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Prepare list of files to work on.
      *
      * @return void
      */
-    private function prepareFiles(): void
+    private function prepareFiles()
     {
         if ($this->files === null && \is_dir($this->input)) {
             if (!\file_exists($this->output)) {
@@ -302,8 +317,8 @@ class Traverser
                 } elseif ($file->isLink()) {
                     $dest = $file->getRealPath();
                     if ($dest !== false && \str_starts_with($dest, $this->input)) {
-                        $dest = \trim(\substr($dest, \strlen($this->input)), DIRECTORY_SEPARATOR);
-                        $dest = \str_repeat('..' . DIRECTORY_SEPARATOR, \substr_count($rel, DIRECTORY_SEPARATOR)) . $dest;
+                        $dest = \trim(\Phabel\Target\Php80\Polyfill::substr($dest, \strlen($this->input)), DIRECTORY_SEPARATOR);
+                        $dest = \str_repeat('..' . DIRECTORY_SEPARATOR, \Phabel\Target\Php71\Polyfill::substr_count($rel, DIRECTORY_SEPARATOR)) . $dest;
                         $link = $this->output . DIRECTORY_SEPARATOR . $rel;
                         if (\file_exists($link)) {
                             \unlink($link);
@@ -340,7 +355,7 @@ class Traverser
         if (!\interface_exists(Promise::class)) {
             throw new Exception("amphp/parallel must be installed to parallelize transforms!");
         }
-        $this->eventHandler?->onStart();
+        ($this->eventHandler ?? \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->onStart();
         $this->prepareFiles();
         if ($threads === -1) {
             $threads = Tools::getCpuCount();
@@ -360,13 +375,13 @@ class Traverser
             (yield $promises);
             $packages = $this->graph->getPackages();
             unset($this->graph);
-            $this->eventHandler?->onBeginDirectoryTraversal(\count($this->files), $threads);
+            ($this->eventHandler ?? \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->onBeginDirectoryTraversal(\count($this->files), $threads);
             $promises = [];
             foreach ($this->files as $rel) {
                 $output = $this->output . DIRECTORY_SEPARATOR . $rel;
                 $input = $this->input . DIRECTORY_SEPARATOR . $rel;
                 $promise = call(function () use ($pool, $rel, $input, $output, $count, $first, &$promises, &$coverages) {
-                    $this->eventHandler?->onBeginAstTraversal($input);
+                    ($this->eventHandler ?? \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->onBeginAstTraversal($input);
                     $package = null;
                     if ($this->composerPackageName) {
                         $package = ($this->composerPackageName)($rel);
@@ -383,7 +398,7 @@ class Traverser
                         if (\realpath($input) !== \realpath($output)) {
                             \copy($input, $output);
                         }
-                        $this->eventHandler?->onEndAstTraversal($input, $res);
+                        ($this->eventHandler ?? \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->onEndAstTraversal($input, $res);
                     }
                     \chmod($output, \fileperms($input));
                     unset($promises[$count]);
@@ -392,8 +407,8 @@ class Traverser
                 $count++;
             }
             (yield $promises);
-            $this->eventHandler?->onEndDirectoryTraversal();
-            $this->eventHandler?->onBeginClassGraphMerge($threads);
+            ($this->eventHandler ?? \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->onEndDirectoryTraversal();
+            ($this->eventHandler ?? \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->onBeginClassGraphMerge($threads);
             $promises = [];
             /** @var ClassStoragePlugin|null */
             $classStorage = null;
@@ -406,15 +421,15 @@ class Traverser
                     } else {
                         $classStorage->merge($newClassStorage);
                     }
-                    $this->eventHandler?->onClassGraphMerged();
+                    ($this->eventHandler ?? \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->onClassGraphMerged();
                 });
             }
             (yield $promises);
-            $this->eventHandler?->onEndClassGraphMerge();
+            ($this->eventHandler ?? \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->onEndClassGraphMerge();
             (yield $pool->shutdown());
             unset($pool);
             if ($classStorage) {
-                [$plugins, $this->files] = $classStorage->finish();
+                list($plugins, $this->files) = $classStorage->finish();
                 unset($classStorage);
                 if ($plugins && $this->files) {
                     $this->input = $this->output;
@@ -441,7 +456,7 @@ class Traverser
             if ($coverage) {
                 (new PHP())->process($coverage, $this->coverage);
             }
-            $this->eventHandler?->onEnd();
+            ($this->eventHandler ?? \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->onEnd();
             return $packages;
         });
     }
@@ -457,13 +472,13 @@ class Traverser
         }
         \set_error_handler(function (int $errno = 0, string $errstr = '', string $errfile = '', int $errline = -1): bool {
             // If error is suppressed with @, don't throw an exception
-            if (\error_reporting() === 0) {
+            if (\Phabel\Target\Php80\Polyfill::error_reporting() === 0) {
                 return false;
             }
             throw new Exception($errstr, $errno, null, $errfile, $errline);
         });
         $packages = [];
-        $this->eventHandler?->onStart();
+        ($this->eventHandler ?? \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->onStart();
         $this->prepareFiles();
         while (true) {
             $this->runInternal();
@@ -472,7 +487,7 @@ class Traverser
             if (!$classStorage) {
                 break;
             }
-            [$plugins, $this->files] = $classStorage->finish();
+            list($plugins, $this->files) = $classStorage->finish();
             unset($classStorage);
             if (!$plugins || !$this->files) {
                 break;
@@ -481,7 +496,7 @@ class Traverser
             $this->composerPackageName = null;
             $this->setPlugins($plugins);
         }
-        $this->eventHandler?->onEnd();
+        ($this->eventHandler ?? \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->onEnd();
         \restore_error_handler();
         return $packages;
     }
@@ -490,7 +505,7 @@ class Traverser
      *
      * @internal
      */
-    public function runInternal(): void
+    public function runInternal()
     {
         $_ = self::startCoverage($this->coverage);
         $first = !$this->count++;
@@ -518,11 +533,11 @@ class Traverser
                 if (\realpath($input) !== \realpath($output)) {
                     \copy($input, $output);
                 }
-                $this->eventHandler?->onEndAstTraversal($input, $e);
+                ($this->eventHandler ?? \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->onEndAstTraversal($input, $e);
             }
             \chmod($output, \fileperms($input));
         }
-        $this->eventHandler?->onEndDirectoryTraversal();
+        ($this->eventHandler ?? \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->onEndDirectoryTraversal();
     }
     /**
      * Set package name.
@@ -531,8 +546,16 @@ class Traverser
      *
      * @return void
      */
-    public function setPackage(?string $package): void
+    public function setPackage($package)
     {
+        if (!\is_null($package)) {
+            if (!\is_string($package)) {
+                if (!(\is_string($package) || \Phabel\Target\Php72\Polyfill::is_object($package) && \method_exists($package, '__toString') || (\is_bool($package) || \is_numeric($package)))) {
+                    throw new \TypeError(__METHOD__ . '(): Argument #1 ($package) must be of type ?string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($package) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                }
+                $package = (string) $package;
+            }
+        }
         /** @var SplQueue<SplQueue<PluginInterface>> */
         if (!$package) {
             $this->packageQueue = null;
@@ -569,7 +592,7 @@ class Traverser
      */
     public function traverse(string $file, string $input, string $output): int
     {
-        $this->eventHandler?->onBeginAstTraversal($input);
+        ($this->eventHandler ?? \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->onBeginAstTraversal($input);
         /** @var SplQueue<SplQueue<PluginInterface>> */
         $reducedQueue = new SplQueue();
         /** @var SplQueue<PluginInterface> */
@@ -590,11 +613,11 @@ class Traverser
         if ($newQueue->count()) {
             $reducedQueue->enqueue($newQueue);
         } elseif (!$reducedQueue->count()) {
-            $this->eventHandler?->onEndAstTraversal($input, 0);
+            ($this->eventHandler ?? \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->onEndAstTraversal($input, 0);
             return 0;
         }
         try {
-            $ast = new RootNode($this->parser->parse(\file_get_contents($input)) ?? []);
+            $ast = new RootNode($this->parser->parse(\Phabel\Target\Php71\Polyfill::file_get_contents($input)) ?? []);
         } catch (\Throwable $e) {
             $message = $e->getMessage();
             $message .= " while parsing ";
@@ -604,9 +627,9 @@ class Traverser
         $this->file = $file;
         $this->inputFile = $input;
         $this->outputFile = $output;
-        [$it, $result] = $this->traverseAstInternal($ast, $reducedQueue);
+        list($it, $result) = $this->traverseAstInternal($ast, $reducedQueue);
         \file_put_contents($output, $result);
-        $this->eventHandler?->onEndAstTraversal($input, $it);
+        ($this->eventHandler ?? \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->onEndAstTraversal($input, $it);
         return $it;
     }
     /**
@@ -643,7 +666,7 @@ class Traverser
      * @return array{0: int, 1: string}|null
      * @psalm-return (T is true ? array{0: int, 1: string} : null)
      */
-    private function traverseAstInternal(RootNode &$node, SplQueue $pluginQueue = null, bool $allowMulti = true): ?array
+    private function traverseAstInternal(RootNode &$node, SplQueue $pluginQueue = null, bool $allowMulti = true)
     {
         $it = 0;
         $result = $this->printer->prettyPrintFile($node->stmts);
@@ -660,7 +683,11 @@ class Traverser
                     /** @var RootNode $node */
                 }
                 if (!$allowMulti) {
-                    return null;
+                    $phabelReturn = null;
+                    if (!(\is_array($phabelReturn) || \is_null($phabelReturn))) {
+                        throw new \TypeError(__METHOD__ . '(): Return value must be of type ?array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                    }
+                    return $phabelReturn;
                 }
             } catch (\Throwable $e) {
                 $message = $e->getMessage();
@@ -678,7 +705,11 @@ class Traverser
             $result = $this->printer->prettyPrintFile($node->stmts);
             $it++;
         } while ($result !== $oldResult);
-        return [$it, $result];
+        $phabelReturn = [$it, $result];
+        if (!(\is_array($phabelReturn) || \is_null($phabelReturn))) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ?array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Traverse node.
@@ -689,7 +720,7 @@ class Traverser
      *
      * @return void
      */
-    private function traverseNode(Node &$node, SplQueue $plugins, Context $context): void
+    private function traverseNode(Node &$node, SplQueue $plugins, Context $context)
     {
         $context->pushResolve($node);
         foreach ($plugins as $plugin) {

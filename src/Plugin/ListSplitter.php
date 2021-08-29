@@ -25,7 +25,7 @@ class ListSplitter extends Plugin
      *
      * @return void
      */
-    public function enterForeach(Foreach_ $node, Context $ctx): void
+    public function enterForeach(Foreach_ $node, Context $ctx)
     {
         if (!($node->valueVar instanceof List_ || $node->valueVar instanceof Array_)) {
             return;

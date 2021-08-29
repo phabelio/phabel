@@ -30,10 +30,14 @@ class StringConcatOptimizer extends Plugin
             $queue->enqueue($concat->right);
         }
     }
-    public function enter(Concat $concat, Context $ctx): ?Node
+    public function enter(Concat $concat, Context $ctx)
     {
         if ($ctx->parents->top() instanceof Concat) {
-            return null;
+            $phabelReturn = null;
+            if (!($phabelReturn instanceof Node || \is_null($phabelReturn))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type ?Node, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         }
         $concatQueue = new SplQueue();
         $this->enqueue($concat, $concatQueue);
@@ -50,12 +54,20 @@ class StringConcatOptimizer extends Plugin
         }
         $newQueue->enqueue($prevNode);
         if ($newQueue->count() === 1) {
-            return $newQueue->dequeue();
+            $phabelReturn = $newQueue->dequeue();
+            if (!($phabelReturn instanceof Node || \is_null($phabelReturn))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type ?Node, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         }
         $concat = new Concat($newQueue->dequeue(), $newQueue->dequeue());
         while ($newQueue->count()) {
             $concat = new Concat($concat, $newQueue->dequeue());
         }
-        return $concat;
+        $phabelReturn = $concat;
+        if (!($phabelReturn instanceof Node || \is_null($phabelReturn))) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ?Node, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
 }

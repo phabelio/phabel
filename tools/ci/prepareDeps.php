@@ -13,7 +13,7 @@ require 'vendor/autoload.php';
 $branch = \getenv('BRANCH') ?: r("git rev-parse --abbrev-ref HEAD");
 $version = 80;
 if ($branch !== 'master') {
-    $version = \substr($version, -2);
+    $version = \Phabel\Target\Php80\Polyfill::substr($version, -2);
 }
 r("rm -rf ../phabelConvertedVendor");
 $vendor = \file_exists('vendor-bin') ? 'vendor-bin/check/vendor' : 'vendor';
@@ -22,5 +22,5 @@ r("cp -a {$vendor}/composer ../phabelConvertedVendor");
 r("rm -rf {$vendor}");
 \rename("../phabelConvertedVendor", $vendor);
 $phpunit = \realpath("vendor/bin/phpunit");
-\file_put_contents($phpunit, \str_replace('die(1);', '', \file_get_contents($phpunit)));
+\file_put_contents($phpunit, \str_replace('die(1);', '', \Phabel\Target\Php71\Polyfill::file_get_contents($phpunit)));
 \chmod($phpunit, 0755);

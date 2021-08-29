@@ -110,9 +110,9 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
     return require __DIR__.'/../../../autoload.php';
 PHP
     );
-    $lock = \json_decode(\file_get_contents('composer.lock'), true);
-    $json = \json_decode(\file_get_contents('composer.json'), true);
-    $jsonDev = \json_decode(\file_get_contents('vendor-bin/check/composer.json'), true);
+    $lock = \Phabel\Target\Php72\Polyfill::json_decode(\Phabel\Target\Php71\Polyfill::file_get_contents('composer.lock'), true);
+    $json = \Phabel\Target\Php72\Polyfill::json_decode(\Phabel\Target\Php71\Polyfill::file_get_contents('composer.json'), true);
+    $jsonDev = \Phabel\Target\Php72\Polyfill::json_decode(\Phabel\Target\Php71\Polyfill::file_get_contents('vendor-bin/check/composer.json'), true);
     $json['require'] = ['php' => $packages['php'], 'ext-json' => $json['require']['ext-json'], 'composer-plugin-api' => $json['require']['composer-plugin-api']];
     $json['require-dev'] = $jsonDev['require-dev'];
     foreach ($lock['packages'] as $package) {
@@ -120,17 +120,23 @@ PHP
         if ($name === 'phabel/phabel') {
             continue;
         }
-        $json['require'] += \array_filter($package['require'], fn ($s) => \str_starts_with($s, 'ext-'), ARRAY_FILTER_USE_KEY);
+        $json['require'] += \Phabel\Target\Php74\Polyfill::array_filter($package['require'], function ($s) {
+            return \str_starts_with($s, 'ext-');
+        }, ARRAY_FILTER_USE_KEY);
         foreach (['psr-4', 'psr-0'] as $type) {
             foreach ($package['autoload'][$type] ?? [] as $namespace => $path) {
                 $namespace = \str_starts_with($namespace, 'Symfony\\Polyfill') ? $namespace : "Phabel\\{$namespace}";
                 $paths = \is_string($path) ? [$path] : $path;
-                $paths = \array_map(fn ($path) => ("vendor-bundle/{$name}/{$path}"), $paths);
+                $paths = \array_map(function ($path) use ($name) {
+                    return "vendor-bundle/{$name}/{$path}";
+                }, $paths);
                 $json['autoload'][$type][$namespace] = $paths;
             }
         }
         foreach (['classmap', 'files'] as $type) {
-            $json['autoload'][$type] = \array_merge($json['autoload'][$type] ?? [], \array_map(fn ($path) => ("vendor-bundle/{$name}/{$path}"), $package['autoload'][$type] ?? []));
+            $json['autoload'][$type] = \array_merge($json['autoload'][$type] ?? [], \array_map(function ($path) use ($name) {
+                return "vendor-bundle/{$name}/{$path}";
+            }, $package['autoload'][$type] ?? []));
         }
     }
     $json['autoload-dev'] = ['psr-4' => ['PhabelTest\\' => 'tests/']];

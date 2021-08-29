@@ -30,7 +30,7 @@ class Publish extends Command
     {
         return $this->exec(['git', 'log', '--format=%B', '-n', '1', $ref]);
     }
-    protected function configure(): void
+    protected function configure()
     {
         $tags = new Process(['git', 'tag']);
         $tags->run();
@@ -43,14 +43,14 @@ class Publish extends Command
         }
         $this->setDescription('Transpile a release.')->setHelp('This command transpiles the specified (or the latest) git tag.')->addOption("remote", 'r', InputOption::VALUE_OPTIONAL, 'Remote where to push tags', 'origin')->addArgument('source', $tag ? InputArgument::OPTIONAL : InputArgument::REQUIRED, 'Source tag name', $tag);
     }
-    private function prepare(string $src, string $dest, callable $cb): void
+    private function prepare(string $src, string $dest, callable $cb)
     {
         $this->exec(['git', 'checkout', $src]);
         $message = $this->getMessage($src);
         if (!\file_exists('composer.json')) {
             throw new Exception("composer.json doesn't exist!");
         }
-        $json = \json_decode(\file_get_contents('composer.json'), true);
+        $json = \Phabel\Target\Php72\Polyfill::json_decode(\Phabel\Target\Php71\Polyfill::file_get_contents('composer.json'), true);
         $json = $cb($json);
         \file_put_contents('composer.json', \json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
         $this->exec(['git', 'commit', '-am', $message . "\nRelease transpiled using https://phabel.io, the PHP transpiler"]);
@@ -66,19 +66,21 @@ class Publish extends Command
         $stashed = \trim($this->exec(['git', 'stash'])) !== 'No local changes to save';
         $output->write("<phabel>Tagging transpiled release <bold>{$src}.9998</bold>...</phabel>" . PHP_EOL);
         $this->prepare($src, "{$src}.9998", function (array $json): array {
-            $json['phabel'] ??= [];
-            $json['phabel']['extra'] ??= [];
+            $json['phabel'] = $json['phabel'] ?? [];
+            $json['phabel']['extra'] = $json['phabel']['extra'] ?? [];
             $json['phabel']['extra']['require'] = $json['require'];
             $json['require'] = ['phabel/phabel' => Version::VERSION, 'php' => '*'];
             \file_put_contents(ComposerSanitizer::FILE_NAME, ComposerSanitizer::getContents($json['name'] ?? 'phabel'));
             $this->exec(['git', 'add', ComposerSanitizer::FILE_NAME]);
-            $json['autoload'] ??= [];
-            $json['autoload']['files'] ??= [];
+            $json['autoload'] = $json['autoload'] ?? [];
+            $json['autoload']['files'] = $json['autoload']['files'] ?? [];
             $json['autoload']['files'][] = ComposerSanitizer::FILE_NAME;
             return $json;
         });
         $output->write("<phabel>Tagging original release as <bold>{$src}.9999</bold>...</phabel>" . PHP_EOL);
-        $this->prepare($src, "{$src}.9999", fn (array $json): array => $json);
+        $this->prepare($src, "{$src}.9999", function (array $json): array {
+            return $json;
+        });
         $this->exec(['git', 'checkout', $branch]);
         if ($stashed) {
             $this->exec(['git', 'stash', 'pop']);

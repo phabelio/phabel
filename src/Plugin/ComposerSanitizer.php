@@ -13,8 +13,8 @@ use Phabel\RootNode;
  */
 class ComposerSanitizer extends Plugin
 {
-    public const FILE_NAME = '___transpiledWithPhabel.php';
-    private const MESSAGE = <<<PHP
+    const FILE_NAME = '___transpiledWithPhabel.php';
+    const MESSAGE = <<<PHP
 This package requires transpilation using the phabel.io composer plugin.
 To use this package please run composer update, enabling execution of plugins.
 PHP;
@@ -38,7 +38,7 @@ PHP;
      * @param RootNode $_
      * @return void
      */
-    public function enterRoot(RootNode $root, Context $context): void
+    public function enterRoot(RootNode $root, Context $context)
     {
         $root->stmts = [];
     }

@@ -39,11 +39,11 @@ $SCALARS = ['callable' => ['"is_null"', 'fn (): int => 0', '[$this, "noop"]', '[
 $count = \count($SCALARS);
 $k = 0;
 foreach ($SCALARS as $scalar => $val) {
-    $SCALARS["?{$scalar}"] = [...$val, 'null'];
+    $SCALARS["?{$scalar}"] = \array_merge($val, ['null']);
     $k = ($k + 1) % $count;
     $nextScalar = \array_keys($SCALARS)[$k];
     $nextVal = $SCALARS[$nextScalar];
-    $SCALARS["{$scalar}|{$nextScalar}"] = [...$val, ...$nextVal];
+    $SCALARS["{$scalar}|{$nextScalar}"] = \array_merge($val, $nextVal);
 }
 foreach (\glob("testsGenerated/Target/TypeHintReplacer*") as $file) {
     \unlink($file);
@@ -56,13 +56,13 @@ $k = 0;
 $count = 0;
 foreach ($SCALARS as $scalar => $vals) {
     foreach ($vals as $val) {
-        $self = \strpos($scalar, 'self') !== false;
+        $self = \Phabel\Target\Php71\Polyfill::strpos($scalar, 'self') !== false;
         $scalarSane = $k++ . \preg_replace("~[^A-Za-z]*~", "", $scalar);
-        $wrongVal = \strpos($scalar, 'object') !== false ? 0 : 'new class{}';
+        $wrongVal = \Phabel\Target\Php71\Polyfill::strpos($scalar, 'object') !== false ? 0 : 'new class{}';
         if ($scalar === 'float|object' || $scalar === 'object|string') {
             $wrongVal = 'null';
         }
-        [$closureMessage, $methodMessage, $funcMessage] = getErrorMessage($scalar, $scalar, $scalarSane, $wrongVal, "to");
+        list($closureMessage, $methodMessage, $funcMessage) = getErrorMessage($scalar, $scalar, $scalarSane, $wrongVal, "to");
         $closures[] = "[fn ({$scalar} \$data): {$scalar} => \$data, {$val}, {$wrongVal}, {$closureMessage}]";
         $closures[] = "[function ({$scalar} \$data): {$scalar} { return \$data; }, {$val}, {$wrongVal}, {$closureMessage}]";
         $closures[] = "[[\$this, 'test{$scalarSane}'], {$val}, {$wrongVal}, {$methodMessage}]";
@@ -74,7 +74,7 @@ foreach ($SCALARS as $scalar => $vals) {
         if (!$self) {
             $funcs .= "function test{$scalarSane}({$scalar} \$data): {$scalar} { return \$data; }\n";
         }
-        [$closureMessage, $methodMessage, $funcMessage] = getErrorMessage("", $scalar, "Ret{$scalarSane}", $wrongVal, "value of");
+        list($closureMessage, $methodMessage, $funcMessage) = getErrorMessage("", $scalar, "Ret{$scalarSane}", $wrongVal, "value of");
         $closuresRet[] = "[fn (\$data): {$scalar} => \$data, {$val}, {$wrongVal}, {$closureMessage}]";
         $closuresRet[] = "[function (\$data): {$scalar} { return \$data; }, {$val}, {$wrongVal}, {$closureMessage}]";
         $closuresRet[] = "[[\$this, 'testRet{$scalarSane}'], {$val}, {$wrongVal}, {$methodMessage}]";

@@ -21,7 +21,7 @@ use PhpParser\NodeFinder;
  */
 class NewFixer extends Plugin
 {
-    private NodeFinder $finder;
+    private $finder;
     public function __construct()
     {
         $this->finder = new NodeFinder();
@@ -32,7 +32,9 @@ class NewFixer extends Plugin
     }
     private function hasParenthesised(Node $node): bool
     {
-        return $node instanceof Expr && $this->finder->findFirst($node, fn (Node $node): bool => $this->isParenthesised($node)) !== null;
+        return $node instanceof Expr && $this->finder->findFirst($node, function (Node $node): bool {
+            return $this->isParenthesised($node);
+        }) !== null;
     }
     public function enterNew(New_ $new, Context $context)
     {

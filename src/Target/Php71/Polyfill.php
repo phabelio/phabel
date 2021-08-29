@@ -19,15 +19,38 @@ class Polyfill extends Plugin
     // Todo: grapheme_extract
     // Todo: getenv
     // Skip: output buffer functions
-    public static function unpack(string $format, string $string, int $offset = 0): array|bool
+    public static function unpack(string $format, string $string, int $offset = 0)
     {
-        return \unpack($format, \substr($string, $offset));
+        $phabelReturn = \unpack($format, \Phabel\Target\Php80\Polyfill::substr($string, $offset));
+        if (!\is_bool($phabelReturn)) {
+            if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
+                if (!\is_array($phabelReturn)) {
+                    throw new \TypeError(__METHOD__ . '(): Return value must be of type array|bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                }
+            } else {
+                $phabelReturn = (bool) $phabelReturn;
+            }
+        }
+        return $phabelReturn;
     }
-    public static function long2ip(int $ip): string|bool
+    public static function long2ip(int $ip)
     {
-        return \long2ip($ip);
+        $phabelReturn = \long2ip($ip);
+        if (!\is_bool($phabelReturn)) {
+            if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
+                if (!\is_string($phabelReturn)) {
+                    if (!(\is_string($phabelReturn) || \Phabel\Target\Php72\Polyfill::is_object($phabelReturn) && \method_exists($phabelReturn, '__toString') || (\is_bool($phabelReturn) || \is_numeric($phabelReturn)))) {
+                        throw new \TypeError(__METHOD__ . '(): Return value must be of type string|bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                    }
+                    $phabelReturn = (string) $phabelReturn;
+                }
+            } else {
+                $phabelReturn = (bool) $phabelReturn;
+            }
+        }
+        return $phabelReturn;
     }
-    public static function file_get_contents(...$params): string|false
+    public static function file_get_contents(...$params)
     {
         if (isset($params[3]) && $params[3] < 0) {
             $f = \fopen($params[0], 'r', $params[1], $params[2]);
@@ -35,34 +58,85 @@ class Polyfill extends Plugin
             \fseek($f, \ftell($f) + $params[3], SEEK_SET);
             $length = $params[4] ?? null;
             if ($length === null) {
-                return \stream_get_contents($f);
+                $phabelReturn = \stream_get_contents($f);
+                if (!$phabelReturn instanceof false) {
+                    if (!\is_string($phabelReturn)) {
+                        if (!(\is_string($phabelReturn) || \Phabel\Target\Php72\Polyfill::is_object($phabelReturn) && \method_exists($phabelReturn, '__toString') || (\is_bool($phabelReturn) || \is_numeric($phabelReturn)))) {
+                            throw new \TypeError(__METHOD__ . '(): Return value must be of type false|string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                        }
+                        $phabelReturn = (string) $phabelReturn;
+                    }
+                }
+                return $phabelReturn;
             }
-            return \fread($f, $length);
+            $phabelReturn = \fread($f, $length);
+            if (!$phabelReturn instanceof false) {
+                if (!\is_string($phabelReturn)) {
+                    if (!(\is_string($phabelReturn) || \Phabel\Target\Php72\Polyfill::is_object($phabelReturn) && \method_exists($phabelReturn, '__toString') || (\is_bool($phabelReturn) || \is_numeric($phabelReturn)))) {
+                        throw new \TypeError(__METHOD__ . '(): Return value must be of type false|string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                    }
+                    $phabelReturn = (string) $phabelReturn;
+                }
+            }
+            return $phabelReturn;
         }
-        return \file_get_contents(...$params);
+        $phabelReturn = \file_get_contents(...$params);
+        if (!$phabelReturn instanceof false) {
+            if (!\is_string($phabelReturn)) {
+                if (!(\is_string($phabelReturn) || \Phabel\Target\Php72\Polyfill::is_object($phabelReturn) && \method_exists($phabelReturn, '__toString') || (\is_bool($phabelReturn) || \is_numeric($phabelReturn)))) {
+                    throw new \TypeError(__METHOD__ . '(): Return value must be of type false|string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                }
+                $phabelReturn = (string) $phabelReturn;
+            }
+        }
+        return $phabelReturn;
     }
-    public static function get_headers(string $url, int $associative = 0, $context = null): array|false
+    public static function get_headers(string $url, int $associative = 0, $context = null)
     {
         if (!$context) {
-            return \get_headers($url, $associative);
+            $phabelReturn = \get_headers($url, $associative);
+            if (!(\is_array($phabelReturn) || $phabelReturn instanceof false)) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type false|array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         }
         if (\file_get_contents($url, false, $context) === false) {
-            return false;
+            $phabelReturn = false;
+            if (!(\is_array($phabelReturn) || $phabelReturn instanceof false)) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type false|array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         }
         if (!$associative) {
-            return $http_response_header;
+            $phabelReturn = $http_response_header;
+            if (!(\is_array($phabelReturn) || $phabelReturn instanceof false)) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type false|array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         }
         $headers = [$http_response_header[0]];
         foreach ($http_response_header as $i => $header) {
             if ($i) {
-                [$k, $v] = \explode(":", $header, 2);
+                list($k, $v) = \explode(":", $header, 2);
                 $headers[\trim($k, ' ')] = \trim($v, ' ');
             }
         }
-        return $headers;
+        $phabelReturn = $headers;
+        if (!(\is_array($phabelReturn) || $phabelReturn instanceof false)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type false|array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
-    public static function substr_count(string $haystack, string $needle, int $offset = 0, ?int $length = null): int
+    public static function substr_count(string $haystack, string $needle, int $offset = 0, $length = null): int
     {
+        if (!\is_null($length)) {
+            if (!\is_int($length)) {
+                if (!(\is_bool($length) || \is_numeric($length))) {
+                    throw new \TypeError(__METHOD__ . '(): Argument #4 ($length) must be of type ?int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($length) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                }
+                $length = (int) $length;
+            }
+        }
         if ($offset < 0) {
             $offset = \strlen($haystack) + $offset;
         }
@@ -77,27 +151,103 @@ class Polyfill extends Plugin
         }
         return \substr_count($haystack, $needle, $offset);
     }
-    public static function strpos(string $haystack, string $needle, int $offset = 0): int|bool
+    public static function strpos(string $haystack, string $needle, int $offset = 0)
     {
-        return \strpos($haystack, $needle, $offset < 0 ? \strlen($haystack) + $offset : $offset);
+        $phabelReturn = \strpos($haystack, $needle, $offset < 0 ? \strlen($haystack) + $offset : $offset);
+        if (!\is_bool($phabelReturn)) {
+            if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
+                if (!\is_int($phabelReturn)) {
+                    if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn))) {
+                        throw new \TypeError(__METHOD__ . '(): Return value must be of type int|bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                    }
+                    $phabelReturn = (int) $phabelReturn;
+                }
+            } else {
+                $phabelReturn = (bool) $phabelReturn;
+            }
+        }
+        return $phabelReturn;
     }
-    public static function stripos(string $haystack, string $needle, int $offset = 0): int|bool
+    public static function stripos(string $haystack, string $needle, int $offset = 0)
     {
-        return \stripos($haystack, $needle, $offset < 0 ? \strlen($haystack) + $offset : $offset);
+        $phabelReturn = \stripos($haystack, $needle, $offset < 0 ? \strlen($haystack) + $offset : $offset);
+        if (!\is_bool($phabelReturn)) {
+            if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
+                if (!\is_int($phabelReturn)) {
+                    if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn))) {
+                        throw new \TypeError(__METHOD__ . '(): Return value must be of type int|bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                    }
+                    $phabelReturn = (int) $phabelReturn;
+                }
+            } else {
+                $phabelReturn = (bool) $phabelReturn;
+            }
+        }
+        return $phabelReturn;
     }
-    public static function mb_strpos(string $haystack, string $needle, int $offset = 0, ?string $encoding = null): int|bool
+    public static function mb_strpos(string $haystack, string $needle, int $offset = 0, $encoding = null)
     {
-        $encoding ??= \mb_internal_encoding();
-        return \mb_strpos($haystack, $needle, $offset < 0 ? \mb_strlen($haystack, $encoding) + $offset : $offset, $encoding);
+        if (!\is_null($encoding)) {
+            if (!\is_string($encoding)) {
+                if (!(\is_string($encoding) || \Phabel\Target\Php72\Polyfill::is_object($encoding) && \method_exists($encoding, '__toString') || (\is_bool($encoding) || \is_numeric($encoding)))) {
+                    throw new \TypeError(__METHOD__ . '(): Argument #4 ($encoding) must be of type ?string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($encoding) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                }
+                $encoding = (string) $encoding;
+            }
+        }
+        $encoding = $encoding ?? \mb_internal_encoding();
+        $phabelReturn = \mb_strpos($haystack, $needle, $offset < 0 ? \mb_strlen($haystack, $encoding) + $offset : $offset, $encoding);
+        if (!\is_bool($phabelReturn)) {
+            if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
+                if (!\is_int($phabelReturn)) {
+                    if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn))) {
+                        throw new \TypeError(__METHOD__ . '(): Return value must be of type int|bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                    }
+                    $phabelReturn = (int) $phabelReturn;
+                }
+            } else {
+                $phabelReturn = (bool) $phabelReturn;
+            }
+        }
+        return $phabelReturn;
     }
-    public static function mb_stripos(string $haystack, string $needle, int $offset = 0, ?string $encoding = null): int|bool
+    public static function mb_stripos(string $haystack, string $needle, int $offset = 0, $encoding = null)
     {
-        $encoding ??= \mb_internal_encoding();
-        return \mb_stripos($haystack, $needle, $offset < 0 ? \mb_strlen($haystack, $encoding) + $offset : $offset, $encoding);
+        if (!\is_null($encoding)) {
+            if (!\is_string($encoding)) {
+                if (!(\is_string($encoding) || \Phabel\Target\Php72\Polyfill::is_object($encoding) && \method_exists($encoding, '__toString') || (\is_bool($encoding) || \is_numeric($encoding)))) {
+                    throw new \TypeError(__METHOD__ . '(): Argument #4 ($encoding) must be of type ?string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($encoding) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                }
+                $encoding = (string) $encoding;
+            }
+        }
+        $encoding = $encoding ?? \mb_internal_encoding();
+        $phabelReturn = \mb_stripos($haystack, $needle, $offset < 0 ? \mb_strlen($haystack, $encoding) + $offset : $offset, $encoding);
+        if (!\is_bool($phabelReturn)) {
+            if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
+                if (!\is_int($phabelReturn)) {
+                    if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn))) {
+                        throw new \TypeError(__METHOD__ . '(): Return value must be of type int|bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                    }
+                    $phabelReturn = (int) $phabelReturn;
+                }
+            } else {
+                $phabelReturn = (bool) $phabelReturn;
+            }
+        }
+        return $phabelReturn;
     }
-    public static function mb_strimwidth(string $string, int $start, int $width, string $trim_marker = "", ?string $encoding = null): string
+    public static function mb_strimwidth(string $string, int $start, int $width, string $trim_marker = "", $encoding = null): string
     {
-        $encoding ??= \mb_internal_encoding();
+        if (!\is_null($encoding)) {
+            if (!\is_string($encoding)) {
+                if (!(\is_string($encoding) || \Phabel\Target\Php72\Polyfill::is_object($encoding) && \method_exists($encoding, '__toString') || (\is_bool($encoding) || \is_numeric($encoding)))) {
+                    throw new \TypeError(__METHOD__ . '(): Argument #5 ($encoding) must be of type ?string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($encoding) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                }
+                $encoding = (string) $encoding;
+            }
+        }
+        $encoding = $encoding ?? \mb_internal_encoding();
         if ($start < 0) {
             $start = \mb_strlen($string, $encoding) + $start;
         } elseif ($width < 0) {
@@ -105,18 +255,65 @@ class Polyfill extends Plugin
         }
         return \mb_strimwidth($string, $start, $width, $trim_marker, $encoding);
     }
-    public static function iconv_strpos(string $haystack, string $needle, int $offset = 0, ?string $encoding = null): int|bool
+    public static function iconv_strpos(string $haystack, string $needle, int $offset = 0, $encoding = null)
     {
-        $encoding ??= \iconv_get_encoding('internal_encoding');
-        return \iconv_strpos($haystack, $needle, $offset < 0 ? \iconv_strlen($haystack, $encoding) + $offset : $offset, $encoding);
+        if (!\is_null($encoding)) {
+            if (!\is_string($encoding)) {
+                if (!(\is_string($encoding) || \Phabel\Target\Php72\Polyfill::is_object($encoding) && \method_exists($encoding, '__toString') || (\is_bool($encoding) || \is_numeric($encoding)))) {
+                    throw new \TypeError(__METHOD__ . '(): Argument #4 ($encoding) must be of type ?string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($encoding) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                }
+                $encoding = (string) $encoding;
+            }
+        }
+        $encoding = $encoding ?? \iconv_get_encoding('internal_encoding');
+        $phabelReturn = \iconv_strpos($haystack, $needle, $offset < 0 ? \Phabel\Target\Php80\Polyfill::iconv_strlen($haystack, $encoding) + $offset : $offset, $encoding);
+        if (!\is_bool($phabelReturn)) {
+            if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
+                if (!\is_int($phabelReturn)) {
+                    if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn))) {
+                        throw new \TypeError(__METHOD__ . '(): Return value must be of type int|bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                    }
+                    $phabelReturn = (int) $phabelReturn;
+                }
+            } else {
+                $phabelReturn = (bool) $phabelReturn;
+            }
+        }
+        return $phabelReturn;
     }
-    public static function grapheme_strpos(string $haystack, string $needle, int $offset = 0): int|bool
+    public static function grapheme_strpos(string $haystack, string $needle, int $offset = 0)
     {
-        return \grapheme_strpos($haystack, $needle, $offset < 0 ? \grapheme_strlen($haystack) + $offset : $offset);
+        $phabelReturn = \grapheme_strpos($haystack, $needle, $offset < 0 ? \grapheme_strlen($haystack) + $offset : $offset);
+        if (!\is_bool($phabelReturn)) {
+            if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
+                if (!\is_int($phabelReturn)) {
+                    if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn))) {
+                        throw new \TypeError(__METHOD__ . '(): Return value must be of type int|bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                    }
+                    $phabelReturn = (int) $phabelReturn;
+                }
+            } else {
+                $phabelReturn = (bool) $phabelReturn;
+            }
+        }
+        return $phabelReturn;
     }
-    public static function grapheme_stripos(string $haystack, string $needle, int $offset = 0): int|bool
+    public static function grapheme_stripos(string $haystack, string $needle, int $offset = 0)
     {
-        return \grapheme_stripos($haystack, $needle, $offset < 0 ? \grapheme_strlen($haystack) + $offset : $offset);
+        $phabelReturn = \grapheme_stripos($haystack, $needle, $offset < 0 ? \grapheme_strlen($haystack) + $offset : $offset);
+        if (!\is_bool($phabelReturn)) {
+            if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
+                if (!\is_int($phabelReturn)) {
+                    if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn))) {
+                        throw new \TypeError(__METHOD__ . '(): Return value must be of type int|bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                    }
+                    $phabelReturn = (int) $phabelReturn;
+                }
+            } else {
+                $phabelReturn = (bool) $phabelReturn;
+            }
+        }
+        return $phabelReturn;
     }
     /**
      * {@inheritDoc}

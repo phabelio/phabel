@@ -20,7 +20,6 @@ use Phabel\PluginGraph\Graph;
 use Phabel\Target\Php;
 use Phabel\Traverser;
 use ReflectionClass;
-use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Helper\ProgressBar;
 
 class Transformer extends EventHandler
@@ -30,35 +29,35 @@ class Transformer extends EventHandler
     /**
      * IO interface.
      */
-    private IOInterface $io;
+    private $io;
     /**
      * IO interface.
      */
-    private OutputFormatter $outputFormatter;
+    private $outputFormatter;
     /**
      * Version parser.
      */
-    private VersionParser $versionParser;
+    private $versionParser;
     /**
      * Requires.
      */
-    private array $requires = [];
+    private $requires = [];
     /**
      * Whether we processed requirements.
      */
-    private array $processedRequires = [];
+    private $processedRequires = [];
     /**
      * Whether we processed any dependencies.
      */
-    private bool $processed = false;
+    private $processed = false;
     /**
      * Whether a progress bar should be shown.
      */
-    private bool $doProgress = true;
+    private $doProgress = true;
     /**
      * Instance.
      */
-    private static self $instance;
+    private static $instance;
     /**
      * Get singleton.
      *
@@ -66,7 +65,7 @@ class Transformer extends EventHandler
      */
     public static function getInstance(IOInterface $io): self
     {
-        self::$instance ??= new self($io);
+        self::$instance = self::$instance ?? new self($io);
         return self::$instance;
     }
     /**
@@ -88,7 +87,7 @@ class Transformer extends EventHandler
      * @param bool $newline
      * @return void
      */
-    public function log(string $text, int $verbosity = IOInterface::NORMAL, bool $newline = true): void
+    public function log(string $text, int $verbosity = IOInterface::NORMAL, bool $newline = true)
     {
         $this->io->writeError($this->format("<phabel>{$text}</phabel>"), $newline, $verbosity);
     }
@@ -107,7 +106,7 @@ class Transformer extends EventHandler
      *
      * @return void
      */
-    public function banner(): void
+    public function banner()
     {
         static $printed = false;
         if (!$printed) {
@@ -124,7 +123,7 @@ class Transformer extends EventHandler
      *
      * @return void
      */
-    public function preparePackage(PackageInterface &$package, string $newName, int $target = Php::TARGET_IGNORE): void
+    public function preparePackage(PackageInterface &$package, string $newName, int $target = Php::TARGET_IGNORE)
     {
         /**
          * Phabel configuration of current package.
@@ -134,7 +133,7 @@ class Transformer extends EventHandler
         $myTarget = Php::normalizeVersion($config['target'] ?? Php::DEFAULT_TARGET);
         $havePhabel = false;
         foreach ($package->getRequires() as $link) {
-            [$name] = $this->extractTarget($link->getTarget());
+            list($name) = $this->extractTarget($link->getTarget());
             if ($name === 'phabel/phabel') {
                 $havePhabel = true;
             }
@@ -213,7 +212,7 @@ class Transformer extends EventHandler
      */
     private function injectTarget(string $package, int $target): string
     {
-        [$package] = $this->extractTarget($package);
+        list($package) = $this->extractTarget($package);
         return self::HEADER . $target . self::SEPARATOR . $package;
     }
     /**
@@ -226,7 +225,7 @@ class Transformer extends EventHandler
     public function extractTarget(string $package): array
     {
         if (\str_starts_with($package, self::HEADER)) {
-            [$version, $package] = \explode(self::SEPARATOR, \substr($package, \strlen(self::HEADER)), 2);
+            list($version, $package) = \explode(self::SEPARATOR, \Phabel\Target\Php80\Polyfill::substr($package, \strlen(self::HEADER)), 2);
             return [$package, $version];
         }
         return [$package, Php::TARGET_IGNORE];
@@ -238,15 +237,21 @@ class Transformer extends EventHandler
      * @param ?array $old
      * @return bool Whether no more packages should be updated
      */
-    public function transform(?array $lock, ?array $old): bool
+    public function transform($lock, $old): bool
     {
+        if (!(\is_array($lock) || \is_null($lock))) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($lock) must be of type ?array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($lock) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        if (!(\is_array($old) || \is_null($old))) {
+            throw new \TypeError(__METHOD__ . '(): Argument #2 ($old) must be of type ?array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($old) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
         $enabled = \gc_enabled();
         \gc_enable();
         $packages = $lock['packages'] ?? [];
         $this->log("Creating plugin graph...", IOInterface::VERBOSE);
         $byName = [];
         foreach ($packages as $package) {
-            [$name, $target] = $this->extractTarget($package['name']);
+            list($name, $target) = $this->extractTarget($package['name']);
             if ($target === Php::TARGET_IGNORE) {
                 continue;
             }
@@ -263,7 +268,7 @@ class Transformer extends EventHandler
                     if (PlatformRepository::isPlatformPackage($subName)) {
                         continue;
                     }
-                    [$subName] = $this->extractTarget($subName);
+                    list($subName) = $this->extractTarget($subName);
                     if ($target === Php::TARGET_IGNORE) {
                         continue;
                     }
@@ -285,7 +290,9 @@ class Transformer extends EventHandler
                 $graph->addPlugin(Php::class, $config + $target, $ctx);
             }
         }
-        $traverser = new Traverser(new CliEventHandler($this->io, $this->doProgress && $this->io instanceof ConsoleIO && !\getenv('CI') && !$this->io->isDebug() ? fn (int $progress): ProgressBar => $this->io->getProgressBar($progress) : null));
+        $traverser = new Traverser(new CliEventHandler($this->io, $this->doProgress && $this->io instanceof ConsoleIO && !\getenv('CI') && !$this->io->isDebug() ? function (int $progress): ProgressBar {
+            return $this->io->getProgressBar($progress);
+        } : null));
         $traverser->setPluginGraph($graph);
         unset($graph);
         $this->requires = $traverser->getGraph()->getPackages();
@@ -306,7 +313,7 @@ class Transformer extends EventHandler
         }
         $this->banner();
         $traverser->setInput('vendor')->setOutput('vendor')->setComposer(function (string $rel): string {
-            [$package] = $this->extractTarget(\str_replace('\\', '/', $rel));
+            list($package) = $this->extractTarget(\str_replace('\\', '/', $rel));
             return \implode('/', \array_slice(\explode('/', $package), 0, 2));
         })->run((int) (\getenv('PHABEL_PARALLEL') ?: 1));
         if (!$enabled) {

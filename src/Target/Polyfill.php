@@ -19,7 +19,7 @@ use ReflectionMethod;
  */
 class Polyfill extends Plugin
 {
-    private array $functions = [];
+    private $functions = [];
     public static function mergeConfigs(array ...$configs): array
     {
         $configs = \array_merge(...$configs);
@@ -44,32 +44,58 @@ class Polyfill extends Plugin
         if (\preg_match(':Target/Php(\\d\\d)/Polyfill.php:', $file, $matches)) {
             $version = Php::normalizeVersion($matches[1]);
             $version = Php::class . $version . '\\Polyfill';
-            $this->functions = \array_filter($this->getConfig('functions', []), fn ($s) => ($s[0] !== $version));
+            $this->functions = \Phabel\Target\Php74\Polyfill::array_filter($this->getConfig('functions', []), function ($s) use ($version) {
+                return $s[0] !== $version;
+            });
         } else {
             $this->functions = $this->getConfig('functions', []);
         }
         return true;
     }
-    public function enterFunc(FuncCall $call): ?StaticCall
+    public function enterFunc(FuncCall $call)
     {
         if (!$call->name instanceof Name) {
-            return null;
+            $phabelReturn = null;
+            if (!($phabelReturn instanceof StaticCall || \is_null($phabelReturn))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type ?StaticCall, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         }
         $replacement = $this->functions[\strtolower(Tools::getFqdn($call->name, $call->name->toLowerString()))] ?? null;
         if ($replacement) {
-            return Tools::call($replacement, ...$call->args);
+            $phabelReturn = Tools::call($replacement, ...$call->args);
+            if (!($phabelReturn instanceof StaticCall || \is_null($phabelReturn))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type ?StaticCall, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         }
-        return null;
+        $phabelReturn = null;
+        if (!($phabelReturn instanceof StaticCall || \is_null($phabelReturn))) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ?StaticCall, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
-    public function enterClassConstant(ClassConstFetch $fetch): ?Node
+    public function enterClassConstant(ClassConstFetch $fetch)
     {
         if ($fetch->name instanceof Error || !$fetch->class instanceof Name) {
-            return null;
+            $phabelReturn = null;
+            if (!($phabelReturn instanceof Node || \is_null($phabelReturn))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type ?Node, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         }
         $constants = $this->getConfig('constants', []);
         if (isset($constants[Tools::getFqdn($fetch->class)][$fetch->name->name])) {
-            return Tools::fromLiteral($constants[self::getFqdn($fetch->class)][$fetch->name->name]);
+            $phabelReturn = Tools::fromLiteral($constants[self::getFqdn($fetch->class)][$fetch->name->name]);
+            if (!($phabelReturn instanceof Node || \is_null($phabelReturn))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type ?Node, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         }
-        return null;
+        $phabelReturn = null;
+        if (!($phabelReturn instanceof Node || \is_null($phabelReturn))) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ?Node, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
 }

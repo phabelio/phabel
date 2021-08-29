@@ -14,11 +14,19 @@ use PhpParser\Node\Name;
  */
 class ClassName extends Plugin
 {
-    public function enter(ClassConstFetch $fetch): ?FuncCall
+    public function enter(ClassConstFetch $fetch)
     {
         if ($fetch->name instanceof Identifier && $fetch->name->name === 'class' && !$fetch->class instanceof Name) {
-            return Tools::call('get_class', $fetch->class);
+            $phabelReturn = Tools::call('get_class', $fetch->class);
+            if (!($phabelReturn instanceof FuncCall || \is_null($phabelReturn))) {
+                throw new \TypeError(__METHOD__ . '(): Return value must be of type ?FuncCall, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            return $phabelReturn;
         }
-        return null;
+        $phabelReturn = null;
+        if (!($phabelReturn instanceof FuncCall || \is_null($phabelReturn))) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type ?FuncCall, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
 }

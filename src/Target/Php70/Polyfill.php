@@ -18,8 +18,8 @@ use ValueError;
  */
 class Polyfill extends Plugin
 {
-    private const IS_WINDOWS = PHP_OS_FAMILY === 'Windows';
-    public const CONSTANTS = [IntlChar::class => ['NO_NUMERIC_VALUE' => -123456789.0]];
+    const IS_WINDOWS = PHP_OS_FAMILY === 'Windows';
+    const CONSTANTS = [IntlChar::class => ['NO_NUMERIC_VALUE' => -123456789.0]];
     // Todo: dns_get_record CAA
     // Todo: filters
     // Todo: getenv/putenv
@@ -33,8 +33,16 @@ class Polyfill extends Plugin
     {
         return ['symfony/polyfill-php72' => Php::POLYFILL_VERSIONS['symfony/polyfill-php72']];
     }
-    public static function assert($assertion, string|Throwable|null $exception = null): bool
+    public static function assert($assertion, $exception = null): bool
     {
+        if (!($exception instanceof Throwable || \is_null($exception) || \is_null($exception))) {
+            if (!\is_string($exception)) {
+                if (!(\is_string($exception) || \Phabel\Target\Php72\Polyfill::is_object($exception) && \method_exists($exception, '__toString') || (\is_bool($exception) || \is_numeric($exception)))) {
+                    throw new \TypeError(__METHOD__ . '(): Argument #2 ($exception) must be of type ?Throwable|string|null, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($exception) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                }
+                $exception = (string) $exception;
+            }
+        }
         if ($assertion || Tools::ini_get('zend.assertions') !== 1) {
             return true;
         }
@@ -63,7 +71,7 @@ class Polyfill extends Plugin
                 --$levels;
             }
         }
-        $path = \substr($path, \max(0, $x));
+        $path = \Phabel\Target\Php80\Polyfill::substr($path, \max(0, $x));
         return $path === '' ? '.' : $path;
     }
     public static function get_defined_functions(bool $exclude_disabled = true): array
@@ -76,22 +84,72 @@ class Polyfill extends Plugin
         }
         return \get_defined_functions();
     }
-    public static function substr(string $string, int $offset, ?int $length = null): string
+    public static function substr(string $string, int $offset, $length = null): string
     {
+        if (!\is_null($length)) {
+            if (!\is_int($length)) {
+                if (!(\is_bool($length) || \is_numeric($length))) {
+                    throw new \TypeError(__METHOD__ . '(): Argument #3 ($length) must be of type ?int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($length) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                }
+                $length = (int) $length;
+            }
+        }
         if (\strlen($string) === $offset) {
             return '';
         }
-        return \substr($string, $offset, $length);
+        return \Phabel\Target\Php80\Polyfill::substr($string, $offset, $length);
     }
-    public static function iconv_substr(string $string, int $offset, ?int $length = null, ?string $encoding = null): string|bool
+    public static function iconv_substr(string $string, int $offset, $length = null, $encoding = null)
     {
-        $encoding ??= \iconv_get_encoding('internal_encoding');
-        $len = \iconv_strlen($string, $encoding);
-        if ($len === $offset) {
-            return '';
+        if (!\is_null($length)) {
+            if (!\is_int($length)) {
+                if (!(\is_bool($length) || \is_numeric($length))) {
+                    throw new \TypeError(__METHOD__ . '(): Argument #3 ($length) must be of type ?int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($length) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                }
+                $length = (int) $length;
+            }
         }
-        $length ??= $len;
-        return \iconv_substr($string, $offset, $length, $encoding);
+        if (!\is_null($encoding)) {
+            if (!\is_string($encoding)) {
+                if (!(\is_string($encoding) || \Phabel\Target\Php72\Polyfill::is_object($encoding) && \method_exists($encoding, '__toString') || (\is_bool($encoding) || \is_numeric($encoding)))) {
+                    throw new \TypeError(__METHOD__ . '(): Argument #4 ($encoding) must be of type ?string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($encoding) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                }
+                $encoding = (string) $encoding;
+            }
+        }
+        $encoding = $encoding ?? \iconv_get_encoding('internal_encoding');
+        $len = \Phabel\Target\Php80\Polyfill::iconv_strlen($string, $encoding);
+        if ($len === $offset) {
+            $phabelReturn = '';
+            if (!\is_bool($phabelReturn)) {
+                if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
+                    if (!\is_string($phabelReturn)) {
+                        if (!(\is_string($phabelReturn) || \Phabel\Target\Php72\Polyfill::is_object($phabelReturn) && \method_exists($phabelReturn, '__toString') || (\is_bool($phabelReturn) || \is_numeric($phabelReturn)))) {
+                            throw new \TypeError(__METHOD__ . '(): Return value must be of type string|bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                        }
+                        $phabelReturn = (string) $phabelReturn;
+                    }
+                } else {
+                    $phabelReturn = (bool) $phabelReturn;
+                }
+            }
+            return $phabelReturn;
+        }
+        $length = $length ?? $len;
+        $phabelReturn = \Phabel\Target\Php80\Polyfill::iconv_substr($string, $offset, $length, $encoding);
+        if (!\is_bool($phabelReturn)) {
+            if (!(\is_bool($phabelReturn) || \is_numeric($phabelReturn) || \is_string($phabelReturn))) {
+                if (!\is_string($phabelReturn)) {
+                    if (!(\is_string($phabelReturn) || \Phabel\Target\Php72\Polyfill::is_object($phabelReturn) && \method_exists($phabelReturn, '__toString') || (\is_bool($phabelReturn) || \is_numeric($phabelReturn)))) {
+                        throw new \TypeError(__METHOD__ . '(): Return value must be of type string|bool, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                    }
+                    $phabelReturn = (string) $phabelReturn;
+                }
+            } else {
+                $phabelReturn = (bool) $phabelReturn;
+            }
+        }
+        return $phabelReturn;
     }
     public static function pack(string $format, ...$values): string
     {
