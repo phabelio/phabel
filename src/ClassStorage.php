@@ -73,7 +73,7 @@ final class ClassStorage
      */
     public function getFiles(): array
     {
-        return array_keys($this->files);
+        return \array_keys($this->files);
     }
 
     /**

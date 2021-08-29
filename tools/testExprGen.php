@@ -1,7 +1,6 @@
 <?php
 
 use Amp\Parallel\Worker\DefaultPool;
-use Composer\Util\Filesystem;
 use Phabel\Cli\EventHandler;
 use Phabel\Plugin\PhabelTestGenerator;
 use Phabel\Plugin\TypeHintReplacer;

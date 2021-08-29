@@ -326,14 +326,14 @@ class Traverser
                     }
                 } elseif ($file->isLink()) {
                     $dest = $file->getRealPath();
-                    if ($dest !== false && str_starts_with($dest, $this->input)) {
-                        $dest = trim(substr($dest, strlen($this->input)), DIRECTORY_SEPARATOR);
-                        $dest = str_repeat('..'.DIRECTORY_SEPARATOR, substr_count($rel, DIRECTORY_SEPARATOR)).$dest;
+                    if ($dest !== false && \str_starts_with($dest, $this->input)) {
+                        $dest = \trim(\substr($dest, \strlen($this->input)), DIRECTORY_SEPARATOR);
+                        $dest = \str_repeat('..'.DIRECTORY_SEPARATOR, \substr_count($rel, DIRECTORY_SEPARATOR)).$dest;
                         $link = $this->output.DIRECTORY_SEPARATOR.$rel;
-                        if (file_exists($link)) {
-                            unlink($link);
+                        if (\file_exists($link)) {
+                            \unlink($link);
                         }
-                        symlink($dest, $link);
+                        \symlink($dest, $link);
                     }
                 } elseif ($file->isFile()) {
                     if ($file->getExtension() == 'php') {
@@ -568,7 +568,7 @@ class Traverser
                 if (!($first && $e instanceof Exception && \str_contains($e->getMessage(), ' while parsing '))) {
                     throw $e;
                 }
-                if (\realpath($input) !== realpath($output)) {
+                if (\realpath($input) !== \realpath($output)) {
                     \copy($input, $output);
                 }
                 $this->eventHandler?->onEndAstTraversal($input, $e);

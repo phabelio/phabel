@@ -2,20 +2,15 @@
 
 namespace Phabel\Target\Php80;
 
-use Phabel\Context;
 use Phabel\Plugin;
 use Phabel\Tools;
 use PhpParser\Node\Expr\ClassConstFetch;
 use PhpParser\Node\Expr\FuncCall;
-use PhpParser\Node\Expr\StaticCall;
-use PhpParser\Node\Expr\StaticPropertyFetch;
-use PhpParser\Node\Expr\Throw_ as ExprThrow_;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Name;
-use PhpParser\Node\Stmt\Catch_;
 
 /**
- * Polyfill fetching class name from object
+ * Polyfill fetching class name from object.
  */
 class ClassName extends Plugin
 {

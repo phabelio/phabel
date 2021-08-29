@@ -1,6 +1,5 @@
 <?php
 
-use Composer\Util\Filesystem;
 use Phabel\Cli\EventHandler;
 use Phabel\Plugin\PhabelTestGenerator;
 use Phabel\Target\Php;

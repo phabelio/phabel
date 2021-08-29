@@ -15,9 +15,11 @@ use PhpParser\Builder\Param;
 use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Trait_;
+use PhpParser\Node\Stmt\TraitUse;
 
 final class ClassStoragePlugin extends Plugin
 {
+    private const NAME = 'ClassStoragePlugin:name';
     /**
      * Storage.
      *
@@ -115,11 +117,23 @@ final class ClassStoragePlugin extends Plugin
             $this->count[$file][$name] ??= 0;
             $name .= "@".$this->count[$file][$name]++;
         }
-
+        $class->setAttribute(self::NAME, $name);
+    }
+    /**
+     * Add method.
+     *
+     * @param ClassLike $class
+     *
+     * @return void
+     */
+    public function leave(ClassLike $class, Context $context): void
+    {
+        $file = $context->getFile();
+        $name = $class->getAttribute(self::NAME);
         $class = clone $class;
         $stmts = [];
         foreach ($class->stmts as $stmt) {
-            if (!$stmt instanceof ClassMethod) {
+            if (!$stmt instanceof ClassMethod && !$stmt instanceof TraitUse) {
                 continue;
             }
             $stmts []= $stmt;
