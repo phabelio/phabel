@@ -4,8 +4,6 @@ namespace Phabel\Target\Php80;
 
 use Phabel\Context;
 use Phabel\Plugin;
-use PhpParser\Node\Expr\StaticCall;
-use PhpParser\Node\Expr\Throw_ as ExprThrow_;
 use PhpParser\Node\Stmt\Catch_;
 
 /**

@@ -89,18 +89,12 @@ class Context
     public function __construct()
     {
         /** @var SplStack<Node> */
-        $this->parents = new SplStack;
+        $this->parents = new SplStack();
         /** @var SplStack<VariableContext> */
-        $this->variables = new SplStack;
-        $this->converter = new ArrowClosure;
+        $this->variables = new SplStack();
+        $this->converter = new ArrowClosure();
         $this->prettyPrinter = new Standard();
-        $this->nameResolver = new NameResolver(
-            new Throwing,
-            [
-                'preserveOriginalNames' => false,
-                'replaceNodes' => false,
-            ]
-        );
+        $this->nameResolver = new NameResolver(new Throwing(), ['preserveOriginalNames' => false, 'replaceNodes' => false]);
         $this->nameResolver->beforeTraverse([]);
     }
     /**
@@ -126,16 +120,10 @@ class Context
     {
         $this->parents->push($node);
         if ($node instanceof RootNode) {
-            $this->variables->push(new VariableContext);
+            $this->variables->push(new VariableContext());
         }
         if ($node instanceof FunctionLike) {
-            $variables = \array_fill_keys(
-                \array_map(
-                    fn (Param $param): string => $param->var->name,
-                    $node->getParams()
-                ),
-                true
-            );
+            $variables = \array_fill_keys(\array_map(fn (Param $param): string => $param->var->name, $node->getParams()), true);
             if ($node instanceof Closure) {
                 foreach ($node->uses as $use) {
                     $variables[$use->var->name] = true;
@@ -224,11 +212,11 @@ class Context
      */
     public static function &getCurrentChildByRef(Node $node): Node
     {
-        if (!$subNode = $node->getAttribute('currentNode')) {
+        if (!($subNode = $node->getAttribute('currentNode'))) {
             throw new \RuntimeException('Node is not a part of the current AST stack!');
         }
-        $child = &$node->{$subNode};
-        if (null !== $index = $node->getAttribute('currentNodeIndex')) {
+        $child =& $node->{$subNode};
+        if (null !== ($index = $node->getAttribute('currentNodeIndex'))) {
             return $child[$index];
         }
         return $child;
@@ -248,13 +236,13 @@ class Context
         $found = false;
         foreach ($this->parents as $cur) {
             if ($found) {
-                $parent = &$this->getCurrentChildByRef($cur);
+                $parent =& $this->getCurrentChildByRef($cur);
                 break;
             }
             if ($this->getCurrentChild($cur) === $node) {
                 $found = true;
                 if ($cur instanceof RootNode) {
-                    $parent = &$this->parents[\count($this->parents) - 1];
+                    $parent =& $this->parents[\count($this->parents) - 1];
                     break;
                 }
             }
@@ -262,7 +250,6 @@ class Context
         if (!$found) {
             throw new \RuntimeException('Node is not a part of the current AST stack!');
         }
-
         /** @var string */
         $parentKey = $parent->getAttribute('currentNode');
         if ($parentKey === 'stmts' && !$parent instanceof ClassLike) {
@@ -270,9 +257,9 @@ class Context
             $nodeKeyIndex = $parent->getAttribute('currentNodeIndex');
             \array_splice($parent->{$parentKey}, $nodeKeyIndex, 0, $insert);
             $parent->setAttribute('currentNodeIndex', $nodeKeyIndex + \count($insert));
-            return; // Done, inserted!
+            return;
+            // Done, inserted!
         }
-
         // Cannot insert, parent is not a statement
         //
         // If we insert before a conditional branch of a conditional expression,
@@ -283,81 +270,27 @@ class Context
         //
         if ($parent instanceof BooleanOr && $parentKey === 'right' && Tools::hasSideEffects($parent->right)) {
             $result = $this->getVariable();
-            $insert = new If_(
-                $parent->left,
-                [
-                    'stmts' => [
-                        new Assign($result, BuilderHelpers::normalizeValue(true))
-                    ],
-                    'else' => new Else_([
-                        ...$insert,
-                        new Assign($result, new Bool_($parent->right))
-                    ])
-                ]
-            );
+            $insert = new If_($parent->left, ['stmts' => [new Assign($result, BuilderHelpers::normalizeValue(true))], 'else' => new Else_([...$insert, new Assign($result, new Bool_($parent->right))])]);
             $parent = $result;
         } elseif ($parent instanceof BooleanAnd && $parentKey === 'right' && Tools::hasSideEffects($parent->right)) {
             $result = $this->getVariable();
-            $insert = new If_(
-                $parent->left,
-                [
-                    'stmts' => [
-                        ...$insert,
-                        new Assign($result, new Bool_($parent->right))
-                    ],
-                    'else' => new Else_([
-                        new Assign($result, BuilderHelpers::normalizeValue(false))
-                    ])
-                ]
-            );
+            $insert = new If_($parent->left, ['stmts' => [...$insert, new Assign($result, new Bool_($parent->right))], 'else' => new Else_([new Assign($result, BuilderHelpers::normalizeValue(false))])]);
             $parent = $result;
         } elseif ($parent instanceof Ternary && $parentKey !== 'cond' && (Tools::hasSideEffects($parent->if) || Tools::hasSideEffects($parent->else))) {
             $result = $this->getVariable();
-            if (!$parent->if) { // ?:
-                $insert = new If_(
-                    new BooleanNot(
-                        new Assign($result, $parent->cond)
-                    ),
-                    [
-                        'stmts' => [
-                            ...$insert,
-                            new Assign($result, $parent->else)
-                        ]
-                    ]
-                );
+            if (!$parent->if) {
+                // ?:
+                $insert = new If_(new BooleanNot(new Assign($result, $parent->cond)), ['stmts' => [...$insert, new Assign($result, $parent->else)]]);
             } else {
-                $insert = new If_(
-                    $parent->cond,
-                    [
-                        'stmts' => [
-                            ...$parentKey === 'left' ? $insert : [],
-                            new Assign($result, $parent->if)
-                        ],
-                        'else' => new Else_([
-                            ...$parentKey === 'right' ? $insert : [],
-                            new Assign($result, $parent->else)
-                        ])
-                    ]
-                );
+                $insert = new If_($parent->cond, ['stmts' => [...$parentKey === 'left' ? $insert : [], new Assign($result, $parent->if)], 'else' => new Else_([...$parentKey === 'right' ? $insert : [], new Assign($result, $parent->else)])]);
             }
             $parent = $result;
         } elseif ($parent instanceof Coalesce && $parentKey === 'right' && Tools::hasSideEffects($parent->right)) {
             $result = $this->getVariable();
-            $insert = new If_(
-                Plugin::call(
-                    'is_null',
-                    new Assign($result, $parent->left)
-                ),
-                [
-                    'stmts' => [
-                        ...$insert,
-                        new Assign($result, $parent->right)
-                    ]
-                ]
-            );
+            $insert = new If_(Plugin::call('is_null', new Assign($result, $parent->left)), ['stmts' => [...$insert, new Assign($result, $parent->right)]]);
             $parent = $result;
         }
-        $this->insertBefore($parent, ...(\is_array($insert) ? $insert : [$insert]));
+        $this->insertBefore($parent, ...\is_array($insert) ? $insert : [$insert]);
     }
     /**
      * Insert nodes after node.
@@ -383,9 +316,8 @@ class Context
         }
         $subNode = $parent->getAttribute('currentNode');
         $subNodeIndex = $parent->getAttribute('currentNodeIndex');
-        \array_splice($parent->{$subNode}, $subNodeIndex+1, 0, $nodes);
+        \array_splice($parent->{$subNode}, $subNodeIndex + 1, 0, $nodes);
     }
-
     /**
      * Gets name context.
      *
@@ -405,7 +337,6 @@ class Context
         $parent = $this->parents[0];
         return $parent instanceof Expression || $parent->getAttribute('currentNode') === 'stmts';
     }
-
     /**
      * Dumps AST.
      */
@@ -422,7 +353,6 @@ class Context
             $func = $this->converter->enter($func, $this);
         }
     }
-
     /**
      * Get relative path of current file.
      *
@@ -432,7 +362,6 @@ class Context
     {
         return $this->file;
     }
-
     /**
      * Set relative path of current file.
      *
@@ -443,10 +372,8 @@ class Context
     public function setFile(string $file): self
     {
         $this->file = $file;
-
         return $this;
     }
-
     /**
      * Get absolute path of current output file.
      *
@@ -456,7 +383,6 @@ class Context
     {
         return $this->outputFile;
     }
-
     /**
      * Set absolute path of current input file.
      *
@@ -467,7 +393,6 @@ class Context
     public function setInputFile(string $inputFile): self
     {
         $this->inputFile = $inputFile;
-
         return $this;
     }
     /**
@@ -479,7 +404,6 @@ class Context
     {
         return $this->inputFile;
     }
-
     /**
      * Set absolute path of current output file.
      *
@@ -490,7 +414,6 @@ class Context
     public function setOutputFile(string $outputFile): self
     {
         $this->outputFile = $outputFile;
-
         return $this;
     }
 }
