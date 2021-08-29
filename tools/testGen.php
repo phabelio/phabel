@@ -13,7 +13,7 @@ require_once 'vendor/autoload.php';
 
 $packages = [];
 $packagesSecondary = [];
-foreach (Php::VERSIONS as $version) {
+foreach ([56, ...Php::VERSIONS] as $version) {
     echo "$version\n";
     `rm -rf "tests/Target$version"`;
     `rm -rf "tests/Target10$version"`;
