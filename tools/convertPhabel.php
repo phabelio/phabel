@@ -113,6 +113,7 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
     }
     \chdir($home);
     r("cp -a testsGenerated tests ../phabelConvertedOutput");
+    copy("tools/ci/matrix.php", "../phabelConvertedOutput/tools/ci/matrix.php");
     \chdir("../phabelConvertedOutput");
     r("$home/vendor/bin/php-scoper add-prefix -c $home/scoper.inc.php");
     r("rm -rf vendor");
