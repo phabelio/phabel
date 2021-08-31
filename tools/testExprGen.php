@@ -50,7 +50,7 @@ if (!empty($packages)) {
 $binary = PHP_SAPI === 'phpdbg' ? PHP_BINARY . " -qrr" : PHP_BINARY;
 $current = (int) (PHP_MAJOR_VERSION . PHP_MINOR_VERSION);
 foreach (\glob("testsGenerated/*/*.php") as $i => $test) {
-    $version = (int) \substr(\basename(\dirname($test)), 6);
+    $version = (int) \Phabel\Target\Php80\Polyfill::substr(\basename(\dirname($test)), 6);
     $version = $version ?: 80;
     if ($version > $current) {
         continue;
