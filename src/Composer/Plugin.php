@@ -39,7 +39,6 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         if (\file_exists('composer.lock')) {
             $this->lock = \json_decode(\file_get_contents('composer.lock'), true);
         }
-
         $rootPackage = $composer->getPackage();
         $this->transformer = Transformer::getInstance($io);
         $this->transformer->preparePackage($rootPackage, $rootPackage->getName());
@@ -49,7 +48,6 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             }
             $this->toRequire = $link->getTarget();
         }
-
         $repoManager = $composer->getRepositoryManager();
         $repos = $repoManager->getRepositories();
         foreach (\array_reverse($repos) as $repo) {
@@ -60,7 +58,6 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             }
         }
     }
-
     /**
      * Remove any hooks from Composer.
      *
@@ -74,7 +71,6 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     public function deactivate(Composer $composer, IOInterface $io)
     {
     }
-
     /**
      * Prepare the plugin to be uninstalled.
      *
@@ -86,20 +82,13 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     public function uninstall(Composer $composer, IOInterface $io)
     {
     }
-
     /**
      * {@inheritdoc}
      */
     public static function getSubscribedEvents()
     {
-        return [
-            ScriptEvents::POST_INSTALL_CMD =>
-                ['onInstall', 1],
-            ScriptEvents::POST_UPDATE_CMD =>
-                ['onUpdate', 1]
-        ];
+        return [ScriptEvents::POST_INSTALL_CMD => ['onInstall', 1], ScriptEvents::POST_UPDATE_CMD => ['onUpdate', 1]];
     }
-
     public function onInstall(Event $event): void
     {
         $this->run($event, false);
@@ -114,11 +103,11 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         if (!$this->transformer->transform($lock, $this->lock)) {
             \register_shutdown_function(function () use ($isUpdate) {
                 /** @var Application */
-                $application = ($GLOBALS['application'] ?? null) instanceof Application ? $GLOBALS['application'] : new Application;
+                $application = ($GLOBALS['application'] ?? null) instanceof Application ? $GLOBALS['application'] : new Application();
                 $this->transformer->log("Loading additional dependencies...\n");
                 if (!$isUpdate) {
                     $require = $application->find('require');
-                    $require->run(new ArrayInput(['packages' => [$this->toRequire]]), new NullOutput);
+                    $require->run(new ArrayInput(['packages' => [$this->toRequire]]), new NullOutput());
                 } else {
                     $application->setAutoExit(false);
                     $application->run();
@@ -137,10 +126,8 @@ class Plugin implements PluginInterface, EventSubscriberInterface
                 $json['extra'] ??= [];
                 $json['extra']['phabel'] ??= [];
                 $json['extra']['phabel']['revision'] = Version::LATEST;
-
                 $json['require'] ??= [];
                 $json['require']['php'] = '^8.0';
-
                 $this->transformer->banner();
                 $f = [$this->transformer, 'format'];
                 $io = $this->transformer->getIo();
@@ -149,13 +136,10 @@ class Plugin implements PluginInterface, EventSubscriberInterface
                         $io->writeError($f(Version::CHANGELOG[$x]));
                     }
                 }
-
-                \file_put_contents('composer.json', \json_encode($json, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES).PHP_EOL);
+                \file_put_contents('composer.json', \json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . PHP_EOL);
             });
         }
     }
-
-
     /**
      * Emitted before composer solves dependencies.
      *
