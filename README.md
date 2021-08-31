@@ -27,12 +27,12 @@ vendor/bin/phabel publish
 ## Supported PHP versions
 
 Source:  
-✅ 8.0+  
+* ✅ 8.0+  
 
 Target:  
-✅ 7.1+  
-🐘 5.6, 7.0 in final testing stage.  
-💡 5.4, 5.5 support coming soon!  
+* ✅ 7.1+  
+* 🐘 5.6, 7.0 in final testing stage.  
+* 💡 5.4, 5.5 support coming soon!  
 
 **No additional commands are required to add support for older versions**: just `composer update` 😄
 
