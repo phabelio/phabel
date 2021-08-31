@@ -15,7 +15,6 @@ use Phabel\Tools;
 use Phabel\Version;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
-
 /**
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT
@@ -34,13 +33,13 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      *
      * @return void
      */
-    public function activate(Composer $composer, IOInterface $io): void
+    public function activate(Composer $composer, IOInterface $io) : void
     {
         if (\file_exists('composer.lock')) {
-            $this->lock = \json_decode(\file_get_contents('composer.lock'), true);
+            $this->lock = \json_decode(\file_get_contents('composer.lock'), \true);
         }
         $rootPackage = $composer->getPackage();
-        $this->transformer = Transformer::getInstance($io);
+        $this->transformer = \Phabel\Composer\Transformer::getInstance($io);
         $this->transformer->preparePackage($rootPackage, $rootPackage->getName());
         foreach ($rootPackage->getRequires() as $link) {
             if (PlatformRepository::isPlatformPackage($link->getTarget())) {
@@ -52,7 +51,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         $repos = $repoManager->getRepositories();
         foreach (\array_reverse($repos) as $repo) {
             if (!\method_exists($repo, 'setPhabelTransformer')) {
-                $repo = Tools::cloneWithTrait($repo, Repository::class);
+                $repo = Tools::cloneWithTrait($repo, \Phabel\Composer\Repository::class);
                 $repo->setPhabelTransformer($this->transformer);
                 $repoManager->prependRepository($repo);
             }
@@ -89,19 +88,19 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     {
         return [ScriptEvents::POST_INSTALL_CMD => ['onInstall', 1], ScriptEvents::POST_UPDATE_CMD => ['onUpdate', 1]];
     }
-    public function onInstall(Event $event): void
+    public function onInstall(Event $event) : void
     {
-        $this->run($event, false);
+        $this->run($event, \false);
     }
-    public function onUpdate(Event $event): void
+    public function onUpdate(Event $event) : void
     {
-        $this->run($event, true);
+        $this->run($event, \true);
     }
-    private function run(Event $event, bool $isUpdate): void
+    private function run(Event $event, bool $isUpdate) : void
     {
-        $lock = \json_decode(\file_get_contents('composer.lock'), true);
+        $lock = \json_decode(\file_get_contents('composer.lock'), \true);
         if (!$this->transformer->transform($lock, $this->lock)) {
-            \register_shutdown_function(function () use ($isUpdate) {
+            \register_shutdown_function(function () use($isUpdate) {
                 /** @var Application */
                 $application = ($GLOBALS['application'] ?? null) instanceof Application ? $GLOBALS['application'] : new Application();
                 $this->transformer->log("Loading additional dependencies...\n");
@@ -109,13 +108,13 @@ class Plugin implements PluginInterface, EventSubscriberInterface
                     $require = $application->find('require');
                     $require->run(new ArrayInput(['packages' => [$this->toRequire]]), new NullOutput());
                 } else {
-                    $application->setAutoExit(false);
+                    $application->setAutoExit(\false);
                     $application->run();
                 }
             });
         } else {
             \register_shutdown_function(function () {
-                $json = \json_decode(\file_get_contents('composer.json'), true);
+                $json = \json_decode(\file_get_contents('composer.json'), \true);
                 if (!isset($json['require']['phabel/phabel'])) {
                     return;
                 }
@@ -136,7 +135,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
                         $io->writeError($f(Version::CHANGELOG[$x]));
                     }
                 }
-                \file_put_contents('composer.json', \json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . PHP_EOL);
+                \file_put_contents('composer.json', \json_encode($json, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES) . \PHP_EOL);
             });
         }
     }
@@ -147,7 +146,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      *
      * @return void
      */
-    public function onDependencySolve(InstallerEvent $event): void
+    public function onDependencySolve(InstallerEvent $event) : void
     {
     }
 }
