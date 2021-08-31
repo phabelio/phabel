@@ -66,19 +66,21 @@ class Publish extends Command
         $stashed = \trim($this->exec(['git', 'stash'])) !== 'No local changes to save';
         $output->write("<phabel>Tagging transpiled release <bold>{$src}.9998</bold>...</phabel>" . PHP_EOL);
         $this->prepare($src, "{$src}.9998", function (array $json): array {
-            $json['phabel'] ??= [];
-            $json['phabel']['extra'] ??= [];
+            $json['phabel'] = $json['phabel'] ?? [];
+            $json['phabel']['extra'] = $json['phabel']['extra'] ?? [];
             $json['phabel']['extra']['require'] = $json['require'];
             $json['require'] = ['phabel/phabel' => Version::VERSION, 'php' => '*'];
             \file_put_contents(ComposerSanitizer::FILE_NAME, ComposerSanitizer::getContents($json['name'] ?? 'phabel'));
             $this->exec(['git', 'add', ComposerSanitizer::FILE_NAME]);
-            $json['autoload'] ??= [];
-            $json['autoload']['files'] ??= [];
+            $json['autoload'] = $json['autoload'] ?? [];
+            $json['autoload']['files'] = $json['autoload']['files'] ?? [];
             $json['autoload']['files'][] = ComposerSanitizer::FILE_NAME;
             return $json;
         });
         $output->write("<phabel>Tagging original release as <bold>{$src}.9999</bold>...</phabel>" . PHP_EOL);
-        $this->prepare($src, "{$src}.9999", fn (array $json): array => $json);
+        $this->prepare($src, "{$src}.9999", function (array $json): array {
+            return $json;
+        });
         $this->exec(['git', 'checkout', $branch]);
         if ($stashed) {
             $this->exec(['git', 'stash', 'pop']);
