@@ -12,15 +12,13 @@ use Composer\Package\PackageInterface;
 use Composer\Repository\PlatformRepository;
 use Composer\Semver\Constraint\Constraint as ComposerConstraint;
 use Composer\Semver\VersionParser;
-use Phabel\Cli\EventHandler as CliEventHandler;
 use Phabel\Cli\Formatter;
-use Phabel\EventHandler;
 use Phabel\PluginGraph\Graph;
 use Phabel\Target\Php;
 use Phabel\Traverser;
 use ReflectionClass;
 
-class Transformer extends EventHandler
+class Transformer
 {
     const HEADER = 'phabel/transpiler';
     const SEPARATOR = '/';
@@ -334,7 +332,7 @@ class Transformer extends EventHandler
         }
 
         $traverser = new Traverser(
-            new CliEventHandler(
+            new EventHandler(
                 $this->io,
                 $this->doProgress
                     && $this->io instanceof ConsoleIO
