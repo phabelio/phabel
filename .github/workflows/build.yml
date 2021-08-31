@@ -1,5 +1,8 @@
 name: test
-on: [push]
+on:
+  push:
+    tags-ignore:
+      - '**'
 jobs:
   prepare:
     runs-on: self-hosted
