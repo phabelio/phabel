@@ -26,10 +26,10 @@ vendor/bin/phabel publish
 
 ## Supported PHP versions
 
-Source:
+Source:  
 ✅ 8.0+  
 
-Target:
+Target:  
 ✅ 7.1+  
 🐘 5.6, 7.0 in final testing stage.  
 💡 5.4, 5.5 support coming soon!  
