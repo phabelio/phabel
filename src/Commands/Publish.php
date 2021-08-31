@@ -112,7 +112,7 @@ class Publish extends Command
 <phabel>Tell users to require <bold>^$src</bold> in their <bold>composer.json</bold> to automatically load the correct transpiled version!</phabel>
 
 <bold>Tip</bold>: Add the following badge to your README to let users know about your minimum supported PHP version, as it won't be shown on packagist.
-<phabel>![phabel.io](https://phabel.io/badge/7.1)</phabel>
+<phabel>![phabel.io](https://phabel.io/badge)</phabel>
 ");
 
         return Command::SUCCESS;
