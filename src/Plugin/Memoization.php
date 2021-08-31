@@ -39,7 +39,7 @@ class Memoization extends Plugin
      */
     public function __construct()
     {
-        $this->cache = new SplStack;
+        $this->cache = new SplStack();
     }
     /**
      * Enter functions.
@@ -50,21 +50,17 @@ class Memoization extends Plugin
      */
     public function enterFunctionLike(FunctionLike $node, Context $ctx): void
     {
-        if (!\preg_match_all('/@memoize \$([\w\d_]+)/', (string) ($node->getDocComment() ?? ''), $matches)) {
+        if (!\preg_match_all('/@memoize \\$([\\w\\d_]+)/', (string) ($node->getDocComment() ?? ''), $matches)) {
             $this->cache->push(null);
             return;
         }
-
         if ($node->getReturnType() instanceof Identifier && $node->getReturnType()->name === 'void') {
             throw new \RuntimeException('Cannot memoize void function');
         }
-
         /** @var Node[] */
         $toPrepend = [];
-
         /** @var string[] */
         $memoizeParams = $matches[1];
-
         /** @var array<string, Param> */
         $params = [];
         foreach ($node->getParams() as $param) {
@@ -73,39 +69,33 @@ class Memoization extends Plugin
             }
             $params[$param->var->name] = $param;
         }
-
         /** @var Variable[] */
         $memoizeVars = [];
         foreach ($memoizeParams as $memoizeVar) {
             if (!isset($params[$memoizeVar])) {
-                throw new \RuntimeException('Cannot find memoization parameter $'.$memoizeVar);
+                throw new \RuntimeException('Cannot find memoization parameter $' . $memoizeVar);
             }
             $memoizeParam = $params[$memoizeVar];
             if ($memoizeParam->type === null) {
-                throw new \RuntimeException('Cannot memoize by untyped parameter $'.$memoizeVar);
+                throw new \RuntimeException('Cannot memoize by untyped parameter $' . $memoizeVar);
             }
             if ($memoizeParam->type instanceof Identifier) {
                 if ($memoizeParam->type->name === 'array') {
-                    throw new \RuntimeException('Cannot memoize by array parameter $'.$memoizeVar);
+                    throw new \RuntimeException('Cannot memoize by array parameter $' . $memoizeVar);
                 }
                 if (\in_array($memoizeParam->type->name, ['string', 'int', 'float', 'bool'])) {
                     $memoizeVars[] = $memoizeParam->var;
                     continue;
                 }
             }
-            $toPrepend []= Plugin::assign(
-                $variable = new Variable($memoizeParam->var->name.'___memo'),
-                Plugin::call('spl_object_hash', $memoizeParam->var)
-            );
-            $memoizeVars []= $variable;
+            $toPrepend[] = Plugin::assign($variable = new Variable($memoizeParam->var->name . '___memo'), Plugin::call('spl_object_hash', $memoizeParam->var));
+            $memoizeVars[] = $variable;
         }
-
-        $toPrepend []= new Static_([new StaticVar($cache = new Variable('memoizeCache'), new Array_())]);
+        $toPrepend[] = new Static_([new StaticVar($cache = new Variable('memoizeCache'), new Array_())]);
         foreach ($memoizeVars as $var) {
             $cache = new ArrayDimFetch($cache, $var);
         }
-        $toPrepend []= new If_(new Isset_([$cache]), [new Return_($cache)]);
-
+        $toPrepend[] = new If_(new Isset_([$cache]), [new Return_($cache)]);
         $this->cache->push($cache);
         if (empty($toPrepend)) {
             return;
@@ -125,7 +115,6 @@ class Memoization extends Plugin
     {
         $this->cache->pop();
     }
-
     /**
      * Enter return expression.
      *
