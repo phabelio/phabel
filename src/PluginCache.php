@@ -24,7 +24,6 @@ class PluginCache
      * @var array<class-string<PluginInterface>, string[]>
      */
     private static array $leaveMethods = [];
-
     /**
      * Cache method information.
      *
@@ -41,11 +40,11 @@ class PluginCache
                 if (\str_starts_with($method, 'enter')) {
                     $reflection = new ReflectionMethod($plugin, $method);
                     $type = $reflection->getParameters()[0]->getType()->getName();
-                    self::$enterMethods[$plugin][$type] []= $method;
+                    self::$enterMethods[$plugin][$type][] = $method;
                 } elseif (\str_starts_with($method, 'leave')) {
                     $reflection = new ReflectionMethod($plugin, $method);
                     $type = $reflection->getParameters()[0]->getType()->getName();
-                    self::$leaveMethods[$plugin][$type] []= $method;
+                    self::$leaveMethods[$plugin][$type][] = $method;
                 }
             }
         }
@@ -111,7 +110,7 @@ class PluginCache
      */
     public static function previous(string $plugin, array $config): array
     {
-        $pluginConfig = $plugin.\json_encode($config);
+        $pluginConfig = $plugin . \json_encode($config);
         /** @var array<class-string<PluginInterface>, array<class-string<PluginInterface>, array>> */
         static $cache = [];
         if (isset($cache[$pluginConfig])) {
@@ -130,7 +129,7 @@ class PluginCache
      */
     public static function next(string $plugin, array $config): array
     {
-        $pluginConfig = $plugin.\json_encode($config);
+        $pluginConfig = $plugin . \json_encode($config);
         /** @var array<class-string<PluginInterface>, array<class-string<PluginInterface>, array>> */
         static $cache = [];
         if (isset($cache[$pluginConfig])) {
@@ -149,7 +148,7 @@ class PluginCache
      */
     public static function withPrevious(string $plugin, array $config): array
     {
-        $pluginConfig = $plugin.\json_encode($config);
+        $pluginConfig = $plugin . \json_encode($config);
         /** @var array<class-string<PluginInterface>, array<class-string<PluginInterface>, array>> */
         static $cache = [];
         if (isset($cache[$pluginConfig])) {
@@ -168,7 +167,7 @@ class PluginCache
      */
     public static function withNext(string $plugin, array $config): array
     {
-        $pluginConfig = $plugin.\json_encode($config);
+        $pluginConfig = $plugin . \json_encode($config);
         /** @var array<class-string<PluginInterface>, array<class-string<PluginInterface>, array>> */
         static $cache = [];
         if (isset($cache[$pluginConfig])) {
