@@ -32,7 +32,6 @@ class Transformer extends EventHandler
      * IO interface.
      */
     private $outputFormatter;
-
     /**
      * Version parser.
      */
@@ -75,11 +74,9 @@ class Transformer extends EventHandler
     private function __construct(IOInterface $io)
     {
         $this->io = $io;
-        $this->versionParser = new VersionParser;
-
+        $this->versionParser = new VersionParser();
         $this->outputFormatter = Formatter::getFormatter();
     }
-
     /**
      * Log text.
      *
@@ -90,9 +87,8 @@ class Transformer extends EventHandler
      */
     public function log(string $text, int $verbosity = IOInterface::NORMAL, bool $newline = true): void
     {
-        $this->io->writeError($this->format("<phabel>$text</phabel>"), $newline, $verbosity);
+        $this->io->writeError($this->format("<phabel>{$text}</phabel>"), $newline, $verbosity);
     }
-
     /**
      * Format text.
      *
@@ -103,7 +99,6 @@ class Transformer extends EventHandler
     {
         return $this->outputFormatter->format($text);
     }
-
     /**
      * Print banner.
      *
@@ -114,10 +109,9 @@ class Transformer extends EventHandler
         static $printed = false;
         if (!$printed) {
             $printed = true;
-            $this->log(PHP_EOL.Formatter::BANNER.PHP_EOL);
+            $this->log(PHP_EOL . Formatter::BANNER . PHP_EOL);
         }
     }
-
     /**
      * Prepare package for phabel tree injection.
      *
@@ -151,7 +145,7 @@ class Transformer extends EventHandler
         $this->processed = true;
         if (!$havePhabel) {
             if ($target === Php::TARGET_IGNORE) {
-                $this->log("Skipping ".$package->getName()."=$newName", IOInterface::VERY_VERBOSE);
+                $this->log("Skipping " . $package->getName() . "={$newName}", IOInterface::VERY_VERBOSE);
                 return;
             }
             $myTarget = $target;
@@ -159,40 +153,20 @@ class Transformer extends EventHandler
             $myTarget = Php::normalizeVersion($myTarget);
             $myTarget = \min($myTarget, $target);
         }
-
-        $this->log("Applying ".$package->getName()."=$newName", IOInterface::VERY_VERBOSE);
-
+        $this->log("Applying " . $package->getName() . "={$newName}", IOInterface::VERY_VERBOSE);
         $this->processedRequires = $this->requires;
         $requires = $this->requires;
         foreach ($config['require'] ?? [] as $name => $constraint) {
             $requires[$this->injectTarget($name, $myTarget)] = $constraint;
         }
-
         if ($newName !== $package->getName() && \method_exists($package, 'setProvides')) {
-            $package->setProvides(\array_merge(
-                $package->getProvides(),
-                [$package->getName() => new Link(
-                    $newName,
-                    $package->getName(),
-                    new ComposerConstraint('=', $package->getVersion()),
-                    Link::TYPE_PROVIDE,
-                    $package->getVersion()
-                )]
-            ));
+            $package->setProvides(\array_merge($package->getProvides(), [$package->getName() => new Link($newName, $package->getName(), new ComposerConstraint('=', $package->getVersion()), Link::TYPE_PROVIDE, $package->getVersion())]));
         }
-
         $base = new ReflectionClass(BasePackage::class);
         $method = $base->getMethod('__construct');
         $method->invokeArgs($package, [$newName]);
-
-        $this->processRequires(
-            $package,
-            $myTarget,
-            $requires,
-            $havePhabel,
-        );
+        $this->processRequires($package, $myTarget, $requires, $havePhabel);
     }
-
     /**
      * Add phabel config to all requires.
      *
@@ -210,34 +184,16 @@ class Transformer extends EventHandler
             if (PlatformRepository::isPlatformPackage($link->getTarget())) {
                 if ($link->getTarget() === 'php') {
                     $constraint = new ComposerConstraint('>=', Php::unnormalizeVersion($target));
-                    $links[$name]= new Link(
-                        $package->getName(),
-                        $link->getTarget(),
-                        $constraint,
-                        $link->getDescription(),
-                        $constraint->getPrettyString()
-                    );
+                    $links[$name] = new Link($package->getName(), $link->getTarget(), $constraint, $link->getDescription(), $constraint->getPrettyString());
                 } else {
                     $links[$name] = $link;
                 }
                 continue;
             }
-            $links [$name]= new Link(
-                $package->getName(),
-                $havePhabel ? $link->getTarget() : $this->injectTarget($link->getTarget(), $target),
-                $link->getConstraint(),
-                $link->getDescription(),
-                $link->getPrettyConstraint()
-            );
+            $links[$name] = new Link($package->getName(), $havePhabel ? $link->getTarget() : $this->injectTarget($link->getTarget(), $target), $link->getConstraint(), $link->getDescription(), $link->getPrettyConstraint());
         }
         foreach ($requires as $name => $version) {
-            $links[$name] = new Link(
-                $package->getName(),
-                $name,
-                $this->versionParser->parseConstraints($version),
-                Link::TYPE_REQUIRE,
-                $version
-            );
+            $links[$name] = new Link($package->getName(), $name, $this->versionParser->parseConstraints($version), Link::TYPE_REQUIRE, $version);
         }
         if ($package instanceof Package) {
             $package->setRequires($links);
@@ -245,7 +201,6 @@ class Transformer extends EventHandler
             $this->processRequires($package->getAliasOf(), $target, $requires, $havePhabel);
         }
     }
-
     /**
      * Inject target into package name.
      *
@@ -256,9 +211,8 @@ class Transformer extends EventHandler
     private function injectTarget(string $package, int $target): string
     {
         [$package] = $this->extractTarget($package);
-        return self::HEADER.$target.self::SEPARATOR.$package;
+        return self::HEADER . $target . self::SEPARATOR . $package;
     }
-
     /**
      * Look for phabel configuration parameters in constraint.
      *
@@ -274,7 +228,6 @@ class Transformer extends EventHandler
         }
         return [$package, Php::TARGET_IGNORE];
     }
-
     /**
      * Transform dependencies.
      *
@@ -286,9 +239,7 @@ class Transformer extends EventHandler
     {
         $enabled = \gc_enabled();
         \gc_enable();
-
         $packages = $lock['packages'] ?? [];
-
         $this->log("Creating plugin graph...", IOInterface::VERBOSE);
         $byName = [];
         foreach ($packages as $package) {
@@ -322,8 +273,7 @@ class Transformer extends EventHandler
                 }
             }
         } while ($changed);
-
-        $graph = new Graph;
+        $graph = new Graph();
         foreach ($byName as $name => $package) {
             $ctx = $graph->getPackageContext();
             $ctx->addPackage($name);
@@ -332,24 +282,15 @@ class Transformer extends EventHandler
                 $graph->addPlugin(Php::class, $config + $target, $ctx);
             }
         }
-
-        $traverser = new Traverser(
-            new CliEventHandler(
-                $this->io,
-                $this->doProgress
-                    && $this->io instanceof ConsoleIO
-                    && !\getenv('CI')
-                    && !$this->io->isDebug() ? fn (int $progress) => $this->io->getProgressBar($progress) : null
-            )
-        );
+        $traverser = new Traverser(new CliEventHandler($this->io, $this->doProgress && $this->io instanceof ConsoleIO && !\getenv('CI') && !$this->io->isDebug() ? fn (int $progress) => $this->io->getProgressBar($progress) : null));
         $traverser->setPluginGraph($graph);
         unset($graph);
-
         $this->requires = $traverser->getGraph()->getPackages();
         if (!$this->processedRequires()) {
             if (!$enabled) {
                 unset($traverser);
-                while (\gc_collect_cycles());
+                while (\gc_collect_cycles()) {
+                }
                 \gc_disable();
             }
             return false;
@@ -360,26 +301,19 @@ class Transformer extends EventHandler
         if (!$byName) {
             return true;
         }
-
         $this->banner();
-
-        $traverser
-            ->setInput('vendor')
-            ->setOutput('vendor')
-            ->setComposer(function (string $rel): string {
-                [$package] = $this->extractTarget(\str_replace('\\', '/', $rel));
-                return \implode('/', \array_slice(\explode('/', $package), 0, 2));
-            })
-            ->run((int) (\getenv('PHABEL_PARALLEL') ?: 1));
-
+        $traverser->setInput('vendor')->setOutput('vendor')->setComposer(function (string $rel): string {
+            [$package] = $this->extractTarget(\str_replace('\\', '/', $rel));
+            return \implode('/', \array_slice(\explode('/', $package), 0, 2));
+        })->run((int) (\getenv('PHABEL_PARALLEL') ?: 1));
         if (!$enabled) {
             unset($traverser);
-            while (\gc_collect_cycles());
+            while (\gc_collect_cycles()) {
+            }
             \gc_disable();
         }
         return true;
     }
-
     /**
      * Get whether we processed any dependencies.
      *
@@ -389,7 +323,6 @@ class Transformer extends EventHandler
     {
         return $this->processed && $this->processedRequires === $this->requires;
     }
-
     /**
      * Get IO interface.
      *
