@@ -3,9 +3,8 @@
 namespace Phabel\Cli;
 
 use Phabel\Composer\EventHandler as ComposerEventHandler;
-use Symfony\Component\Console\Helper\ProgressBar;
-use Symfony\Component\Console\Output\ConsoleOutput;
-
+use Phabel\Symfony\Component\Console\Helper\ProgressBar;
+use Phabel\Symfony\Component\Console\Output\ConsoleOutput;
 class EventHandler extends ComposerEventHandler
 {
     /**
@@ -13,10 +12,10 @@ class EventHandler extends ComposerEventHandler
      *
      * @return self
      */
-    public static function create(): self
+    public static function create() : self
     {
         $output = new ConsoleOutput();
-        return new self(new SimpleConsoleLogger($output), function (int $max) use ($output): ProgressBar {
+        return new self(new \Phabel\Cli\SimpleConsoleLogger($output), function (int $max) use($output) : ProgressBar {
             return new ProgressBar($output, $max, -1);
         });
     }
