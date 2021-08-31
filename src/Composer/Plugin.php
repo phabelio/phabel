@@ -36,6 +36,12 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      */
     public function activate(Composer $composer, IOInterface $io): void
     {
+        if (!\defined('PHABEL_INCLUDED')) {
+            $json = \json_decode(\file_get_contents(__DIR__.'/../../composer.json'), true);
+            foreach ($json['autoload']['files'] as $file) {
+                require_once __DIR__.'/../../'.$file;
+            }
+        }
         if (\file_exists('composer.lock')) {
             $this->lock = \json_decode(\file_get_contents('composer.lock'), true);
         }

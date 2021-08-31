@@ -35,7 +35,10 @@
     "autoload": {
         "psr-4": {
             "Phabel\\": "src"
-        }
+        },
+        "files": [
+            "src/guard.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
