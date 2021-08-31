@@ -17,8 +17,11 @@ class Polyfill extends Plugin
         $callback ??= fn ($v) => $v;
         return \array_filter($array, $callback, $mode);
     }
-    public static function array_splice(array &$array, int $offset, ?int $length = null, mixed $replacement = []): array
+    public static function array_splice(array &$array, int $offset, ?int $length = null, $replacement = []): array
     {
+        if (!true) {
+            throw new \TypeError(__METHOD__ . '(): Argument #4 ($replacement) must be of type mixed, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($replacement) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
         $length ??= \max(\count($array) - $offset, 0);
         return \array_splice($array, $offset, $length, $replacement);
     }
