@@ -383,7 +383,7 @@ abstract class Tools
         }
         if (\is_readable('/proc/cpuinfo')) {
             $cpuinfo = \file_get_contents('/proc/cpuinfo');
-            $count = \substr_count($cpuinfo, 'processor');
+            $count = \Phabel\Target\Php80\Polyfill::substr_count($cpuinfo, 'processor');
             if ($count > 0) {
                 return $result = $count;
             }
