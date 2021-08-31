@@ -5,7 +5,6 @@ namespace Phabel\PluginGraph;
 use Phabel\PluginCache;
 use Phabel\PluginInterface;
 use SplQueue;
-
 /**
  * Representation of multiple plugins+configs.
  *
@@ -37,7 +36,7 @@ class Plugins
      *
      * @return void
      */
-    public function merge(self $other): void
+    public function merge(self $other) : void
     {
         foreach ($other->plugins as $plugin => $configs) {
             if (isset($this->plugins[$plugin])) {
@@ -54,7 +53,7 @@ class Plugins
      *
      * @return void
      */
-    public function enqueue(SplQueue $queue, PackageContext $ctx, array &$packages): void
+    public function enqueue(SplQueue $queue, \Phabel\PluginGraph\PackageContext $ctx, array &$packages) : void
     {
         foreach ($this->plugins as $plugin => $configs) {
             foreach ($plugin::mergeConfigs(...$configs) as $config) {
