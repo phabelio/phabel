@@ -3,11 +3,10 @@
 namespace Phabel\Cli;
 
 use Phabel\EventHandler as PhabelEventHandler;
-use Symfony\Component\Console\Formatter\OutputFormatter;
-use Symfony\Component\Console\Helper\ProgressBar;
-use Symfony\Component\Console\Output\ConsoleOutput;
+use Phabel\Symfony\Component\Console\Formatter\OutputFormatter;
+use Phabel\Symfony\Component\Console\Helper\ProgressBar;
+use Phabel\Symfony\Component\Console\Output\ConsoleOutput;
 use Throwable;
-
 class EventHandler extends PhabelEventHandler
 {
     private OutputFormatter $outputFormatter;
@@ -24,25 +23,25 @@ class EventHandler extends PhabelEventHandler
      *
      * @return self
      */
-    public static function create(): self
+    public static function create() : self
     {
         $output = new ConsoleOutput();
-        return new EventHandler(new SimpleConsoleLogger($output), fn (int $max): ProgressBar => (new ProgressBar($output, $max, -1)));
+        return new \Phabel\Cli\EventHandler(new \Phabel\Cli\SimpleConsoleLogger($output), fn(int $max): ProgressBar => new ProgressBar($output, $max, -1));
     }
     public function __construct(private $logger, ?callable $getProgressBar)
     {
-        $this->outputFormatter = Formatter::getFormatter();
+        $this->outputFormatter = \Phabel\Cli\Formatter::getFormatter();
         $this->getProgressBar = $getProgressBar;
     }
-    public function onBeginPluginGraphResolution(): void
+    public function onBeginPluginGraphResolution() : void
     {
         $this->logger->debug($this->outputFormatter->format("<phabel>Plugin graph resolution in progress...</phabel>"));
     }
-    public function onEndPluginGraphResolution(): void
+    public function onEndPluginGraphResolution() : void
     {
         $this->logger->debug($this->outputFormatter->format("<phabel>Finished plugin graph resolution!</phabel>"));
     }
-    private function startProgressBar(string $message, int $total, int $workers = 1): void
+    private function startProgressBar(string $message, int $total, int $workers = 1) : void
     {
         if ($this->getProgressBar) {
             $this->progress = ($this->getProgressBar)($total);
@@ -59,7 +58,7 @@ class EventHandler extends PhabelEventHandler
             $this->logger->debug($this->outputFormatter->format("<phabel>{$message}</phabel>"));
         }
     }
-    public function onBeginDirectoryTraversal(int $total, int $workers): void
+    public function onBeginDirectoryTraversal(int $total, int $workers) : void
     {
         if (!$this->count) {
             $message = 'Transpilation in progress...';
@@ -70,35 +69,35 @@ class EventHandler extends PhabelEventHandler
         $this->count++;
         $this->startProgressBar($message, $total, $workers);
     }
-    public function onEndAstTraversal(string $file, int|\Throwable $iterationsOrError): void
+    public function onEndAstTraversal(string $file, int|\Throwable $iterationsOrError) : void
     {
         $this->progress?->advance();
         if ($iterationsOrError instanceof Throwable) {
-            $this->logger->error($this->outputFormatter->format(PHP_EOL . "<error>{$iterationsOrError->getMessage()}!</error>"));
+            $this->logger->error($this->outputFormatter->format(\PHP_EOL . "<error>{$iterationsOrError->getMessage()}!</error>"));
             $this->logger->debug($this->outputFormatter->format("<error>{$iterationsOrError}</error>"));
         } else {
             $this->logger->debug($this->outputFormatter->format("<phabel>Transpiled {$file} in {$iterationsOrError} iterations!</phabel>"));
         }
     }
-    public function onEndDirectoryTraversal(): void
+    public function onEndDirectoryTraversal() : void
     {
         $this->progress?->finish();
         $this->logger->warning("");
     }
-    public function onBeginClassGraphMerge(int $count): void
+    public function onBeginClassGraphMerge(int $count) : void
     {
         $this->startProgressBar("Merging class graphs...", $count);
     }
-    public function onClassGraphMerged(): void
+    public function onClassGraphMerged() : void
     {
         $this->progress?->advance();
         $this->logger->debug($this->outputFormatter->format("<phabel>Merged class graph!</phabel>"));
     }
-    public function onEndClassGraphMerge(): void
+    public function onEndClassGraphMerge() : void
     {
         $this->progress?->finish();
     }
-    public function onEnd(): void
+    public function onEnd() : void
     {
         $this->progress?->clear();
         $this->logger->warning($this->outputFormatter->format('<phabel>Done!</phabel>'));
