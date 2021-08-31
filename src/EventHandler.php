@@ -2,24 +2,24 @@
 
 namespace Phabel;
 
-abstract class EventHandler implements EventHandlerInterface
+abstract class EventHandler implements \Phabel\EventHandlerInterface
 {
-    public function onStart(): void
+    public function onStart() : void
     {
     }
-    public function onBeginPluginGraphResolution(): void
+    public function onBeginPluginGraphResolution() : void
     {
     }
-    public function onEndPluginGraphResolution(): void
+    public function onEndPluginGraphResolution() : void
     {
     }
-    public function onBeginDirectoryTraversal(int $total, int $workers): void
+    public function onBeginDirectoryTraversal(int $total, int $workers) : void
     {
     }
-    public function onBeginAstTraversal(string $file): void
+    public function onBeginAstTraversal(string $file) : void
     {
     }
-    public function onEndAstTraversal(string $file, $iterationsOrError): void
+    public function onEndAstTraversal(string $file, $iterationsOrError) : void
     {
         if (!$iterationsOrError instanceof \Throwable) {
             if (!\is_int($iterationsOrError)) {
@@ -30,19 +30,19 @@ abstract class EventHandler implements EventHandlerInterface
             }
         }
     }
-    public function onEndDirectoryTraversal(): void
+    public function onEndDirectoryTraversal() : void
     {
     }
-    public function onBeginClassGraphMerge(int $count): void
+    public function onBeginClassGraphMerge(int $count) : void
     {
     }
-    public function onClassGraphMerged(): void
+    public function onClassGraphMerged() : void
     {
     }
-    public function onEndClassGraphMerge(): void
+    public function onEndClassGraphMerge() : void
     {
     }
-    public function onEnd(): void
+    public function onEnd() : void
     {
     }
 }
