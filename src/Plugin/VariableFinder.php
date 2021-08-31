@@ -33,7 +33,7 @@ class VariableFinder extends Plugin
     public static function find(Node $ast, bool $byRef = false): array
     {
         if (!isset(self::$singleton)) {
-            self::$singleton = new self;
+            self::$singleton = new self();
             self::$singletonTraverser = Traverser::fromPlugin(self::$singleton);
         }
         self::$singleton->setConfig('byRef', $byRef);
@@ -61,7 +61,7 @@ class VariableFinder extends Plugin
     public function enter(Variable $var)
     {
         if (\is_string($var->name) && $var->name !== 'this') {
-            $this->found[$var->name]= new ClosureUse($var, $this->getConfig('byRef', false));
+            $this->found[$var->name] = new ClosureUse($var, $this->getConfig('byRef', false));
         }
     }
     /**
