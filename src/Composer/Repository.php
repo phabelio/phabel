@@ -10,7 +10,7 @@ use Composer\Package\PackageInterface;
  */
 trait Repository
 {
-    private Transformer $phabelTransformer;
+    private $phabelTransformer;
     /**
      * TODO v3 should make this private once we can drop PHP 5.3 support.
      *
@@ -38,14 +38,14 @@ trait Repository
         $transformInfo = [];
         foreach ($packageNameMap as $key => $constraint) {
             [$package, $target] = $this->phabelTransformer->extractTarget($key);
-            $newPackageNameMap[$target] ??= [];
+            $newPackageNameMap[$target] = $newPackageNameMap[$target] ?? [];
             $newPackageNameMap[$target][$package] = $constraint;
-            $transformInfo[$target] ??= [];
+            $transformInfo[$target] = $transformInfo[$target] ?? [];
             $transformInfo[$target][$package] = $key;
         }
         foreach ($alreadyLoaded as $key => $versions) {
             [$package, $target] = $this->phabelTransformer->extractTarget($key);
-            $newAlreadyLoaded[$target] ??= [];
+            $newAlreadyLoaded[$target] = $newAlreadyLoaded[$target] ?? [];
             $newAlreadyLoaded[$target][$package] = $versions;
         }
         $finalNamesFound = [];

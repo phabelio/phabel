@@ -22,10 +22,10 @@ use Symfony\Component\Console\Output\NullOutput;
  */
 class Plugin implements PluginInterface, EventSubscriberInterface
 {
-    private string $toRequire = '';
+    private $toRequire = '';
     /** @psalm-suppress MissingConstructor */
-    private Transformer $transformer;
-    private ?array $lock = null;
+    private $transformer;
+    private $lock = null;
     /**
      * Apply plugin modifications to Composer.
      *
@@ -129,10 +129,10 @@ class Plugin implements PluginInterface, EventSubscriberInterface
                 if ($old === Version::LATEST) {
                     return;
                 }
-                $json['extra'] ??= [];
-                $json['extra']['phabel'] ??= [];
+                $json['extra'] = $json['extra'] ?? [];
+                $json['extra']['phabel'] = $json['extra']['phabel'] ?? [];
                 $json['extra']['phabel']['revision'] = Version::LATEST;
-                $json['require'] ??= [];
+                $json['require'] = $json['require'] ?? [];
                 $json['require']['php'] = '^8.0';
                 $this->transformer->banner();
                 $f = [$this->transformer, 'format'];

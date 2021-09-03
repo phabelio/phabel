@@ -16,11 +16,11 @@ class Graph
     /**
      * Graph instance.
      */
-    private ?GraphInternal $graph = null;
+    private $graph = null;
     /**
      * Resolved graph instance.
      */
-    private ?ResolvedGraph $resolvedGraph = null;
+    private $resolvedGraph = null;
     /**
      * Constructr.
      */
@@ -59,7 +59,7 @@ class Graph
      */
     public function flatten(): ResolvedGraph
     {
-        $this->resolvedGraph ??= new ResolvedGraph(...$this->graph->flatten());
+        $this->resolvedGraph = $this->resolvedGraph ?? new ResolvedGraph(...$this->graph->flatten());
         $this->graph = null;
         while (\gc_collect_cycles()) {
         }
