@@ -19,7 +19,6 @@ class Polyfill extends Plugin
     // Todo: grapheme_extract
     // Todo: getenv
     // Skip: output buffer functions
-
     public static function unpack(string $format, string $string, int $offset = 0): array|bool
     {
         return \unpack($format, \substr($string, $offset));
@@ -28,13 +27,12 @@ class Polyfill extends Plugin
     {
         return \long2ip($ip);
     }
-
     public static function file_get_contents(...$params): string|false
     {
         if (isset($params[3]) && $params[3] < 0) {
             $f = \fopen($params[0], 'r', $params[1], $params[2]);
             \fseek($f, 0, SEEK_END);
-            \fseek($f, \ftell($f)+$params[3], SEEK_SET);
+            \fseek($f, \ftell($f) + $params[3], SEEK_SET);
             $length = $params[4] ?? null;
             if ($length === null) {
                 return \stream_get_contents($f);
@@ -43,7 +41,6 @@ class Polyfill extends Plugin
         }
         return \file_get_contents(...$params);
     }
-
     public static function get_headers(string $url, int $associative = 0, $context = null): array|false
     {
         if (!$context) {
@@ -64,7 +61,6 @@ class Polyfill extends Plugin
         }
         return $headers;
     }
-
     public static function substr_count(string $haystack, string $needle, int $offset = 0, ?int $length = null): int
     {
         if ($offset < 0) {
@@ -81,7 +77,6 @@ class Polyfill extends Plugin
         }
         return \substr_count($haystack, $needle, $offset);
     }
-
     public static function strpos(string $haystack, string $needle, int $offset = 0): int|bool
     {
         return \strpos($haystack, $needle, $offset < 0 ? \strlen($haystack) + $offset : $offset);
@@ -123,7 +118,6 @@ class Polyfill extends Plugin
     {
         return \grapheme_stripos($haystack, $needle, $offset < 0 ? \grapheme_strlen($haystack) + $offset : $offset);
     }
-
     /**
      * {@inheritDoc}
      */
