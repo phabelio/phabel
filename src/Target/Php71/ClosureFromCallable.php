@@ -45,7 +45,7 @@ class ClosureFromCallable extends Plugin
         if ($callable instanceof Closure) {
             return $callable;
         }
-        if (\is_object($callable)) {
+        if (\Phabel\Target\Php72\Polyfill::is_object($callable)) {
             $callable = [$callable, '__invoke'];
         }
         if (\is_array($callable)) {
