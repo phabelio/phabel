@@ -5,11 +5,10 @@ namespace Phabel;
 use Phabel\ClassStorage\Storage;
 use Phabel\Plugin\ClassStoragePlugin;
 use Phabel\Plugin\TypeHintReplacer;
-use PhpParser\Node\Identifier;
-use PhpParser\Node\Name;
-use PhpParser\Node\NullableType;
-use PhpParser\Node\UnionType;
-
+use Phabel\PhpParser\Node\Identifier;
+use Phabel\PhpParser\Node\Name;
+use Phabel\PhpParser\Node\NullableType;
+use Phabel\PhpParser\Node\UnionType;
 final class ClassStorage
 {
     const FILE_KEY = 'ClassStorage:file';
@@ -50,14 +49,14 @@ final class ClassStorage
             foreach ($fileTraits as $file => $trait) {
                 $trait = $trait->build();
                 $this->traits[$name][$file] = $trait;
-                $this->files[$file] = true;
+                $this->files[$file] = \true;
             }
         }
         foreach ($plugin->classes as $name => $fileClasses) {
             foreach ($fileClasses as $file => $class) {
                 $class = $class->build();
                 $this->classes[$name][$file] = $class;
-                $this->files[$file] = true;
+                $this->files[$file] = \true;
             }
         }
     }
@@ -66,7 +65,7 @@ final class ClassStorage
      *
      * @return array<string, true>
      */
-    public function getFiles(): array
+    public function getFiles() : array
     {
         return \array_keys($this->files);
     }
@@ -78,7 +77,7 @@ final class ClassStorage
      *
      * @return Storage
      */
-    public function getClass(string $file, string $name): Storage
+    public function getClass(string $file, string $name) : Storage
     {
         return $this->classes[$name][$file] ?? $this->traits[$name][$file];
     }
@@ -89,7 +88,7 @@ final class ClassStorage
      *
      * @return ?Storage
      */
-    public function getClassByName(string $class): ?Storage
+    public function getClassByName(string $class) : ?Storage
     {
         return \array_values($this->classes[$class] ?? [])[0] ?? null;
     }
@@ -98,7 +97,7 @@ final class ClassStorage
      *
      * @return \Generator<class-string, Storage, null, void>
      */
-    public function getClasses(): \Generator
+    public function getClasses() : \Generator
     {
         foreach ($this->classes as $class => $classes) {
             foreach ($classes as $_ => $storage) {
@@ -106,7 +105,7 @@ final class ClassStorage
             }
         }
     }
-    private static function typeArray($type): array
+    private static function typeArray($type) : array
     {
         if (!(\is_null($type) || $type instanceof Identifier || $type instanceof Name || $type instanceof NullableType || $type instanceof UnionType)) {
             throw new \TypeError(__METHOD__ . '(): Argument #1 ($type) must be of type Identifier|Name|NullableType|UnionType|null, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($type) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -131,7 +130,7 @@ final class ClassStorage
      *
      * @return integer
      */
-    public function compare($typeA, $typeB, Storage $ctxA, Storage $ctxB): int
+    public function compare($typeA, $typeB, Storage $ctxA, Storage $ctxB) : int
     {
         if (!(\is_null($typeA) || $typeA instanceof Identifier || $typeA instanceof Name || $typeA instanceof NullableType || $typeA instanceof UnionType)) {
             throw new \TypeError(__METHOD__ . '(): Argument #1 ($typeA) must be of type Identifier|Name|NullableType|UnionType|null, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($typeA) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
@@ -147,7 +146,7 @@ final class ClassStorage
         if (\count($typeA) + \count($typeB) === 2) {
             $typeA = $typeA[0];
             $typeB = $typeB[0];
-            if ($typeA instanceof Name && $typeB instanceof Name && ($classA = $typeA->parts === ['self'] ? $ctxA : $this->getClassByName(Tools::getFqdn($typeA))) && ($classB = $typeA->parts === ['self'] ? $ctxB : $this->getClassByName(Tools::getFqdn($typeB)))) {
+            if ($typeA instanceof Name && $typeB instanceof Name && ($classA = $typeA->parts === ['self'] ? $ctxA : $this->getClassByName(\Phabel\Tools::getFqdn($typeA))) && ($classB = $typeA->parts === ['self'] ? $ctxB : $this->getClassByName(\Phabel\Tools::getFqdn($typeB)))) {
                 foreach ($classA->getAllChildren() as $child) {
                     if ($child === $classB) {
                         return 1;
