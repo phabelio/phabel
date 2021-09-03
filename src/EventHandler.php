@@ -19,8 +19,16 @@ abstract class EventHandler implements EventHandlerInterface
     public function onBeginAstTraversal(string $file): void
     {
     }
-    public function onEndAstTraversal(string $file, int|\Throwable $iterationsOrError): void
+    public function onEndAstTraversal(string $file, $iterationsOrError): void
     {
+        if (!$iterationsOrError instanceof \Throwable) {
+            if (!\is_int($iterationsOrError)) {
+                if (!(\is_bool($iterationsOrError) || \is_numeric($iterationsOrError))) {
+                    throw new \TypeError(__METHOD__ . '(): Argument #2 ($iterationsOrError) must be of type Throwable|int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($iterationsOrError) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+                }
+                $iterationsOrError = (int) $iterationsOrError;
+            }
+        }
     }
     public function onEndDirectoryTraversal(): void
     {

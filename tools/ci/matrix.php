@@ -7,7 +7,7 @@ $branch = \trim(\shell_exec("git rev-parse --abbrev-ref HEAD"));
 $tag = \trim(\shell_exec("git describe --tags " . \escapeshellarg($commit)));
 $doBuild = true;
 $final = null;
-$tail = \substr($branch, -3);
+$tail = \Phabel\Target\Php80\Polyfill::substr($branch, -3);
 foreach ($php as $version) {
     $version = (string) $version;
     $final = $version[0] . "." . $version[1];
