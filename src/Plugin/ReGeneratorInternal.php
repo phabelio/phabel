@@ -3,10 +3,9 @@
 namespace Phabel\Plugin;
 
 use Phabel\Plugin;
-use PhpParser\Node;
-use PhpParser\Node\FunctionLike;
+use Phabel\PhpParser\Node;
+use Phabel\PhpParser\Node\FunctionLike;
 use SplQueue;
-
 /**
  * Internal regenerator traversor.
  *
@@ -33,11 +32,11 @@ class ReGeneratorInternal extends Plugin
      *
      * @return void
      */
-    private function pushNode(Node $node): void
+    private function pushNode(Node $node) : void
     {
         $this->states->top()->enqueue($node);
     }
-    private function pushState(): int
+    private function pushState() : int
     {
         $this->states->enqueue(new SplQueue());
         return $this->states->count() - 1;
