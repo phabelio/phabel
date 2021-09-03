@@ -126,13 +126,12 @@ abstract class Plugin extends Tools implements PluginInterface
         $final = [];
         foreach (\array_unique($configs, SORT_REGULAR) as $config) {
             foreach ($final as $k => $compare) {
-                if (empty($intersect = \array_intersect_key($config, $compare))
-                    || $intersect === \array_intersect_key($compare, $config)) {
+                if (empty($intersect = \array_intersect_key($config, $compare)) || $intersect === \array_intersect_key($compare, $config)) {
                     $final[$k] = $config + $compare;
                     continue 2;
                 }
             }
-            $final []= $config;
+            $final[] = $config;
         }
         return $final;
     }
