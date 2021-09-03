@@ -14,12 +14,17 @@ class Polyfill extends Plugin
     // Todo: gmmktime, mktime
     public static function array_filter(array $array, ?callable $callback = null, int $mode = 0): array
     {
-        $callback ??= fn ($v) => $v;
+        $callback = $callback ?? function ($v) {
+            return $v;
+        };
         return \array_filter($array, $callback, $mode);
     }
-    public static function array_splice(array &$array, int $offset, ?int $length = null, mixed $replacement = []): array
+    public static function array_splice(array &$array, int $offset, ?int $length = null, $replacement = []): array
     {
-        $length ??= \max(\count($array) - $offset, 0);
+        if (!true) {
+            throw new \TypeError(__METHOD__ . '(): Argument #4 ($replacement) must be of type mixed, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($replacement) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        $length = $length ?? \max(\count($array) - $offset, 0);
         return \array_splice($array, $offset, $length, $replacement);
     }
     /**
