@@ -27,7 +27,7 @@ class CircularException extends \Exception
     public function __construct(array $plugins, \Throwable $previous = null)
     {
         $this->plugins = $plugins;
-        parent::__construct("Detected circular reference: ".\implode(" => ", $plugins), 0, $previous);
+        parent::__construct("Detected circular reference: " . \implode(" => ", $plugins), 0, $previous);
     }
     /**
      * Get plugins.
