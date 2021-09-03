@@ -5,12 +5,11 @@ namespace Phabel\Target\Php70;
 use Phabel\Context;
 use Phabel\Plugin;
 use Phabel\RootNode;
-use PhpParser\Node;
-use PhpParser\Node\Expr\Eval_;
-use PhpParser\Node\Expr\FuncCall;
-use PhpParser\Node\Name;
-use PhpParser\Node\Stmt\Const_;
-
+use Phabel\PhpParser\Node;
+use Phabel\PhpParser\Node\Expr\Eval_;
+use Phabel\PhpParser\Node\Expr\FuncCall;
+use Phabel\PhpParser\Node\Name;
+use Phabel\PhpParser\Node\Stmt\Const_;
 /**
  * Converts define() arrays into const arrays.
  */
@@ -46,10 +45,10 @@ class DefineArrayReplacer extends Plugin
      * @param array $value
      * @return void
      */
-    public static function defineMe(string $name, array $value): void
+    public static function defineMe(string $name, array $value) : void
     {
         $name = \preg_replace("/[^A-Za-z0-9_]/", '', $name);
-        $value = \var_export($value, true);
+        $value = \var_export($value, \true);
         eval("const {$name} = {$value};");
     }
 }
