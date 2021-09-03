@@ -3,11 +3,10 @@
 namespace Phabel\Target\Php71;
 
 use Phabel\Plugin;
-use PhpParser\Node\Expr\Array_;
-use PhpParser\Node\Expr\Assign;
-use PhpParser\Node\Expr\List_;
-use PhpParser\Node\Stmt\Foreach_;
-
+use Phabel\PhpParser\Node\Expr\Array_;
+use Phabel\PhpParser\Node\Expr\Assign;
+use Phabel\PhpParser\Node\Expr\List_;
+use Phabel\PhpParser\Node\Stmt\Foreach_;
 /**
  * Replaces [] array list syntax.
  */
@@ -20,7 +19,7 @@ class ArrayList extends Plugin
      *
      * @return void
      */
-    public function enterForeach(Foreach_ $node): void
+    public function enterForeach(Foreach_ $node) : void
     {
         if ($node->valueVar instanceof Array_) {
             self::replaceTypeInPlace($node->valueVar, List_::class);
@@ -33,7 +32,7 @@ class ArrayList extends Plugin
      *
      * @return void
      */
-    public function enterList(List_ $node): void
+    public function enterList(List_ $node) : void
     {
         foreach ($node->items as $item) {
             if ($item && $item->value instanceof Array_) {
@@ -48,7 +47,7 @@ class ArrayList extends Plugin
      *
      * @return void
      */
-    public function enterAssign(Assign $node): void
+    public function enterAssign(Assign $node) : void
     {
         if ($node->var instanceof Array_) {
             $node->var = new List_($node->var->items);
