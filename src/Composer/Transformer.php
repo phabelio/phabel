@@ -356,9 +356,10 @@ class Transformer
         );
         $traverser->setPluginGraph($graph);
         unset($graph);
-
+        static $lastTry;
         $this->requires = $traverser->getGraph()->getPackages();
-        if (!$this->processedRequires()) {
+        if (!$this->processedRequires() && $lastTry !== $this->requires) {
+            $lastTry = $this->requires;
             if (!$enabled) {
                 unset($traverser);
                 while (\gc_collect_cycles());

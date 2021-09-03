@@ -34,6 +34,10 @@ class ComposerSanitizer extends Plugin
     {
         return \basename($file) === self::FILE_NAME;
     }
+    public function shouldRun(string $package): bool
+    {
+        return true;
+    }
 
     /**
      * Enter file.
