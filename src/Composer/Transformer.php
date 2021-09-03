@@ -25,7 +25,7 @@ class Transformer
     /**
      * IO interface.
      */
-    private IOInterface $io;
+    private $io;
     /**
      * IO interface.
      */
@@ -33,27 +33,27 @@ class Transformer
     /**
      * Version parser.
      */
-    private VersionParser $versionParser;
+    private $versionParser;
     /**
      * Requires.
      */
-    private array $requires = [];
+    private $requires = [];
     /**
      * Whether we processed requirements.
      */
-    private array $processedRequires = [];
+    private $processedRequires = [];
     /**
      * Whether we processed any dependencies.
      */
-    private bool $processed = false;
+    private $processed = false;
     /**
      * Whether a progress bar should be shown.
      */
-    private bool $doProgress = true;
+    private $doProgress = true;
     /**
      * Instance.
      */
-    private static self $instance;
+    private static $instance;
     /**
      * Get singleton.
      *
@@ -61,7 +61,7 @@ class Transformer
      */
     public static function getInstance(IOInterface $io): self
     {
-        self::$instance ??= new self($io);
+        self::$instance = self::$instance ?? new self($io);
         return self::$instance;
     }
     /**
@@ -222,7 +222,7 @@ class Transformer
     public function extractTarget(string $package): array
     {
         if (\str_starts_with($package, self::HEADER)) {
-            [$version, $package] = \explode(self::SEPARATOR, \substr($package, \strlen(self::HEADER)), 2);
+            [$version, $package] = \explode(self::SEPARATOR, \Phabel\Target\Php80\Polyfill::substr($package, \strlen(self::HEADER)), 2);
             return [$package, $version];
         }
         return [$package, Php::TARGET_IGNORE];
@@ -293,7 +293,9 @@ class Transformer
                 $graph->addPlugin(Php::class, $config + $target, $ctx);
             }
         }
-        $traverser = new Traverser(new EventHandler($this->io, $this->doProgress && $this->io instanceof ConsoleIO && !\getenv('CI') && !$this->io->isDebug() ? fn (int $progress) => $this->io->getProgressBar($progress) : null));
+        $traverser = new Traverser(new EventHandler($this->io, $this->doProgress && $this->io instanceof ConsoleIO && !\getenv('CI') && !$this->io->isDebug() ? function (int $progress) {
+            return $this->io->getProgressBar($progress);
+        } : null));
         $traverser->setPluginGraph($graph);
         unset($graph);
         static $lastTry;
