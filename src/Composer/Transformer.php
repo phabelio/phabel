@@ -291,8 +291,6 @@ class Transformer
         $missingDeps = false;
         $byName = [];
         foreach ($packages as $package) {
-            [$name, $target] = $this->extractTarget($package['name']);
-
             $have = [];
             foreach ($package['require'] ?? [] as $name => $version) {
                 [$name] = $this->extractTarget($name);
@@ -306,6 +304,7 @@ class Transformer
                 }
             }
 
+            [$name, $target] = $this->extractTarget($package['name']);
             if ($target === Php::TARGET_IGNORE) {
                 continue;
             }
