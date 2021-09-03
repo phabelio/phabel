@@ -1,3 +1,5 @@
 <?php
 
-\define('PHABEL_INCLUDED', true);
+namespace Phabel;
+
+\define('PHABEL_INCLUDED', \true);
