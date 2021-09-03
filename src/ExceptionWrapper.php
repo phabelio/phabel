@@ -6,7 +6,7 @@ use SplStack;
 
 final class ExceptionWrapper
 {
-    private SplStack $params;
+    private $params;
     public function __construct(\Throwable $e)
     {
         $this->params = new SplStack();
