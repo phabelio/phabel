@@ -2,9 +2,8 @@
 
 namespace Phabel;
 
-use PhpParser\Node;
-use PhpParser\NodeAbstract;
-
+use Phabel\PhpParser\Node;
+use Phabel\PhpParser\NodeAbstract;
 /**
  * Root node.
  *
@@ -24,11 +23,11 @@ class RootNode extends NodeAbstract
         $this->stmts = $stmts;
         parent::__construct($attributes);
     }
-    public function getSubNodeNames(): array
+    public function getSubNodeNames() : array
     {
         return ['stmts'];
     }
-    public function getType(): string
+    public function getType() : string
     {
         return 'rootNode';
     }
