@@ -39,7 +39,6 @@ class PackageContext
         $this->packages += $other->packages;
         return $this;
     }
-
     /**
      * Check if a package is present in the package context.
      *
@@ -51,7 +50,6 @@ class PackageContext
     {
         return isset($this->packages[$package]);
     }
-
     /**
      * Get package list.
      *
