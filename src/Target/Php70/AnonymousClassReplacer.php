@@ -9,19 +9,18 @@ use Phabel\Target\Php70\AnonymousClass\AnonymousClassInterface;
 use Phabel\Target\Php71\NullableType;
 use Phabel\Target\Php74\ArrowClosure;
 use Phabel\Target\Php80\UnionTypeStripper;
-use PhpParser\Builder\Method;
-use PhpParser\Node;
-use PhpParser\Node\Expr\BinaryOp\Concat;
-use PhpParser\Node\Expr\BooleanNot;
-use PhpParser\Node\Expr\ClassConstFetch;
-use PhpParser\Node\Expr\New_;
-use PhpParser\Node\Identifier;
-use PhpParser\Node\Name\FullyQualified;
-use PhpParser\Node\Scalar\String_;
-use PhpParser\Node\Stmt\Class_;
-use PhpParser\Node\Stmt\If_;
-use PhpParser\Node\Stmt\Return_;
-
+use Phabel\PhpParser\Builder\Method;
+use Phabel\PhpParser\Node;
+use Phabel\PhpParser\Node\Expr\BinaryOp\Concat;
+use Phabel\PhpParser\Node\Expr\BooleanNot;
+use Phabel\PhpParser\Node\Expr\ClassConstFetch;
+use Phabel\PhpParser\Node\Expr\New_;
+use Phabel\PhpParser\Node\Identifier;
+use Phabel\PhpParser\Node\Name\FullyQualified;
+use Phabel\PhpParser\Node\Scalar\String_;
+use Phabel\PhpParser\Node\Stmt\Class_;
+use Phabel\PhpParser\Node\Stmt\If_;
+use Phabel\PhpParser\Node\Stmt\Return_;
 /**
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT
@@ -40,7 +39,7 @@ class AnonymousClassReplacer extends Plugin
      *
      * @return void
      */
-    public function enterNew(New_ $node, Context $ctx): void
+    public function enterNew(New_ $node, Context $ctx) : void
     {
         $classNode = $node->class;
         if (!$classNode instanceof Node\Stmt\Class_) {
@@ -80,11 +79,11 @@ class AnonymousClassReplacer extends Plugin
             $ctx->insertBefore($node, $classNode);
         }
     }
-    public static function previous(array $config): array
+    public static function previous(array $config) : array
     {
-        return [ArrowClosure::class, ReturnTypeHints::class, NullableType::class, UnionTypeStripper::class];
+        return [ArrowClosure::class, \Phabel\Target\Php70\ReturnTypeHints::class, NullableType::class, UnionTypeStripper::class];
     }
-    public static function next(array $config): array
+    public static function next(array $config) : array
     {
         return [StringConcatOptimizer::class];
     }
