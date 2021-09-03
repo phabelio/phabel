@@ -79,16 +79,12 @@ class Publish extends Command
 
         $branch = \trim($this->exec(["git", 'rev-parse', '--abbrev-ref', 'HEAD']));
         $stashed = \trim($this->exec(['git', 'stash'])) !== 'No local changes to save';
-
         $output->write("<phabel>Tagging transpiled release <bold>$src.9998</bold>...</phabel>".PHP_EOL);
         $this->prepare($src, "$src.9998", function (array $json): array {
-            $json['phabel'] ??= [];
-            $json['phabel']['extra'] ??= [];
-            $json['phabel']['extra']['require'] = $json['require'];
-            $json['require'] = [
-                'phabel/phabel' => Version::VERSION,
-                'php' => '*'
-            ];
+            $json['extra'] ??= [];
+            $json['extra']['phabel'] ??= [];
+            $json['extra']['phabel']['require'] = $json['require'];
+            $json['require'] = ['phabel/phabel' => Version::VERSION, 'php' => '*'];
             \file_put_contents(ComposerSanitizer::FILE_NAME, ComposerSanitizer::getContents($json['name'] ?? 'phabel'));
             $this->exec(['git', 'add', ComposerSanitizer::FILE_NAME]);
             $json['autoload'] ??= [];
