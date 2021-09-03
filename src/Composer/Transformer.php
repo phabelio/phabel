@@ -299,7 +299,7 @@ class Transformer
 
             foreach ($package['extra']['phabel']['require'] ?? [] as $name => $version) {
                 [$name] = $this->extractTarget($name);
-                if (!isset($have[$name]) || $have[$name] !== $version) {
+                if (!isset($have[$name])) {
                     $missingDeps = true;
                 }
             }
