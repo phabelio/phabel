@@ -156,6 +156,7 @@ class Transformer
         } else {
             $myTarget = Php::normalizeVersion($myTarget);
             $myTarget = \min($myTarget, $target);
+            $newName = $this->injectTarget($newName, $myTarget);
         }
 
         $this->log("Applying ".$package->getName()."=$newName", IOInterface::VERY_VERBOSE);
