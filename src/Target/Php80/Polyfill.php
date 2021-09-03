@@ -21,19 +21,19 @@ class Polyfill extends Plugin
     public static function easter_date(?int $year = null, int $mode = CAL_EASTER_DEFAULT): int
     {
         $year ??= (int) \date('Y');
-        return easter_date($year, $mode);
+        return \easter_date($year, $mode);
     }
 
     public static function easter_days(?int $year = null, int $mode = CAL_EASTER_DEFAULT): int
     {
         $year ??= (int) \date('Y');
-        return easter_days($year, $mode);
+        return \easter_days($year, $mode);
     }
 
     public static function unixtojd(?int $timestamp = null): int|bool
     {
         $timestamp ??= \time();
-        return unixtojd($timestamp);
+        return \unixtojd($timestamp);
     }
 
     public static function date_sunrise(

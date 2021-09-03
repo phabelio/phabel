@@ -156,7 +156,6 @@ class Transformer
         } else {
             $myTarget = Php::normalizeVersion($myTarget);
             $myTarget = \min($myTarget, $target);
-            $newName = $this->injectTarget($newName, $myTarget);
         }
 
         $this->log("Applying ".$package->getName()."=$newName", IOInterface::VERY_VERBOSE);
@@ -292,13 +291,19 @@ class Transformer
         $missingDeps = false;
         $byName = [];
         foreach ($packages as $package) {
+            $config = $package['extra']['phabel'] ?? [];
+            $myTarget = Php::normalizeVersion($config['target'] ?? Php::DEFAULT_TARGET);
+            $havePhabel = false;
             $have = [];
             foreach ($package['require'] ?? [] as $name => $version) {
                 [$name] = $this->extractTarget($name);
                 $have[$name] = $version;
+                if ($name === 'phabel/phabel') {
+                    $havePhabel = true;
+                }
             }
 
-            foreach ($package['extra']['phabel']['require'] ?? [] as $name => $version) {
+            foreach ($config['require'] ?? [] as $name => $version) {
                 [$name] = $this->extractTarget($name);
                 if (!isset($have[$name])) {
                     $missingDeps = true;
@@ -307,10 +312,13 @@ class Transformer
 
             [$name, $target] = $this->extractTarget($package['name']);
             if ($target === Php::TARGET_IGNORE) {
-                continue;
+                if (!$havePhabel) {
+                    continue;
+                }
+                $target = $myTarget;
             }
             $package['phabelTarget'] = (int) $target;
-            $package['phabelConfig'] = [$package['extra']['phabel'] ?? []];
+            $package['phabelConfig'] = [$config];
             unset($package['phabelConfig'][0]['target']);
             $byName[$name] = $package;
         }
