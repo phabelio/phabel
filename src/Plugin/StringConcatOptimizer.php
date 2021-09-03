@@ -35,21 +35,20 @@ class StringConcatOptimizer extends Plugin
         if ($ctx->parents->top() instanceof Concat) {
             return null;
         }
-        $concatQueue = new SplQueue;
+        $concatQueue = new SplQueue();
         $this->enqueue($concat, $concatQueue);
-        $newQueue = new SplQueue;
+        $newQueue = new SplQueue();
         $prevNode = $concatQueue->dequeue();
         while ($concatQueue->count()) {
             $node = $concatQueue->dequeue();
             if ($node instanceof String_ && $prevNode instanceof String_) {
-                $prevNode = new String_($prevNode->value.$node->value);
+                $prevNode = new String_($prevNode->value . $node->value);
             } else {
                 $newQueue->enqueue($prevNode);
                 $prevNode = $node;
             }
         }
         $newQueue->enqueue($prevNode);
-
         if ($newQueue->count() === 1) {
             return $newQueue->dequeue();
         }
