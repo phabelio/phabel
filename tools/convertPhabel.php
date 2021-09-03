@@ -199,10 +199,10 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
 
     if (!$dry) {
         \chdir("../phabelConvertedRepo");
-        commit("phabel.io: add dependencies");
         if ($tag) {
-            r("git tag ".\escapeshellarg("$tag.$target"));
-            r("git push -f origin " . \escapeshellarg("$tag.$target"));
+            commit("phabel.io: add dependencies (tag $tag.$target)");
+        } else {
+            commit("phabel.io: add dependencies");
         }
         r("git push -f origin " . \escapeshellarg("phabel_tmp:{$branch}-{$target}"));
         r("git checkout " . \escapeshellarg($branch));

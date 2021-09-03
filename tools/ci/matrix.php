@@ -5,7 +5,12 @@ $php = require 'versions.php';
 
 $commit = \trim(\shell_exec("git log -1 --pretty=%H"));
 $branch = \trim(\shell_exec("git rev-parse --abbrev-ref HEAD"));
-$tag = \trim(\shell_exec("git describe --tags ".\escapeshellarg($commit)));
+$message = \trim(\shell_exec('git log --format=%B -n 1 '.\escapeshellarg($commit)));
+
+$tag = '';
+if (\preg_match('/[(]tag ([^)]+)[)]/', $message, $matches)) {
+    $tag = $matches[1];
+}
 
 $doBuild = true;
 

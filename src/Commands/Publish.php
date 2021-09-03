@@ -16,6 +16,8 @@ use Symfony\Component\Process\Process;
 
 class Publish extends Command
 {
+    private const PLATFORM_PACKAGE = '{^(?:php(?:-64bit|-ipv6|-zts|-debug)?|hhvm|(?:ext|lib)-[a-z0-9](?:[_.-]?[a-z0-9]+)*|composer-(?:plugin|runtime)-api)$}iD';
+
     protected static $defaultName = 'publish';
 
     private function exec(array $command, bool $ignoreResult = false): string
@@ -81,10 +83,14 @@ class Publish extends Command
         $stashed = \trim($this->exec(['git', 'stash'])) !== 'No local changes to save';
         $output->write("<phabel>Tagging transpiled release <bold>$src.9998</bold>...</phabel>".PHP_EOL);
         $this->prepare($src, "$src.9998", function (array $json): array {
+            $requires = \array_filter($json['require'], fn (string $f) => !\preg_match(self::PLATFORM_PACKAGE, $f), ARRAY_FILTER_USE_KEY);
             $json['extra'] ??= [];
             $json['extra']['phabel'] ??= [];
-            $json['extra']['phabel']['require'] = $json['require'];
-            $json['require'] = ['phabel/phabel' => Version::VERSION, 'php' => '*'];
+            $json['extra']['phabel']['require'] = $requires;
+            $json['require'] = \array_merge(
+                ['phabel/phabel' => Version::VERSION, 'php' => '*'],
+                \array_diff_key($json['require'], $requires)
+            );
             \file_put_contents(ComposerSanitizer::FILE_NAME, ComposerSanitizer::getContents($json['name'] ?? 'phabel'));
             $this->exec(['git', 'add', ComposerSanitizer::FILE_NAME]);
             $json['autoload'] ??= [];
