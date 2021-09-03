@@ -5,8 +5,7 @@ namespace Phabel\Plugin;
 use Phabel\Plugin;
 use Phabel\Target\Php74\ArrowClosure;
 use Phabel\Traverser;
-use PhpParser\Builder\FunctionLike;
-
+use Phabel\PhpParser\Builder\FunctionLike;
 /**
  * Regenerator transformer.
  *
@@ -22,16 +21,16 @@ class ReGenerator extends Plugin
     private Traverser $traverser;
     public function __construct()
     {
-        $this->traverser = Traverser::fromPlugin(new ReGeneratorInternal());
+        $this->traverser = Traverser::fromPlugin(new \Phabel\Plugin\ReGeneratorInternal());
     }
     public function enter(FunctionLike $function)
     {
-        if (!$function->getAttribute(self::SHOULD_ATTRIBUTE, false)) {
+        if (!$function->getAttribute(self::SHOULD_ATTRIBUTE, \false)) {
             return;
         }
         $this->traverser->traverseAst($function);
     }
-    public static function previous(array $config): array
+    public static function previous(array $config) : array
     {
         return [ArrowClosure::class];
     }
