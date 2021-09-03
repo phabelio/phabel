@@ -20,7 +20,6 @@ class Plugins
      * @var array<class-string<PluginInterface>, array[]>
      */
     public array $plugins = [];
-
     /**
      * Constructor.
      *
@@ -31,7 +30,6 @@ class Plugins
     {
         $this->plugins[$plugin] = [$config];
     }
-
     /**
      * Merge with other plugins.
      *
@@ -49,7 +47,6 @@ class Plugins
             }
         }
     }
-
     /**
      * Enqueue plugins.
      *
@@ -63,12 +60,12 @@ class Plugins
             foreach ($plugin::mergeConfigs(...$configs) as $config) {
                 foreach ($plugin::getComposerRequires($config) as $package => $constraint) {
                     $packages[$package] ??= [];
-                    $packages[$package][]= $constraint;
+                    $packages[$package][] = $constraint;
                 }
                 if (PluginCache::isEmpty($plugin)) {
                     continue;
                 }
-                $pluginObj = new $plugin;
+                $pluginObj = new $plugin();
                 $pluginObj->setConfigArray($config);
                 $pluginObj->setPackageContext($ctx);
                 $queue->enqueue($pluginObj);
