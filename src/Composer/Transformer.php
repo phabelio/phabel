@@ -278,7 +278,7 @@ class Transformer
      *
      * @param ?array $lock
      * @param ?array $old
-     * @return bool Whether no more packages should be updated
+     * @return bool Whether any additional packages should be installed or updated
      */
     public function transform(?array $lock, ?array $old): bool
     {
@@ -288,9 +288,24 @@ class Transformer
         $packages = $lock['packages'] ?? [];
 
         $this->log("Creating plugin graph...", IOInterface::VERBOSE);
+        $missingDeps = false;
         $byName = [];
         foreach ($packages as $package) {
             [$name, $target] = $this->extractTarget($package['name']);
+
+            $have = [];
+            foreach ($package['require'] ?? [] as $name => $version) {
+                [$name] = $this->extractTarget($name);
+                $have[$name] = $version;
+            }
+
+            foreach ($package['extra']['phabel']['require'] ?? [] as $name => $version) {
+                [$name] = $this->extractTarget($name);
+                if (!isset($have[$name]) || $have[$name] !== $version) {
+                    $missingDeps = true;
+                }
+            }
+
             if ($target === Php::TARGET_IGNORE) {
                 continue;
             }
@@ -350,13 +365,13 @@ class Transformer
                 while (\gc_collect_cycles());
                 \gc_disable();
             }
-            return false;
+            return true;
         }
         if ($lock && $lock === $old) {
-            return true;
+            return $missingDeps;
         }
         if (!$byName) {
-            return true;
+            return $missingDeps;
         }
 
         $this->banner();
@@ -375,7 +390,7 @@ class Transformer
             while (\gc_collect_cycles());
             \gc_disable();
         }
-        return true;
+        return $missingDeps;
     }
 
     /**

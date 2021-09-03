@@ -117,7 +117,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     private function run(Event $event, bool $isUpdate): void
     {
         $lock = \json_decode(\file_get_contents('composer.lock'), true);
-        if (!$this->transformer->transform($lock, $this->lock)) {
+        if ($this->transformer->transform($lock, $this->lock)) {
             \register_shutdown_function(function () use ($isUpdate) {
                 /** @var Application */
                 $application = ($GLOBALS['application'] ?? null) instanceof Application ? $GLOBALS['application'] : new Application;
