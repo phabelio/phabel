@@ -19,7 +19,7 @@ class ReGenerator extends Plugin
     /**
      * Custom traverser.
      */
-    private Traverser $traverser;
+    private $traverser;
     public function __construct()
     {
         $this->traverser = Traverser::fromPlugin(new ReGeneratorInternal());
