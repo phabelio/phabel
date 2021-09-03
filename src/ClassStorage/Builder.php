@@ -25,25 +25,25 @@ class Builder
      *
      * @psalm-var array<string, ClassMethod>
      */
-    private array $methods = [];
+    private $methods = [];
     /**
      * Abstract method list.
      *
      * @psalm-var array<string, ClassMethod>
      */
-    private array $abstractMethods = [];
+    private $abstractMethods = [];
     /**
      * Extended classes/interfaces.
      *
      * @var array<class-string, Builder|true>
      */
-    private array $extended = [];
+    private $extended = [];
     /**
      * Used classes/interfaces.
      *
      * @var array<trait-string, Builder|true>
      */
-    private array $use = [];
+    private $use = [];
     /**
      * Use aliases.
      *
@@ -51,23 +51,23 @@ class Builder
      *
      * @var array<trait-string, array<string, array{0: trait-string, 1: string}>>
      */
-    private array $useAlias = [];
+    private $useAlias = [];
     /**
      * Whether we're resolving.
      */
-    private bool $resolving = false;
+    private $resolving = false;
     /**
      * Whether we resolved.
      */
-    private bool $resolved = false;
+    private $resolved = false;
     /**
      * Storage.
      */
-    private ?Storage $storage = null;
+    private $storage = null;
     /**
      * Class name.
      */
-    private string $name;
+    private $name;
     /**
      * Constructor.
      *
@@ -96,7 +96,7 @@ class Builder
                     $trait = Tools::getFqdn($adapt->trait ?? $stmt->traits[0]);
                     $method = $adapt->method->name;
                     if ($adapt instanceof Alias) {
-                        $this->useAlias[$trait][$method] = [$trait, $adapt->newName?->name ?? $method];
+                        $this->useAlias[$trait][$method] = [$trait, ($adapt->newName ?? \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->name ?? $method];
                     } elseif ($adapt instanceof Precedence) {
                         foreach ($adapt->insteadof as $name) {
                             $insteadOf = Tools::getFqdn($name);
