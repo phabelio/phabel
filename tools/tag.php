@@ -17,3 +17,4 @@ foreach ($versions as $version) {
     r("git tag $tag.$version");
     r("git push origin $tag.$version");
 }
+r("git checkout master");
