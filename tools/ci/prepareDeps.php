@@ -11,7 +11,7 @@ require 'vendor/autoload.php';
 $branch = \getenv('BRANCH') ?: r("git rev-parse --abbrev-ref HEAD");
 $version = 80;
 if ($branch !== 'master') {
-    $version = \substr($version, -2);
+    $version = \Phabel\Target\Php80\Polyfill::substr($version, -2);
 }
 r("rm -rf ../phabelConvertedVendor");
 $packages = (new Traverser(EventHandler::create()))->setPlugins([Php::class => ['target' => $version]])->setInput('vendor-bin/check/vendor')->setOutput('../phabelConvertedVendor')->setCoverage('coverage/convertVendor.php')->run(\getenv('PHABEL_PARALLEL') ?: 1);
