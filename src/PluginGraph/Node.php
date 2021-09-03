@@ -21,61 +21,61 @@ class Node
      *
      * @var Plugins
      */
-    public Plugins $plugin;
+    public $plugin;
     /**
      * Original plugin name.
      *
      * @var class-string<PluginInterface>
      */
-    private string $name;
+    private $name;
     /**
      * Original plugin name.
      *
      * @var class-string<PluginInterface>
      */
-    private string $nameConcat;
+    private $nameConcat;
     /**
      * Associated package context.
      *
      * @var PackageContext
      */
-    private PackageContext $packageContext;
+    private $packageContext;
     /**
      * Nodes that this node requires.
      *
      * @var SplObjectStorage<Node, null>
      */
-    private SplObjectStorage $requires;
+    private $requires;
     /**
      * Nodes that this node extends.
      *
      * @var SplObjectStorage<Node, null>
      */
-    private SplObjectStorage $extends;
+    private $extends;
     /**
      * Nodes that require this node.
      *
      * @var SplObjectStorage<Node, null>
      */
-    private SplObjectStorage $requiredBy;
+    private $requiredBy;
     /**
      * Nodes that extend this node.
      *
      * @var SplObjectStorage<Node, null>
      */
-    private SplObjectStorage $extendedBy;
+    private $extendedBy;
     /**
      * Graph instance.
      */
-    private GraphInternal $graph;
+    private $graph;
     /**
      * Whether this node was visited when looking for circular requirements.
      */
-    private bool $visitedCircular = false;
+    private $visitedCircular = false;
     /**
      * Whether this node can be required, or only extended.
      */
-    private bool $canBeRequired = true;
+    private $canBeRequired = true;
     /**
      * Constructor.
      *
