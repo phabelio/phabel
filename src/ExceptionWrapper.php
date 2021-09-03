@@ -3,7 +3,6 @@
 namespace Phabel;
 
 use SplStack;
-
 final class ExceptionWrapper
 {
     private $params;
@@ -14,11 +13,11 @@ final class ExceptionWrapper
             $this->params->push([$e->getMessage(), $e->getCode(), $e->getFile(), $e->getLine(), $e->__toString()]);
         } while ($e = $e->getPrevious());
     }
-    public function getException(): Exception
+    public function getException() : \Phabel\Exception
     {
         $previous = null;
         foreach ($this->params as [$message, $code, $file, $line, $trace]) {
-            $previous = new Exception($message, $code, $previous, $file, $line);
+            $previous = new \Phabel\Exception($message, $code, $previous, $file, $line);
             $previous->setTrace($trace);
         }
         return $previous;
