@@ -222,7 +222,7 @@ class Transformer
     public function extractTarget(string $package): array
     {
         if (\str_starts_with($package, self::HEADER)) {
-            [$version, $package] = \explode(self::SEPARATOR, \substr($package, \strlen(self::HEADER)), 2);
+            [$version, $package] = \explode(self::SEPARATOR, \Phabel\Target\Php80\Polyfill::substr($package, \strlen(self::HEADER)), 2);
             return [$package, $version];
         }
         return [$package, Php::TARGET_IGNORE];
