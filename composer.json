@@ -10,17 +10,17 @@
         "symfony/process": "^5",
         "amphp/parallel": "^1.4",
         "psr/log": "^1.0",
-        "ext-json": "*"
+        "ext-json": "*",
+        "symfony/polyfill-php74": "^1.23",
+        "symfony/polyfill-php80": "^1.23"
     },
     "require-dev": {
         "composer/composer": "^1|^2",
         "haydenpierce/class-finder": "^0.4.2",
-        "symfony/polyfill-php80": "^1.23",
         "symfony/polyfill-php70": "*",
         "symfony/polyfill-php71": "^1.19",
         "symfony/polyfill-php72": "^1.23",
         "symfony/polyfill-php73": "^1.23",
-        "symfony/polyfill-php74": "^1.23",
         "bamarni/composer-bin-plugin": "^1.4",
         "ralouphie/getallheaders": "^3|^2"
     },
@@ -28,10 +28,12 @@
         "phabelio/phabel": "self.version"
     },
     "license": "MIT",
-    "authors": [{
-        "name": "Daniil Gentili",
-        "email": "daniil@daniil.it"
-    }],
+    "authors": [
+        {
+            "name": "Daniil Gentili",
+            "email": "daniil@daniil.it"
+        }
+    ],
     "autoload": {
         "psr-4": {
             "Phabel\\": "src"
@@ -80,5 +82,7 @@
     "config": {
         "process-timeout": 0
     },
-    "bin": ["bin/phabel"]
+    "bin": [
+        "bin/phabel"
+    ]
 }
