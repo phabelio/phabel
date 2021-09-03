@@ -33,7 +33,7 @@ class Memoization extends Plugin
      *
      * @var SplStack<null|ArrayDimFetch>
      */
-    private SplStack $cache;
+    private $cache;
     /**
      * Constructor function.
      */
