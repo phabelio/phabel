@@ -18,8 +18,7 @@ class Version
     /**
      * Changelog.
      */
-    public const CHANGELOG = [
-        0 => '<bold>Welcome! You can now use PHP 8 features in your code.</bold>
+    public const CHANGELOG = [0 => '<bold>Welcome! You can now use PHP 8 features in your code.</bold>
 
 <bold>Config recap:</bold>
 <bold>✅</bold> Source PHP version: <phabel>8.0</phabel>
@@ -31,6 +30,5 @@ class Version
 
 <phabel>See https://phabel.io for documentation and more configuration parameters.</phabel>
 <bold>Have fun!</bold>
-',
-    ];
+'];
 }
