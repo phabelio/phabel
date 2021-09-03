@@ -49,24 +49,12 @@ class NullCoalesceReplacer extends Plugin
      */
     public function enter(Coalesce $node, Context $ctx): Ternary
     {
-        if (!Tools::hasSideEffects($workVar = &self::extractWorkVar($node->left))
-            && !isset(DisallowedExpressions::EXPRESSIONS[\get_class($node->left)])
-        ) {
+        if (!Tools::hasSideEffects($workVar =& self::extractWorkVar($node->left)) && !isset(DisallowedExpressions::EXPRESSIONS[\get_class($node->left)])) {
             return new Ternary(new Isset_([$node->left]), $node->left, $node->right);
         }
         $valueCopy = $workVar;
-        $check = new NotIdentical(
-            Tools::fromLiteral(null),
-            new Assign($workVar = $ctx->getVariable(), $valueCopy)
-        );
-        return new Ternary(
-            $node->left === $workVar ? $check : new BooleanAnd(
-                $check,
-                new Isset_([$node->left])
-            ),
-            $node->left,
-            $node->right
-        );
+        $check = new NotIdentical(Tools::fromLiteral(null), new Assign($workVar = $ctx->getVariable(), $valueCopy));
+        return new Ternary($node->left === $workVar ? $check : new BooleanAnd($check, new Isset_([$node->left])), $node->left, $node->right);
     }
     public static function withPrevious(array $config): array
     {
