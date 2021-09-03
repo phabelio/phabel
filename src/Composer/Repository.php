@@ -3,14 +3,13 @@
 namespace Phabel\Composer;
 
 use Composer\Package\PackageInterface;
-
 /**
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT
  */
 trait Repository
 {
-    private Transformer $phabelTransformer;
+    private \Phabel\Composer\Transformer $phabelTransformer;
     /**
      * TODO v3 should make this private once we can drop PHP 5.3 support.
      *
@@ -129,7 +128,7 @@ trait Repository
      *
      * @return self
      */
-    public function setPhabelTransformer(Transformer $phabelTransformer): self
+    public function setPhabelTransformer(\Phabel\Composer\Transformer $phabelTransformer) : self
     {
         $this->phabelTransformer = $phabelTransformer;
         return $this;

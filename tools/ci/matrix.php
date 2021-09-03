@@ -1,21 +1,31 @@
 <?php
 
 $os = ['self-hosted'];
-$php = (require 'versions.php');
+$php = require 'versions.php';
+
 $commit = \trim(\shell_exec("git log -1 --pretty=%H"));
 $branch = \trim(\shell_exec("git rev-parse --abbrev-ref HEAD"));
-$tag = \trim(\shell_exec("git describe --tags " . \escapeshellarg($commit)));
+$tag = \trim(\shell_exec("git describe --tags ".\escapeshellarg($commit)));
+
 $doBuild = true;
+
 $final = null;
 $tail = \substr($branch, -3);
 foreach ($php as $version) {
     $version = (string) $version;
-    $final = $version[0] . "." . $version[1];
-    if ($tail === "-{$version}") {
+    $final = $version[0].".".$version[1];
+    if ($tail === "-$version") {
         $doBuild = false;
         break;
     }
 }
-$matrix = ['os' => $os, 'php' => [$final], 'shouldBuild' => [$doBuild ? 'yes' : 'no'], 'shouldTag' => [$tag]];
+
+$matrix = [
+    'os' => $os,
+    'php' => [$final],
+    'shouldBuild' => [$doBuild ? 'yes' : 'no'],
+    'shouldTag' => [$tag]
+];
 $matrix = \json_encode($matrix);
-echo "::set-output name=matrix::{$matrix}" . PHP_EOL;
+
+echo "::set-output name=matrix::$matrix".PHP_EOL;

@@ -2,10 +2,9 @@
 
 namespace Phabel\Tasks;
 
-use Amp\Parallel\Worker\Environment;
-use Amp\Parallel\Worker\Task;
+use Phabel\Amp\Parallel\Worker\Environment;
+use Phabel\Amp\Parallel\Worker\Task;
 use Phabel\Traverser;
-
 class Shutdown implements Task
 {
     public function run(Environment $environment)
