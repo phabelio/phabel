@@ -26,7 +26,7 @@ class Graph
      */
     public function __construct()
     {
-        $this->graph = new GraphInternal;
+        $this->graph = new GraphInternal();
     }
     /**
      * Get new package context.
@@ -37,7 +37,6 @@ class Graph
     {
         return $this->graph->getPackageContext();
     }
-
     /**
      * Add plugin.
      *
@@ -62,7 +61,8 @@ class Graph
     {
         $this->resolvedGraph ??= new ResolvedGraph(...$this->graph->flatten());
         $this->graph = null;
-        while (\gc_collect_cycles());
+        while (\gc_collect_cycles()) {
+        }
         return $this->resolvedGraph;
     }
 }
