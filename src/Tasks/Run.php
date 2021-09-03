@@ -2,11 +2,10 @@
 
 namespace Phabel\Tasks;
 
-use Amp\Parallel\Worker\Environment;
-use Amp\Parallel\Worker\Task;
+use Phabel\Amp\Parallel\Worker\Environment;
+use Phabel\Amp\Parallel\Worker\Task;
 use Phabel\ExceptionWrapper;
 use Phabel\Traverser;
-
 class Run implements Task
 {
     public function __construct(private string $relative, private string $input, private string $output, private ?string $package, private string $coverage)
