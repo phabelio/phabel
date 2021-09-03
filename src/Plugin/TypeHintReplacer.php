@@ -71,7 +71,7 @@ class TypeHintReplacer extends Plugin
      * @var SplStack
      * @psalm-var SplStack<array{0: self::IGNORE_RETURN|self::VOID_RETURN}|array{0: self::TYPE_RETURN, 1: Node, 2: bool, 3: bool, 4: Node, 5: (callable(Node...): If_)}>
      */
-    private SplStack $stack;
+    private $stack;
     /**
      * Constructor.
      */
@@ -144,7 +144,9 @@ class TypeHintReplacer extends Plugin
     private static function reduceConditions(array $conditions): BooleanNot
     {
         $initial = \array_shift($conditions);
-        return new BooleanNot(empty($conditions) ? $initial : \array_reduce($conditions, fn (Expr $a, Expr $b): BooleanOr => (new BooleanOr($a, $b)), $initial));
+        return new BooleanNot(empty($conditions) ? $initial : \array_reduce($conditions, function (Expr $a, Expr $b): BooleanOr {
+            return new BooleanOr($a, $b);
+        }, $initial));
     }
     /**
      * Generate.
@@ -234,20 +236,26 @@ class TypeHintReplacer extends Plugin
             if (\is_array($condition)) {
                 if ($currentConditions) {
                     $currentConditions = $this->reduceConditions($currentConditions);
-                    $splitConditions[] = fn (Node ...$stmts): If_ => (new If_($currentConditions, ['stmts' => $stmts]));
+                    $splitConditions[] = function (Node ...$stmts) use ($currentConditions): If_ {
+                        return new If_($currentConditions, ['stmts' => $stmts]);
+                    };
                 }
                 $currentConditions = [];
                 [$conditionsStrict, $conditionsLoose, $castLoose] = $condition;
                 $conditionsStrict = new BooleanNot($conditionsStrict);
                 $conditionsLoose = new BooleanNot($conditionsLoose);
-                $splitConditions[] = fn (Node ...$stmts): If_ => (new If_($conditionsStrict, ['stmts' => [new If_($conditionsLoose, ['stmts' => $stmts, 'else' => new Else_([new Expression(new Assign($var, new $castLoose($var)))])])]]));
+                $splitConditions[] = function (Node ...$stmts) use ($conditionsStrict, $conditionsLoose, $var, $castLoose): If_ {
+                    return new If_($conditionsStrict, ['stmts' => [new If_($conditionsLoose, ['stmts' => $stmts, 'else' => new Else_([new Expression(new Assign($var, new $castLoose($var)))])])]]);
+                };
             } else {
                 $currentConditions[] = $condition;
             }
         }
         if ($currentConditions) {
             $currentConditions = $this->reduceConditions($currentConditions);
-            $splitConditions[] = fn (Node ...$stmts): If_ => (new If_($currentConditions, ['stmts' => $stmts]));
+            $splitConditions[] = function (Node ...$stmts) use ($currentConditions): If_ {
+                return new If_($currentConditions, ['stmts' => $stmts]);
+            };
         }
         return [$stringType, function (Node ...$expr) use ($splitConditions): If_ {
             $prev = $expr;
@@ -382,7 +390,7 @@ class TypeHintReplacer extends Plugin
             return $func;
         }
         $ctx->toClosure($func);
-        $this->stack->push([self::TYPE_RETURN, $functionName, $func->returnsByRef(), ...$condition]);
+        $this->stack->push(\array_merge([self::TYPE_RETURN, $functionName, $func->returnsByRef()], $condition));
         $stmts = $func->getStmts();
         $final = \end($stmts);
         if (!$final instanceof Return_) {
