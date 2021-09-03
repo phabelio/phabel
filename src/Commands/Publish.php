@@ -37,7 +37,7 @@ class Publish extends Command
 
     protected function configure(): void
     {
-        $tags = new Process(['git', 'tag']);
+        $tags = new Process(['git', 'tag', '--sort=creatordate']);
         $tags->run();
         $tags = $tags->isSuccessful() ? \array_reverse(\explode("\n", \trim($tags->getOutput()))) : [];
         $tag = null;
@@ -83,6 +83,7 @@ class Publish extends Command
         $stashed = \trim($this->exec(['git', 'stash'])) !== 'No local changes to save';
         $output->write("<phabel>Tagging transpiled release <bold>$src.9998</bold>...</phabel>".PHP_EOL);
         $this->prepare($src, "$src.9998", function (array $json): array {
+            unset($json['require']['php']);
             $requires = \array_filter($json['require'], fn (string $f) => !\preg_match(self::PLATFORM_PACKAGE, $f), ARRAY_FILTER_USE_KEY);
             $json['extra'] ??= [];
             $json['extra']['phabel'] ??= [];
