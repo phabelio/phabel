@@ -28,10 +28,12 @@
         "phabelio/phabel": "self.version"
     },
     "license": "MIT",
-    "authors": [{
-        "name": "Daniil Gentili",
-        "email": "daniil@daniil.it"
-    }],
+    "authors": [
+        {
+            "name": "Daniil Gentili",
+            "email": "daniil@daniil.it"
+        }
+    ],
     "autoload": {
         "psr-4": {
             "Phabel\\": "src"
@@ -80,5 +82,7 @@
     "config": {
         "process-timeout": 0
     },
-    "bin": ["bin/phabel"]
+    "bin": [
+        "bin/phabel"
+    ]
 }
