@@ -10,11 +10,10 @@ use Phabel\ClassStorageProvider;
 use Phabel\Context;
 use Phabel\Plugin;
 use Phabel\RootNode;
-use PhpParser\Builder\Method;
-use PhpParser\Builder\Param;
-use PhpParser\Node\Stmt\ClassLike;
-use PhpParser\Node\Stmt\Trait_;
-
+use Phabel\PhpParser\Builder\Method;
+use Phabel\PhpParser\Builder\Param;
+use Phabel\PhpParser\Node\Stmt\ClassLike;
+use Phabel\PhpParser\Node\Stmt\Trait_;
 final class ClassStoragePlugin extends Plugin
 {
     private const NAME = 'ClassStoragePlugin:name';
@@ -47,9 +46,9 @@ final class ClassStoragePlugin extends Plugin
      *
      * @return boolean
      */
-    public function shouldRun(string $package): bool
+    public function shouldRun(string $package) : bool
     {
-        return true;
+        return \true;
     }
     /**
      * Check if plugin should run.
@@ -58,9 +57,9 @@ final class ClassStoragePlugin extends Plugin
      *
      * @return boolean
      */
-    public function shouldRunFile(string $file): bool
+    public function shouldRunFile(string $file) : bool
     {
-        return true;
+        return \true;
     }
     /**
      * Set configuration array.
@@ -68,7 +67,7 @@ final class ClassStoragePlugin extends Plugin
      * @param array $config
      * @return void
      */
-    public function setConfigArray(array $config): void
+    public function setConfigArray(array $config) : void
     {
         parent::setConfigArray($config);
         $this->finalPlugins += $config;
@@ -79,7 +78,7 @@ final class ClassStoragePlugin extends Plugin
      * @param RootNode $_
      * @return void
      */
-    public function enterRoot(RootNode $_, Context $context): void
+    public function enterRoot(RootNode $_, Context $context) : void
     {
         $file = $context->getFile();
         $this->count[$file] = [];
@@ -101,7 +100,7 @@ final class ClassStoragePlugin extends Plugin
      *
      * @return void
      */
-    public function enter(ClassLike $class, Context $context): void
+    public function enter(ClassLike $class, Context $context) : void
     {
         $file = $context->getFile();
         if ($class->name) {
@@ -121,7 +120,7 @@ final class ClassStoragePlugin extends Plugin
      *
      * @return void
      */
-    public function leave(ClassLike $class, Context $context): void
+    public function leave(ClassLike $class, Context $context) : void
     {
         $file = $context->getFile();
         $name = $class->getAttribute(self::NAME);
@@ -137,7 +136,7 @@ final class ClassStoragePlugin extends Plugin
      * @param self $other
      * @return void
      */
-    public function merge($other): void
+    public function merge($other) : void
     {
         foreach ($other->classes as $class => $classes) {
             foreach ($classes as $file => $builder) {
@@ -162,12 +161,12 @@ final class ClassStoragePlugin extends Plugin
      *
      * @return array{0: array, 1: array<string, true>} Config to pass to new Traverser instance
      */
-    public function finish(): array
+    public function finish() : array
     {
         $storage = new ClassStorage($this);
-        $processedAny = false;
+        $processedAny = \false;
         do {
-            $processed = false;
+            $processed = \false;
             foreach ($this->finalPlugins as $name => $_) {
                 $processed = $name::processClassGraph($storage) || $processed;
             }
