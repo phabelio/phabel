@@ -4,10 +4,9 @@ namespace Phabel\Plugin;
 
 use Phabel\Plugin;
 use Phabel\Traverser;
-use PhpParser\Node;
-use PhpParser\Node\Expr\ClosureUse;
-use PhpParser\Node\Expr\Variable;
-
+use Phabel\PhpParser\Node;
+use Phabel\PhpParser\Node\Expr\ClosureUse;
+use Phabel\PhpParser\Node\Expr\Variable;
 /**
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT
@@ -30,14 +29,14 @@ class VariableFinder extends Plugin
      *
      * @return array<string, ClosureUse>
      */
-    public static function find(Node $ast, bool $byRef = false): array
+    public static function find(Node $ast, bool $byRef = \false) : array
     {
         if (!isset(self::$singleton)) {
             self::$singleton = new self();
             self::$singletonTraverser = Traverser::fromPlugin(self::$singleton);
         }
         self::$singleton->setConfig('byRef', $byRef);
-        self::$singletonTraverser->traverseAst($ast, null, false);
+        self::$singletonTraverser->traverseAst($ast, null, \false);
         return self::$singleton->getFound();
     }
     /**
@@ -61,7 +60,7 @@ class VariableFinder extends Plugin
     public function enter(Variable $var)
     {
         if (\is_string($var->name) && $var->name !== 'this') {
-            $this->found[$var->name] = new ClosureUse($var, $this->getConfig('byRef', false));
+            $this->found[$var->name] = new ClosureUse($var, $this->getConfig('byRef', \false));
         }
     }
     /**
@@ -69,7 +68,7 @@ class VariableFinder extends Plugin
      *
      * @return array<string, ClosureUse>
      */
-    private function getFound(): array
+    private function getFound() : array
     {
         $found = $this->found;
         $this->found = [];
