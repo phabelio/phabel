@@ -462,7 +462,7 @@ class TypeHintReplacer extends Plugin
         $stmts = $func->getStmts();
         $final = \end($stmts);
         if (!$final instanceof Return_) {
-            [, $string, $condition] = $condition;
+            [$string, $condition] = $condition;
 
             $start = new Concat($functionName, new String_("(): Return value must be of type "));
             $start = new Concat($start, $string);
