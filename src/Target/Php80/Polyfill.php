@@ -5,7 +5,6 @@ namespace Phabel\Target\Php80;
 use Phabel\Plugin;
 use Phabel\Target\Polyfill as TargetPolyfill;
 use Phabel\Tools;
-
 if (!\defined('CAL_EASTER_DEFAULT')) {
     \define('CAL_EASTER_DEFAULT', 0);
 }
@@ -16,12 +15,12 @@ if (!\defined('CAL_EASTER_DEFAULT')) {
 class Polyfill extends Plugin
 {
     // Todo: nullability of a bunch of mb_ functions
-    public static function easter_date(?int $year = null, int $mode = CAL_EASTER_DEFAULT): int
+    public static function easter_date(?int $year = null, int $mode = \CAL_EASTER_DEFAULT) : int
     {
         $year = $year ?? (int) \date('Y');
         return \easter_date($year, $mode);
     }
-    public static function easter_days(?int $year = null, int $mode = CAL_EASTER_DEFAULT): int
+    public static function easter_days(?int $year = null, int $mode = \CAL_EASTER_DEFAULT) : int
     {
         $year = $year ?? (int) \date('Y');
         return \easter_days($year, $mode);
@@ -44,7 +43,7 @@ class Polyfill extends Plugin
         }
         return $phabelReturn;
     }
-    public static function date_sunrise(int $timestamp, int $returnFormat = SUNFUNCS_RET_STRING, ?float $latitude = null, ?float $longitude = null, ?float $zenith = null, ?float $utcOffset = null)
+    public static function date_sunrise(int $timestamp, int $returnFormat = \SUNFUNCS_RET_STRING, ?float $latitude = null, ?float $longitude = null, ?float $zenith = null, ?float $utcOffset = null)
     {
         $latitude = $latitude ?? Tools::ini_get('date.default_latitude');
         $longitude = $longitude ?? Tools::ini_get('date.default_longitude');
@@ -77,7 +76,7 @@ class Polyfill extends Plugin
         }
         return $phabelReturn;
     }
-    public static function date_sunset(int $timestamp, int $returnFormat = SUNFUNCS_RET_STRING, ?float $latitude = null, ?float $longitude = null, ?float $zenith = null, ?float $utcOffset = null)
+    public static function date_sunset(int $timestamp, int $returnFormat = \SUNFUNCS_RET_STRING, ?float $latitude = null, ?float $longitude = null, ?float $zenith = null, ?float $utcOffset = null)
     {
         $latitude = $latitude ?? Tools::ini_get('date.default_latitude');
         $longitude = $longitude ?? Tools::ini_get('date.default_longitude');
@@ -110,15 +109,15 @@ class Polyfill extends Plugin
         }
         return $phabelReturn;
     }
-    public static function date(string $format, ?int $timestamp = null): string
+    public static function date(string $format, ?int $timestamp = null) : string
     {
         return \date($format, $timestamp ?? \time());
     }
-    public static function getdate(?int $timestamp = null): array
+    public static function getdate(?int $timestamp = null) : array
     {
         return \getdate($timestamp ?? \time());
     }
-    public static function gmdate(string $format, ?int $timestamp = null): string
+    public static function gmdate(string $format, ?int $timestamp = null) : string
     {
         return \gmdate($format, $timestamp ?? \time());
     }
@@ -156,7 +155,7 @@ class Polyfill extends Plugin
         }
         return $phabelReturn;
     }
-    public static function localtime(?int $timestamp = null, bool $associative = false): array
+    public static function localtime(?int $timestamp = null, bool $associative = \false) : array
     {
         return \localtime($timestamp ?? \time(), $associative);
     }
@@ -194,18 +193,18 @@ class Polyfill extends Plugin
         }
         return $phabelReturn;
     }
-    public static function error_reporting(?int $error_level = null): int
+    public static function error_reporting(?int $error_level = null) : int
     {
         return $error_level === null ? \error_reporting() : \error_reporting($error_level);
     }
-    public static function hash_update_file($context, string $filename, $stream_context = null): bool
+    public static function hash_update_file($context, string $filename, $stream_context = null) : bool
     {
         return $stream_context ? \hash_update_file($context, $filename, $stream_context) : \hash_update_file($context, $filename);
     }
     public static function iconv_mime_decode_headers(string $headers, int $mode = 0, ?string $encoding = null)
     {
         $phabelReturn = \iconv_mime_decode_headers($headers, $mode, $encoding ?? \iconv_get_encoding('internal_encoding'));
-        if (!(\is_array($phabelReturn) || $phabelReturn instanceof false)) {
+        if (!(\is_array($phabelReturn) || $phabelReturn instanceof \Phabel\Target\Php80\false)) {
             throw new \TypeError(__METHOD__ . '(): Return value must be of type false|array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
         }
         return $phabelReturn;
@@ -295,7 +294,7 @@ class Polyfill extends Plugin
         }
         return $phabelReturn;
     }
-    public static function get_resources(?string $type = null): array
+    public static function get_resources(?string $type = null) : array
     {
         return $type === null ? \get_resources() : \get_resources($type);
     }
@@ -316,7 +315,7 @@ class Polyfill extends Plugin
         }
         return $phabelReturn;
     }
-    public static function ignore_user_abort(?bool $enable = null): int
+    public static function ignore_user_abort(?bool $enable = null) : int
     {
         return $enable === null ? \ignore_user_abort() : \ignore_user_abort($enable);
     }
@@ -324,11 +323,11 @@ class Polyfill extends Plugin
     {
         return $timeout === null ? \fsockopen($hostname, $port, $error_code, $error_message) : \fsockopen($hostname, $port, $error_code, $error_message);
     }
-    public static function ob_implicit_flush(bool $flag = true): void
+    public static function ob_implicit_flush(bool $flag = \true) : void
     {
         \ob_implicit_flush((int) $flag);
     }
-    public static function password_hash(string $password, $algo, array $options = []): string
+    public static function password_hash(string $password, $algo, array $options = []) : string
     {
         if (!\is_null($algo)) {
             if (!\is_int($algo)) {
@@ -344,13 +343,13 @@ class Polyfill extends Plugin
                 }
             }
         }
-        return \password_hash($password, $algo ?? PASSWORD_DEFAULT, $options);
+        return \password_hash($password, $algo ?? \PASSWORD_DEFAULT, $options);
     }
-    public static function pcntl_async_signals(?bool $enable = null): bool
+    public static function pcntl_async_signals(?bool $enable = null) : bool
     {
         return $enable === null ? \pcntl_async_signals() : \pcntl_async_signals($enable);
     }
-    public static function pcntl_getpriority(?int $process_id = null, int $mode = PRIO_PROCESS)
+    public static function pcntl_getpriority(?int $process_id = null, int $mode = \PRIO_PROCESS)
     {
         $phabelReturn = \pcntl_getpriority($process_id ?? \getmypid(), $mode);
         if (!\is_bool($phabelReturn)) {
@@ -367,7 +366,7 @@ class Polyfill extends Plugin
         }
         return $phabelReturn;
     }
-    public static function pcntl_setpriority(int $priority, ?int $process_id = null, int $mode = PRIO_PROCESS): bool
+    public static function pcntl_setpriority(int $priority, ?int $process_id = null, int $mode = \PRIO_PROCESS) : bool
     {
         return \pcntl_setpriority($priority, $process_id ?? \getmypid(), $mode);
     }
@@ -395,11 +394,11 @@ class Polyfill extends Plugin
         }
         return $var_name === null && $value === null ? \readline_info() : \readline_info($var_name, $value);
     }
-    public static function readline_read_history(?string $filename = null): bool
+    public static function readline_read_history(?string $filename = null) : bool
     {
         return $filename === null ? \readline_read_history() : \readline_read_history($filename);
     }
-    public static function readline_write_history(?string $filename = null): bool
+    public static function readline_write_history(?string $filename = null) : bool
     {
         return $filename === null ? \readline_read_history() : \readline_write_history($filename);
     }
@@ -505,7 +504,7 @@ class Polyfill extends Plugin
         }
         return $phabelReturn;
     }
-    public static function session_set_cookie_params($lifetime_or_options, ?string $path = null, ?string $domain = null, ?bool $secure = null, ?bool $httponly = null): bool
+    public static function session_set_cookie_params($lifetime_or_options, ?string $path = null, ?string $domain = null, ?bool $secure = null, ?bool $httponly = null) : bool
     {
         if (!\is_array($lifetime_or_options)) {
             if (!\is_int($lifetime_or_options)) {
@@ -517,23 +516,23 @@ class Polyfill extends Plugin
         }
         return \is_array($lifetime_or_options) ? \session_set_cookie_params($lifetime_or_options) : \session_set_cookie_params(\Phabel\Target\Php74\Polyfill::array_filter(['lifetime' => $lifetime_or_options, 'path' => $path, 'domain' => $domain, 'secure' => $secure, 'httponly' => $httponly]));
     }
-    public static function spl_autoload_extensions(?string $file_extensions = null): string
+    public static function spl_autoload_extensions(?string $file_extensions = null) : string
     {
         return $file_extensions === null ? \spl_autoload_extensions() : \spl_autoload_extensions($file_extensions);
     }
-    public static function spl_autoload_register(?callable $callback = null, bool $throw = true, bool $prepend = false): bool
+    public static function spl_autoload_register(?callable $callback = null, bool $throw = \true, bool $prepend = \false) : bool
     {
         return \spl_autoload_register($callback ?? 'spl_autoload', $throw, $prepend);
     }
-    public static function spl_autoload(string $class, ?string $file_extensions = null): void
+    public static function spl_autoload(string $class, ?string $file_extensions = null) : void
     {
         $file_extensions === null ? \spl_autoload($class) : \spl_autoload($class, $file_extensions);
     }
-    public static function html_entity_decode(string $string, int $flags = ENT_COMPAT, ?string $encoding = null): string
+    public static function html_entity_decode(string $string, int $flags = \ENT_COMPAT, ?string $encoding = null) : string
     {
         return \html_entity_decode($string, $flags, $encoding ?? Tools::ini_get('default_charset'));
     }
-    public static function htmlentities(string $string, int $flags = ENT_COMPAT, ?string $encoding = null, bool $double_encode = true): string
+    public static function htmlentities(string $string, int $flags = \ENT_COMPAT, ?string $encoding = null, bool $double_encode = \true) : string
     {
         return \htmlentities($string, $flags, $encoding ?? Tools::ini_get('default_charset'), $double_encode);
     }
@@ -551,11 +550,11 @@ class Polyfill extends Plugin
         }
         return $phabelReturn;
     }
-    public static function strcspn(string $string, string $characters, int $offset = 0, ?int $length = null): int
+    public static function strcspn(string $string, string $characters, int $offset = 0, ?int $length = null) : int
     {
         return $length === null ? \strcspn($string, $characters, $offset) : \strcspn($string, $characters, $offset, $length);
     }
-    public static function strip_tags(string $string, $allowed_tags = null): string
+    public static function strip_tags(string $string, $allowed_tags = null) : string
     {
         if (!(\is_null($allowed_tags) || \is_null($allowed_tags))) {
             if (!\is_string($allowed_tags)) {
@@ -570,15 +569,15 @@ class Polyfill extends Plugin
         }
         return $allowed_tags === null ? \strip_tags($string) : \strip_tags($string, $allowed_tags);
     }
-    public static function strspn(string $string, string $characters, int $offset = 0, ?int $length = null): int
+    public static function strspn(string $string, string $characters, int $offset = 0, ?int $length = null) : int
     {
         return $length === null ? \strspn($string, $characters, $offset) : \strspn($string, $characters, $offset, $length);
     }
-    public static function substr_compare(string $haystack, string $needle, int $offset, ?int $length = null, bool $case_insensitive = false): int
+    public static function substr_compare(string $haystack, string $needle, int $offset, ?int $length = null, bool $case_insensitive = \false) : int
     {
         return \substr_compare($haystack, $needle, $offset, $length ?? \max(\strlen($needle), \strlen($haystack) - ($offset < 0 ? \strlen($haystack) + $offset : $offset)), $case_insensitive);
     }
-    public static function substr_count(string $haystack, string $needle, int $offset = 0, ?int $length = null): int
+    public static function substr_count(string $haystack, string $needle, int $offset = 0, ?int $length = null) : int
     {
         return $length === null ? \substr_count($haystack, $needle, $offset) : \substr_count($haystack, $needle, $offset, $length);
     }
@@ -633,15 +632,15 @@ class Polyfill extends Plugin
         }
         return $phabelReturn;
     }
-    public static function substr(string $string, int $offset, ?int $length = null): string
+    public static function substr(string $string, int $offset, ?int $length = null) : string
     {
         return $length === null ? \substr($string, $offset) : \substr($string, $offset, $length);
     }
     /**
      * {@inheritDoc}
      */
-    public static function withNext(array $config): array
+    public static function withNext(array $config) : array
     {
-        return [TargetPolyfill::class => [self::class => true]];
+        return [TargetPolyfill::class => [self::class => \true]];
     }
 }
