@@ -27,7 +27,7 @@ vendor/bin/phabel publish
 
 ## Supported PHP versions
 
-Source:
+Syntax/feature support:
 * ✅ 8.0+  
 
 Target:
