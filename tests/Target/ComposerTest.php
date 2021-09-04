@@ -92,7 +92,7 @@ class ComposerTest extends TestCase
 
         self::r("git checkout 1.0.0.9998");
         $json = json_decode(file_get_contents('composer.json'), true);
-        $json['require']['phabel/phabel'] = 'dev-master';
+        $json['require']['phabel/phabel'] = "dev-$branch";
         file_put_contents('composer.json', json_encode($json));
         self::r('git commit -am Fix');
         self::r('git tag -d 1.0.0.9998');
