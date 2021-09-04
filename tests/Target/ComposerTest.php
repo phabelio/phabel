@@ -86,8 +86,8 @@ class ComposerTest extends TestCase
         self::r('git commit -m "First commit"');
         self::r('git tag 1.0.0');
 
-        self::r('composer update');
-        self::r('vendor/bin/phabel publish --dry');
+        self::r('php80 $(which composer) update');
+        self::r('php80 vendor/bin/phabel publish --dry');
 
         self::r("git checkout 1.0.0.9998");
         $json = json_decode(file_get_contents('composer.json'), true);
