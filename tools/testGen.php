@@ -9,7 +9,7 @@ require_once 'vendor/autoload.php';
 `rm -rf coverage`;
 $packages = [];
 $packagesSecondary = [];
-foreach ([56, 70, ...Php::VERSIONS] as $version) {
+foreach (\array_merge([56, 70], Php::VERSIONS) as $version) {
     echo "{$version}\n";
     `rm -rf "tests/Target{$version}"`;
     `rm -rf "tests/Target10{$version}"`;
