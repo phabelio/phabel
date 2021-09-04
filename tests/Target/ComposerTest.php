@@ -43,6 +43,7 @@ class ComposerTest extends TestCase
         mkdir('../phabelComposer');
         mkdir('../phabelComposer/test1');
         mkdir('../phabelComposer/test2');
+        $branch = \trim(\shell_exec("git rev-parse --abbrev-ref HEAD"));
         file_put_contents('../phabelComposer/test1/composer.json', json_encode([
             "name" => 'phabel/test1',
             "minimum-stability" => "dev",
@@ -50,7 +51,7 @@ class ComposerTest extends TestCase
                 "php" => ">=8.0"
             ],
             'require-dev' => [
-                'phabel/phabel' => 'dev-master'
+                'phabel/phabel' => "dev-$branch"
             ],
             'autoload' => [
                 'files' => ['./hello.php']
