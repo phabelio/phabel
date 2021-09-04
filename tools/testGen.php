@@ -25,8 +25,6 @@ foreach ([56, 70, ...Php::VERSIONS] as $version) {
         ->setCoverage("test$version")
         ->run(\getenv('PHABEL_PARALLEL') ?: -1);
 
-    unlink("tests/Target$version/ComposerTest.php");
-
     (new Traverser(EventHandler::create()))
         ->setPlugins([
             PhabelTestGenerator::class => ['target' => 1000+$version]
@@ -36,6 +34,7 @@ foreach ([56, 70, ...Php::VERSIONS] as $version) {
         ->setCoverage("test10$version")
         ->run(\getenv('PHABEL_PARALLEL') ?: -1);
     
+    unlink("tests/Target$version/ComposerTest.php");
     if ($version !== Php::VERSIONS[0]) {
         unlink("tests/Target10$version/ComposerTest.php");
     }
