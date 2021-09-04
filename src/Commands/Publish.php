@@ -80,8 +80,8 @@ class Publish extends Command
         $remote = $input->getOption('remote');
         $output->setFormatter(Formatter::getFormatter());
 
+        \trim($this->exec(['git', 'stash']));
         $branch = \trim($this->exec(["git", 'rev-parse', '--abbrev-ref', 'HEAD']));
-        $stashed = \trim($this->exec(['git', 'stash'])) !== 'No local changes to save';
         $output->write("<phabel>Tagging transpiled release <bold>$src.9998</bold>...</phabel>".PHP_EOL);
         $this->prepare($src, "$src.9998", function (array $json): array {
             unset($json['require']['php']);
@@ -105,9 +105,7 @@ class Publish extends Command
         $this->prepare($src, "$src.9999", fn (array $json): array => $json);
 
         $this->exec(['git', 'checkout', $branch]);
-        if ($stashed) {
-            $this->exec(['git', 'stash', 'pop']);
-        }
+        $this->exec(['git', 'stash', 'pop'], true);
 
         if (!$input->getOption('dry')) {
             $output->write("<phabel>Pushing <bold>$src.9998</bold>, <bold>$src.9999</bold> to <bold>$remote</bold>...</phabel>".PHP_EOL);
