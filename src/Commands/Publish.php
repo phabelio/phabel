@@ -37,9 +37,9 @@ class Publish extends Command
 
     protected function configure(): void
     {
-        $tags = new Process(['git', 'tag', '--sort=creatordate']);
+        $tags = new Process(['git', 'tag', '--sort=-creatordate']);
         $tags->run();
-        $tags = $tags->isSuccessful() ? \array_reverse(\explode("\n", \trim($tags->getOutput()))) : [];
+        $tags = $tags->isSuccessful() ? \explode("\n", \trim($tags->getOutput())) : [];
         $tag = null;
         foreach ($tags as $tag) {
             if (!\str_contains($this->getMessage($tag), 'Release transpiled using https://phabel.io')) {
