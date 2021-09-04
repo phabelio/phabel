@@ -52,6 +52,7 @@ class Publish extends Command
             ->setHelp('This command transpiles the specified (or the latest) git tag.')
 
             ->addOption("remote", 'r', InputOption::VALUE_OPTIONAL, 'Remote where to push tags', 'origin')
+            ->addOption('dry', 'd', InputOption::VALUE_NEGATABLE, "Whether to skip pushing tags to any remote", false)
             ->addArgument('source', $tag ? InputArgument::OPTIONAL : InputArgument::REQUIRED, 'Source tag name', $tag);
     }
 
@@ -108,8 +109,10 @@ class Publish extends Command
             $this->exec(['git', 'stash', 'pop']);
         }
 
-        $output->write("<phabel>Pushing <bold>$src.9998</bold>, <bold>$src.9999</bold> to <bold>$remote</bold>...</phabel>".PHP_EOL);
-        $this->exec(['git', 'push', $remote, "$src.9998", "$src.9999"]);
+        if (!$input->getOption('dry')) {
+            $output->write("<phabel>Pushing <bold>$src.9998</bold>, <bold>$src.9999</bold> to <bold>$remote</bold>...</phabel>".PHP_EOL);
+            $this->exec(['git', 'push', $remote, "$src.9998", "$src.9999"]);
+        }
 
         $output->write("<phabel>Done!</phabel>
 <phabel>Tell users to require <bold>^$src</bold> in their <bold>composer.json</bold> to automatically load the correct transpiled version!</phabel>
