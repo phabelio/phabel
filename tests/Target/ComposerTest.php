@@ -1,6 +1,6 @@
 <?php
 
-namespace PhabelTest\Composer;
+namespace PhabelTest\Target;
 
 use PHPUnit\Framework\TestCase;
 
