@@ -330,7 +330,7 @@ class Transformer
                     if (PlatformRepository::isPlatformPackage($subName)) {
                         continue;
                     }
-                    [$subName] = $this->extractTarget($subName);
+                    [$subName, $target] = $this->extractTarget($subName);
                     if ($target === Php::TARGET_IGNORE) {
                         continue;
                     }
