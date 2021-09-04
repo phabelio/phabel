@@ -109,10 +109,6 @@ class ComposerTest extends TestCase
 
     private function testRequire(string $branch, bool $cleanup = true): void
     {
-        if ($branch === '1.0.0.9999' && PHP_MAJOR_VERSION < 8) {
-            $this->assertTrue(true);
-            return;
-        }
         $this->backToCwd();
         chdir('../phabelComposer/test2/');
         $this->r("composer require phabel/test1:$branch");
@@ -124,6 +120,10 @@ class ComposerTest extends TestCase
     }
     private function testRequireFull(string $branch): void
     {
+        if ($branch === '1.0.0.9999' && PHP_MAJOR_VERSION < 8) {
+            $this->assertTrue(true);
+            return;
+        }
         $this->echo("Add phabel, remove phabel");
         $this->testRequire($branch);
 
