@@ -29,7 +29,7 @@ jobs:
       matrix: ${{fromJson(needs.prepare.outputs.matrix)}}
     name: PHP ${{ matrix.php }} Test on ${{ matrix.os }}
     env:
-      shouldBuild: ${{ matrix.shouldBuild == 'yes' && matrix.php == '8.0' }}
+      shouldBuild: ${{ matrix.shouldBuild }}
       shouldTag: ${{ matrix.shouldTag }}
       PHP_CS_FIXER_IGNORE_ENV: 1
     steps:
@@ -77,11 +77,11 @@ jobs:
           php vendor/bin/phpunit
 
       - name: Convert phabel
-        if: ${{ env.shouldBuild == 'true' }}
+        if: ${{ env.shouldBuild != '' }}
         run: |
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "Github Actions"
-          php tools/convertPhabel.php all
+          php tools/convertPhabel.php $shouldBuild
 
       - name: Tag phabel
         if: ${{ env.shouldTag != '' && github.ref != 'refs/heads/master' }}

@@ -28,7 +28,7 @@ foreach ($php as $version) {
 $matrix = [
     'os' => $os,
     'php' => [$final],
-    'shouldBuild' => [$doBuild ? 'yes' : 'no'],
+    'shouldBuild' => $doBuild ? [$php] : [''],
     'shouldTag' => [$tag]
 ];
 $matrix = \json_encode($matrix);
