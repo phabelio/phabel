@@ -1,4 +1,4 @@
-# Phabel ![phabel.io](https://phabel.io/badge)
+# Phabel [![phabel.io - PHP transpiler](https://phabel.io/badge)](https://phabel.io)
 
 **Write and deploy modern PHP 8 code, today.**
 
