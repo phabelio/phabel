@@ -10,10 +10,22 @@ use Phabel\ClassStorageProvider;
 use Phabel\Context;
 use Phabel\Plugin;
 use Phabel\RootNode;
+use PhpParser\Builder\Class_;
 use PhpParser\Builder\Method;
 use PhpParser\Builder\Param;
+use PhpParser\BuilderHelpers;
+use PhpParser\Node;
+use PhpParser\Node\Name;
+use PhpParser\Node\Name\FullyQualified;
+use PhpParser\Node\Stmt\Class_ as StmtClass_;
 use PhpParser\Node\Stmt\ClassLike;
+use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Trait_;
+use PhpParser\Node\UnionType;
+use ReflectionClass;
+use ReflectionNamedType;
+use ReflectionType;
+use ReflectionUnionType;
 
 final class ClassStoragePlugin extends Plugin
 {
@@ -77,6 +89,27 @@ final class ClassStoragePlugin extends Plugin
         $this->finalPlugins += $config;
     }
 
+    private function normalizeType(string $type): Node
+    {
+        $result = BuilderHelpers::normalizeType($type);
+        if ($result instanceof Name) {
+            return new FullyQualified((string) $result);
+        }
+        return $result;
+    }
+    private function buildType(ReflectionType $type): Node
+    {
+        if ($type instanceof ReflectionNamedType) {
+            return $this->normalizeType($type->getName());
+        } elseif ($type instanceof ReflectionUnionType) {
+            $types = [];
+            foreach ($type->getTypes() as $type) {
+                $types []= $this->normalizeType($type->getName());
+            }
+            return new UnionType($types);
+        }
+        return $this->normalizeType((string) $type);
+    }
     /**
      * Enter file.
      *
@@ -171,6 +204,78 @@ final class ClassStoragePlugin extends Plugin
      */
     public function finish(): array
     {
+        foreach (\get_declared_classes() as $class) {
+            $class = new ReflectionClass($class);
+            if ($class->isInternal()) {
+                $builder = new Class_($class->getName());
+                $methods = [];
+                foreach ($class->getMethods() as $method) {
+                    if ($method->isPrivate()) {
+                        $visibility = StmtClass_::MODIFIER_PRIVATE;
+                    } elseif ($method->isProtected()) {
+                        $visibility = StmtClass_::MODIFIER_PROTECTED;
+                    } else {
+                        $visibility = StmtClass_::MODIFIER_PUBLIC;
+                    }
+                    if ($method->isFinal()) {
+                        $visibility |= StmtClass_::MODIFIER_FINAL;
+                    }
+                    if ($method->isAbstract()) {
+                        $visibility |= StmtClass_::MODIFIER_ABSTRACT;
+                    }
+                    $params = [];
+                    foreach ($method->getParameters() as $param) {
+                        $paramBuilder = new Param($param->name);
+                        if ($param->isVariadic()) {
+                            $paramBuilder->makeVariadic();
+                        }
+                        if ($param->isPassedByReference()) {
+                            $paramBuilder->makeByRef();
+                        }
+                        if ($param->isOptional()) {
+                            try {
+                                $paramBuilder->setDefault($param->getDefaultValue());
+                            } catch (\Throwable $e) {
+                            }
+                        }
+                        if ($param->hasType()) {
+                            $paramBuilder->setType($this->buildType($param->getType()));
+                        }
+                        $params []= $paramBuilder->getNode();
+                    }
+                    $b = [
+                        'flags' => $visibility,
+                        'byRef' => $method->returnsReference(),
+                        'name' => $method->getName(),
+                        'params' => $params
+                    ];
+                    if ($method->hasReturnType()) {
+                        $b['returnType'] = $this->buildType($method->getReturnType());
+                    }
+                    $methods []= new ClassMethod($method->getName(), $b);
+                }
+                $classBuilder = new Class_($class->getName());
+                $classBuilder->addStmts($methods);
+                if ($class->isFinal()) {
+                    $classBuilder->makeFinal();
+                }
+                if ($class->isAbstract()) {
+                    $classBuilder->makeAbstract();
+                }
+                foreach ($class->getInterfaces() as $interface) {
+                    $classBuilder->implement($this->normalizeType($interface->getName()));
+                }
+                $name = $this->normalizeType($class->getName());
+                foreach (\get_declared_classes() as $sub) {
+                    if (\is_subclass_of($sub, $class->getName())) {
+                        $classBuilder->extend($this->normalizeType($sub));
+                    }
+                }
+                $node = $classBuilder->getNode();
+                $node->setAttribute(ClassStorage::FILE_KEY, '_');
+                $this->classes[$class->getName()]['_'] = new Builder($node, $class->getName());
+            }
+        }
         $storage = new ClassStorage($this);
         $processedAny = false;
         do {

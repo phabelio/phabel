@@ -7,7 +7,6 @@ use Phabel\ClassStorage\Storage;
 use Phabel\ClassStorageProvider;
 use Phabel\Plugin\TypeHintReplacer;
 use PhpParser\Node\Stmt\Class_;
-use PhpParser\Node\Stmt\ClassMethod;
 use SplStack;
 
 /**
@@ -39,7 +38,6 @@ class TypeContravariance extends ClassStorageProvider
             // Can widen type in inherited methods
             foreach ($class->getMethods() as $name => $method) {
                 if ($name === '__construct') {
-                    /** @var ClassMethod */
                     foreach ($class->getOverriddenMethods($name) as $childMethod) {
                         if (
                             ($method->isPublic() && ($childMethod->isProtected() || $childMethod->isPrivate())) ||

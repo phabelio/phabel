@@ -73,6 +73,7 @@ final class ClassStorage
      */
     public function getFiles(): array
     {
+        unset($this->files['_']);
         return \array_keys($this->files);
     }
 
