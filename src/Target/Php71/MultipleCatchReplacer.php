@@ -3,8 +3,7 @@
 namespace Phabel\Target\Php71;
 
 use Phabel\Plugin;
-use PhpParser\Node\Stmt\TryCatch;
-
+use Phabel\PhpParser\Node\Stmt\TryCatch;
 /**
  * Replace compound catches.
  */
@@ -19,7 +18,7 @@ class MultipleCatchReplacer extends Plugin
      *
      * @return void
      */
-    public function leave(TryCatch $node): void
+    public function leave(TryCatch $node) : void
     {
         $catches = [];
         foreach ($node->catches as $catch) {

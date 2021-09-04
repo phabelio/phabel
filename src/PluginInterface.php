@@ -3,7 +3,6 @@
 namespace Phabel;
 
 use Phabel\PluginGraph\PackageContext;
-
 /**
  * Plugin interface.
  *
@@ -19,7 +18,7 @@ interface PluginInterface
      *
      * @psalm-return class-string<PluginInterface>[]|array<class-string<PluginInterface>, array>
      */
-    public static function previous(array $config): array;
+    public static function previous(array $config) : array;
     /**
      * Specify which plugins should run after this plugin.
      *
@@ -32,7 +31,7 @@ interface PluginInterface
      *
      * @psalm-return class-string<PluginInterface>[]|array<class-string<PluginInterface>, array>
      */
-    public static function next(array $config): array;
+    public static function next(array $config) : array;
     /**
      * Specify which plugins should run before, possibly with this plugin.
      *
@@ -44,7 +43,7 @@ interface PluginInterface
      *
      * @psalm-return class-string<PluginInterface>[]|array<class-string<PluginInterface>, array>
      */
-    public static function withPrevious(array $config): array;
+    public static function withPrevious(array $config) : array;
     /**
      * Specify which plugins should run after, possibly with this plugin.
      *
@@ -52,13 +51,13 @@ interface PluginInterface
      *
      * @psalm-return class-string<PluginInterface>[]|array<class-string<PluginInterface>, array>
      */
-    public static function withNext(array $config): array;
+    public static function withNext(array $config) : array;
     /**
      * Specify a list of composer dependencies.
      *
      * @return array
      */
-    public static function getComposerRequires(array $config): array;
+    public static function getComposerRequires(array $config) : array;
     /**
      * Set configuration array.
      *
@@ -66,7 +65,7 @@ interface PluginInterface
      *
      * @return void
      */
-    public function setConfigArray(array $config): void;
+    public function setConfigArray(array $config) : void;
     /**
      * Set package context.
      *
@@ -74,13 +73,13 @@ interface PluginInterface
      *
      * @return void
      */
-    public function setPackageContext(PackageContext $ctx): void;
+    public function setPackageContext(PackageContext $ctx) : void;
     /**
      * Get package context.
      *
      * @return PackageContext
      */
-    public function getPackageContext(): PackageContext;
+    public function getPackageContext() : PackageContext;
     /**
      * Check if plugin should run.
      *
@@ -88,7 +87,7 @@ interface PluginInterface
      *
      * @return boolean
      */
-    public function shouldRun(string $package): bool;
+    public function shouldRun(string $package) : bool;
     /**
      * Check if plugin should run.
      *
@@ -96,7 +95,7 @@ interface PluginInterface
      *
      * @return boolean
      */
-    public function shouldRunFile(string $file): bool;
+    public function shouldRunFile(string $file) : bool;
     /**
      * Get configuration key.
      *
@@ -114,7 +113,7 @@ interface PluginInterface
      *
      * @return void
      */
-    public function setConfig(string $key, $value): void;
+    public function setConfig(string $key, $value) : void;
     /**
      * Check if has configuration key.
      *
@@ -122,7 +121,7 @@ interface PluginInterface
      *
      * @return mixed
      */
-    public function hasConfig(string $key): bool;
+    public function hasConfig(string $key) : bool;
     /**
      * Merge multiple configurations into one (or more).
      *
@@ -130,7 +129,7 @@ interface PluginInterface
      *
      * @return array[]
      */
-    public static function mergeConfigs(array ...$configs): array;
+    public static function mergeConfigs(array ...$configs) : array;
     /**
      * Split configuration.
      *
@@ -141,5 +140,5 @@ interface PluginInterface
      *
      * @return array[]
      */
-    public static function splitConfig(array $config): array;
+    public static function splitConfig(array $config) : array;
 }
