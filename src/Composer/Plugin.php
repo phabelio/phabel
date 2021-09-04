@@ -11,6 +11,7 @@ use Composer\Plugin\PluginInterface;
 use Composer\Repository\PlatformRepository;
 use Composer\Script\Event;
 use Composer\Script\ScriptEvents;
+use Phabel\Target\Php;
 use Phabel\Tools;
 use Phabel\Version;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -47,7 +48,9 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         }
 
         $rootPackage = $composer->getPackage();
-        $this->transformer = Transformer::getInstance($io);
+        $php = $rootPackage->getConfig()['platform']['php'] ?? Php::DEFAULT_TARGET;
+        $php = Php::normalizeVersion($php);
+        $this->transformer = Transformer::getInstance($io, $php);
         $this->transformer->preparePackage($rootPackage, $rootPackage->getName());
         foreach ($rootPackage->getRequires() as $link) {
             if (PlatformRepository::isPlatformPackage($link->getTarget())) {

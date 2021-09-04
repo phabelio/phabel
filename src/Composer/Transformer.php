@@ -25,10 +25,6 @@ class Transformer
     /**
      * IO interface.
      */
-    private IOInterface $io;
-    /**
-     * IO interface.
-     */
     private $outputFormatter;
 
     /**
@@ -60,9 +56,9 @@ class Transformer
      *
      * @return self
      */
-    public static function getInstance(IOInterface $io): self
+    public static function getInstance(IOInterface $io, int $version): self
     {
-        self::$instance ??= new self($io);
+        self::$instance ??= new self($io, $version);
         return self::$instance;
     }
     /**
@@ -70,11 +66,9 @@ class Transformer
      *
      * @param IOInterface $io
      */
-    private function __construct(IOInterface $io)
+    private function __construct(private IOInterface $io, private int $version)
     {
-        $this->io = $io;
         $this->versionParser = new VersionParser;
-
         $this->outputFormatter = Formatter::getFormatter();
     }
 
@@ -132,7 +126,7 @@ class Transformer
          * @var array
          */
         $config = $package->getExtra()['phabel'] ?? [];
-        $myTarget = Php::normalizeVersion($config['target'] ?? Php::DEFAULT_TARGET);
+        $myTarget = Php::normalizeVersion($config['target'] ?? $this->version);
         $havePhabel = false;
         foreach ($package->getRequires() as $link) {
             [$name] = $this->extractTarget($link->getTarget());
@@ -292,7 +286,7 @@ class Transformer
         $byName = [];
         foreach ($packages as $package) {
             $config = $package['extra']['phabel'] ?? [];
-            $myTarget = Php::normalizeVersion($config['target'] ?? Php::DEFAULT_TARGET);
+            $myTarget = Php::normalizeVersion($config['target'] ?? $this->version);
             $havePhabel = false;
             $have = [];
             foreach ($package['require'] ?? [] as $name => $version) {
