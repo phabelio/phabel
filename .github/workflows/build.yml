@@ -24,9 +24,9 @@ jobs:
         run: php tools/ci/matrix.php
   run:
     needs: prepare
-    runs-on: ${{ matrix.os }}
     strategy:
       matrix: ${{fromJson(needs.prepare.outputs.matrix)}}
+    runs-on: ${{ matrix.os }}
     name: PHP ${{ matrix.php }} Test on ${{ matrix.os }}
     env:
       shouldBuild: ${{ matrix.shouldBuild }}
