@@ -1,4 +1,4 @@
-# Phabel
+# Phabel ![phabel.io](https://phabel.io/badge)
 
 **Write and deploy modern PHP 8 code, today.**
 
@@ -22,7 +22,8 @@ You can now publish your packagist package, and it will be automatically transpi
 vendor/bin/phabel publish
 ```
 
-💡 Your PHP 7 users can now install your PHP 8 library 💡
+💡 Your PHP 7 users can now install your PHP 8 library 💡  
+💡 **All your dependencies will also be transpiled to the correct PHP version.** 💡
 
 ## Supported PHP versions
 
