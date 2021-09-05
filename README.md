@@ -29,7 +29,7 @@ vendor/bin/phabel publish
 
 Syntax/feature support:
 * ✅ 8.0+  
-* [async/await syntax](#async-await-syntax)
+* [async/await syntax](#asyncawait-syntax)
 
 Target:
 * ✅ 7.1+  
@@ -50,7 +50,7 @@ Parallelize your code, using native `async/await` syntax and the [async Amp libr
 
 This example uses the [amphp/file](https://github.com/amphp/file) library:  
 
-```
+```php
 <?php
 
 // Write and read three files on your filesystem, in parallel
