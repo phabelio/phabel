@@ -162,7 +162,8 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
         'composer-plugin-api' => $json['require']['composer-plugin-api'],
     ];
     $json['require-dev'] = [
-        'bamarni/composer-bin-plugin' => $json['require-dev']['bamarni/composer-bin-plugin']
+        'bamarni/composer-bin-plugin' => $json['require-dev']['bamarni/composer-bin-plugin'],
+        'amphp/file' => $json['require-dev']['amphp/file']
     ];
 
     foreach ($lock['packages'] as $package) {

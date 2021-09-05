@@ -85,7 +85,7 @@ class Publish extends Command
         $output->write("<phabel>Tagging transpiled release <bold>$src.9998</bold>...</phabel>".PHP_EOL);
         $this->prepare($src, "$src.9998", function (array $json): array {
             unset($json['require']['php']);
-            unset($json['require']['ext-await']);
+
             $requires = \array_filter($json['require'], fn (string $f) => !\preg_match(self::PLATFORM_PACKAGE, $f), ARRAY_FILTER_USE_KEY);
             $json['extra'] ??= [];
             $json['extra']['phabel'] ??= [];
