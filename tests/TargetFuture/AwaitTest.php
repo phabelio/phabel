@@ -17,8 +17,8 @@ class AwaitTest extends TestCase
         [$contents, $true] = wait(call(function () {
             return await [
                 // Executed in parallel, using https://amphp.org
-                Amp\File\read(__FILE__),
-                Amp\File\isDirectory(__DIR__),
+                \Amp\File\read(__FILE__),
+                \Amp\File\isDirectory(__DIR__),
             ];
         }));
         $this->assertEquals(file_get_contents(__FILE__), $contents);

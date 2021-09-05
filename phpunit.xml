@@ -34,6 +34,14 @@
       <directory phpVersion="7.1">tests/Target1071</directory>
       <directory phpVersion="7.0">tests/Target1070</directory>
       <directory phpVersion="5.6">tests/Target1056</directory>
+
+      <directory phpVersion="8.0">tests/Target80Future</directory>
+      <directory phpVersion="7.4">tests/Target74Future</directory>
+      <directory phpVersion="7.3">tests/Target73Future</directory>
+      <directory phpVersion="7.2">tests/Target72Future</directory>
+      <directory phpVersion="7.1">tests/Target71Future</directory>
+      <directory phpVersion="7.0">tests/Target70Future</directory>
+      <directory phpVersion="5.6">tests/Target56Future</directory>
     </testsuite>
   </testsuites>
 </phpunit>
