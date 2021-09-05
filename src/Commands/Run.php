@@ -20,7 +20,7 @@ class Run extends Command
 
     protected function configure(): void
     {
-        $target = \getenv('PHABEL_TARGET') ?: null;
+        $target = \getenv('PHABEL_TARGET') ?: Php::DEFAULT_TARGET;
         $coverage = \getenv('PHABEL_COVERAGE') ?: false;
         $parallel = \getenv('PHABEL_PARALLEL') ?: 1;
 
@@ -62,12 +62,10 @@ class Run extends Command
             ->setCoverage($input->getOption('coverage') ?: '')
             ->run($input->getOption('parallel'));
 
+        unset($packages['php']);
         if (!empty($packages)) {
             $cmd = "composer require --dev ";
             foreach ($packages as $package => $constraint) {
-                if ($package === 'php') {
-                    continue;
-                }
                 $cmd .= \escapeshellarg("$package:$constraint")." ";
             }
             $output->write("Please run the following command to install required development dependencies:".PHP_EOL.PHP_EOL);

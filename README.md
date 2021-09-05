@@ -29,6 +29,7 @@ vendor/bin/phabel publish
 
 Syntax/feature support:
 * ✅ 8.0+  
+* [async/await syntax](#async-await-syntax)
 
 Target:
 * ✅ 7.1+  
@@ -38,4 +39,51 @@ Target:
 **No additional commands are required to add support for older versions**: just `composer update` 😄
 
 
+## Async/await syntax
+
+Phabel also supports `async/await` syntax, powered by [Amp](https://amphp.org).  
+Parallelize your code, using native `async/await` syntax and the [async Amp libraries](https://github.com/amphp) for fully concurrent networking, I/O, database access in pure, native PHP!  
+
+### Examples
+
+#### File I/O
+
+This example uses the [amphp/file](https://github.com/amphp/file) library:  
+
+```
+<?php
+
+// Write and read three files on your filesystem, in parallel
+// Async/await syntax powered by phabel.io
+// Concurrency powered by amphp.org
+
+require 'vendor/autoload.php';
+
+use Amp\Loop;
+use function Amp\File\read;
+use function Amp\File\write;
+
+Loop::run(function () {
+    // This is done in parallel!
+    await [
+        write('file1', 'contents1'),
+        write('file2', 'contents2'),
+        write('file3', 'contents3'),
+    ];
+
+    // This is also done in parallel!
+    var_dump(await [
+        read('file1'),
+        read('file2'),
+        read('file3'),
+    ]);
+});
+```
+
+You can publish this code as a Composer package and [have it automatically transpile on installation](#usage), or even transpile it manually:  
+```bash
+composer require amphp/file phabel/phabel
+vendor/bin/phabel run input.php output.php
+php output.php
+```
 

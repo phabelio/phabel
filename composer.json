@@ -22,7 +22,8 @@
         "symfony/polyfill-php73": "^1.23",
         "symfony/polyfill-php74": "^1.23",
         "bamarni/composer-bin-plugin": "^1.4",
-        "ralouphie/getallheaders": "^3|^2"
+        "ralouphie/getallheaders": "^3|^2",
+        "amphp/file": "^2.0"
     },
     "provide": {
         "phabelio/phabel": "self.version"

@@ -16,11 +16,11 @@ class PhabelTestGenerator extends Plugin
 {
     private function tryReplace(string $in): string
     {
-        return \preg_replace("~PhabelTest(\\\\+)Target\d*~", 'PhabelTest$1Target'.$this->getConfig('target', ''), $in);
+        return \preg_replace("~PhabelTest(\\\\+)Target(?:Future)?\d*~", 'PhabelTest$1Target'.$this->getConfig('target', ''), $in);
     }
     public function enter(Name $name): ?Name
     {
-        if (\preg_match("~PhabelTest\\\\+Target\d*~", $name->toString())) {
+        if (\preg_match("~PhabelTest\\\\+Target(?:Future)?\d*~", $name->toString())) {
             $class = \get_class($name);
             return new $class($this->tryReplace($name->toString()));
         }
@@ -28,7 +28,7 @@ class PhabelTestGenerator extends Plugin
     }
     public function enterLiteral(String_ $str): ?String_
     {
-        if (\preg_match("~PhabelTest\\\\+Target\d*~", $str->value)) {
+        if (\preg_match("~PhabelTest\\\\+Target(?:Future)?\d*~", $str->value)) {
             return new String_($this->tryReplace($str->value));
         }
         return null;

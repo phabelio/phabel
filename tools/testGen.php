@@ -38,6 +38,15 @@ foreach ([56, 70, ...Php::VERSIONS] as $version) {
     if ($version !== Php::VERSIONS[0]) {
         \unlink("tests/Target10$version/ComposerTest.php");
     }
+
+    (new Traverser(EventHandler::create()))
+        ->setPlugins([
+            PhabelTestGenerator::class => ['target' => 1000+$version]
+        ])
+        ->setInput("tests/TargetFuture")
+        ->setOutput("tests/Target{$version}Future")
+        ->setCoverage("testFuture$version")
+        ->run(\getenv('PHABEL_PARALLEL') ?: -1);
 }
 
 unset($packages['php']);
