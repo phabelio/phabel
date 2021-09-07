@@ -1,3 +1,5 @@
 <?php
 
-\define('PHABEL_INCLUDED', true);
+if (!defined('PHABEL_INCLUDED')) {
+    \define('PHABEL_INCLUDED', true);
+}
