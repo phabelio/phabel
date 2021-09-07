@@ -89,6 +89,7 @@ class ComposerTest extends TestCase
 
         self::r('composer update --ignore-platform-reqs');
         self::r('vendor/bin/phabel publish --dry');
+        self::r('git reset --hard');
 
         self::r("git checkout 1.0.0.9998");
         $json = json_decode(file_get_contents('composer.json'), true);
