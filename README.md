@@ -6,6 +6,11 @@ This is a transpiler that allows native usage of PHP 8+ features and especially 
 
 The transpiler seamlessly hooks into composer to transpile the package (and all dependencies down the current branch of the dependency tree!) on installation, on the user's machine, targeting the user's specific PHP version.
 
+Syntax/feature support:
+* ✅ 8.0+  
+* [async/await syntax](#asyncawait-syntax)
+* Psalm-compatible generics coming soon :D
+
 Created by [Daniil Gentili](https://daniil.it)
 
 ## Usage
