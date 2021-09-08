@@ -99,16 +99,14 @@ class Php extends Plugin
     }
     public static function getComposerRequires(array $config): array
     {
-        if (str_starts_with(Node::class, 'Phabel')) {
-            return [
-                'phabel/phabel' => Version::VERSION
-            ];
-        }
         $target = Php::normalizeVersion($config['target'] ?? self::DEFAULT_TARGET);
         $res = [
             'php' => '>='.Php::unnormalizeVersion($target).' <'.Php::unnormalizeVersion($target+1),
             'phabel/phabel' => Version::VERSION
         ];
+        if (str_starts_with(Node::class, 'Phabel')) {
+            return $res;
+        }
         foreach (self::getRange($target) as $version) {
             $version = "symfony/polyfill-php$version";
             $res[$version] = self::POLYFILL_VERSIONS[$version];
