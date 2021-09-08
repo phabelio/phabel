@@ -133,11 +133,11 @@ An example, say you have this `composer.json`:
 }
 ```
 
-Note that `new-php8-package` only supports PHP 8.0+, and old-php7-package supports PHP 7.0+.  
+Note that `new-php8-package` only supports PHP 8.0+, and `old-php7-package` supports PHP 7.0+.  
 
-Here's what happens when a user requires `^tag` on:
-* PHP 8.0, the unprocessed commit @ `tag.9999` is installed.  
-* PHP 7 (or lower versions), `tag.9998` is loaded, instead, triggering Phabel's composer plugin, which:  
+Here's what happens when a user requires `phabel/package:^tag` on:
+* PHP 8.0: the unprocessed commit @ `tag.9999` is installed.  
+* PHP 7 (or lower versions): `tag.9998` is loaded, triggering Phabel's composer plugin, which:  
   * Transpiles `phabel/package` towards PHP 7.
   * Recursively transpiles `vendor/new-php8-package` and all its dependencies.
   * Composer still takes care of dependency and requirement resolution, so transpilation only occurs when there is no other choice.  
@@ -152,7 +152,7 @@ vendor/bin/phabel publish [options] [--] [<source>]
 ```
 
 Arguments:
-* `source` - **Optional** source tag name, defaults to the newest tag.
+* `source` - *Optional* source tag name, defaults to the newest tag.
 
 Options:
 * `-r, --remote[=REMOTE]` - Remote where to push tags, defaults to the upstream of the current branch.
@@ -178,6 +178,5 @@ Arguments:
 * `output` - Output path
 
 Options:
-* `--target[=TARGET]` - Target PHP version [default: Lowest PHP version supported by Phabel]
-* `--coverage[=COVERAGE]` - PHP coverage path [default: false]
-* `-j, --parallel[=PARALLEL]` - _Experimental:_ Number of threads to use for transpilation [default: 1]
+* `--target[=TARGET]` - Target PHP version, defaults to the lowest PHP version supported by Phabel
+* `-j, --parallel[=PARALLEL]` - _Experimental:_ Number of threads to use for transpilation, 1 by default
