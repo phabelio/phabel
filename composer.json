@@ -50,6 +50,9 @@
         "class": "Phabel\\Composer\\Plugin",
         "plugin-modifies-downloads": true
     },
+    "archive": {
+        "exclude": ["/tests", "/testsGenerated"]
+    },
     "scripts": {
         "typeHintGen": "php80 tools/typeHintGen.php",
         "exprGen": "@php tools/exprGen.php",

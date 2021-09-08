@@ -645,6 +645,9 @@ class Traverser
         if ($newQueue->count()) {
             $reducedQueue->enqueue($newQueue);
         } elseif (!$reducedQueue->count()) {
+            if (\realpath($input) !== \realpath($output)) {
+                \copy($input, $output);
+            }
             $this->eventHandler?->onEndAstTraversal($input, 0);
             return 0;
         }

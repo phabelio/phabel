@@ -14,7 +14,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class Run extends Command
+class Run extends BaseCommand
 {
     protected static $defaultName = 'run';
 
@@ -31,6 +31,7 @@ class Run extends Command
             ->addOption('target', null, $target ? InputOption::VALUE_OPTIONAL : InputOption::VALUE_REQUIRED, 'Target PHP version', $target)
             ->addOption('coverage', null, InputOption::VALUE_OPTIONAL, 'PHP coverage path', $coverage)
             ->addOption('parallel', 'j', InputOption::VALUE_OPTIONAL, 'Number of threads to use for transpilation', $parallel)
+            ->addOption('install', 'i', InputOption::VALUE_NEGATABLE, 'Whether to install required dependencies automatically', true)
 
             ->addArgument('input', InputArgument::REQUIRED, 'Input path')
             ->addArgument('output', InputArgument::REQUIRED, 'Output path');
@@ -64,12 +65,21 @@ class Run extends Command
 
         unset($packages['php']);
         if (!empty($packages)) {
-            $cmd = "composer require --dev ";
-            foreach ($packages as $package => $constraint) {
-                $cmd .= \escapeshellarg("$package:$constraint")." ";
+            if ($input->getOption('install') && is_dir($input->getArgument('output'))) {
+                chdir($input->getArgument('output'));
+                $cmd = ['composer', 'require'];
+                foreach ($packages as $package => $constraint) {
+                    $cmd []= "$package:$constraint";
+                }
+                $this->exec($cmd);
+            } else {
+                $cmd = "composer require ";
+                foreach ($packages as $package => $constraint) {
+                    $cmd .= \escapeshellarg("$package:$constraint")." ";
+                }
+                $output->write("Please run the following command to install required dependencies:".PHP_EOL.PHP_EOL);
+                $output->write("<bold>$cmd</bold>".PHP_EOL.PHP_EOL);
             }
-            $output->write("Please run the following command to install required development dependencies:".PHP_EOL.PHP_EOL);
-            $output->write("<bold>$cmd</bold>".PHP_EOL.PHP_EOL);
         }
 
         return Command::SUCCESS;

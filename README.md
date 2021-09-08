@@ -179,4 +179,12 @@ Arguments:
 
 Options:
 * `--target[=TARGET]` - Target PHP version, defaults to the lowest PHP version supported by Phabel
+* `-i, --install|--no-install` - Whether to install required dependencies automatically
 * `-j, --parallel[=PARALLEL]` - _Experimental:_ Number of threads to use for transpilation, 1 by default
+
+
+## Projects using phabel
+
+[Ping us](https://github.com/phabelio/phabel/issues/new) if you want your project to be added to this list!
+
+* [MadelineProto](https://github.com/danog/MadelineProto)

@@ -14,21 +14,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
-class Publish extends Command
+class Publish extends BaseCommand
 {
     private const PLATFORM_PACKAGE = '{^(?:php(?:-64bit|-ipv6|-zts|-debug)?|hhvm|(?:ext|lib)-[a-z0-9](?:[_.-]?[a-z0-9]+)*|composer-(?:plugin|runtime)-api)$}iD';
 
     protected static $defaultName = 'publish';
-
-    private function exec(array $command, bool $ignoreResult = false): string
-    {
-        $proc = new Process($command);
-        $proc->run();
-        if (!$proc->isSuccessful() && !$ignoreResult) {
-            throw new ProcessFailedException($proc);
-        }
-        return $proc->getOutput();
-    }
 
     private function getMessage(string $ref): string
     {

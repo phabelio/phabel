@@ -78,6 +78,17 @@ final class ClassStorage
     }
 
     /**
+     * Check if a file should be processed.
+     *
+     * @param string $file
+     * @return boolean
+     */
+    public function hasFile(string $file): bool
+    {
+        return isset($this->files[$file]);
+    }
+
+    /**
      * Get class.
      *
      * @param string $file File name

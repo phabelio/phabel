@@ -8,6 +8,7 @@ use Phabel\Plugin\IssetExpressionFixer as fixer;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\PropertyFetch;
 use PhpParser\Node\Expr\Variable;
+use PhpParser\Node\Param;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Expression;
 use PhpParser\Node\Stmt\Property;
@@ -20,11 +21,11 @@ class ConstructorPromotion extends Plugin
 {
     public function enter(ClassMethod $classMethod, Context $ctx): void
     {
-        if (\strtolower($classMethod->name) !== '__construct') {
+        if (\strtolower($classMethod->name) !== '__construct' || $classMethod->stmts === null) {
             return;
         }
         foreach ($classMethod->params as $param) {
-            if ($param->flags) {
+            if ($param->flags && $param->var instanceof Param) {
                 $ctx->insertAfter(
                     $classMethod,
                     new Property(

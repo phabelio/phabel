@@ -74,7 +74,7 @@ final class ClassStoragePlugin extends Plugin
      */
     public function shouldRunFile(string $file): bool
     {
-        return true;
+        return !str_contains($file, 'vendor'.DIRECTORY_SEPARATOR.'composer'.DIRECTORY_SEPARATOR);
     }
 
     /**
