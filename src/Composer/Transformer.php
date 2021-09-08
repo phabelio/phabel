@@ -361,6 +361,7 @@ class Transformer
         unset($graph);
         static $lastTry;
         $this->requires = $traverser->getGraph()->getPackages();
+        unset($this->requires['phabel/phabel']);
         if (!$this->processedRequires() && $lastTry !== $this->requires) {
             $lastTry = $this->requires;
             if (!$enabled) {

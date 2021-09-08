@@ -4,6 +4,7 @@ namespace Phabel\Target\Php73;
 
 use Phabel\Plugin;
 use Phabel\Target\Polyfill as TargetPolyfill;
+use PhpParser\Node;
 
 /**
  * @author Daniil Gentili <daniil@daniil.it>
@@ -17,6 +18,9 @@ class Polyfill extends Plugin
 
     public static function getComposerRequires(array $config): array
     {
+        if (str_starts_with(Node::class, 'Phabel')) {
+            return [];
+        }
         return ['ralouphie/getallheaders' => '^3|^2'];
     }
 

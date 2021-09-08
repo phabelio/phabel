@@ -8,6 +8,7 @@ use Phabel\Plugin;
 use Phabel\Target\Php;
 use Phabel\Target\Polyfill as TargetPolyfill;
 use Phabel\Tools;
+use PhpParser\Node;
 use Throwable;
 use ValueError;
 
@@ -38,6 +39,9 @@ class Polyfill extends Plugin
      */
     public static function getComposerRequires(array $config): array
     {
+        if (str_starts_with(Node::class, 'Phabel')) {
+            return [];
+        }
         return [
             'symfony/polyfill-php72' => Php::POLYFILL_VERSIONS['symfony/polyfill-php72']
         ];

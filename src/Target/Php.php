@@ -7,6 +7,8 @@ use Phabel\Plugin\ComposerSanitizer;
 use Phabel\Plugin\NewFixer;
 use Phabel\Plugin\StmtExprWrapper;
 use Phabel\PluginInterface;
+use Phabel\Version;
+use PhpParser\Node;
 
 /**
  * Makes changes necessary to polyfill syntaxes of various PHP versions.
@@ -97,9 +99,15 @@ class Php extends Plugin
     }
     public static function getComposerRequires(array $config): array
     {
+        if (str_starts_with(Node::class, 'Phabel')) {
+            return [
+                'phabel/phabel' => Version::VERSION
+            ];
+        }
         $target = Php::normalizeVersion($config['target'] ?? self::DEFAULT_TARGET);
         $res = [
-            'php' => '>='.Php::unnormalizeVersion($target).' <'.Php::unnormalizeVersion($target+1)
+            'php' => '>='.Php::unnormalizeVersion($target).' <'.Php::unnormalizeVersion($target+1),
+            'phabel/phabel' => Version::VERSION
         ];
         foreach (self::getRange($target) as $version) {
             $version = "symfony/polyfill-php$version";
