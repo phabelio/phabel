@@ -48,14 +48,3 @@ foreach ([56, 70, ...Php::VERSIONS] as $version) {
         ->setCoverage("testFuture$version")
         ->run(\getenv('PHABEL_PARALLEL') ?: -1);
 }
-
-unset($packages['php']);
-
-if (!empty($packages)) {
-    $cmd = "composer require --dev ";
-    foreach ($packages as $package => $constraint) {
-        $cmd .= \escapeshellarg("$package:$constraint")." ";
-    }
-    echo("Running $cmd...".PHP_EOL);
-    \passthru($cmd);
-}

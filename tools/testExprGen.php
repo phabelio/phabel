@@ -65,15 +65,6 @@ foreach (Php::VERSIONS as $version) {
         ->runAsync();
 }
 
-if (!empty($packages)) {
-    $cmd = "composer require --dev ";
-    foreach ($packages as $package => $constraint) {
-        $cmd .= \escapeshellarg("$package:$constraint")." ";
-    }
-    echo("Running $cmd...".PHP_EOL);
-    \passthru($cmd);
-}
-
 $binary = PHP_SAPI === 'phpdbg' ? PHP_BINARY." -qrr" : PHP_BINARY;
 
 $current = (int) (PHP_MAJOR_VERSION.PHP_MINOR_VERSION);
