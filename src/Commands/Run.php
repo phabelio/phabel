@@ -7,6 +7,7 @@ use Phabel\Cli\Formatter;
 use Phabel\Cli\SimpleConsoleLogger;
 use Phabel\Target\Php;
 use Phabel\Traverser;
+use Phabel\Version;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
@@ -63,6 +64,7 @@ class Run extends BaseCommand
             ->setCoverage($input->getOption('coverage') ?: '')
             ->run($input->getOption('parallel'));
 
+        $packages = ['phabel/phabel' => Version::VERSION];
         unset($packages['php']);
         if (!empty($packages)) {
             if ($input->getOption('install') && \is_dir($input->getArgument('output'))) {

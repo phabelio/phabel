@@ -72,6 +72,7 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
     \chdir("../phabelConvertedInput");
     r("rm -rf vendor-bin/*/vendor");
     if (!empty($packages)) {
+        unset($packages['phabel/phabel']);
         $json = \json_decode(\file_get_contents('composer.json'), true);
         foreach ($packages as $package => $constraint) {
             if ($package === 'php') {
