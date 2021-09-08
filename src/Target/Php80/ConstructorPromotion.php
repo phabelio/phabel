@@ -8,7 +8,6 @@ use Phabel\Plugin\IssetExpressionFixer as fixer;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\PropertyFetch;
 use PhpParser\Node\Expr\Variable;
-use PhpParser\Node\Param;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Expression;
 use PhpParser\Node\Stmt\Property;
@@ -25,7 +24,7 @@ class ConstructorPromotion extends Plugin
             return;
         }
         foreach ($classMethod->params as $param) {
-            if ($param->flags && $param->var instanceof Param) {
+            if ($param->flags && $param->var instanceof Variable) {
                 $ctx->insertAfter(
                     $classMethod,
                     new Property(

@@ -65,8 +65,8 @@ class Run extends BaseCommand
 
         unset($packages['php']);
         if (!empty($packages)) {
-            if ($input->getOption('install') && is_dir($input->getArgument('output'))) {
-                chdir($input->getArgument('output'));
+            if ($input->getOption('install') && \is_dir($input->getArgument('output'))) {
+                \chdir($input->getArgument('output'));
                 $cmd = ['composer', 'require'];
                 foreach ($packages as $package => $constraint) {
                     $cmd []= "$package:$constraint";
