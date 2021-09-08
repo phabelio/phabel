@@ -20,7 +20,7 @@ class Run extends Command
 
     protected function configure(): void
     {
-        $target = \getenv('PHABEL_TARGET') ?: Php::DEFAULT_TARGET;
+        $target = \getenv('PHABEL_TARGET') ?: Php::VERSIONS[0];
         $coverage = \getenv('PHABEL_COVERAGE') ?: false;
         $parallel = \getenv('PHABEL_PARALLEL') ?: 1;
 

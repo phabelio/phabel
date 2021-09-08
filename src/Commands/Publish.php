@@ -56,7 +56,7 @@ class Publish extends Command
             ->addArgument('source', $tag ? InputArgument::OPTIONAL : InputArgument::REQUIRED, 'Source tag name', $tag);
     }
 
-    private function prepare(string $src, string $dest, callable $cb): void
+    private function prepare(string $src, string $dest, ?callable $cb = null): void
     {
         $this->exec(['git', 'checkout', $src]);
         $message = $this->getMessage($src);
@@ -65,11 +65,13 @@ class Publish extends Command
             throw new Exception("composer.json doesn't exist!");
         }
 
-        $json = \json_decode(\file_get_contents('composer.json'), true);
-        $json = $cb($json);
-        \file_put_contents('composer.json', \json_encode($json, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES));
+        if ($cb) {
+            $json = \json_decode(\file_get_contents('composer.json'), true);
+            $json = $cb($json);
+            \file_put_contents('composer.json', \json_encode($json, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES));
+            $this->exec(['git', 'commit', '-am', $message."\nRelease transpiled using https://phabel.io, the PHP transpiler"], true);
+        }
 
-        $this->exec(['git', 'commit', '-am', $message."\nRelease transpiled using https://phabel.io, the PHP transpiler"]);
         $this->exec(['git', 'tag', '-d', $dest], true);
         $this->exec(['git', 'tag', $dest]);
     }
@@ -103,7 +105,7 @@ class Publish extends Command
         });
 
         $output->write("<phabel>Tagging original release as <bold>$src.9999</bold>...</phabel>".PHP_EOL);
-        $this->prepare($src, "$src.9999", fn (array $json): array => $json);
+        $this->prepare($src, "$src.9999");
 
         $this->exec(['git', 'checkout', $branch]);
         $this->exec(['git', 'stash', 'pop'], true);

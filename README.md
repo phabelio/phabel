@@ -44,12 +44,13 @@ Target:
 **No additional commands are required to add support for older versions**: just `composer update` 😄
 
 
-## Async/await syntax
+## Examples
+
+### Async/await syntax
 
 Phabel also supports `async/await` syntax, powered by [Amp](https://amphp.org).  
 Parallelize your code, using native `async/await` syntax and the [async Amp libraries](https://github.com/amphp) for fully concurrent networking, I/O, database access in pure, native PHP!  
 
-### Examples
 
 #### File I/O
 
@@ -92,3 +93,91 @@ vendor/bin/phabel run input.php output.php
 php output.php
 ```
 
+
+## CLI API
+
+When you run:  
+```
+composer require --dev phabel/phabel
+```
+
+Phabel automatically edits composer.json, adding some configuration parameters, and raising the minimum supported PHP version to `8.0`.  
+
+Then, the following commands are available:
+
+### `publish`
+
+Publishes a transpiled version of your package+dependencies.  
+
+💡 Your PHP 7 users can now install your PHP 8 library 💡  
+💡 **All your dependencies will also be transpiled to the correct PHP version.** 💡
+
+Internally, this command takes the newest (or provided) git tag, and then creates+pushes two subtags:  
+* `tag.9999` - Points to exactly the same commit as `tag`.
+* `tag.9998` - A new commit based on `tag`, with some changes to `composer.json`.
+
+An example, say you have this `composer.json`:  
+```json
+{
+    "name": "phabel/package",
+    "description": "An example package.",
+    "type": "project",
+    "require": {
+        "php": ">=8.0",
+        "vendor/new-php8-package": "^1",
+        "vendor/old-php7-package": "^1"
+    },
+    "require-dev": {
+        "phabel/phabel": "^1"
+    }
+}
+```
+
+Note that `new-php8-package` only supports PHP 8.0+, and old-php7-package supports PHP 7.0+.  
+
+Here's what happens when a user requires `^tag` on:
+* PHP 8.0, the unprocessed commit @ `tag.9999` is installed.  
+* PHP 7 (or lower versions), `tag.9998` is loaded, instead, triggering Phabel's composer plugin, which:  
+  * Transpiles `phabel/package` towards PHP 7.
+  * Recursively transpiles `vendor/new-php8-package` and all its dependencies.
+  * Composer still takes care of dependency and requirement resolution, so transpilation only occurs when there is no other choice.  
+  * All dependencies in the `vendor` folder are checked for [covariance and contravariance](https://www.php.net/manual/en/language.oop5.variance.php) conflicts, which are immediately resolved.  
+
+
+Note that as phabel adds support for lower and lower PHP versions, your package will automatically gain support for those versions, too, no need to republish it!  
+
+#### Usage:
+```bash
+vendor/bin/phabel publish [options] [--] [<source>]
+```
+
+Arguments:
+* `source` - **Optional** source tag name, defaults to the newest tag.
+
+Options:
+* `-r, --remote[=REMOTE]` - Remote where to push tags, defaults to the upstream of the current branch.
+* `-d, --dry|--no-dry` - Whether to skip pushing tags to any remote.
+
+
+### `run`
+
+This commands simply transpiles the specified file or directory towards the specified PHP version.   
+This command is useful for playing around with phabel, or creating a transpiled phar file.  
+Always make sure to also transpile the `vendor` directory when creating a phar, to automatically resolve [covariance and contravariance](https://www.php.net/manual/en/language.oop5.variance.php) conflicts.  
+
+[`publish`](#publish) is a much simpler version of this command, which automatically transpiles the package (and all dependencies!) upon Composer installation.  
+
+#### Usage:
+
+```bash
+vendor/bin/phabel run [options] [--] <input> <output>
+```
+
+Arguments:
+* `input` - Input path
+* `output` - Output path
+
+Options:
+* `--target[=TARGET]` - Target PHP version [default: Lowest PHP version supported by Phabel]
+* `--coverage[=COVERAGE]` - PHP coverage path [default: false]
+* `-j, --parallel[=PARALLEL]` - _Experimental:_ Number of threads to use for transpilation [default: 1]
