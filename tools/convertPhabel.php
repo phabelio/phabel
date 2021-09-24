@@ -142,11 +142,11 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
 
     \file_put_contents(
         'src/Composer/Plugin.php',
-        \str_replace('Phabel\\Symfony', 'Symfony', \file_get_contents('src/Composer/Plugin.php'))
+        \str_replace('PhabelVendor\\Symfony', 'Symfony', \file_get_contents('src/Composer/Plugin.php'))
     );
 
     \rename("vendor", "vendor-bundle");
-    r("find src -type f -exec sed 's/\\\\Phabel\\\\self/self/g' -i {} +");
+    r("find src -type f -exec sed 's/\\\\PhabelVendor\\\\self/self/g' -i {} +");
 
     \file_put_contents('vendor-bundle/autoload.php', <<<PHP
         <?php
@@ -178,7 +178,7 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
 
         foreach (['psr-4', 'psr-0'] as $type) {
             foreach ($package['autoload'][$type] ?? [] as $namespace => $path) {
-                $namespace = \str_starts_with($namespace, 'Symfony\\Polyfill') ? $namespace : "Phabel\\$namespace";
+                $namespace = \str_starts_with($namespace, 'Symfony\\Polyfill') ? $namespace : "PhabelVendor\\$namespace";
                 $paths = \is_string($path) ? [$path] : $path;
                 $paths = \array_map(fn ($path) => "vendor-bundle/$name/$path", $paths);
                 $json['autoload'][$type][$namespace] = $paths;
