@@ -31,6 +31,7 @@ use PhpParser\Node\Param;
 use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\Node\Stmt\Else_;
 use PhpParser\Node\Stmt\Expression;
+use PhpParser\Node\Stmt\Foreach_;
 use PhpParser\Node\Stmt\If_;
 use PhpParser\NodeVisitor\NameResolver;
 use PhpParser\PrettyPrinter\Standard;
@@ -149,6 +150,11 @@ class Context
             $this->variables->push(new VariableContext($variables));
         } elseif ($node instanceof Assign || $node instanceof AssignOp || $node instanceof AssignRef) {
             $this->populateVars($node->var);
+        } elseif ($node instanceof Foreach_) {
+            if ($node->keyVar) {
+                $this->populateVars($node->keyVar);
+            }
+            $this->populateVars($node->valueVar);
         } elseif ($node instanceof MethodCall || $node instanceof StaticCall || $node instanceof FuncCall) {
             // Cover reference parameters
             foreach ($node->args as $argument) {

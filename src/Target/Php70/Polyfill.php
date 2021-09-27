@@ -39,7 +39,7 @@ class Polyfill extends Plugin
      */
     public static function getComposerRequires(array $config): array
     {
-        if (str_starts_with(Node::class, 'Phabel')) {
+        if (\str_starts_with(Node::class, 'Phabel')) {
             return [];
         }
         return [

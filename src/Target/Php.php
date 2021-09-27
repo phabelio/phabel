@@ -104,7 +104,7 @@ class Php extends Plugin
             'php' => '>='.Php::unnormalizeVersion($target).' <'.Php::unnormalizeVersion($target+1),
             'phabel/phabel' => Version::VERSION
         ];
-        if (str_starts_with(Node::class, 'Phabel')) {
+        if (\str_starts_with(Node::class, 'Phabel')) {
             return $res;
         }
         foreach (self::getRange($target) as $version) {

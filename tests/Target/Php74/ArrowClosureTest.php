@@ -23,5 +23,10 @@ class ArrowClosureTest extends TestCase
 
         $this->assertEquals($this, (fn () => $this)());
         $this->assertFalse((static fn (): bool => isset($this))());
+        
+        foreach (['test'] as $v) {
+            $f = fn () => $v;
+            $this->assertEquals('test', $f());
+        }
     }
 }
