@@ -16,5 +16,7 @@ class MixedTypeTest extends TestCase
         $this->assertEquals(123, (fn (): mixed => 123)());
         $this->assertEquals(123.123, (fn (): mixed => 123.123)());
         $this->assertEquals(null, (fn (): mixed => null)());
+        $this->assertEquals(false, (fn (): string|false => false)());
+        $this->assertEquals("", (fn (): string|false => "")());
     }
 }

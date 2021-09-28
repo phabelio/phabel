@@ -10,6 +10,9 @@ $message = \trim(\shell_exec('git log --format=%B -n 1 '.\escapeshellarg($commit
 $tag = '';
 if (\preg_match('/[(]tag ([^)]+)[)]/', $message, $matches)) {
     $tag = $matches[1];
+} elseif (\str_ends_with(\trim($message), 'tag)')) {
+    $tag = \explode("\n", \trim(\shell_exec("git tag --sort=-creatordate")))[0];
+    $tag = \preg_replace('/\.\d+$/', '', $tag);
 }
 
 $doBuild = true;

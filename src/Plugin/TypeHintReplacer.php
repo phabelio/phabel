@@ -15,6 +15,7 @@ use PhpParser\Node\Expr\AssignRef;
 use PhpParser\Node\Expr\BinaryOp\BooleanAnd;
 use PhpParser\Node\Expr\BinaryOp\BooleanOr;
 use PhpParser\Node\Expr\BinaryOp\Concat;
+use PhpParser\Node\Expr\BinaryOp\Identical;
 use PhpParser\Node\Expr\BinaryOp\Plus;
 use PhpParser\Node\Expr\BooleanNot;
 use PhpParser\Node\Expr\Cast;
@@ -249,6 +250,16 @@ class TypeHintReplacer extends Plugin
                     case 'mixed':
                         $stringType = new String_('mixed');
                         $conditions []= Tools::fromLiteral(true);
+                        $oopNames []= $stringType;
+                        break;
+                    case 'false':
+                        $stringType = new String_('false');
+                        $conditions []= new Identical($var, Tools::fromLiteral(false));
+                        $oopNames []= $stringType;
+                        break;
+                    case 'true':
+                        $stringType = new String_('true');
+                        $conditions []= new Identical($var, Tools::fromLiteral(true));
                         $oopNames []= $stringType;
                         break;
                     default:
