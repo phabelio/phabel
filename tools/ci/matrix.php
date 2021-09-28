@@ -13,6 +13,9 @@ if (\preg_match('/[(]tag ([^)]+)[)]/', $message, $matches)) {
 } elseif (\str_ends_with(\trim($message), 'tag)')) {
     $tag = \explode("\n", \trim(\shell_exec("git tag --sort=-creatordate")))[0];
     $tag = \preg_replace('/\.\d+$/', '', $tag);
+    $tag = \explode('.', $tag);
+    $tag[\count($tag)-1]++;
+    $tag = \implode('.', $tag);
 }
 
 $doBuild = true;
