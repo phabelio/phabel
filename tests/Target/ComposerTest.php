@@ -48,7 +48,8 @@ class ComposerTest extends TestCase
             "name" => 'phabel/test1',
             "minimum-stability" => "dev",
             'require' => [
-                "php" => ">=8.0"
+                "php" => ">=8.0",
+                'danog/loop' => '*'
             ],
             'require-dev' => [
                 'phabel/phabel' => "dev-$branch"
@@ -113,10 +114,12 @@ class ComposerTest extends TestCase
         $this->backToCwd();
         chdir('../phabelComposer/test2/');
         $this->r("composer require phabel/test1:$branch");
+        $this->assertFileExists('vendor/phabel/test1/hello.php');
         $this->assertEquals('Hello!', shell_exec('php vendor/autoload.php'));
         if ($cleanup) {
             $this->r('rm -rf vendor');
             $this->r("composer remove -n phabel/test1");
+            $this->assertFileDoesNotExist('vendor/phabel/test1');
         }
     }
     private function testRequireFull(string $branch): void
@@ -140,6 +143,7 @@ class ComposerTest extends TestCase
         $this->echo("Remove phabel");
         $this->r('rm -rf vendor/phabel/test1');
         $this->r("composer remove -n phabel/test1");
+        $this->assertFileDoesNotExist('vendor/phabel/test1');
 
         $this->echo("Add phabel, keep phabel");
         $this->testRequire($branch, false);
@@ -151,6 +155,7 @@ class ComposerTest extends TestCase
         $this->echo("Remove phabel, keep another package");
         $this->r('rm -rf vendor/phabel/test1');
         $this->r("composer remove -n phabel/test1");
+        $this->assertFileDoesNotExist('vendor/phabel/test1');
 
         $this->echo("Remove another package");
         $this->r('composer remove danog/tg-file-decoder');

@@ -11,12 +11,15 @@ use Composer\Package\Package;
 use Composer\Package\PackageInterface;
 use Composer\Repository\PlatformRepository;
 use Composer\Semver\Constraint\Constraint as ComposerConstraint;
+use Composer\Semver\Constraint\MatchAllConstraint;
 use Composer\Semver\VersionParser;
 use Phabel\Cli\Formatter;
 use Phabel\PluginGraph\Graph;
 use Phabel\Target\Php;
+use Phabel\Tools;
 use Phabel\Traverser;
 use ReflectionClass;
+use SplFileInfo;
 
 class Transformer
 {
@@ -160,17 +163,31 @@ class Transformer
             $requires[$this->injectTarget($name, $myTarget)] = $constraint;
         }
 
-        if ($newName !== $package->getName() && \method_exists($package, 'setProvides')) {
-            $package->setProvides(\array_merge(
-                $package->getProvides(),
-                [$package->getName() => new Link(
-                    $newName,
-                    $package->getName(),
-                    new ComposerConstraint('=', $package->getVersion()),
-                    Link::TYPE_PROVIDE,
-                    $package->getVersion()
-                )]
-            ));
+        if ($newName !== $package->getName()) {
+            if (\method_exists($package, 'setProvides')) {
+                $package->setProvides(\array_merge(
+                    $package->getProvides(),
+                    [$package->getName() => new Link(
+                        $newName,
+                        $package->getName(),
+                        new ComposerConstraint('=', $package->getVersion()),
+                        Link::TYPE_PROVIDE,
+                        $package->getVersion()
+                    )]
+                ));
+            }
+            if (\method_exists($package, 'setConflicts')) {
+                $package->setConflicts(\array_merge(
+                    $package->getConflicts(),
+                    [$package->getName() => new Link(
+                        $newName,
+                        $package->getName(),
+                        new MatchAllConstraint,
+                        Link::TYPE_CONFLICT,
+                        '*'
+                    )]
+                ));
+            }
         }
 
         $base = new ReflectionClass(BasePackage::class);
@@ -283,6 +300,7 @@ class Transformer
 
         $this->log("Creating plugin graph...", IOInterface::VERBOSE);
         $missingDeps = false;
+        $moveMap = [];
         $byName = [];
         foreach ($packages as $package) {
             $config = $package['extra']['phabel'] ?? [];
@@ -310,6 +328,8 @@ class Transformer
                     continue;
                 }
                 $target = $myTarget;
+            } else {
+                $moveMap[$name] = $package['name'];
             }
             $package['phabelTarget'] = (int) $target;
             $package['phabelConfig'] = [$config];
@@ -388,6 +408,10 @@ class Transformer
                 return \implode('/', \array_slice(\explode('/', $package), 0, 2));
             })
             ->run((int) (\getenv('PHABEL_PARALLEL') ?: 1));
+
+        foreach ($moveMap as $newName => $oldName) {
+            Tools::traverseCopy("vendor/$oldName", "vendor/$newName");
+        }
 
         if (!$enabled) {
             unset($traverser);

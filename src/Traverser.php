@@ -18,6 +18,7 @@ use SebastianBergmann\CodeCoverage\CodeCoverage;
 use SebastianBergmann\CodeCoverage\Driver\Selector;
 use SebastianBergmann\CodeCoverage\Filter;
 use SebastianBergmann\CodeCoverage\Report\PHP;
+use SplFileInfo;
 use SplQueue;
 
 use function Amp\call;
@@ -313,37 +314,14 @@ class Traverser
             $this->output = \realpath($this->output);
             $this->input = \realpath($this->input);
             $this->files = [];
-            $it = new \RecursiveDirectoryIterator($this->input, \RecursiveDirectoryIterator::SKIP_DOTS);
-            $ri = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::SELF_FIRST);
 
-            /** @var \SplFileInfo $file */
-            foreach ($ri as $file) {
-                $rel = $ri->getSubPathname();
-                $targetPath = $this->output.DIRECTORY_SEPARATOR.$rel;
-                if ($file->isDir()) {
-                    if (!\file_exists($targetPath)) {
-                        \mkdir($targetPath, $file->getPerms(), true);
-                    }
-                } elseif ($file->isLink()) {
-                    $dest = $file->getRealPath();
-                    if ($dest !== false && \str_starts_with($dest, $this->input)) {
-                        $dest = \trim(\substr($dest, \strlen($this->input)), DIRECTORY_SEPARATOR);
-                        $dest = \str_repeat('..'.DIRECTORY_SEPARATOR, \substr_count($rel, DIRECTORY_SEPARATOR)).$dest;
-                        $link = $this->output.DIRECTORY_SEPARATOR.$rel;
-                        if (\file_exists($link)) {
-                            \unlink($link);
-                        }
-                        \symlink($dest, $link);
-                    }
-                } elseif ($file->isFile()) {
-                    if ($file->getExtension() == 'php') {
-                        $this->files []= $rel;
-                    } elseif (\realpath($targetPath) !== $file->getRealPath()) {
-                        \copy($file->getRealPath(), $targetPath);
-                        \chmod($targetPath, $file->getPerms());
-                    }
+            Tools::traverseCopy($this->input, $this->output, function (SplFileInfo $f, string $rel): bool {
+                if ($f->getExtension() == 'php') {
+                    $this->files []= $rel;
+                    return true;
                 }
-            }
+                return false;
+            });
         }
     }
     /**

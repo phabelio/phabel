@@ -474,4 +474,52 @@ abstract class Tools
         }
         return $default;
     }
+
+    /**
+     * Recursively copy a directory to another, calling a callback for files.
+     *
+     * @param string $input
+     * @param string $output
+     * @param (callable(SplFileInfo, string): bool)|null $cb
+     * @return void
+     */
+    public static function traverseCopy(string $input, string $output, ?callable $cb = null): void
+    {
+        if (!\file_exists($output)) {
+            \mkdir($output, 0777, true);
+        }
+        $output = \realpath($output);
+        $input = \realpath($input);
+        $it = new \RecursiveDirectoryIterator($input, \RecursiveDirectoryIterator::SKIP_DOTS);
+        $ri = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::SELF_FIRST);
+
+        /** @var \SplFileInfo $file */
+        foreach ($ri as $file) {
+            $rel = $ri->getSubPathname();
+            $targetPath = $output.DIRECTORY_SEPARATOR.$rel;
+            if ($file->isDir()) {
+                if (!\file_exists($targetPath)) {
+                    \mkdir($targetPath, $file->getPerms(), true);
+                }
+            } elseif ($file->isLink()) {
+                $dest = $file->getRealPath();
+                if ($dest !== false && \str_starts_with($dest, $input)) {
+                    $dest = \trim(\substr($dest, \strlen($input)), DIRECTORY_SEPARATOR);
+                    $dest = \str_repeat('..'.DIRECTORY_SEPARATOR, \substr_count($rel, DIRECTORY_SEPARATOR)).$dest;
+                    $link = $output.DIRECTORY_SEPARATOR.$rel;
+                    if (\file_exists($link)) {
+                        \unlink($link);
+                    }
+                    \symlink($dest, $link);
+                }
+            } elseif ($file->isFile()) {
+                if ($cb && $cb($file, $rel)) {
+                    // All done!
+                } elseif (\realpath($targetPath) !== $file->getRealPath()) {
+                    \copy($file->getRealPath(), $targetPath);
+                    \chmod($targetPath, $file->getPerms());
+                }
+            }
+        }
+    }
 }
