@@ -42,7 +42,7 @@ class Publish extends BaseCommand
             throw new Exception("composer.json doesn't exist!");
         }
         if ($cb) {
-            $json = \json_decode(\file_get_contents('composer.json'), true);
+            $json = \Phabel\Target\Php72\Polyfill::json_decode(\file_get_contents('composer.json'), true);
             $json = $cb($json);
             \file_put_contents('composer.json', \json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
             $this->exec(['git', 'commit', '-am', $message . "\nRelease transpiled using https://phabel.io, the PHP transpiler"], true);
@@ -60,15 +60,17 @@ class Publish extends BaseCommand
         $output->write("<phabel>Tagging transpiled release <bold>{$src}.9998</bold>...</phabel>" . PHP_EOL);
         $this->prepare($src, "{$src}.9998", function (array $json): array {
             unset($json['require']['php']);
-            $requires = \array_filter($json['require'], fn (string $f) => (!\preg_match(self::PLATFORM_PACKAGE, $f)), ARRAY_FILTER_USE_KEY);
-            $json['extra'] ??= [];
-            $json['extra']['phabel'] ??= [];
+            $requires = \Phabel\Target\Php74\Polyfill::array_filter($json['require'], function (string $f) {
+                return !\preg_match(self::PLATFORM_PACKAGE, $f);
+            }, ARRAY_FILTER_USE_KEY);
+            $json['extra'] = $json['extra'] ?? [];
+            $json['extra']['phabel'] = $json['extra']['phabel'] ?? [];
             $json['extra']['phabel']['require'] = $requires;
             $json['require'] = \array_merge(['phabel/phabel' => Version::VERSION, 'php' => '*'], \array_diff_key($json['require'], $requires));
             \file_put_contents(ComposerSanitizer::FILE_NAME, ComposerSanitizer::getContents($json['name'] ?? 'phabel'));
             $this->exec(['git', 'add', ComposerSanitizer::FILE_NAME]);
-            $json['autoload'] ??= [];
-            $json['autoload']['files'] ??= [];
+            $json['autoload'] = $json['autoload'] ?? [];
+            $json['autoload']['files'] = $json['autoload']['files'] ?? [];
             $json['autoload']['files'][] = ComposerSanitizer::FILE_NAME;
             return $json;
         });

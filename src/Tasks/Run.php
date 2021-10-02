@@ -9,9 +9,17 @@ use Phabel\Traverser;
 
 class Run implements Task
 {
-    public function __construct(private string $input, private string $output, private ?string $package, private string $coverage)
+    public function __construct(string $input, string $output, ?string $package, string $coverage)
     {
+        $this->coverage = $coverage;
+        $this->package = $package;
+        $this->output = $output;
+        $this->input = $input;
     }
+    private $coverage;
+    private $package;
+    private $output;
+    private $input;
     public function run(Environment $environment)
     {
         try {
