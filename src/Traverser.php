@@ -252,7 +252,7 @@ class Traverser
     public function setComposerPaths(array $paths): self
     {
         $this->composerPaths = $paths;
-        $this->composerVendor = \realpath(\getcwd().DIRECTORY_SEPARATOR.'vendor').DIRECTORY_SEPARATOR;
+        $this->composerVendor = \str_replace('\\', '/', \realpath(\getcwd().'/vendor')).'/';
         $this->packagePaths = [];
         foreach ($paths as $package => [$old, $new]) {
             $this->packagePaths[$old] = $package;
@@ -358,20 +358,19 @@ class Traverser
                 });
             } elseif ($this->composerPaths) {
                 $autoload = $this->composerVendor.'autoload.php';
-                $composerDir = $this->composerVendor.'composer';
+                $composerDir = $this->composerVendor.'composer/';
                 $cb = function (SplFileInfo $f, string $output) use ($autoload, $composerDir): bool {
                     if ($f->getExtension() !== 'php') {
                         return false;
                     }
-                    $real = $f->getRealPath();
+                    $real = \str_replace('\\', '/', $f->getRealPath());
                     if ($real === $autoload) {
                         return false;
                     }
-                    $dir = \dirname($real);
-                    if ($dir === $composerDir) {
+                    if (\str_starts_with($real, $composerDir)) {
                         return false;
                     }
-                    $this->files[\str_replace('\\', '/', $real)] = \str_replace('\\', '/', $output);
+                    $this->files[$real] = \str_replace('\\', '/', $output);
                     return true;
                 };
                 Tools::traverseCopy($this->composerVendor, $this->composerVendor, $cb);
