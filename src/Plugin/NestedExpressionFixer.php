@@ -41,7 +41,6 @@ class NestedExpressionFixer extends Plugin
         }
         return $var;
     }
-
     public function leave(Expr $expr, Context $context): ?Expr
     {
         /** @var array<string, array<class-string<Expr>, true>> */
@@ -51,17 +50,17 @@ class NestedExpressionFixer extends Plugin
         }
         foreach ($subNodes as $key => $types) {
             /** @var Expr $value */
-            $value = &$expr->{$key};
+            $value =& $expr->{$key};
             if (!isset($types[IssetExpressionFixer::getClass($value ?? '')])) {
                 if (!$value instanceof Expr) {
                     continue;
                 }
-                $workVar = &$this->extractWorkVar($value);
+                $workVar =& $this->extractWorkVar($value);
                 if (!isset($types[\get_class($workVar)])) {
                     continue;
                 }
             } else {
-                $workVar = &$value;
+                $workVar =& $value;
             }
             switch (\get_class($workVar)) {
                 case Throw_::class:
@@ -81,14 +80,7 @@ class NestedExpressionFixer extends Plugin
                 case New_::class:
                 case ClassConstFetch::class:
                     $valueCopy = $value;
-                    return new Ternary(
-                        new BooleanOr(
-                            new Assign($value = $context->getVariable(), $valueCopy),
-                            self::fromLiteral(true)
-                        ),
-                        $expr,
-                        self::fromLiteral(false)
-                    );
+                    return new Ternary(new BooleanOr(new Assign($value = $context->getVariable(), $valueCopy), self::fromLiteral(true)), $expr, self::fromLiteral(false));
                 case StaticCall::class:
                 case StaticPropertyFetch::class:
                 case FuncCall::class:
@@ -96,12 +88,11 @@ class NestedExpressionFixer extends Plugin
                     $context->insertBefore($expr, new Assign($value = $context->getVariable(), $valueCopy));
                     break;
                 default:
-                    throw new \RuntimeException("Trying to fix unknown nested expression $class");
+                    throw new \RuntimeException("Trying to fix unknown nested expression {$class}");
             }
         }
         return null;
     }
-
     /**
      * Returns the data provided.
      *
@@ -119,7 +110,6 @@ class NestedExpressionFixer extends Plugin
     {
         return $data;
     }
-
     /**
      * Throws the exception provided.
      *
@@ -135,7 +125,6 @@ class NestedExpressionFixer extends Plugin
     {
         throw $throwable;
     }
-
     /**
      * Check if a is instance of b.
      *
@@ -148,7 +137,6 @@ class NestedExpressionFixer extends Plugin
     {
         return $a instanceof $b;
     }
-
     public static function next(array $config): array
     {
         return [NewFixer::class];
