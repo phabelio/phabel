@@ -254,8 +254,9 @@ class Traverser
         $this->composerPaths = $paths;
         $this->composerVendor = \realpath(\getcwd().DIRECTORY_SEPARATOR.'vendor').DIRECTORY_SEPARATOR;
         $this->packagePaths = [];
-        foreach ($paths as $package => [$old]) {
+        foreach ($paths as $package => [$old, $new]) {
             $this->packagePaths[$old] = $package;
+            $this->packagePaths[$new] = $package;
         }
 
         return $this;

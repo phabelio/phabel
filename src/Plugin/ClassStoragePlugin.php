@@ -118,7 +118,7 @@ final class ClassStoragePlugin extends Plugin
      */
     public function enterRoot(RootNode $_, Context $context): void
     {
-        $file = $context->getInputFile();
+        $file = $context->getOutputFile();
         $this->count[$file] = [];
         foreach ($this->traits as $trait => $traits) {
             if (isset($traits[$file])) {
@@ -140,7 +140,7 @@ final class ClassStoragePlugin extends Plugin
      */
     public function enter(ClassLike $class, Context $context): void
     {
-        $file = $context->getInputFile();
+        $file = $context->getOutputFile();
         if ($class->name) {
             $name = self::getFqdn($class);
         } else {
@@ -160,7 +160,7 @@ final class ClassStoragePlugin extends Plugin
      */
     public function leave(ClassLike $class, Context $context): void
     {
-        $file = $context->getInputFile();
+        $file = $context->getOutputFile();
         $name = $class->getAttribute(self::NAME);
 
         if ($class instanceof Trait_) {

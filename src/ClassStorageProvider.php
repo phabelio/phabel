@@ -31,7 +31,7 @@ abstract class ClassStorageProvider extends Plugin implements JsonSerializable
      */
     public function enterRoot(RootNode $_, Context $context): void
     {
-        $this->count[$context->getInputFile()] = [];
+        $this->count[$context->getOutputFile()] = [];
     }
     /**
      * Populate class storage.
@@ -46,7 +46,7 @@ abstract class ClassStorageProvider extends Plugin implements JsonSerializable
         }
         $class->setAttribute(self::PROCESSED, true);
 
-        $file = $context->getInputFile();
+        $file = $context->getOutputFile();
         if ($class->name) {
             $name = self::getFqdn($class);
         } else {
