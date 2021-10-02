@@ -104,7 +104,7 @@ class Php extends Plugin
                 continue;
             }
             foreach (\scandir($dir) as $file) {
-                if (\substr($file, -4) !== '.php') {
+                if (\Phabel\Target\Php80\Polyfill::substr($file, -4) !== '.php') {
                     continue;
                 }
                 if (\str_ends_with($file, 'ExpressionFixer.php')) {
