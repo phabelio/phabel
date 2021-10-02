@@ -8,16 +8,15 @@ use Phabel\Target\Php70\NullCoalesce\DisallowedExpressions;
 use Phabel\Target\Php74\NullCoalesceAssignment;
 use Phabel\Target\Php80\NullSafeTransformer;
 use Phabel\Tools;
-use PhpParser\Node\Expr;
-use PhpParser\Node\Expr\ArrayDimFetch;
-use PhpParser\Node\Expr\Assign;
-use PhpParser\Node\Expr\BinaryOp\BooleanAnd;
-use PhpParser\Node\Expr\BinaryOp\Coalesce;
-use PhpParser\Node\Expr\BinaryOp\NotIdentical;
-use PhpParser\Node\Expr\Isset_;
-use PhpParser\Node\Expr\PropertyFetch;
-use PhpParser\Node\Expr\Ternary;
-
+use PhabelVendor\PhpParser\Node\Expr;
+use PhabelVendor\PhpParser\Node\Expr\ArrayDimFetch;
+use PhabelVendor\PhpParser\Node\Expr\Assign;
+use PhabelVendor\PhpParser\Node\Expr\BinaryOp\BooleanAnd;
+use PhabelVendor\PhpParser\Node\Expr\BinaryOp\Coalesce;
+use PhabelVendor\PhpParser\Node\Expr\BinaryOp\NotIdentical;
+use PhabelVendor\PhpParser\Node\Expr\Isset_;
+use PhabelVendor\PhpParser\Node\Expr\PropertyFetch;
+use PhabelVendor\PhpParser\Node\Expr\Ternary;
 /**
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT
@@ -30,7 +29,7 @@ class NullCoalesceReplacer extends Plugin
      * @param Expr $var
      * @return Expr
      */
-    private static function &extractWorkVar(Expr &$var): Expr
+    private static function &extractWorkVar(Expr &$var) : Expr
     {
         if ($var instanceof ArrayDimFetch) {
             return self::extractWorkVar($var->var);
@@ -47,7 +46,7 @@ class NullCoalesceReplacer extends Plugin
      *
      * @return Ternary
      */
-    public function enter(Coalesce $node, Context $ctx): Ternary
+    public function enter(Coalesce $node, Context $ctx) : Ternary
     {
         if (!Tools::hasSideEffects($workVar =& self::extractWorkVar($node->left)) && !isset(DisallowedExpressions::EXPRESSIONS[\get_class($node->left)])) {
             return new Ternary(new Isset_([$node->left]), $node->left, $node->right);
@@ -56,7 +55,7 @@ class NullCoalesceReplacer extends Plugin
         $check = new NotIdentical(Tools::fromLiteral(null), new Assign($workVar = $ctx->getVariable(), $valueCopy));
         return new Ternary($node->left === $workVar ? $check : new BooleanAnd($check, new Isset_([$node->left])), $node->left, $node->right);
     }
-    public static function withPrevious(array $config): array
+    public static function withPrevious(array $config) : array
     {
         return [NullCoalesceAssignment::class, NullSafeTransformer::class];
     }
