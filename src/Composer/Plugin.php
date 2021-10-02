@@ -50,7 +50,8 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         $rootPackage = $composer->getPackage();
         $php = $rootPackage->getConfig()['platform']['php'] ?? Php::DEFAULT_TARGET;
         $php = Php::normalizeVersion($php);
-        $this->transformer = Transformer::getInstance($io, $composer->getInstallationManager(), $php);
+        $this->transformer = Transformer::getInstance($io, $php);
+        $this->transformer->setInstallationManager($composer->getInstallationManager());
         $this->transformer->preparePackage($rootPackage, $rootPackage->getName());
         foreach ($rootPackage->getRequires() as $link) {
             if (PlatformRepository::isPlatformPackage($link->getTarget())) {

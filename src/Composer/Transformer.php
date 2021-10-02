@@ -51,6 +51,12 @@ class Transformer
      */
     private bool $doProgress = true;
     /**
+     * Installer.
+     *
+     * @var InstallationManager
+     */
+    private InstallationManager $installer;
+    /**
      * Instance.
      */
     private static self $instance;
@@ -59,9 +65,9 @@ class Transformer
      *
      * @return self
      */
-    public static function getInstance(IOInterface $io, InstallationManager $installer, int $version): self
+    public static function getInstance(IOInterface $io, int $version): self
     {
-        self::$instance ??= new self($io, $installer, $version);
+        self::$instance ??= new self($io, $version);
         return self::$instance;
     }
     /**
@@ -69,12 +75,22 @@ class Transformer
      *
      * @param IOInterface $io
      */
-    private function __construct(private IOInterface $io, private InstallationManager $installer, private int $version)
+    private function __construct(private IOInterface $io, private int $version)
     {
         $this->versionParser = new VersionParser;
         $this->outputFormatter = Formatter::getFormatter();
     }
 
+    /**
+     * Set installation manager.
+     *
+     * @param InstallationManager $installationManager
+     * @return void
+     */
+    public function setInstallationManager(InstallationManager $installationManager): void
+    {
+        $this->installer = $installationManager;
+    }
     /**
      * Log text.
      *
@@ -331,15 +347,16 @@ class Transformer
                 $target = $myTarget;
             }
             try {
+                $installer = $this->installer->getInstaller($package['type']);
                 $p = new Package($package['name'], $package['version'], $package['version']);
                 $p->setType($package['type']);
-                $current = $this->installer->getInstaller($package['type'])->getInstallPath($p);
+                $current = $installer->getInstallPath($p);
                 if (!$filesystem->isAbsolutePath($current)) {
                     $current = \getcwd().DIRECTORY_SEPARATOR.$current;
                 }
                 $p = new Package($name, $package['version'], $package['version']);
                 $p->setType($package['type']);
-                $new = $this->installer->getInstaller($package['type'])->getInstallPath($p);
+                $new = $installer->getInstallPath($p);
                 if (!$filesystem->isAbsolutePath($new)) {
                     $new = \getcwd().DIRECTORY_SEPARATOR.$new;
                 }
