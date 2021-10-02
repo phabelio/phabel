@@ -22,7 +22,6 @@ use SebastianBergmann\CodeCoverage\Filter;
 use SebastianBergmann\CodeCoverage\Report\PHP;
 use SplFileInfo;
 use SplQueue;
-
 use function Amp\call;
 use function Amp\Promise\wait;
 
@@ -110,7 +109,6 @@ class Traverser
      * Current output file.
      */
     private string $outputFile = '';
-
     /**
      * Number of times we traversed directories.
      *
@@ -126,17 +124,16 @@ class Traverser
      */
     public static function fromPlugin(Plugin ...$plugin): self
     {
-        $queue = new SplQueue;
+        $queue = new SplQueue();
         foreach ($plugin as $p) {
             $queue->enqueue($p);
         }
-        $final = new SplQueue;
+        $final = new SplQueue();
         $final->enqueue($queue);
         $res = new self();
         $res->graph = new ResolvedGraph($final);
         return $res;
     }
-
     /**
      * Constructor.
      *
@@ -144,11 +141,10 @@ class Traverser
      */
     public function __construct(?EventHandlerInterface $eventHandler = null)
     {
-        $this->parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
+        $this->parser = (new ParserFactory())->create(ParserFactory::PREFER_PHP7);
         $this->printer = new Standard();
         $this->eventHandler = $eventHandler;
     }
-
     /**
      * Set plugin array.
      *
@@ -161,16 +157,12 @@ class Traverser
     public function setPlugins(array $plugins): self
     {
         $this->eventHandler?->onBeginPluginGraphResolution();
-
-        $graph = new Graph;
+        $graph = new Graph();
         foreach ($plugins as $plugin => $config) {
             $graph->addPlugin($plugin, $config, $graph->getPackageContext());
         }
-
         $this->graph = $graph->flatten();
-
         $this->eventHandler?->onEndPluginGraphResolution();
-
         return $this;
     }
     /**
@@ -183,14 +175,10 @@ class Traverser
     public function setPluginGraph(Graph $graph): self
     {
         $this->eventHandler?->onBeginPluginGraphResolution();
-
         $this->graph = $graph->flatten();
-
         $this->eventHandler?->onEndPluginGraphResolution();
-
         return $this;
     }
-
     /**
      * Get resolved plugin graph.
      *
@@ -200,7 +188,6 @@ class Traverser
     {
         return $this->graph;
     }
-
     /**
      * Set resolved plugin graph.
      *
@@ -211,10 +198,8 @@ class Traverser
     public function setGraph(ResolvedGraph $graph): self
     {
         $this->graph = $graph;
-
         return $this;
     }
-
     /**
      * Set input path.
      *
@@ -226,7 +211,6 @@ class Traverser
         if (!\file_exists($input)) {
             throw new \RuntimeException("File {$input} does not exist!");
         }
-
         $this->input = $input;
         return $this;
     }
@@ -241,7 +225,6 @@ class Traverser
         $this->output = $output;
         return $this;
     }
-
     /**
      * Set composer paths.
      *
@@ -252,16 +235,14 @@ class Traverser
     public function setComposerPaths(array $paths): self
     {
         $this->composerPaths = $paths;
-        $this->composerVendor = \realpath(\getcwd().DIRECTORY_SEPARATOR.'vendor').DIRECTORY_SEPARATOR;
+        $this->composerVendor = \realpath(\getcwd() . DIRECTORY_SEPARATOR . 'vendor') . DIRECTORY_SEPARATOR;
         $this->packagePaths = [];
         foreach ($paths as $package => [$old, $new]) {
             $this->packagePaths[$old] = $package;
             $this->packagePaths[$new] = $package;
         }
-
         return $this;
     }
-
     public function getPackageName(string $path): string
     {
         if (\str_starts_with($path, $this->composerVendor)) {
@@ -277,7 +258,7 @@ class Traverser
                 return $this->packagePaths[$path];
             }
         }
-        throw new RuntimeException("Could not find package for path $orig!");
+        throw new RuntimeException("Could not find package for path {$orig}!");
     }
     /**
      * Set coverage path.
@@ -303,15 +284,10 @@ class Traverser
             return null;
         }
         try {
-            $filter = new Filter;
-            $filter->includeDirectory(\realpath(__DIR__.'/../src'));
-
-            $coverage = new CodeCoverage(
-                (new Selector)->forLineCoverage($filter),
-                $filter
-            );
+            $filter = new Filter();
+            $filter->includeDirectory(\realpath(__DIR__ . '/../src'));
+            $coverage = new CodeCoverage((new Selector())->forLineCoverage($filter), $filter);
             $coverage->start('phabel');
-
             return new class($coverage, $coveragePath) {
                 private string $coveragePath;
                 private CodeCoverage $coverage;
@@ -326,7 +302,7 @@ class Traverser
                     if (\file_exists($this->coveragePath)) {
                         $this->coverage->merge(require $this->coveragePath);
                     }
-                    (new PHP)->process($this->coverage, $this->coveragePath);
+                    (new PHP())->process($this->coverage, $this->coveragePath);
                 }
             };
         } catch (\Throwable $e) {
@@ -348,7 +324,6 @@ class Traverser
                 $this->output = \realpath($this->output);
                 $this->input = \realpath($this->input);
                 $this->files = [];
-
                 Tools::traverseCopy($this->input, $this->output, function (SplFileInfo $f, string $output): bool {
                     if ($f->getExtension() === 'php') {
                         $this->files[\str_replace('\\', '/', $f->getRealPath())] = \str_replace('\\', '/', $output);
@@ -357,8 +332,8 @@ class Traverser
                     return false;
                 });
             } elseif ($this->composerPaths) {
-                $autoload = $this->composerVendor.'autoload.php';
-                $composerDir = $this->composerVendor.'composer';
+                $autoload = $this->composerVendor . 'autoload.php';
+                $composerDir = $this->composerVendor . 'composer';
                 $cb = function (SplFileInfo $f, string $output) use ($autoload, $composerDir): bool {
                     if ($f->getExtension() !== 'php') {
                         return false;
@@ -409,22 +384,18 @@ class Traverser
         return call(function () use (&$coverages, $threads) {
             $packages = [];
             $first = !$this->count++;
-
             $count = 0;
             $promises = [];
             $classStorage = null;
-
             $pool = new DefaultPool($threads);
             $promises = [];
             for ($x = 0; $x < $threads; $x++) {
-                $promises []= $pool->enqueue(new Init($this->graph));
+                $promises[] = $pool->enqueue(new Init($this->graph));
             }
-            yield $promises;
+            (yield $promises);
             $packages = $this->graph->getPackages();
             unset($this->graph);
-
             $this->eventHandler?->onBeginDirectoryTraversal(\count($this->files), $threads);
-
             $promises = [];
             foreach ($this->files as $input => $output) {
                 $promise = call(function () use ($pool, $input, $output, $count, $first, &$promises, &$coverages) {
@@ -433,16 +404,9 @@ class Traverser
                     if ($this->composerPaths) {
                         $package = $this->getPackageName($input);
                     }
-                    $res = yield $pool->enqueue(
-                        new Run(
-                            $input,
-                            $output,
-                            $package,
-                            $this->coverage ? "{$this->coverage}$count.php" : ''
-                        )
-                    );
+                    $res = (yield $pool->enqueue(new Run($input, $output, $package, $this->coverage ? "{$this->coverage}{$count}.php" : '')));
                     if ($this->coverage) {
-                        $coverages []= "{$this->coverage}$count.php";
+                        $coverages[] = "{$this->coverage}{$count}.php";
                     }
                     if ($res instanceof ExceptionWrapper) {
                         $res = $res->getException();
@@ -460,18 +424,16 @@ class Traverser
                 $promises[$count] = $promise;
                 $count++;
             }
-            yield $promises;
-
+            (yield $promises);
             $this->eventHandler?->onEndDirectoryTraversal();
             $this->eventHandler?->onBeginClassGraphMerge($threads);
-
             $promises = [];
             /** @var ClassStoragePlugin|null */
             $classStorage = null;
             for ($x = 0; $x < $threads; $x++) {
-                $promises []= call(function () use ($pool, &$classStorage) {
+                $promises[] = call(function () use ($pool, &$classStorage) {
                     /** @var ClassStoragePlugin */
-                    $newClassStorage = yield $pool->enqueue(new Shutdown());
+                    $newClassStorage = (yield $pool->enqueue(new Shutdown()));
                     if (!$classStorage) {
                         $classStorage = $newClassStorage;
                     } else {
@@ -480,12 +442,10 @@ class Traverser
                     $this->eventHandler?->onClassGraphMerged();
                 });
             }
-            yield $promises;
+            (yield $promises);
             $this->eventHandler?->onEndClassGraphMerge();
-
-            yield $pool->shutdown();
+            (yield $pool->shutdown());
             unset($pool);
-
             if ($classStorage) {
                 [$plugins, $this->files] = $classStorage->finish();
                 unset($classStorage);
@@ -496,7 +456,6 @@ class Traverser
                     return $this->run();
                 }
             }
-
             /** @var CodeCoverage|null $coverage */
             $coverage = null;
             foreach ($coverages as $file) {
@@ -505,7 +464,7 @@ class Traverser
                 }
                 if (!$coverage) {
                     /** @var CodeCoverage $coverage */
-                    $coverage = include $file;
+                    $coverage = (include $file);
                     \unlink($file);
                     continue;
                 }
@@ -513,15 +472,12 @@ class Traverser
                 \unlink($file);
             }
             if ($coverage) {
-                (new PHP)->process($coverage, $this->coverage);
+                (new PHP())->process($coverage, $this->coverage);
             }
-
             $this->eventHandler?->onEnd();
             return $packages;
         });
     }
-
-
     /**
      * Run phabel.
      *
@@ -532,18 +488,14 @@ class Traverser
         if ($threads > 1 || $threads === -1) {
             return $this->runAsync($threads);
         }
-        \set_error_handler(
-            function (int $errno = 0, string $errstr = '', string $errfile = '', int $errline = -1): bool {
-                // If error is suppressed with @, don't throw an exception
-                if (\error_reporting() === 0) {
-                    return false;
-                }
-                throw new Exception($errstr, $errno, null, $errfile, $errline);
+        \set_error_handler(function (int $errno = 0, string $errstr = '', string $errfile = '', int $errline = -1): bool {
+            // If error is suppressed with @, don't throw an exception
+            if (\error_reporting() === 0) {
+                return false;
             }
-        );
-
+            throw new Exception($errstr, $errno, null, $errfile, $errline);
+        });
         $packages = [];
-
         $this->eventHandler?->onStart();
         $this->prepareFiles();
         while (true) {
@@ -563,9 +515,7 @@ class Traverser
             $this->setPlugins($plugins);
         }
         $this->eventHandler?->onEnd();
-
         \restore_error_handler();
-
         return $packages;
     }
     /**
@@ -578,12 +528,10 @@ class Traverser
         $_ = self::startCoverage($this->coverage);
         $first = !$this->count++;
         $this->packageQueue = null;
-
         if (\is_file($this->input)) {
             $this->traverse(\basename($this->input), \realpath($this->input), \realpath($this->output) ?: $this->output);
             return;
         }
-
         $this->eventHandler->onBeginDirectoryTraversal(\count($this->files), 1);
         foreach ($this->files as $input => $output) {
             $_ = self::startCoverage($this->coverage);
@@ -607,7 +555,6 @@ class Traverser
         }
         $this->eventHandler?->onEndDirectoryTraversal();
     }
-
     /**
      * Set package name.
      *
@@ -622,14 +569,14 @@ class Traverser
             $this->packageQueue = null;
             return;
         }
-        $this->packageQueue = new SplQueue;
+        $this->packageQueue = new SplQueue();
         /** @var SplQueue<PluginInterface> */
-        $newQueue = new SplQueue;
+        $newQueue = new SplQueue();
         foreach ($this->graph->getPlugins() as $queue) {
             if ($newQueue->count()) {
                 $this->packageQueue->enqueue($newQueue);
                 /** @var SplQueue<PluginInterface> */
-                $newQueue = new SplQueue;
+                $newQueue = new SplQueue();
             }
             /** @var Plugin */
             foreach ($queue as $plugin) {
@@ -654,16 +601,15 @@ class Traverser
     public function traverse(string $input, string $output): int
     {
         $this->eventHandler?->onBeginAstTraversal($input);
-
         /** @var SplQueue<SplQueue<PluginInterface>> */
-        $reducedQueue = new SplQueue;
+        $reducedQueue = new SplQueue();
         /** @var SplQueue<PluginInterface> */
-        $newQueue = new SplQueue;
+        $newQueue = new SplQueue();
         foreach ($this->packageQueue ?? $this->graph->getPlugins() as $queue) {
             if ($newQueue->count()) {
                 $reducedQueue->enqueue($newQueue);
                 /** @var SplQueue<PluginInterface> */
-                $newQueue = new SplQueue;
+                $newQueue = new SplQueue();
             }
             /** @var Plugin */
             foreach ($queue as $plugin) {
@@ -681,7 +627,6 @@ class Traverser
             $this->eventHandler?->onEndAstTraversal($input, 0);
             return 0;
         }
-
         try {
             $ast = new RootNode($this->parser->parse(\file_get_contents($input)) ?? []);
         } catch (\Throwable $e) {
@@ -690,14 +635,11 @@ class Traverser
             $message .= $input;
             throw new Exception($message, (int) $e->getCode(), $e, $e->getFile(), $e->getLine());
         }
-
         $this->inputFile = $input;
         $this->outputFile = $output;
         [$it, $result] = $this->traverseAstInternal($ast, $reducedQueue);
         \file_put_contents($output, $result);
-
         $this->eventHandler?->onEndAstTraversal($input, $it);
-
         return $it;
     }
     /**
@@ -741,7 +683,7 @@ class Traverser
             $context = null;
             try {
                 foreach ($pluginQueue ?? $this->packageQueue ?? $this->graph->getPlugins() as $queue) {
-                    $context = new Context;
+                    $context = new Context();
                     $context->setInputFile($this->inputFile);
                     $context->setOutputFile($this->outputFile);
                     $context->push($node);
@@ -803,9 +745,8 @@ class Traverser
         /** @var string $name */
         foreach ($node->getSubNodeNames() as $name) {
             $node->setAttribute('currentNode', $name);
-
             /** @var Node[]|Node|mixed */
-            $subNode = &$node->{$name};
+            $subNode =& $node->{$name};
             if ($subNode instanceof Node) {
                 $this->traverseNode($subNode, $plugins, $context);
                 continue;
@@ -846,10 +787,10 @@ class Traverser
             }
         }
     }
-
     public function __destruct()
     {
         unset($this->graph);
-        while (\gc_collect_cycles());
+        while (\gc_collect_cycles()) {
+        }
     }
 }
