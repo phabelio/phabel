@@ -8,6 +8,7 @@ use Phabel\Composer\Transformer;
 use Phabel\Plugin\ClassStoragePlugin;
 use Phabel\PluginGraph\Graph;
 use Phabel\PluginGraph\ResolvedGraph;
+use Phabel\Target\Php;
 use Phabel\Tasks\Init;
 use Phabel\Tasks\Run;
 use Phabel\Tasks\Shutdown;
@@ -19,7 +20,7 @@ use RuntimeException;
 use SebastianBergmann\CodeCoverage\CodeCoverage;
 use SebastianBergmann\CodeCoverage\Driver\Selector;
 use SebastianBergmann\CodeCoverage\Filter;
-use SebastianBergmann\CodeCoverage\Report\PHP;
+use SebastianBergmann\CodeCoverage\Report\PHP as PHPReport;
 use SplFileInfo;
 use SplQueue;
 
@@ -326,7 +327,7 @@ class Traverser
                     if (\file_exists($this->coveragePath)) {
                         $this->coverage->merge(require $this->coveragePath);
                     }
-                    (new PHP)->process($this->coverage, $this->coveragePath);
+                    (new PHPReport)->process($this->coverage, $this->coveragePath);
                 }
             };
         } catch (\Throwable $e) {
@@ -358,7 +359,10 @@ class Traverser
                 });
             } elseif ($this->composerPaths) {
                 $autoload = $this->composerVendor.'autoload.php';
-                $composerDir = $this->composerVendor.'composer/';
+                $composerDir = [$this->composerVendor.'composer/'];
+                foreach (Php::VERSIONS as $target) {
+                    $composerDir []= $this->composerVendor.\substr(Transformer::injectTarget('composer/pkg', $target), 0, -3);
+                }
                 $cb = function (SplFileInfo $f, string $output) use ($autoload, $composerDir): bool {
                     if ($f->getExtension() !== 'php') {
                         return false;
@@ -367,8 +371,10 @@ class Traverser
                     if ($real === $autoload) {
                         return false;
                     }
-                    if (\str_starts_with($real, $composerDir)) {
-                        return false;
+                    foreach ($composerDir as $dir) {
+                        if (\str_starts_with($real, $dir)) {
+                            return false;
+                        }
                     }
                     $this->files[$real] = \str_replace('\\', '/', $output);
                     return true;
@@ -512,7 +518,7 @@ class Traverser
                 \unlink($file);
             }
             if ($coverage) {
-                (new PHP)->process($coverage, $this->coverage);
+                (new PHPReport)->process($coverage, $this->coverage);
             }
 
             $this->eventHandler?->onEnd();

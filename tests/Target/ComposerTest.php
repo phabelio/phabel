@@ -162,18 +162,16 @@ class ComposerTest extends TestCase
         $this->r('composer remove danog/tg-file-decoder');
     }
 
-    public function testRequireBasic(): void
-    {
-        $this->testRequireFull('1.0.0.9999');
-    }
-
-    
-    public function testRequireTranspiled(): void
+    public function testRequire01Transpiled(): void
     {
         $this->testRequireFull('1.0.0.9998');
     }
-    public function testRequireTranspiledAuto(): void
+    public function testRequire02TranspiledAuto(): void
     {
         $this->testRequireFull('^1.0.0');
+    }
+    public function testRequire03Basic(): void
+    {
+        $this->testRequireFull('1.0.0.9999');
     }
 }

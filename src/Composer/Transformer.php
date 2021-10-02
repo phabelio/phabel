@@ -279,9 +279,9 @@ class Transformer
      * @param int $target
      * @return string
      */
-    private function injectTarget(string $package, int $target): string
+    public static function injectTarget(string $package, int $target): string
     {
-        [$package] = $this->extractTarget($package);
+        [$package] = self::extractTarget($package);
         return self::HEADER.$target.self::SEPARATOR.$package;
     }
 
