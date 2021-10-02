@@ -3,8 +3,7 @@
 namespace Phabel\Target\Php71;
 
 use Phabel\Plugin;
-use PhpParser\Node\Stmt\ClassConst;
-
+use PhabelVendor\PhpParser\Node\Stmt\ClassConst;
 /**
  * Removes the class constant visibility modifiers (PHP 7.1).
  */
@@ -17,7 +16,7 @@ class ClassConstantVisibilityModifiersRemover extends Plugin
      *
      * @return void
      */
-    public function enter(ClassConst $node): void
+    public function enter(ClassConst $node) : void
     {
         $node->flags = 0;
         // Remove constant modifier

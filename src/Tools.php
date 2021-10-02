@@ -2,39 +2,38 @@
 
 namespace Phabel;
 
-use PhpParser\Node;
-use PhpParser\Node\Arg;
-use PhpParser\Node\Expr;
-use PhpParser\Node\Expr\ArrayDimFetch;
-use PhpParser\Node\Expr\Assign;
-use PhpParser\Node\Expr\AssignOp;
-use PhpParser\Node\Expr\AssignRef;
-use PhpParser\Node\Expr\Cast\String_;
-use PhpParser\Node\Expr\Clone_;
-use PhpParser\Node\Expr\Eval_;
-use PhpParser\Node\Expr\FuncCall;
-use PhpParser\Node\Expr\Include_;
-use PhpParser\Node\Expr\List_;
-use PhpParser\Node\Expr\MethodCall;
-use PhpParser\Node\Expr\New_;
-use PhpParser\Node\Expr\NullsafeMethodCall;
-use PhpParser\Node\Expr\NullsafePropertyFetch;
-use PhpParser\Node\Expr\PostDec;
-use PhpParser\Node\Expr\PostInc;
-use PhpParser\Node\Expr\PreDec;
-use PhpParser\Node\Expr\PreInc;
-use PhpParser\Node\Expr\PropertyFetch;
-use PhpParser\Node\Expr\ShellExec;
-use PhpParser\Node\Expr\StaticCall;
-use PhpParser\Node\Expr\Variable;
-use PhpParser\Node\Expr\Yield_;
-use PhpParser\Node\Expr\YieldFrom;
-use PhpParser\Node\Name;
-use PhpParser\Node\Name\FullyQualified;
-use PhpParser\Node\Stmt\Expression;
-use PhpParser\ParserFactory;
+use PhabelVendor\PhpParser\Node;
+use PhabelVendor\PhpParser\Node\Arg;
+use PhabelVendor\PhpParser\Node\Expr;
+use PhabelVendor\PhpParser\Node\Expr\ArrayDimFetch;
+use PhabelVendor\PhpParser\Node\Expr\Assign;
+use PhabelVendor\PhpParser\Node\Expr\AssignOp;
+use PhabelVendor\PhpParser\Node\Expr\AssignRef;
+use PhabelVendor\PhpParser\Node\Expr\Cast\String_;
+use PhabelVendor\PhpParser\Node\Expr\Clone_;
+use PhabelVendor\PhpParser\Node\Expr\Eval_;
+use PhabelVendor\PhpParser\Node\Expr\FuncCall;
+use PhabelVendor\PhpParser\Node\Expr\Include_;
+use PhabelVendor\PhpParser\Node\Expr\List_;
+use PhabelVendor\PhpParser\Node\Expr\MethodCall;
+use PhabelVendor\PhpParser\Node\Expr\New_;
+use PhabelVendor\PhpParser\Node\Expr\NullsafeMethodCall;
+use PhabelVendor\PhpParser\Node\Expr\NullsafePropertyFetch;
+use PhabelVendor\PhpParser\Node\Expr\PostDec;
+use PhabelVendor\PhpParser\Node\Expr\PostInc;
+use PhabelVendor\PhpParser\Node\Expr\PreDec;
+use PhabelVendor\PhpParser\Node\Expr\PreInc;
+use PhabelVendor\PhpParser\Node\Expr\PropertyFetch;
+use PhabelVendor\PhpParser\Node\Expr\ShellExec;
+use PhabelVendor\PhpParser\Node\Expr\StaticCall;
+use PhabelVendor\PhpParser\Node\Expr\Variable;
+use PhabelVendor\PhpParser\Node\Expr\Yield_;
+use PhabelVendor\PhpParser\Node\Expr\YieldFrom;
+use PhabelVendor\PhpParser\Node\Name;
+use PhabelVendor\PhpParser\Node\Name\FullyQualified;
+use PhabelVendor\PhpParser\Node\Stmt\Expression;
+use PhabelVendor\PhpParser\ParserFactory;
 use ReflectionClass;
-
 /**
  * Various tools.
  *
@@ -57,7 +56,7 @@ abstract class Tools
      *
      * @return Node
      */
-    public static function replaceType(Node $node, string $class, array $propertyMap = []): Node
+    public static function replaceType(Node $node, string $class, array $propertyMap = []) : Node
     {
         if ($propertyMap) {
             $nodeNew = (new ReflectionClass($class))->newInstanceWithoutConstructor();
@@ -67,7 +66,7 @@ abstract class Tools
             $nodeNew->setAttributes($node->getAttributes());
             return $nodeNew;
         }
-        return new $class(...[...\array_map(fn (string $name) => $node->{$name}, $node->getSubNodeNames()), $node->getAttributes()]);
+        return new $class(...[...\array_map(fn(string $name) => $node->{$name}, $node->getSubNodeNames()), $node->getAttributes()]);
     }
     /**
      * Replace type in-place.
@@ -83,7 +82,7 @@ abstract class Tools
      *
      * @return void
      */
-    public static function replaceTypeInPlace(Node &$node, string $class, array $propertyMap = []): void
+    public static function replaceTypeInPlace(Node &$node, string $class, array $propertyMap = []) : void
     {
         $node = self::replaceType($node, $class, $propertyMap);
     }
@@ -95,7 +94,7 @@ abstract class Tools
      *
      * @return Expression
      */
-    public static function assign(Variable $name, Expr $expression): Expression
+    public static function assign(Variable $name, Expr $expression) : Expression
     {
         return new Expression(new Assign($name, $expression));
     }
@@ -114,7 +113,7 @@ abstract class Tools
      */
     public static function call($name, ...$parameters)
     {
-        $parameters = \array_map(fn ($data) => ($data instanceof Arg ? $data : new Arg($data)), $parameters);
+        $parameters = \array_map(fn($data) => $data instanceof Arg ? $data : new Arg($data), $parameters);
         return \is_array($name) ? new StaticCall(new FullyQualified($name[0]), $name[1], $parameters) : new FuncCall(new FullyQualified($name), $parameters);
     }
     /**
@@ -126,9 +125,9 @@ abstract class Tools
      *
      * @return MethodCall
      */
-    public static function callMethod(Expr $name, string $method, ...$parameters): MethodCall
+    public static function callMethod(Expr $name, string $method, ...$parameters) : MethodCall
     {
-        $parameters = \array_map(fn ($data) => ($data instanceof Arg ? $data : new Arg($data)), $parameters);
+        $parameters = \array_map(fn($data) => $data instanceof Arg ? $data : new Arg($data), $parameters);
         return new MethodCall($name, $method, $parameters);
     }
     /**
@@ -138,9 +137,9 @@ abstract class Tools
      *
      * @return Node
      */
-    public static function fromLiteral($data): Node
+    public static function fromLiteral($data) : Node
     {
-        return self::toNode(\var_export($data, true) . ';');
+        return self::toNode(\var_export($data, \true) . ';');
     }
     /**
      * Convert code to node.
@@ -151,7 +150,7 @@ abstract class Tools
      *
      * @return Node
      */
-    public static function toNode(string $code): Node
+    public static function toNode(string $code) : Node
     {
         $res = (new ParserFactory())->create(ParserFactory::PREFER_PHP7)->parse('<?php ' . $code);
         if ($res === null || empty($res) || !$res[0] instanceof Expression || !isset($res[0]->expr)) {
@@ -166,33 +165,33 @@ abstract class Tools
      *
      * @return bool
      */
-    public static function hasSideEffects(?Expr $node): bool
+    public static function hasSideEffects(?Expr $node) : bool
     {
         if (!$node) {
-            return false;
+            return \false;
         }
         if ($node->hasAttribute('hasSideEffects') || $node instanceof String_ || $node instanceof ArrayDimFetch || $node instanceof Assign || $node instanceof AssignOp || $node instanceof AssignRef || $node instanceof Clone_ || $node instanceof Eval_ || $node instanceof FuncCall || $node instanceof Include_ || $node instanceof List_ || $node instanceof MethodCall || $node instanceof New_ || $node instanceof NullsafeMethodCall || $node instanceof NullsafePropertyFetch || $node instanceof PostDec || $node instanceof PostInc || $node instanceof PreDec || $node instanceof PreInc || $node instanceof PropertyFetch || $node instanceof StaticCall || $node instanceof Yield_ || $node instanceof YieldFrom || $node instanceof ShellExec) {
-            $node->setAttribute('hasSideEffects', true);
-            return true;
+            $node->setAttribute('hasSideEffects', \true);
+            return \true;
         }
         /** @var string */
         foreach ($node->getSubNodeNames() as $name) {
             if ($node->{$name} instanceof Expr) {
                 if (self::hasSideEffects($node->{$name})) {
-                    $node->setAttribute('hasSideEffects', true);
-                    return true;
+                    $node->setAttribute('hasSideEffects', \true);
+                    return \true;
                 }
             } elseif (\is_array($node->{$name})) {
                 /** @var Node|Node[]|string */
                 foreach ($node->{$name} as $var) {
                     if ($var instanceof Expr && self::hasSideEffects($var)) {
-                        $node->setAttribute('hasSideEffects', true);
-                        return true;
+                        $node->setAttribute('hasSideEffects', \true);
+                        return \true;
                     }
                 }
             }
         }
-        return false;
+        return \false;
     }
     /**
      * Get fully qualified name.
@@ -202,7 +201,7 @@ abstract class Tools
      *
      * @return class-string
      */
-    public static function getFqdn(Node $node, string $alt = ''): string
+    public static function getFqdn(Node $node, string $alt = '') : string
     {
         if ($node instanceof FullyQualified) {
             return (string) $node;
@@ -214,7 +213,7 @@ abstract class Tools
             if ($alt) {
                 return $alt;
             }
-            throw new UnresolvedNameException();
+            throw new \Phabel\UnresolvedNameException();
         }
         return (string) $node->getAttribute('resolvedName', $node->getAttribute('namespacedName'));
     }
@@ -229,7 +228,7 @@ abstract class Tools
      *
      * @return object
      */
-    public static function cloneWithTrait(object $obj, string $trait): object
+    public static function cloneWithTrait(object $obj, string $trait) : object
     {
         /** @psalm-var int */
         static $count = 0;
@@ -243,7 +242,7 @@ abstract class Tools
         $extend = "extends \\" . $r->getName();
         if (isset($memoized["{$trait} {$extend}"])) {
             /** @psalm-suppress MixedMethodCall */
-            $newObj = ($phabel_2870652946b422cb = $memoized["{$trait} {$extend}"]) || true ? new $phabel_2870652946b422cb() : false;
+            $newObj = ($phabel_2870652946b422cb = $memoized["{$trait} {$extend}"]) || \true ? new $phabel_2870652946b422cb() : \false;
         } else {
             $memoized["{$trait} {$extend}"] = "phabelTmpClass{$count}";
             $eval = "class phabelTmpClass{$count} {$extend} {\n                use \\{$trait};\n                public function __construct() {}\n            }\n            return new phabelTmpClass{$count};";
@@ -259,8 +258,8 @@ abstract class Tools
             foreach ($reflect->getProperties() as $prop) {
                 if ($reflectNew->hasProperty($prop->getName())) {
                     $propNew = $reflectNew->getProperty($prop->getName());
-                    $propNew->setAccessible(true);
-                    $prop->setAccessible(true);
+                    $propNew->setAccessible(\true);
+                    $prop->setAccessible(\true);
                     $propNew->setValue($newObj, $prop->getValue($obj));
                 }
             }
@@ -282,9 +281,9 @@ abstract class Tools
      * @return bool
      * @access public
      */
-    public static function hasVar(object $obj, string $var): bool
+    public static function hasVar(object $obj, string $var) : bool
     {
-        return \Closure::bind(function () use ($var): bool {
+        return \Closure::bind(function () use($var) : bool {
             return isset($this->{$var});
         }, $obj, \get_class($obj))->__invoke();
     }
@@ -305,7 +304,7 @@ abstract class Tools
     {
         return \Closure::bind(
             /** @return mixed */
-            function &() use ($var) {
+            function &() use($var) {
                 return $this->{$var};
             },
             $obj,
@@ -326,9 +325,9 @@ abstract class Tools
      *
      * @access public
      */
-    public static function setVar($obj, string $var, &$val): void
+    public static function setVar($obj, string $var, &$val) : void
     {
-        \Closure::bind(function () use ($var, &$val) {
+        \Closure::bind(function () use($var, &$val) {
             $this->{$var} =& $val;
         }, $obj, \get_class($obj))->__invoke();
     }
@@ -340,7 +339,7 @@ abstract class Tools
      * @throws \LogicException
      * @psalm-suppress ForbiddenCode
      */
-    public static function getCpuCount(): int
+    public static function getCpuCount() : int
     {
         static $result = -1;
         if ($result !== -1) {
@@ -367,7 +366,7 @@ abstract class Tools
             $ret = @\shell_exec('nproc');
             if (\is_string($ret)) {
                 $ret = \trim($ret);
-                $tmp = \filter_var($ret, FILTER_VALIDATE_INT);
+                $tmp = \filter_var($ret, \FILTER_VALIDATE_INT);
                 if (\is_int($tmp)) {
                     return $result = $tmp;
                 }
@@ -376,7 +375,7 @@ abstract class Tools
         $ret = @\shell_exec('sysctl -n hw.ncpu');
         if (\is_string($ret)) {
             $ret = \trim($ret);
-            $tmp = \filter_var($ret, FILTER_VALIDATE_INT);
+            $tmp = \filter_var($ret, \FILTER_VALIDATE_INT);
             if (\is_int($tmp)) {
                 return $result = $tmp;
             }
@@ -415,10 +414,10 @@ abstract class Tools
      * @param (callable(SplFileInfo, string): bool)|null $cb
      * @return void
      */
-    public static function traverseCopy(string $input, string $output, ?callable $cb = null): void
+    public static function traverseCopy(string $input, string $output, ?callable $cb = null) : void
     {
         if (!\file_exists($output)) {
-            \mkdir($output, 0777, true);
+            \mkdir($output, 0777, \true);
         }
         $output = \realpath($output);
         $input = \realpath($input);
@@ -427,17 +426,17 @@ abstract class Tools
         /** @var \SplFileInfo $file */
         foreach ($ri as $file) {
             $rel = $ri->getSubPathname();
-            $targetPath = $output . DIRECTORY_SEPARATOR . $rel;
+            $targetPath = $output . \DIRECTORY_SEPARATOR . $rel;
             if ($file->isDir()) {
                 if (!\file_exists($targetPath)) {
-                    \mkdir($targetPath, $file->getPerms(), true);
+                    \mkdir($targetPath, $file->getPerms(), \true);
                 }
             } elseif ($file->isLink()) {
                 $dest = $file->getRealPath();
-                if ($dest !== false && \str_starts_with($dest, $input)) {
-                    $dest = \trim(\substr($dest, \strlen($input)), DIRECTORY_SEPARATOR);
-                    $dest = \str_repeat('..' . DIRECTORY_SEPARATOR, \substr_count($rel, DIRECTORY_SEPARATOR)) . $dest;
-                    $link = $output . DIRECTORY_SEPARATOR . $rel;
+                if ($dest !== \false && \str_starts_with($dest, $input)) {
+                    $dest = \trim(\substr($dest, \strlen($input)), \DIRECTORY_SEPARATOR);
+                    $dest = \str_repeat('..' . \DIRECTORY_SEPARATOR, \substr_count($rel, \DIRECTORY_SEPARATOR)) . $dest;
+                    $link = $output . \DIRECTORY_SEPARATOR . $rel;
                     if (\file_exists($link)) {
                         \unlink($link);
                     }
