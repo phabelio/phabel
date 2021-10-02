@@ -144,6 +144,10 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
         'src/Composer/Plugin.php',
         \str_replace('PhabelVendor\\Symfony', 'Symfony', \file_get_contents('src/Composer/Plugin.php'))
     );
+    \file_put_contents(
+        'src/Composer/Transformer.php',
+        \str_replace('PhabelVendor\\Symfony', 'Symfony', \file_get_contents('src/Composer/Transformer.php'))
+    );
 
     \rename("vendor", "vendor-bundle");
     r("find src -type f -exec sed 's/\\\\PhabelVendor\\\\self/self/g' -i {} +");
