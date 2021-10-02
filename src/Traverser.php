@@ -4,6 +4,7 @@ namespace Phabel;
 
 use Amp\Parallel\Worker\DefaultPool;
 use Amp\Promise;
+use Phabel\Composer\Transformer;
 use Phabel\Plugin\ClassStoragePlugin;
 use Phabel\PluginGraph\Graph;
 use Phabel\PluginGraph\ResolvedGraph;
@@ -14,6 +15,7 @@ use PhpParser\Node;
 use PhpParser\Parser;
 use PhpParser\ParserFactory;
 use PhpParser\PrettyPrinter\Standard;
+use RuntimeException;
 use SebastianBergmann\CodeCoverage\CodeCoverage;
 use SebastianBergmann\CodeCoverage\Driver\Selector;
 use SebastianBergmann\CodeCoverage\Filter;
@@ -71,27 +73,35 @@ class Traverser
      */
     private string $output = '';
     /**
+     * Package paths.
+     *
+     * @var array<string, string>
+     */
+    private array $packagePaths = [];
+    /**
+     * Composer paths.
+     *
+     * @var array<string, array{0: string, 1: string}>
+     */
+    private array $composerPaths = [];
+    /**
+     * Composer vendor directory.
+     *
+     * @var string
+     */
+    private string $composerVendor;
+    /**
      * Files to work on.
      *
      * @var list<string>
      */
     private ?array $files = null;
     /**
-     * Callable to extract package name from path.
-     *
-     * @var (callable(string): string)|null
-     */
-    private $composerPackageName = null;
-    /**
      * Coverage path.
      *
      * @var string
      */
     private string $coverage = '';
-    /**
-     * Current file.
-     */
-    private string $file = '';
     /**
      * Current input file.
      */
@@ -233,19 +243,41 @@ class Traverser
     }
 
     /**
-     * Set callable to extract composer package name from path.
+     * Set composer paths.
      *
-     * @param callable $composer
+     * @param array<string, array{0: string, 1: string}> $paths
      *
      * @return self
      */
-    public function setComposer(callable $composer): self
+    public function setComposerPaths(array $paths): self
     {
-        $this->composerPackageName = $composer;
+        $this->composerPaths = $paths;
+        $this->composerVendor = \realpath(\getcwd().DIRECTORY_SEPARATOR.'vendor').DIRECTORY_SEPARATOR;
+        $this->packagePaths = [];
+        foreach ($paths as $package => [$old]) {
+            $this->packagePaths[$old] = $package;
+        }
 
         return $this;
     }
 
+    public function getPackageName(string $path): string
+    {
+        if (\str_starts_with($path, $this->composerVendor)) {
+            [$package] = Transformer::extractTarget(\substr($path, \strlen($this->composerVendor)));
+            $result = \implode('/', \array_slice(\explode('/', $package, 3), 0, 2));
+            return $result;
+        }
+        $orig = $path;
+        $last = '';
+        while (($path = \dirname($path)) !== $last) {
+            $last = $path;
+            if (isset($this->packagePaths[$path])) {
+                return $this->packagePaths[$path];
+            }
+        }
+        throw new RuntimeException("Could not find package for path $orig!");
+    }
     /**
      * Set coverage path.
      *
@@ -307,21 +339,45 @@ class Traverser
      */
     private function prepareFiles(): void
     {
-        if ($this->files === null && \is_dir($this->input)) {
-            if (!\file_exists($this->output)) {
-                \mkdir($this->output, 0777, true);
-            }
-            $this->output = \realpath($this->output);
-            $this->input = \realpath($this->input);
-            $this->files = [];
-
-            Tools::traverseCopy($this->input, $this->output, function (SplFileInfo $f, string $rel): bool {
-                if ($f->getExtension() == 'php') {
-                    $this->files []= $rel;
-                    return true;
+        if ($this->files === null) {
+            if (isset($this->input) && \is_dir($this->input)) {
+                if (!\file_exists($this->output)) {
+                    \mkdir($this->output, 0777, true);
                 }
-                return false;
-            });
+                $this->output = \realpath($this->output);
+                $this->input = \realpath($this->input);
+                $this->files = [];
+
+                Tools::traverseCopy($this->input, $this->output, function (SplFileInfo $f, string $output): bool {
+                    if ($f->getExtension() === 'php') {
+                        $this->files[\str_replace('\\', '/', $f->getRealPath())] = \str_replace('\\', '/', $output);
+                        return true;
+                    }
+                    return false;
+                });
+            } elseif ($this->composerPaths) {
+                $autoload = $this->composerVendor.'autoload.php';
+                $composerDir = $this->composerVendor.'composer';
+                $cb = function (SplFileInfo $f, string $output) use ($autoload, $composerDir): bool {
+                    if ($f->getExtension() !== 'php') {
+                        return false;
+                    }
+                    $real = $f->getRealPath();
+                    if ($real === $autoload) {
+                        return false;
+                    }
+                    $dir = \dirname($real);
+                    if ($dir === $composerDir) {
+                        return false;
+                    }
+                    $this->files[\str_replace('\\', '/', $real)] = \str_replace('\\', '/', $output);
+                    return true;
+                };
+                Tools::traverseCopy($this->composerVendor, $this->composerVendor, $cb);
+                foreach ($this->composerPaths as [$old, $new]) {
+                    Tools::traverseCopy($old, $new, $cb);
+                }
+            }
         }
     }
     /**
@@ -369,18 +425,15 @@ class Traverser
             $this->eventHandler?->onBeginDirectoryTraversal(\count($this->files), $threads);
 
             $promises = [];
-            foreach ($this->files as $rel) {
-                $output = $this->output.DIRECTORY_SEPARATOR.$rel;
-                $input = $this->input.DIRECTORY_SEPARATOR.$rel;
-                $promise = call(function () use ($pool, $rel, $input, $output, $count, $first, &$promises, &$coverages) {
+            foreach ($this->files as $input => $output) {
+                $promise = call(function () use ($pool, $input, $output, $count, $first, &$promises, &$coverages) {
                     $this->eventHandler?->onBeginAstTraversal($input);
                     $package = null;
-                    if ($this->composerPackageName) {
-                        $package = ($this->composerPackageName)($rel);
+                    if ($this->composerPaths) {
+                        $package = $this->getPackageName($input);
                     }
                     $res = yield $pool->enqueue(
                         new Run(
-                            $rel,
                             $input,
                             $output,
                             $package,
@@ -437,7 +490,7 @@ class Traverser
                 unset($classStorage);
                 if ($plugins && $this->files) {
                     $this->input = $this->output;
-                    $this->composerPackageName = null;
+                    $this->composerPaths = [];
                     $this->setPlugins($plugins);
                     return $this->run();
                 }
@@ -505,7 +558,7 @@ class Traverser
                 break;
             }
             $this->input = $this->output;
-            $this->composerPackageName = null;
+            $this->composerPaths = [];
             $this->setPlugins($plugins);
         }
         $this->eventHandler?->onEnd();
@@ -531,17 +584,15 @@ class Traverser
         }
 
         $this->eventHandler->onBeginDirectoryTraversal(\count($this->files), 1);
-        foreach ($this->files as $rel) {
+        foreach ($this->files as $input => $output) {
             $_ = self::startCoverage($this->coverage);
-            if ($this->composerPackageName) {
-                $this->setPackage(($this->composerPackageName)($rel));
+            if ($this->composerPaths) {
+                $this->setPackage($this->getPackageName($input));
             } else {
                 $this->packageQueue = null;
             }
-            $input = $this->input.DIRECTORY_SEPARATOR.$rel;
-            $output = $this->output.DIRECTORY_SEPARATOR.$rel;
             try {
-                $it = $this->traverse($rel, $input, $output);
+                $it = $this->traverse($input, $output);
             } catch (\Throwable $e) {
                 if (!($first && $e instanceof Exception && \str_contains($e->getMessage(), ' while parsing '))) {
                     throw $e;
@@ -599,7 +650,7 @@ class Traverser
      *
      * @return int
      */
-    public function traverse(string $file, string $input, string $output): int
+    public function traverse(string $input, string $output): int
     {
         $this->eventHandler?->onBeginAstTraversal($input);
 
@@ -615,7 +666,7 @@ class Traverser
             }
             /** @var Plugin */
             foreach ($queue as $plugin) {
-                if ($plugin->shouldRunFile($file)) {
+                if ($plugin->shouldRunFile($input)) {
                     $newQueue->enqueue($plugin);
                 }
             }
@@ -639,7 +690,6 @@ class Traverser
             throw new Exception($message, (int) $e->getCode(), $e, $e->getFile(), $e->getLine());
         }
 
-        $this->file = $file;
         $this->inputFile = $input;
         $this->outputFile = $output;
         [$it, $result] = $this->traverseAstInternal($ast, $reducedQueue);
@@ -662,7 +712,6 @@ class Traverser
      */
     public function traverseAst(Node &$node, SplQueue $pluginQueue = null, bool $allowMulti = true): int
     {
-        $this->file = '';
         $this->inputFile = '';
         $this->outputFile = '';
         $n = new RootNode([&$node]);
@@ -692,7 +741,6 @@ class Traverser
             try {
                 foreach ($pluginQueue ?? $this->packageQueue ?? $this->graph->getPlugins() as $queue) {
                     $context = new Context;
-                    $context->setFile($this->file);
                     $context->setInputFile($this->inputFile);
                     $context->setOutputFile($this->outputFile);
                     $context->push($node);
@@ -705,7 +753,7 @@ class Traverser
             } catch (\Throwable $e) {
                 $message = $e->getMessage();
                 $message .= " while processing ";
-                $message .= $this->file;
+                $message .= $this->inputFile;
                 $message .= ":";
                 try {
                     $message .= $context ? $context->getCurrentChild($context->parents[0])->getStartLine() : "-1";

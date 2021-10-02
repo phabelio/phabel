@@ -430,30 +430,6 @@ class Context
     }
 
     /**
-     * Get relative path of current file.
-     *
-     * @return string
-     */
-    public function getFile(): string
-    {
-        return $this->file;
-    }
-
-    /**
-     * Set relative path of current file.
-     *
-     * @param string $file Current file
-     *
-     * @return self
-     */
-    public function setFile(string $file): self
-    {
-        $this->file = $file;
-
-        return $this;
-    }
-
-    /**
      * Get absolute path of current output file.
      *
      * @return string

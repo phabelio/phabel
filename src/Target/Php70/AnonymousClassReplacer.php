@@ -63,7 +63,7 @@ class AnonymousClassReplacer extends Plugin
             $className = new String_('class@anonymous');
         }
 
-        $name = 'PhabelAnonymousClass'.\hash('sha256', $ctx->getFile()).(self::$count++);
+        $name = 'PhabelAnonymousClass'.\hash('sha256', $ctx->getInputFile()).(self::$count++);
         $classNode->stmts []= (new Method('getPhabelOriginalName'))
             ->makePublic()
             ->makeStatic()

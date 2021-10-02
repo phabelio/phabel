@@ -69,12 +69,16 @@ final class ClassStorage
     /**
      * Get all files to process.
      *
-     * @return array<string, true>
+     * @return array<string, string>
      */
     public function getFiles(): array
     {
         unset($this->files['_']);
-        return \array_keys($this->files);
+        $result = $this->files;
+        foreach ($result as $k => $_) {
+            $result[$k] = $k;
+        }
+        return $result;
     }
 
     /**

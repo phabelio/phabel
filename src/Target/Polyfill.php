@@ -53,7 +53,7 @@ class Polyfill extends Plugin
         } else {
             $this->functions = $this->getConfig('functions', []);
         }
-        return !\str_contains($file, 'vendor'.DIRECTORY_SEPARATOR.'composer'.DIRECTORY_SEPARATOR);
+        return !\str_contains($file, 'vendor/composer/');
     }
     public function enterFunc(FuncCall $call): ?StaticCall
     {

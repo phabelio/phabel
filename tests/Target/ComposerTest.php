@@ -49,7 +49,8 @@ class ComposerTest extends TestCase
             "minimum-stability" => "dev",
             'require' => [
                 "php" => ">=8.0",
-                'danog/loop' => '*'
+                'danog/loop' => '*',
+                'roots/wp-stage-switcher' => '*'
             ],
             'require-dev' => [
                 'phabel/phabel' => "dev-$branch"

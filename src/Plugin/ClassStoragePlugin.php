@@ -74,7 +74,7 @@ final class ClassStoragePlugin extends Plugin
      */
     public function shouldRunFile(string $file): bool
     {
-        return !\str_contains($file, 'vendor'.DIRECTORY_SEPARATOR.'composer'.DIRECTORY_SEPARATOR);
+        return !\str_contains($file, 'vendor/composer/');
     }
 
     /**
@@ -118,7 +118,7 @@ final class ClassStoragePlugin extends Plugin
      */
     public function enterRoot(RootNode $_, Context $context): void
     {
-        $file = $context->getFile();
+        $file = $context->getInputFile();
         $this->count[$file] = [];
         foreach ($this->traits as $trait => $traits) {
             if (isset($traits[$file])) {
@@ -140,7 +140,7 @@ final class ClassStoragePlugin extends Plugin
      */
     public function enter(ClassLike $class, Context $context): void
     {
-        $file = $context->getFile();
+        $file = $context->getInputFile();
         if ($class->name) {
             $name = self::getFqdn($class);
         } else {
@@ -160,7 +160,7 @@ final class ClassStoragePlugin extends Plugin
      */
     public function leave(ClassLike $class, Context $context): void
     {
-        $file = $context->getFile();
+        $file = $context->getInputFile();
         $name = $class->getAttribute(self::NAME);
 
         if ($class instanceof Trait_) {
@@ -200,7 +200,7 @@ final class ClassStoragePlugin extends Plugin
     /**
      * Resolve all classes, optionally fixing up a few methods.
      *
-     * @return array{0: array, 1: array<string, true>} Config to pass to new Traverser instance
+     * @return array{0: array, 1: array<string, string>} Config to pass to new Traverser instance
      */
     public function finish(): array
     {

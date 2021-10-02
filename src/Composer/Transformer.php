@@ -2,6 +2,7 @@
 
 namespace Phabel\Composer;
 
+use Composer\Installer\InstallationManager;
 use Composer\IO\ConsoleIO;
 use Composer\IO\IOInterface;
 use Composer\Package\AliasPackage;
@@ -16,15 +17,14 @@ use Composer\Semver\VersionParser;
 use Phabel\Cli\Formatter;
 use Phabel\PluginGraph\Graph;
 use Phabel\Target\Php;
-use Phabel\Tools;
 use Phabel\Traverser;
 use ReflectionClass;
-use SplFileInfo;
+use Symfony\Component\Filesystem\Filesystem;
 
 class Transformer
 {
-    const HEADER = 'phabel/transpiler';
-    const SEPARATOR = '/';
+    const HEADER = 'phabel.transpiler';
+    const SEPARATOR = ':';
     /**
      * IO interface.
      */
@@ -59,9 +59,9 @@ class Transformer
      *
      * @return self
      */
-    public static function getInstance(IOInterface $io, int $version): self
+    public static function getInstance(IOInterface $io, InstallationManager $installer, int $version): self
     {
-        self::$instance ??= new self($io, $version);
+        self::$instance ??= new self($io, $installer, $version);
         return self::$instance;
     }
     /**
@@ -69,7 +69,7 @@ class Transformer
      *
      * @param IOInterface $io
      */
-    private function __construct(private IOInterface $io, private int $version)
+    private function __construct(private IOInterface $io, private InstallationManager $installer, private int $version)
     {
         $this->versionParser = new VersionParser;
         $this->outputFormatter = Formatter::getFormatter();
@@ -275,7 +275,7 @@ class Transformer
      *
      * @return array{0: string, 1: int}
      */
-    public function extractTarget(string $package): array
+    public static function extractTarget(string $package): array
     {
         if (\str_starts_with($package, self::HEADER)) {
             [$version, $package] = \explode(self::SEPARATOR, \substr($package, \strlen(self::HEADER)), 2);
@@ -296,11 +296,12 @@ class Transformer
         $enabled = \gc_enabled();
         \gc_enable();
 
+        $filesystem = new Filesystem;
         $packages = $lock['packages'] ?? [];
 
         $this->log("Creating plugin graph...", IOInterface::VERBOSE);
         $missingDeps = false;
-        $moveMap = [];
+        $paths = [];
         $byName = [];
         foreach ($packages as $package) {
             $config = $package['extra']['phabel'] ?? [];
@@ -328,9 +329,27 @@ class Transformer
                     continue;
                 }
                 $target = $myTarget;
-            } else {
-                $moveMap[$name] = $package['name'];
             }
+            try {
+                $p = new Package($package['name'], $package['version'], $package['version']);
+                $p->setType($package['type']);
+                $current = $this->installer->getInstaller($package['type'])->getInstallPath($p);
+                if (!$filesystem->isAbsolutePath($current)) {
+                    $current = \getcwd().DIRECTORY_SEPARATOR.$current;
+                }
+                $p = new Package($name, $package['version'], $package['version']);
+                $p->setType($package['type']);
+                $new = $this->installer->getInstaller($package['type'])->getInstallPath($p);
+                if (!$filesystem->isAbsolutePath($new)) {
+                    $new = \getcwd().DIRECTORY_SEPARATOR.$new;
+                }
+                $paths[$name] = [
+                    \rtrim(\str_replace('\\', '/', $current), '/'),
+                    \rtrim(\str_replace('\\', '/', $new), '/'),
+                ];
+            } catch (\Throwable $e) {
+            }
+
             $package['phabelTarget'] = (int) $target;
             $package['phabelConfig'] = [$config];
             unset($package['phabelConfig'][0]['target']);
@@ -401,17 +420,8 @@ class Transformer
         $this->banner();
 
         $traverser
-            ->setInput('vendor')
-            ->setOutput('vendor')
-            ->setComposer(function (string $rel): string {
-                [$package] = $this->extractTarget(\str_replace('\\', '/', $rel));
-                return \implode('/', \array_slice(\explode('/', $package), 0, 2));
-            })
+            ->setComposerPaths($paths)
             ->run((int) (\getenv('PHABEL_PARALLEL') ?: 1));
-
-        foreach ($moveMap as $newName => $oldName) {
-            Tools::traverseCopy("vendor/$oldName", "vendor/$newName");
-        }
 
         if (!$enabled) {
             unset($traverser);

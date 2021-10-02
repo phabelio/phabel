@@ -513,7 +513,7 @@ abstract class Tools
                     \symlink($dest, $link);
                 }
             } elseif ($file->isFile()) {
-                if ($cb && $cb($file, $rel)) {
+                if ($cb && $cb($file, $targetPath)) {
                     // All done!
                 } elseif (\realpath($targetPath) !== $file->getRealPath()) {
                     \copy($file->getRealPath(), $targetPath);

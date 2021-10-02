@@ -83,7 +83,7 @@ abstract class Plugin extends Tools implements PluginInterface
      */
     public function shouldRunFile(string $file): bool
     {
-        return !\str_contains($file, 'vendor'.DIRECTORY_SEPARATOR.'composer'.DIRECTORY_SEPARATOR);
+        return !\str_contains($file, 'vendor/composer/');
     }
     /**
      * Call polyfill function from current plugin.
