@@ -17,6 +17,7 @@ use Composer\Semver\VersionParser;
 use Phabel\Cli\Formatter;
 use Phabel\PluginGraph\Graph;
 use Phabel\Target\Php;
+use Phabel\Tools;
 use Phabel\Traverser;
 use ReflectionClass;
 use Symfony\Component\Filesystem\Filesystem;
@@ -439,6 +440,10 @@ class Transformer
         $traverser
             ->setComposerPaths($paths)
             ->run((int) (\getenv('PHABEL_PARALLEL') ?: 1));
+
+        foreach ($paths as [$old, $new]) {
+            Tools::traverseCopy($new, $old);
+        }
 
         if (!$enabled) {
             unset($traverser);
