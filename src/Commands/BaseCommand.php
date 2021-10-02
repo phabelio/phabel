@@ -2,13 +2,12 @@
 
 namespace Phabel\Commands;
 
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Process\Exception\ProcessFailedException;
-use Symfony\Component\Process\Process;
-
+use PhabelVendor\Symfony\Component\Console\Command\Command;
+use PhabelVendor\Symfony\Component\Process\Exception\ProcessFailedException;
+use PhabelVendor\Symfony\Component\Process\Process;
 abstract class BaseCommand extends Command
 {
-    protected function exec(array $command, bool $ignoreResult = false): string
+    protected function exec(array $command, bool $ignoreResult = \false) : string
     {
         $proc = new Process($command);
         $proc->run();
