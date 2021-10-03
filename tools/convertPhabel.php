@@ -44,6 +44,9 @@ function commit(string $message)
     r("git commit -m " . \escapeshellarg($message));
 }
 
+$last = Php::VERSIONS;
+$last = end($last);
+
 foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
     $realTarget = Php::normalizeVersion($realTarget);
     if (!$dry) {
@@ -170,6 +173,10 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
         'bamarni/composer-bin-plugin' => $json['require-dev']['bamarni/composer-bin-plugin'],
         'amphp/file' => $json['require-dev']['amphp/file']
     ];
+
+    if ($realTarget === $last) {
+        $json['require']['php'] = '>='.Php::unnormalizeVersion($last);
+    }
 
     foreach ($lock['packages'] as $package) {
         $name = $package['name'];
