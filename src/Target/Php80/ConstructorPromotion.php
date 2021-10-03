@@ -5,20 +5,19 @@ namespace Phabel\Target\Php80;
 use Phabel\Context;
 use Phabel\Plugin;
 use Phabel\Plugin\IssetExpressionFixer as fixer;
-use PhpParser\Node\Expr\Assign;
-use PhpParser\Node\Expr\PropertyFetch;
-use PhpParser\Node\Expr\Variable;
-use PhpParser\Node\Stmt\ClassMethod;
-use PhpParser\Node\Stmt\Expression;
-use PhpParser\Node\Stmt\Property;
-use PhpParser\Node\Stmt\PropertyProperty;
-
+use PhabelVendor\PhpParser\Node\Expr\Assign;
+use PhabelVendor\PhpParser\Node\Expr\PropertyFetch;
+use PhabelVendor\PhpParser\Node\Expr\Variable;
+use PhabelVendor\PhpParser\Node\Stmt\ClassMethod;
+use PhabelVendor\PhpParser\Node\Stmt\Expression;
+use PhabelVendor\PhpParser\Node\Stmt\Property;
+use PhabelVendor\PhpParser\Node\Stmt\PropertyProperty;
 /**
  * Expression fixer for PHP 80.
  */
 class ConstructorPromotion extends Plugin
 {
-    public function enter(ClassMethod $classMethod, Context $ctx): void
+    public function enter(ClassMethod $classMethod, Context $ctx) : void
     {
         if (\strtolower($classMethod->name) !== '__construct' || $classMethod->stmts === null) {
             return;
