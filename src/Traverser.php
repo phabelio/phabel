@@ -436,7 +436,7 @@ class Traverser
                     $this->eventHandler?->onBeginAstTraversal($input);
                     $package = null;
                     if ($this->composerPaths) {
-                        $package = $this->getPackageName($input);
+                        $package = $this->getPackageName($output);
                     }
                     $res = yield $pool->enqueue(
                         new Run(
@@ -593,7 +593,7 @@ class Traverser
         foreach ($this->files as $input => $output) {
             $_ = self::startCoverage($this->coverage);
             if ($this->composerPaths) {
-                $this->setPackage($this->getPackageName($input));
+                $this->setPackage($this->getPackageName($output));
             } else {
                 $this->packageQueue = null;
             }
