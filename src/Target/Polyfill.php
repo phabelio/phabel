@@ -4,15 +4,14 @@ namespace Phabel\Target;
 
 use Phabel\Plugin;
 use Phabel\Tools;
-use PhpParser\Node;
-use PhpParser\Node\Expr\ClassConstFetch;
-use PhpParser\Node\Expr\Error;
-use PhpParser\Node\Expr\FuncCall;
-use PhpParser\Node\Expr\StaticCall;
-use PhpParser\Node\Name;
+use PhabelVendor\PhpParser\Node;
+use PhabelVendor\PhpParser\Node\Expr\ClassConstFetch;
+use PhabelVendor\PhpParser\Node\Expr\Error;
+use PhabelVendor\PhpParser\Node\Expr\FuncCall;
+use PhabelVendor\PhpParser\Node\Expr\StaticCall;
+use PhabelVendor\PhpParser\Node\Name;
 use ReflectionClass;
 use ReflectionMethod;
-
 /**
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT
@@ -20,10 +19,10 @@ use ReflectionMethod;
 class Polyfill extends Plugin
 {
     private $functions = [];
-    public static function mergeConfigs(array ...$configs): array
+    public static function mergeConfigs(array ...$configs) : array
     {
         $configs = \array_merge(...$configs);
-        \krsort($configs, SORT_STRING);
+        \krsort($configs, \SORT_STRING);
         $constants = [];
         $functions = [];
         foreach ($configs as $polyfill => $_) {
@@ -39,12 +38,12 @@ class Polyfill extends Plugin
         }
         return [['constants' => $constants, 'functions' => $functions]];
     }
-    public function shouldRunFile(string $file): bool
+    public function shouldRunFile(string $file) : bool
     {
         if (\preg_match(':Target/Php(\\d\\d)/Polyfill.php:', $file, $matches)) {
-            $version = Php::normalizeVersion($matches[1]);
-            $version = Php::class . $version . '\\Polyfill';
-            $this->functions = \Phabel\Target\Php74\Polyfill::array_filter($this->getConfig('functions', []), function ($s) use ($version) {
+            $version = \Phabel\Target\Php::normalizeVersion($matches[1]);
+            $version = \Phabel\Target\Php::class . $version . '\\Polyfill';
+            $this->functions = \Phabel\Target\Php74\Polyfill::array_filter($this->getConfig('functions', []), function ($s) use($version) {
                 return $s[0] !== $version;
             });
         } else {
@@ -52,7 +51,7 @@ class Polyfill extends Plugin
         }
         return !\str_contains($file, 'vendor/composer/');
     }
-    public function enterFunc(FuncCall $call): ?StaticCall
+    public function enterFunc(FuncCall $call) : ?StaticCall
     {
         if (!$call->name instanceof Name) {
             return null;
@@ -63,7 +62,7 @@ class Polyfill extends Plugin
         }
         return null;
     }
-    public function enterClassConstant(ClassConstFetch $fetch): ?Node
+    public function enterClassConstant(ClassConstFetch $fetch) : ?Node
     {
         if ($fetch->name instanceof Error || !$fetch->class instanceof Name) {
             return null;
