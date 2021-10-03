@@ -480,7 +480,7 @@ abstract class Tools
      *
      * @param string $input
      * @param string $output
-     * @param (callable(SplFileInfo, string): bool)|null $cb
+     * @param (callable(SplFileInfo, string, string): bool)|null $cb
      * @return void
      */
     public static function traverseCopy(string $input, string $output, ?callable $cb = null): void
@@ -496,6 +496,7 @@ abstract class Tools
         /** @var \SplFileInfo $file */
         foreach ($ri as $file) {
             $rel = $ri->getSubPathname();
+            $sourcePath = $input.DIRECTORY_SEPARATOR.$rel;
             $targetPath = $output.DIRECTORY_SEPARATOR.$rel;
             if ($file->isDir()) {
                 if (!\file_exists($targetPath)) {
@@ -513,7 +514,7 @@ abstract class Tools
                     \symlink($dest, $link);
                 }
             } elseif ($file->isFile()) {
-                if ($cb && $cb($file, $targetPath)) {
+                if ($cb && $cb($file, $sourcePath, $targetPath)) {
                     // All done!
                 } elseif (\realpath($targetPath) !== $file->getRealPath()) {
                     \copy($file->getRealPath(), $targetPath);

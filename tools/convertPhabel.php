@@ -45,7 +45,7 @@ function commit(string $message)
 }
 
 $last = Php::VERSIONS;
-$last = end($last);
+$last = \end($last);
 
 foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
     $realTarget = Php::normalizeVersion($realTarget);

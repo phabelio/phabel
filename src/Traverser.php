@@ -350,9 +350,9 @@ class Traverser
                 $this->input = \realpath($this->input);
                 $this->files = [];
 
-                Tools::traverseCopy($this->input, $this->output, function (SplFileInfo $f, string $output): bool {
+                Tools::traverseCopy($this->input, $this->output, function (SplFileInfo $f, string $input, string $output): bool {
                     if ($f->getExtension() === 'php') {
-                        $this->files[\str_replace('\\', '/', $f->getRealPath())] = \str_replace('\\', '/', $output);
+                        $this->files[\str_replace('\\', '/', $input)] = \str_replace('\\', '/', $output);
                         return true;
                     }
                     return false;
@@ -363,11 +363,11 @@ class Traverser
                 foreach (Php::VERSIONS as $target) {
                     $composerDir []= $this->composerVendor.\substr(Transformer::injectTarget('composer/pkg', $target), 0, -3);
                 }
-                $cb = function (SplFileInfo $f, string $output) use ($autoload, $composerDir): bool {
+                $cb = function (SplFileInfo $f, string $input, string $output) use ($autoload, $composerDir): bool {
                     if ($f->getExtension() !== 'php') {
                         return false;
                     }
-                    $real = \str_replace('\\', '/', $f->getRealPath());
+                    $real = \str_replace('\\', '/', $input);
                     if ($real === $autoload) {
                         return false;
                     }
