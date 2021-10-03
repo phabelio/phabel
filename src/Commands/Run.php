@@ -33,7 +33,9 @@ class Run extends BaseCommand
             $output->write("<error>Missing --target parameter or PHABEL_TARGET environment variable!</error>" . PHP_EOL . PHP_EOL);
             return Command::INVALID;
         }
-        $packages = (new Traverser(new CliEventHandler(new SimpleConsoleLogger($output), !\getenv('CI') && !$output->isDebug() ? fn (int $max): ProgressBar => (new ProgressBar($output, $max, -1)) : null)))->setPlugins([Php::class => ['target' => Php::normalizeVersion($input->getOption('target'))]])->setInput($input->getArgument('input'))->setOutput($input->getArgument('output'))->setCoverage($input->getOption('coverage') ?: '')->run($input->getOption('parallel'));
+        $packages = (new Traverser(new CliEventHandler(new SimpleConsoleLogger($output), !\getenv('CI') && !$output->isDebug() ? function (int $max) use ($output): ProgressBar {
+            return new ProgressBar($output, $max, -1);
+        } : null)))->setPlugins([Php::class => ['target' => Php::normalizeVersion($input->getOption('target'))]])->setInput($input->getArgument('input'))->setOutput($input->getArgument('output'))->setCoverage($input->getOption('coverage') ?: '')->run($input->getOption('parallel'));
         $packages = ['phabel/phabel' => Version::VERSION];
         unset($packages['php']);
         if (!empty($packages)) {

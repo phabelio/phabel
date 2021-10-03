@@ -19,7 +19,7 @@ use ReflectionMethod;
  */
 class Polyfill extends Plugin
 {
-    private array $functions = [];
+    private $functions = [];
     public static function mergeConfigs(array ...$configs): array
     {
         $configs = \array_merge(...$configs);
@@ -44,7 +44,9 @@ class Polyfill extends Plugin
         if (\preg_match(':Target/Php(\\d\\d)/Polyfill.php:', $file, $matches)) {
             $version = Php::normalizeVersion($matches[1]);
             $version = Php::class . $version . '\\Polyfill';
-            $this->functions = \array_filter($this->getConfig('functions', []), fn ($s) => ($s[0] !== $version));
+            $this->functions = \Phabel\Target\Php74\Polyfill::array_filter($this->getConfig('functions', []), function ($s) use ($version) {
+                return $s[0] !== $version;
+            });
         } else {
             $this->functions = $this->getConfig('functions', []);
         }
