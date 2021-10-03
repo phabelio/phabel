@@ -42,15 +42,7 @@ class ArrowClosure extends Plugin
                 $params[$param->var->name] = true;
             }
         }
-        $nodes['uses'] = \array_values(
-            \array_intersect_key(
-                \array_diff_key(
-                    VariableFinder::find($func->expr),
-                    $params,
-                ),
-                $context->variables->top()->getVars()
-            )
-        );
+        $nodes['uses'] = \array_values(\array_intersect_key(\array_diff_key(VariableFinder::find($func->expr), $params), $context->variables->top()->getVars()));
         return new Closure($nodes, $func->getAttributes());
     }
 }
