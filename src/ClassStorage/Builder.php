@@ -6,14 +6,13 @@ use Phabel\Exception;
 use Phabel\Plugin\ClassStoragePlugin;
 use Phabel\PluginGraph\CircularException;
 use Phabel\Tools;
-use PhpParser\Node\Stmt\Class_ as StmtClass_;
-use PhpParser\Node\Stmt\ClassLike;
-use PhpParser\Node\Stmt\ClassMethod;
-use PhpParser\Node\Stmt\Interface_;
-use PhpParser\Node\Stmt\TraitUse;
-use PhpParser\Node\Stmt\TraitUseAdaptation\Alias;
-use PhpParser\Node\Stmt\TraitUseAdaptation\Precedence;
-
+use PhabelVendor\PhpParser\Node\Stmt\Class_ as StmtClass_;
+use PhabelVendor\PhpParser\Node\Stmt\ClassLike;
+use PhabelVendor\PhpParser\Node\Stmt\ClassMethod;
+use PhabelVendor\PhpParser\Node\Stmt\Interface_;
+use PhabelVendor\PhpParser\Node\Stmt\TraitUse;
+use PhabelVendor\PhpParser\Node\Stmt\TraitUseAdaptation\Alias;
+use PhabelVendor\PhpParser\Node\Stmt\TraitUseAdaptation\Precedence;
 /**
  * Builds information about a class.
  */
@@ -55,11 +54,11 @@ class Builder
     /**
      * Whether we're resolving.
      */
-    private $resolving = false;
+    private $resolving = \false;
     /**
      * Whether we resolved.
      */
-    private $resolved = false;
+    private $resolved = \false;
     /**
      * Storage.
      */
@@ -78,10 +77,10 @@ class Builder
         $this->name = Tools::getFqdn($class, $customName);
         if ($class instanceof Interface_ || $class instanceof StmtClass_) {
             foreach (\is_array($class->extends) ? $class->extends : ($class->extends ? [$class->extends] : []) as $name) {
-                $this->extended[Tools::getFqdn($name)] = true;
+                $this->extended[Tools::getFqdn($name)] = \true;
             }
             foreach ($class->implements ?? [] as $name) {
-                $this->extended[Tools::getFqdn($name)] = true;
+                $this->extended[Tools::getFqdn($name)] = \true;
             }
         }
         foreach ($class->stmts as $stmt) {
@@ -90,7 +89,7 @@ class Builder
             }
             if ($stmt instanceof TraitUse) {
                 foreach ($stmt->traits as $trait) {
-                    $this->use[Tools::getFqdn($trait)] = true;
+                    $this->use[Tools::getFqdn($trait)] = \true;
                 }
                 foreach ($stmt->adaptations as $k => $adapt) {
                     $trait = Tools::getFqdn($adapt->trait ?? $stmt->traits[0]);
@@ -124,14 +123,14 @@ class Builder
     /**
      * Resolve class tree.
      */
-    public function resolve(ClassStoragePlugin $plugin): self
+    public function resolve(ClassStoragePlugin $plugin) : self
     {
         if ($this->resolved) {
             return $this;
         }
         if ($this->resolving) {
             $plugins = [$this->name];
-            foreach (\debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, DEBUG_BACKTRACE_PROVIDE_OBJECT) as $frame) {
+            foreach (\debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, \DEBUG_BACKTRACE_PROVIDE_OBJECT) as $frame) {
                 $plugins[] = $frame['object']->name;
                 if ($frame['object'] === $this) {
                     break;
@@ -139,7 +138,7 @@ class Builder
             }
             throw new CircularException($plugins);
         }
-        $this->resolving = true;
+        $this->resolving = \true;
         foreach ($this->use as $trait => $_) {
             if (!isset($plugin->traits[$trait])) {
                 continue;
@@ -175,8 +174,8 @@ class Builder
                 unset($this->extended[$class]);
             }
         }
-        $this->resolving = false;
-        $this->resolved = true;
+        $this->resolving = \false;
+        $this->resolved = \true;
         return $this;
     }
     /**
@@ -184,13 +183,13 @@ class Builder
      *
      * @return Storage
      */
-    public function build(): Storage
+    public function build() : \Phabel\ClassStorage\Storage
     {
         if (!$this->resolved) {
             throw new Exception("Trying to build an unresolved class!");
         }
         if (!isset($this->storage)) {
-            $this->storage = new Storage();
+            $this->storage = new \Phabel\ClassStorage\Storage();
             $this->storage->build($this->name, $this->methods, $this->abstractMethods, $this->extended);
         }
         return $this->storage;
@@ -198,7 +197,7 @@ class Builder
     /**
      * Debug info.
      */
-    public function __debugInfo(): array
+    public function __debugInfo() : array
     {
         return ['name' => $this->name, 'methods' => \array_keys($this->methods), 'abstractMethods' => \array_keys($this->abstractMethods), 'extended' => $this->extended, 'useAlias' => $this->useAlias, 'use' => $this->use];
     }
