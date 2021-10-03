@@ -5,14 +5,13 @@ namespace Phabel\Target\Php70;
 use Phabel\Plugin;
 use Phabel\Plugin\TypeHintReplacer;
 use Phabel\Target\Php71\MultipleCatchReplacer;
-use PhpParser\Node;
-use PhpParser\Node\Expr\BinaryOp\BooleanOr;
-use PhpParser\Node\Expr\Instanceof_;
-use PhpParser\Node\Name;
-use PhpParser\Node\Name\FullyQualified;
-use PhpParser\Node\Param;
-use PhpParser\Node\Stmt\TryCatch;
-
+use PhabelVendor\PhpParser\Node;
+use PhabelVendor\PhpParser\Node\Expr\BinaryOp\BooleanOr;
+use PhabelVendor\PhpParser\Node\Expr\Instanceof_;
+use PhabelVendor\PhpParser\Node\Name;
+use PhabelVendor\PhpParser\Node\Name\FullyQualified;
+use PhabelVendor\PhpParser\Node\Param;
+use PhabelVendor\PhpParser\Node\Stmt\TryCatch;
 /**
  * Replace \Throwable usages.
  */
@@ -25,7 +24,7 @@ class ThrowableReplacer extends Plugin
      *
      * @return boolean
      */
-    public function shouldRunFile(string $file): bool
+    public function shouldRunFile(string $file) : bool
     {
         return !\str_ends_with($file, 'src/Target/Php70/ThrowableReplacer.php');
     }
@@ -36,7 +35,7 @@ class ThrowableReplacer extends Plugin
      *
      * @return boolean
      */
-    private static function isThrowable(string $type): bool
+    private static function isThrowable(string $type) : bool
     {
         return $type === \Throwable::class || $type === '\\Throwable';
     }
@@ -47,7 +46,7 @@ class ThrowableReplacer extends Plugin
      * @param mixed $class
      * @return boolean
      */
-    public static function isInstanceofThrowable($obj, $class): bool
+    public static function isInstanceofThrowable($obj, $class) : bool
     {
         if (\is_string($class) && self::isThrowable($class)) {
             return $obj instanceof \Exception || $obj instanceof \Error;
@@ -78,17 +77,17 @@ class ThrowableReplacer extends Plugin
      *
      * @return void
      */
-    public function enterTryCatch(TryCatch $node): void
+    public function enterTryCatch(TryCatch $node) : void
     {
         foreach ($node->catches as $catch) {
-            $alreadyHasError = false;
-            $next = false;
+            $alreadyHasError = \false;
+            $next = \false;
             foreach ($catch->types as &$type) {
                 if ($type instanceof FullyQualified && $type->getLast() === "Error") {
-                    $alreadyHasError = true;
+                    $alreadyHasError = \true;
                 }
                 if ($this->isThrowable($type->toString())) {
-                    $next = true;
+                    $next = \true;
                     $type = new FullyQualified('Exception');
                 }
             }
@@ -97,7 +96,7 @@ class ThrowableReplacer extends Plugin
             }
         }
     }
-    public static function withPrevious(array $config): array
+    public static function withPrevious(array $config) : array
     {
         return [TypeHintReplacer::class => ['type' => [\Throwable::class]], MultipleCatchReplacer::class => []];
     }
