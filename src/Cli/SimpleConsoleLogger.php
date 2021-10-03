@@ -8,15 +8,13 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Phabel\Cli;
 
-use Psr\Log\AbstractLogger;
-use Psr\Log\InvalidArgumentException;
-use Psr\Log\LogLevel;
-use Symfony\Component\Console\Output\ConsoleOutputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-
+use PhabelVendor\Psr\Log\AbstractLogger;
+use PhabelVendor\Psr\Log\InvalidArgumentException;
+use PhabelVendor\Psr\Log\LogLevel;
+use PhabelVendor\Symfony\Component\Console\Output\ConsoleOutputInterface;
+use PhabelVendor\Symfony\Component\Console\Output\OutputInterface;
 /**
  * PSR-3 compliant console logger.
  *
@@ -30,7 +28,7 @@ class SimpleConsoleLogger extends AbstractLogger
     public const ERROR = 'error';
     private $verbosityLevelMap = [LogLevel::EMERGENCY => OutputInterface::VERBOSITY_NORMAL, LogLevel::ALERT => OutputInterface::VERBOSITY_NORMAL, LogLevel::CRITICAL => OutputInterface::VERBOSITY_NORMAL, LogLevel::ERROR => OutputInterface::VERBOSITY_NORMAL, LogLevel::WARNING => OutputInterface::VERBOSITY_NORMAL, LogLevel::NOTICE => OutputInterface::VERBOSITY_VERBOSE, LogLevel::INFO => OutputInterface::VERBOSITY_VERY_VERBOSE, LogLevel::DEBUG => OutputInterface::VERBOSITY_DEBUG];
     private $formatLevelMap = [LogLevel::EMERGENCY => self::ERROR, LogLevel::ALERT => self::ERROR, LogLevel::CRITICAL => self::ERROR, LogLevel::ERROR => self::ERROR, LogLevel::WARNING => self::INFO, LogLevel::NOTICE => self::INFO, LogLevel::INFO => self::INFO, LogLevel::DEBUG => self::INFO];
-    private $errored = false;
+    private $errored = \false;
     public function __construct($output, array $verbosityLevelMap = [], array $formatLevelMap = [])
     {
         $this->output = $output;
@@ -54,7 +52,7 @@ class SimpleConsoleLogger extends AbstractLogger
             if ($this->output instanceof ConsoleOutputInterface) {
                 $output = $output->getErrorOutput();
             }
-            $this->errored = true;
+            $this->errored = \true;
         }
         // the if condition check isn't necessary -- it's the same one that $output will do internally anyway.
         // We only do it for efficiency here as the message formatting is relatively expensive.
@@ -76,7 +74,7 @@ class SimpleConsoleLogger extends AbstractLogger
      *
      * @author PHP Framework Interoperability Group
      */
-    private function interpolate(string $message, array $context): string
+    private function interpolate(string $message, array $context) : string
     {
         if (!\str_contains($message, '{')) {
             return $message;
