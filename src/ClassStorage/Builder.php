@@ -32,7 +32,6 @@ class Builder
      * @psalm-var array<string, ClassMethod>
      */
     private array $abstractMethods = [];
-
     /**
      * Extended classes/interfaces.
      *
@@ -45,7 +44,6 @@ class Builder
      * @var array<trait-string, Builder|true>
      */
     private array $use = [];
-
     /**
      * Use aliases.
      *
@@ -54,7 +52,6 @@ class Builder
      * @var array<trait-string, array<string, array{0: trait-string, 1: string}>>
      */
     private array $useAlias = [];
-
     /**
      * Whether we're resolving.
      */
@@ -63,17 +60,14 @@ class Builder
      * Whether we resolved.
      */
     private bool $resolved = false;
-
     /**
      * Storage.
      */
     private ?Storage $storage = null;
-
     /**
      * Class name.
      */
     private string $name;
-
     /**
      * Constructor.
      *
@@ -83,11 +77,7 @@ class Builder
     {
         $this->name = Tools::getFqdn($class, $customName);
         if ($class instanceof Interface_ || $class instanceof StmtClass_) {
-            foreach (
-                \is_array($class->extends)
-                ? $class->extends
-                : ($class->extends ? [$class->extends] : [])
-             as $name) {
+            foreach (\is_array($class->extends) ? $class->extends : ($class->extends ? [$class->extends] : []) as $name) {
                 $this->extended[Tools::getFqdn($name)] = true;
             }
             foreach ($class->implements ?? [] as $name) {
@@ -106,17 +96,11 @@ class Builder
                     $trait = Tools::getFqdn($adapt->trait ?? $stmt->traits[0]);
                     $method = $adapt->method->name;
                     if ($adapt instanceof Alias) {
-                        $this->useAlias[$trait][$method] = [
-                            $trait,
-                            $adapt->newName?->name ?? $method
-                        ];
+                        $this->useAlias[$trait][$method] = [$trait, $adapt->newName?->name ?? $method];
                     } elseif ($adapt instanceof Precedence) {
                         foreach ($adapt->insteadof as $name) {
                             $insteadOf = Tools::getFqdn($name);
-                            $this->useAlias[$insteadOf][$method] = [
-                                $trait,
-                                $method
-                            ];
+                            $this->useAlias[$insteadOf][$method] = [$trait, $method];
                         }
                     }
                 }
@@ -137,7 +121,6 @@ class Builder
             $this->methods[$method->name->name] = $method;
         }
     }
-
     /**
      * Resolve class tree.
      */
@@ -149,7 +132,7 @@ class Builder
         if ($this->resolving) {
             $plugins = [$this->name];
             foreach (\debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, DEBUG_BACKTRACE_PROVIDE_OBJECT) as $frame) {
-                $plugins []= $frame['object']->name;
+                $plugins[] = $frame['object']->name;
                 if ($frame['object'] === $this) {
                     break;
                 }
@@ -194,10 +177,8 @@ class Builder
         }
         $this->resolving = false;
         $this->resolved = true;
-
         return $this;
     }
-
     /**
      * Build storage.
      *
@@ -209,24 +190,16 @@ class Builder
             throw new Exception("Trying to build an unresolved class!");
         }
         if (!isset($this->storage)) {
-            $this->storage = new Storage;
+            $this->storage = new Storage();
             $this->storage->build($this->name, $this->methods, $this->abstractMethods, $this->extended);
         }
         return $this->storage;
     }
-
     /**
      * Debug info.
      */
     public function __debugInfo(): array
     {
-        return [
-            'name' => $this->name,
-            'methods' => \array_keys($this->methods),
-            'abstractMethods' => \array_keys($this->abstractMethods),
-            'extended' => $this->extended,
-            'useAlias' => $this->useAlias,
-            'use' => $this->use,
-        ];
+        return ['name' => $this->name, 'methods' => \array_keys($this->methods), 'abstractMethods' => \array_keys($this->abstractMethods), 'extended' => $this->extended, 'useAlias' => $this->useAlias, 'use' => $this->use];
     }
 }
