@@ -488,8 +488,6 @@ abstract class Tools
         if (!\file_exists($output)) {
             \mkdir($output, 0777, true);
         }
-        $output = \realpath($output);
-        $input = \realpath($input);
         $it = new \RecursiveDirectoryIterator($input, \RecursiveDirectoryIterator::SKIP_DOTS);
         $ri = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::SELF_FIRST);
 
