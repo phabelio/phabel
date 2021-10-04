@@ -585,7 +585,7 @@ class Traverser
         $this->packageQueue = null;
 
         if (\is_file($this->input)) {
-            $this->traverse(\basename($this->input), \realpath($this->input), \realpath($this->output) ?: $this->output);
+            $this->traverse(\realpath($this->input), \realpath($this->output) ?: $this->output);
             return;
         }
 
