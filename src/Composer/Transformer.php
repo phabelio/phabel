@@ -21,7 +21,6 @@ use Phabel\Tools;
 use Phabel\Traverser;
 use ReflectionClass;
 use Symfony\Component\Filesystem\Filesystem;
-
 class Transformer
 {
     const HEADER = 'phabel.transpiler';
@@ -45,11 +44,11 @@ class Transformer
     /**
      * Whether we processed any dependencies.
      */
-    private $processed = false;
+    private $processed = \false;
     /**
      * Whether a progress bar should be shown.
      */
-    private $doProgress = true;
+    private $doProgress = \true;
     /**
      * Installer.
      *
@@ -65,7 +64,7 @@ class Transformer
      *
      * @return self
      */
-    public static function getInstance(IOInterface $io, int $version): self
+    public static function getInstance(IOInterface $io, int $version) : self
     {
         self::$instance = self::$instance ?? new self($io, $version);
         return self::$instance;
@@ -90,7 +89,7 @@ class Transformer
      * @param InstallationManager $installationManager
      * @return void
      */
-    public function setInstallationManager(InstallationManager $installationManager): void
+    public function setInstallationManager(InstallationManager $installationManager) : void
     {
         $this->installer = $installationManager;
     }
@@ -102,7 +101,7 @@ class Transformer
      * @param bool $newline
      * @return void
      */
-    public function log(string $text, int $verbosity = IOInterface::NORMAL, bool $newline = true): void
+    public function log(string $text, int $verbosity = IOInterface::NORMAL, bool $newline = \true) : void
     {
         $this->io->writeError($this->format("<phabel>{$text}</phabel>"), $newline, $verbosity);
     }
@@ -112,7 +111,7 @@ class Transformer
      * @param string $text
      * @return string
      */
-    public function format(string $text): string
+    public function format(string $text) : string
     {
         return $this->outputFormatter->format($text);
     }
@@ -121,12 +120,12 @@ class Transformer
      *
      * @return void
      */
-    public function banner(): void
+    public function banner() : void
     {
-        static $printed = false;
+        static $printed = \false;
         if (!$printed) {
-            $printed = true;
-            $this->log(PHP_EOL . Formatter::BANNER . PHP_EOL);
+            $printed = \true;
+            $this->log(\PHP_EOL . Formatter::BANNER . \PHP_EOL);
         }
     }
     /**
@@ -138,7 +137,7 @@ class Transformer
      *
      * @return void
      */
-    public function preparePackage(PackageInterface &$package, string $newName, int $target = Php::TARGET_IGNORE): void
+    public function preparePackage(PackageInterface &$package, string $newName, int $target = Php::TARGET_IGNORE) : void
     {
         /**
          * Phabel configuration of current package.
@@ -146,11 +145,11 @@ class Transformer
          */
         $config = $package->getExtra()['phabel'] ?? [];
         $myTarget = Php::normalizeVersion($config['target'] ?? $this->version);
-        $havePhabel = false;
+        $havePhabel = \false;
         foreach ($package->getRequires() as $link) {
             [$name] = $this->extractTarget($link->getTarget());
             if ($name === 'phabel/phabel') {
-                $havePhabel = true;
+                $havePhabel = \true;
             }
             if ($link->getTarget() === 'php') {
                 $myTarget = $link->getConstraint()->getLowerBound()->getVersion();
@@ -159,7 +158,7 @@ class Transformer
                 }
             }
         }
-        $this->processed = true;
+        $this->processed = \true;
         if (!$havePhabel) {
             if ($target === Php::TARGET_IGNORE) {
                 $this->log("Skipping " . $package->getName() . "={$newName}", IOInterface::VERY_VERBOSE);
@@ -230,7 +229,7 @@ class Transformer
      * @param int $target
      * @return string
      */
-    public static function injectTarget(string $package, int $target): string
+    public static function injectTarget(string $package, int $target) : string
     {
         [$package] = self::extractTarget($package);
         return self::HEADER . $target . self::SEPARATOR . $package;
@@ -242,7 +241,7 @@ class Transformer
      *
      * @return array{0: string, 1: int}
      */
-    public static function extractTarget(string $package): array
+    public static function extractTarget(string $package) : array
     {
         if (\str_starts_with($package, self::HEADER)) {
             [$version, $package] = \explode(self::SEPARATOR, \Phabel\Target\Php80\Polyfill::substr($package, \strlen(self::HEADER)), 2);
@@ -257,32 +256,32 @@ class Transformer
      * @param ?array $old
      * @return bool Whether any additional packages should be installed or updated
      */
-    public function transform(?array $lock, ?array $old): bool
+    public function transform(?array $lock, ?array $old) : bool
     {
         $enabled = \gc_enabled();
         \gc_enable();
         $filesystem = new Filesystem();
         $packages = $lock['packages'] ?? [];
         $this->log("Creating plugin graph...", IOInterface::VERBOSE);
-        $missingDeps = false;
+        $missingDeps = \false;
         $paths = [];
         $byName = [];
         foreach ($packages as $package) {
             $config = $package['extra']['phabel'] ?? [];
             $myTarget = Php::normalizeVersion($config['target'] ?? $this->version);
-            $havePhabel = false;
+            $havePhabel = \false;
             $have = [];
             foreach ($package['require'] ?? [] as $name => $version) {
                 [$name] = $this->extractTarget($name);
                 $have[$name] = $version;
                 if ($name === 'phabel/phabel') {
-                    $havePhabel = true;
+                    $havePhabel = \true;
                 }
             }
             foreach ($config['require'] ?? [] as $name => $version) {
                 [$name] = $this->extractTarget($name);
                 if (!isset($have[$name])) {
-                    $missingDeps = true;
+                    $missingDeps = \true;
                 }
             }
             [$name, $target] = $this->extractTarget($package['name']);
@@ -298,13 +297,13 @@ class Transformer
                 $p->setType($package['type']);
                 $current = $installer->getInstallPath($p);
                 if (!$filesystem->isAbsolutePath($current)) {
-                    $current = \getcwd() . DIRECTORY_SEPARATOR . $current;
+                    $current = \getcwd() . \DIRECTORY_SEPARATOR . $current;
                 }
                 $p = new Package($name, $package['version'], $package['version']);
                 $p->setType($package['type']);
                 $new = $installer->getInstallPath($p);
                 if (!$filesystem->isAbsolutePath($new)) {
-                    $new = \getcwd() . DIRECTORY_SEPARATOR . $new;
+                    $new = \getcwd() . \DIRECTORY_SEPARATOR . $new;
                 }
                 $paths[$name] = [\rtrim(\str_replace('\\', '/', $current), '/'), \rtrim(\str_replace('\\', '/', $new), '/')];
             } catch (\Throwable $e) {
@@ -315,7 +314,7 @@ class Transformer
             $byName[$name] = $package;
         }
         do {
-            $changed = false;
+            $changed = \false;
             foreach ($byName as $name => $package) {
                 $parentConfigs = $package['phabelConfig'];
                 foreach ($package['require'] ?? [] as $subName => $constraint) {
@@ -329,7 +328,7 @@ class Transformer
                     foreach ($parentConfigs as $config) {
                         if (!\in_array($config, $byName[$subName]['phabelConfig'])) {
                             $byName[$subName]['phabelConfig'][] = $config;
-                            $changed = true;
+                            $changed = \true;
                         }
                     }
                 }
@@ -344,7 +343,7 @@ class Transformer
                 $graph->addPlugin(Php::class, $config + $target, $ctx);
             }
         }
-        $traverser = new Traverser(new EventHandler($this->io, $this->doProgress && $this->io instanceof ConsoleIO && !\getenv('CI') && !$this->io->isDebug() ? function (int $progress) {
+        $traverser = new Traverser(new \Phabel\Composer\EventHandler($this->io, $this->doProgress && $this->io instanceof ConsoleIO && !\getenv('CI') && !$this->io->isDebug() ? function (int $progress) {
             return $this->io->getProgressBar($progress);
         } : null));
         $traverser->setPluginGraph($graph);
@@ -360,7 +359,7 @@ class Transformer
                 }
                 \gc_disable();
             }
-            return true;
+            return \true;
         }
         if ($lock && $lock === $old) {
             return $missingDeps;
@@ -386,7 +385,7 @@ class Transformer
      *
      * @return bool
      */
-    public function processedRequires(): bool
+    public function processedRequires() : bool
     {
         return $this->processed && $this->processedRequires === $this->requires;
     }
@@ -395,7 +394,7 @@ class Transformer
      *
      * @return IOInterface
      */
-    public function getIo(): IOInterface
+    public function getIo() : IOInterface
     {
         return $this->io;
     }
