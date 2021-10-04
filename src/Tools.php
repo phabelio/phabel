@@ -67,7 +67,9 @@ abstract class Tools
             $nodeNew->setAttributes($node->getAttributes());
             return $nodeNew;
         }
-        return new $class(...[...\array_map(fn (string $name) => $node->{$name}, $node->getSubNodeNames()), $node->getAttributes()]);
+        return new $class(...\array_merge(\array_map(function (string $name) use ($node) {
+            return $node->{$name};
+        }, $node->getSubNodeNames()), [$node->getAttributes()]));
     }
     /**
      * Replace type in-place.
@@ -114,7 +116,9 @@ abstract class Tools
      */
     public static function call($name, ...$parameters)
     {
-        $parameters = \array_map(fn ($data) => ($data instanceof Arg ? $data : new Arg($data)), $parameters);
+        $parameters = \array_map(function ($data) {
+            return $data instanceof Arg ? $data : new Arg($data);
+        }, $parameters);
         return \is_array($name) ? new StaticCall(new FullyQualified($name[0]), $name[1], $parameters) : new FuncCall(new FullyQualified($name), $parameters);
     }
     /**
@@ -128,7 +132,9 @@ abstract class Tools
      */
     public static function callMethod(Expr $name, string $method, ...$parameters): MethodCall
     {
-        $parameters = \array_map(fn ($data) => ($data instanceof Arg ? $data : new Arg($data)), $parameters);
+        $parameters = \array_map(function ($data) {
+            return $data instanceof Arg ? $data : new Arg($data);
+        }, $parameters);
         return new MethodCall($name, $method, $parameters);
     }
     /**
@@ -229,8 +235,11 @@ abstract class Tools
      *
      * @return object
      */
-    public static function cloneWithTrait(object $obj, string $trait): object
+    public static function cloneWithTrait($obj, string $trait)
     {
+        if (!\Phabel\Target\Php72\Polyfill::is_object($obj)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($obj) must be of type object, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($obj) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
         /** @psalm-var int */
         static $count = 0;
         /** @psalm-var array<string, class-string<T>> $memoized */
@@ -265,7 +274,11 @@ abstract class Tools
                 }
             }
         } while ($reflect = $reflect->getParentClass());
-        return $newObj;
+        $phabelReturn = $newObj;
+        if (!\Phabel\Target\Php72\Polyfill::is_object($phabelReturn)) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type object, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Checks private property exists in an object.
@@ -282,8 +295,11 @@ abstract class Tools
      * @return bool
      * @access public
      */
-    public static function hasVar(object $obj, string $var): bool
+    public static function hasVar($obj, string $var): bool
     {
+        if (!\Phabel\Target\Php72\Polyfill::is_object($obj)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($obj) must be of type object, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($obj) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
         return \Closure::bind(function () use ($var): bool {
             return isset($this->{$var});
         }, $obj, \get_class($obj))->__invoke();
@@ -383,7 +399,7 @@ abstract class Tools
         }
         if (\is_readable('/proc/cpuinfo')) {
             $cpuinfo = \file_get_contents('/proc/cpuinfo');
-            $count = \substr_count($cpuinfo, 'processor');
+            $count = \Phabel\Target\Php80\Polyfill::substr_count($cpuinfo, 'processor');
             if ($count > 0) {
                 return $result = $count;
             }
@@ -434,8 +450,8 @@ abstract class Tools
             } elseif ($file->isLink()) {
                 $dest = $file->getRealPath();
                 if ($dest !== false && \str_starts_with($dest, $input)) {
-                    $dest = \trim(\substr($dest, \strlen($input)), DIRECTORY_SEPARATOR);
-                    $dest = \str_repeat('..' . DIRECTORY_SEPARATOR, \substr_count($rel, DIRECTORY_SEPARATOR)) . $dest;
+                    $dest = \trim(\Phabel\Target\Php80\Polyfill::substr($dest, \strlen($input)), DIRECTORY_SEPARATOR);
+                    $dest = \str_repeat('..' . DIRECTORY_SEPARATOR, \Phabel\Target\Php80\Polyfill::substr_count($rel, DIRECTORY_SEPARATOR)) . $dest;
                     $link = $output . DIRECTORY_SEPARATOR . $rel;
                     if (\file_exists($link)) {
                         \unlink($link);
