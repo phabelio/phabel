@@ -21,7 +21,7 @@ class TypeContravariance extends ClassStorageProvider
         foreach ($storage->getClasses() as $class) {
             // Can override abstract methods
             foreach ($class->getMethods(Class_::MODIFIER_ABSTRACT) as $name => $method) {
-                $parentMethods = new SplStack;
+                $parentMethods = new SplStack();
                 $parentMethods->push($method);
                 foreach ($class->getOverriddenMethods($name, Class_::MODIFIER_ABSTRACT, $method->flags & Class_::VISIBILITY_MODIFIER_MASK) as $childMethod) {
                     $parentMethods->push($childMethod);
@@ -39,10 +39,7 @@ class TypeContravariance extends ClassStorageProvider
             foreach ($class->getMethods() as $name => $method) {
                 if ($name === '__construct') {
                     foreach ($class->getOverriddenMethods($name) as $childMethod) {
-                        if (
-                            ($method->isPublic() && ($childMethod->isProtected() || $childMethod->isPrivate())) ||
-                            ($method->isProtected() && $childMethod->isPrivate())
-                        ) {
+                        if ($method->isPublic() && ($childMethod->isProtected() || $childMethod->isPrivate()) || $method->isProtected() && $childMethod->isPrivate()) {
                             $old = $childMethod->flags;
                             $childMethod->flags &= ~Class_::VISIBILITY_MODIFIER_MASK;
                             $childMethod->flags |= Class_::MODIFIER_PUBLIC;
@@ -52,7 +49,7 @@ class TypeContravariance extends ClassStorageProvider
                     continue;
                 }
                 $act = \array_fill(0, \count($method->params), false);
-                $parentMethods = new SplStack;
+                $parentMethods = new SplStack();
                 $parentMethods->push($method);
                 foreach ($class->getOverriddenMethods($name) as $childMethod) {
                     foreach ($childMethod->params as $k => $param) {
@@ -77,7 +74,6 @@ class TypeContravariance extends ClassStorageProvider
         }
         return $changed;
     }
-
     /**
      * {@inheritDoc}
      */

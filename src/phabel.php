@@ -8,9 +8,8 @@ use Phabel\Commands\Run;
 use Symfony\Component\Console\Application;
 
 if (!\class_exists(Run::class)) {
-    require __DIR__.'/../vendor/autoload.php';
+    require __DIR__ . '/../vendor/autoload.php';
 }
-
 $app = new Application(Formatter::banner());
 $app->add(new Publish());
 $app->add(new Run());
