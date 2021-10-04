@@ -76,7 +76,7 @@ class ExpressionGenerator
         while (!\str_ends_with($data, "php > ")) {
             $data .= \fread($resource, 1);
         }
-        return \substr($data, 0, -6);
+        return \Phabel\Target\Php80\Polyfill::substr($data, 0, -6);
     }
     private array $robin = [];
     private array $processes = [];
@@ -89,7 +89,7 @@ class ExpressionGenerator
         $this->robin[$version] %= \count($this->pipes[$version]);
         \fputs($this->pipes[$version][$x][0], $code);
         $result = $this->readUntilPrompt($this->pipes[$version][$x][1]);
-        $result = \str_replace(['{', '}'], '', \substr(\preg_replace('#\\x1b[[][^A-Za-z]*[A-Za-z]#', '', $result), \strlen($code)));
+        $result = \str_replace(['{', '}'], '', \Phabel\Target\Php80\Polyfill::substr(\preg_replace('#\\x1b[[][^A-Za-z]*[A-Za-z]#', '', $result), \strlen($code)));
         $result = \trim($result);
         //var_dump($code, "Result for $version is: $result");
         return \strlen($result) === 0;
