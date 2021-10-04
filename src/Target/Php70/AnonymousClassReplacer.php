@@ -31,7 +31,7 @@ class AnonymousClassReplacer extends Plugin
     /**
      * Anonymous class count.
      */
-    private static int $count = 0;
+    private static $count = 0;
     /**
      * Enter new.
      *
