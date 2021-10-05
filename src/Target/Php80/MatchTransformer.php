@@ -5,30 +5,29 @@ namespace Phabel\Target\Php80;
 use Phabel\Context;
 use Phabel\Plugin;
 use Phabel\Plugin\VariableFinder;
-use PhpParser\Node\Arg;
-use PhpParser\Node\Expr\BinaryOp\Concat;
-use PhpParser\Node\Expr\BinaryOp\Identical;
-use PhpParser\Node\Expr\Closure;
-use PhpParser\Node\Expr\FuncCall;
-use PhpParser\Node\Expr\Match_;
-use PhpParser\Node\Expr\New_;
-use PhpParser\Node\Name\FullyQualified;
-use PhpParser\Node\Param;
-use PhpParser\Node\Scalar\String_;
-use PhpParser\Node\Stmt\Else_;
-use PhpParser\Node\Stmt\ElseIf_;
-use PhpParser\Node\Stmt\If_;
-use PhpParser\Node\Stmt\Return_;
-use PhpParser\Node\Stmt\Throw_;
-
+use PhabelVendor\PhpParser\Node\Arg;
+use PhabelVendor\PhpParser\Node\Expr\BinaryOp\Concat;
+use PhabelVendor\PhpParser\Node\Expr\BinaryOp\Identical;
+use PhabelVendor\PhpParser\Node\Expr\Closure;
+use PhabelVendor\PhpParser\Node\Expr\FuncCall;
+use PhabelVendor\PhpParser\Node\Expr\Match_;
+use PhabelVendor\PhpParser\Node\Expr\New_;
+use PhabelVendor\PhpParser\Node\Name\FullyQualified;
+use PhabelVendor\PhpParser\Node\Param;
+use PhabelVendor\PhpParser\Node\Scalar\String_;
+use PhabelVendor\PhpParser\Node\Stmt\Else_;
+use PhabelVendor\PhpParser\Node\Stmt\ElseIf_;
+use PhabelVendor\PhpParser\Node\Stmt\If_;
+use PhabelVendor\PhpParser\Node\Stmt\Return_;
+use PhabelVendor\PhpParser\Node\Stmt\Throw_;
 /**
  * Polyfill match expression.
  */
 class MatchTransformer extends Plugin
 {
-    public function enter(Match_ $match, Context $context): FuncCall
+    public function enter(Match_ $match, Context $context) : FuncCall
     {
-        $closure = new Closure(['params' => [new Param($var = $context->getVariable())], 'uses' => \array_values(VariableFinder::find($match, true))]);
+        $closure = new Closure(['params' => [new Param($var = $context->getVariable())], 'uses' => \array_values(VariableFinder::find($match, \true))]);
         $cases = [];
         $default = null;
         foreach ($match->arms as $arm) {
