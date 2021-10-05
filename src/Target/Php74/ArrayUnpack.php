@@ -4,21 +4,20 @@ namespace Phabel\Target\Php74;
 
 use Phabel\Context;
 use Phabel\Plugin;
-use PhpParser\Node\Arg;
-use PhpParser\Node\Expr\Array_;
-use PhpParser\Node\Expr\ArrayItem;
-use PhpParser\Node\Expr\Assign;
-use PhpParser\Node\Expr\FuncCall;
-use PhpParser\Node\Expr\List_;
-use PhpParser\Node\Stmt\Foreach_;
-
+use PhabelVendor\PhpParser\Node\Arg;
+use PhabelVendor\PhpParser\Node\Expr\Array_;
+use PhabelVendor\PhpParser\Node\Expr\ArrayItem;
+use PhabelVendor\PhpParser\Node\Expr\Assign;
+use PhabelVendor\PhpParser\Node\Expr\FuncCall;
+use PhabelVendor\PhpParser\Node\Expr\List_;
+use PhabelVendor\PhpParser\Node\Stmt\Foreach_;
 /**
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT
  */
 class ArrayUnpack extends Plugin
 {
-    public function enter(Array_ $array, Context $context): ?FuncCall
+    public function enter(Array_ $array, Context $context) : ?FuncCall
     {
         foreach ($context->parents as $parent) {
             if ($parent instanceof Array_) {
@@ -37,13 +36,13 @@ class ArrayUnpack extends Plugin
             }
             break;
         }
-        $hasUnpack = false;
+        $hasUnpack = \false;
         foreach ($array->items as $item) {
             if (!$item) {
                 return null;
             }
             if ($item->unpack) {
-                $hasUnpack = true;
+                $hasUnpack = \true;
                 break;
             }
         }
