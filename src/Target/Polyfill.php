@@ -31,25 +31,20 @@ class Polyfill extends Plugin
             if ($class->hasConstant('CONSTANTS')) {
                 $constants = \array_merge_recursive($constants, $class->getConstant('CONSTANTS'));
             }
-            foreach ($class->getMethods(ReflectionMethod::IS_PUBLIC|ReflectionMethod::IS_STATIC) as $method) {
+            foreach ($class->getMethods(ReflectionMethod::IS_PUBLIC | ReflectionMethod::IS_STATIC) as $method) {
                 if ($method->getDeclaringClass()->getName() === $polyfill) {
                     $functions[$method->getName()] = [$polyfill, $method->getName()];
                 }
             }
         }
-
-        return [[
-            'constants' => $constants,
-            'functions' => $functions
-        ]];
+        return [['constants' => $constants, 'functions' => $functions]];
     }
-
     public function shouldRunFile(string $file): bool
     {
-        if (\preg_match(':Target/Php(\d\d)/Polyfill.php:', $file, $matches)) {
+        if (\preg_match(':Target/Php(\\d\\d)/Polyfill.php:', $file, $matches)) {
             $version = Php::normalizeVersion($matches[1]);
-            $version = Php::class.$version.'\\Polyfill';
-            $this->functions = \array_filter($this->getConfig('functions', []), fn ($s) => $s[0] !== $version);
+            $version = Php::class . $version . '\\Polyfill';
+            $this->functions = \array_filter($this->getConfig('functions', []), fn ($s) => ($s[0] !== $version));
         } else {
             $this->functions = $this->getConfig('functions', []);
         }
@@ -66,10 +61,9 @@ class Polyfill extends Plugin
         }
         return null;
     }
-
     public function enterClassConstant(ClassConstFetch $fetch): ?Node
     {
-        if ($fetch->name instanceof Error || !($fetch->class instanceof Name)) {
+        if ($fetch->name instanceof Error || !$fetch->class instanceof Name) {
             return null;
         }
         $constants = $this->getConfig('constants', []);

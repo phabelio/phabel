@@ -67,10 +67,7 @@ abstract class Tools
             $nodeNew->setAttributes($node->getAttributes());
             return $nodeNew;
         }
-        return new $class(...[
-            ...\array_map(fn (string $name) => $node->{$name}, $node->getSubNodeNames()),
-            $node->getAttributes()
-        ]);
+        return new $class(...[...\array_map(fn (string $name) => $node->{$name}, $node->getSubNodeNames()), $node->getAttributes()]);
     }
     /**
      * Replace type in-place.
@@ -100,12 +97,7 @@ abstract class Tools
      */
     public static function assign(Variable $name, Expr $expression): Expression
     {
-        return new Expression(
-            new Assign(
-                $name,
-                $expression
-            )
-        );
+        return new Expression(new Assign($name, $expression));
     }
     /**
      * Call function.
@@ -122,10 +114,8 @@ abstract class Tools
      */
     public static function call($name, ...$parameters)
     {
-        $parameters = \array_map(fn ($data) => $data instanceof Arg ? $data : new Arg($data), $parameters);
-        return \is_array($name)
-            ? new StaticCall(new FullyQualified($name[0]), $name[1], $parameters)
-            : new FuncCall(new FullyQualified($name), $parameters);
+        $parameters = \array_map(fn ($data) => ($data instanceof Arg ? $data : new Arg($data)), $parameters);
+        return \is_array($name) ? new StaticCall(new FullyQualified($name[0]), $name[1], $parameters) : new FuncCall(new FullyQualified($name), $parameters);
     }
     /**
      * Call method of object.
@@ -138,7 +128,7 @@ abstract class Tools
      */
     public static function callMethod(Expr $name, string $method, ...$parameters): MethodCall
     {
-        $parameters = \array_map(fn ($data) => $data instanceof Arg ? $data : new Arg($data), $parameters);
+        $parameters = \array_map(fn ($data) => ($data instanceof Arg ? $data : new Arg($data)), $parameters);
         return new MethodCall($name, $method, $parameters);
     }
     /**
@@ -150,7 +140,7 @@ abstract class Tools
      */
     public static function fromLiteral($data): Node
     {
-        return self::toNode(\var_export($data, true).';');
+        return self::toNode(\var_export($data, true) . ';');
     }
     /**
      * Convert code to node.
@@ -163,13 +153,12 @@ abstract class Tools
      */
     public static function toNode(string $code): Node
     {
-        $res = (new ParserFactory)->create(ParserFactory::PREFER_PHP7)->parse('<?php '.$code);
+        $res = (new ParserFactory())->create(ParserFactory::PREFER_PHP7)->parse('<?php ' . $code);
         if ($res === null || empty($res) || !$res[0] instanceof Expression || !isset($res[0]->expr)) {
             throw new \RuntimeException('Invalid code was provided!');
         }
         return $res[0]->expr;
     }
-
     /**
      * Check if this node or any child node have any side effects (like calling other methods, or assigning variables).
      *
@@ -182,31 +171,7 @@ abstract class Tools
         if (!$node) {
             return false;
         }
-        if ($node->hasAttribute('hasSideEffects')
-            || $node instanceof String_       // __toString
-            || $node instanceof ArrayDimFetch // offsetSet/offsetGet
-            || $node instanceof Assign
-            || $node instanceof AssignOp
-            || $node instanceof AssignRef
-            || $node instanceof Clone_        // __clone
-            || $node instanceof Eval_
-            || $node instanceof FuncCall
-            || $node instanceof Include_
-            || $node instanceof List_         // offsetGet/offsetSet
-            || $node instanceof MethodCall
-            || $node instanceof New_
-            || $node instanceof NullsafeMethodCall
-            || $node instanceof NullsafePropertyFetch
-            || $node instanceof PostDec
-            || $node instanceof PostInc
-            || $node instanceof PreDec
-            || $node instanceof PreInc
-            || $node instanceof PropertyFetch
-            || $node instanceof StaticCall
-            || $node instanceof Yield_
-            || $node instanceof YieldFrom
-            || $node instanceof ShellExec
-            ) {
+        if ($node->hasAttribute('hasSideEffects') || $node instanceof String_ || $node instanceof ArrayDimFetch || $node instanceof Assign || $node instanceof AssignOp || $node instanceof AssignRef || $node instanceof Clone_ || $node instanceof Eval_ || $node instanceof FuncCall || $node instanceof Include_ || $node instanceof List_ || $node instanceof MethodCall || $node instanceof New_ || $node instanceof NullsafeMethodCall || $node instanceof NullsafePropertyFetch || $node instanceof PostDec || $node instanceof PostInc || $node instanceof PreDec || $node instanceof PreInc || $node instanceof PropertyFetch || $node instanceof StaticCall || $node instanceof Yield_ || $node instanceof YieldFrom || $node instanceof ShellExec) {
             $node->setAttribute('hasSideEffects', true);
             return true;
         }
@@ -229,7 +194,6 @@ abstract class Tools
         }
         return false;
     }
-
     /**
      * Get fully qualified name.
      *
@@ -271,33 +235,23 @@ abstract class Tools
         static $count = 0;
         /** @psalm-var array<string, class-string<T>> $memoized */
         static $memoized = [];
-
         $reflect = new ReflectionClass($obj);
-
-
         $r = $reflect;
         while ($r && $r->isAnonymous()) {
             $r = $r->getParentClass();
         }
-
-        $extend = "extends \\".$r->getName();
-        if (isset($memoized["$trait $extend"])) {
+        $extend = "extends \\" . $r->getName();
+        if (isset($memoized["{$trait} {$extend}"])) {
             /** @psalm-suppress MixedMethodCall */
-            $newObj = new $memoized["$trait $extend"];
+            $newObj = ($phabel_128454902d7486cb = $memoized["{$trait} {$extend}"]) || true ? new $phabel_128454902d7486cb() : false;
         } else {
-            $memoized["$trait $extend"] = "phabelTmpClass$count";
-            $eval = "class phabelTmpClass$count $extend {
-                use \\$trait;
-                public function __construct() {}
-            }
-            return new phabelTmpClass$count;";
+            $memoized["{$trait} {$extend}"] = "phabelTmpClass{$count}";
+            $eval = "class phabelTmpClass{$count} {$extend} {\n                use \\{$trait};\n                public function __construct() {}\n            }\n            return new phabelTmpClass{$count};";
             $count++;
             /** @var object */
             $newObj = eval($eval);
         }
-
         $reflectNew = new ReflectionClass($newObj);
-
         do {
             if ($tmp = $reflectNew->getParentClass()) {
                 $reflectNew = $tmp;
@@ -311,10 +265,8 @@ abstract class Tools
                 }
             }
         } while ($reflect = $reflect->getParentClass());
-
         return $newObj;
     }
-
     /**
      * Checks private property exists in an object.
      *
@@ -332,13 +284,9 @@ abstract class Tools
      */
     public static function hasVar(object $obj, string $var): bool
     {
-        return \Closure::bind(
-            function () use ($var): bool {
-                return isset($this->{$var});
-            },
-            $obj,
-            \get_class($obj)
-        )->__invoke();
+        return \Closure::bind(function () use ($var): bool {
+            return isset($this->{$var});
+        }, $obj, \get_class($obj))->__invoke();
     }
     /**
      * Accesses a private variable from an object.
@@ -357,7 +305,7 @@ abstract class Tools
     {
         return \Closure::bind(
             /** @return mixed */
-            function & () use ($var) {
+            function &() use ($var) {
                 return $this->{$var};
             },
             $obj,
@@ -380,15 +328,10 @@ abstract class Tools
      */
     public static function setVar($obj, string $var, &$val): void
     {
-        \Closure::bind(
-            function () use ($var, &$val) {
-                $this->{$var} =& $val;
-            },
-            $obj,
-            \get_class($obj)
-        )->__invoke();
+        \Closure::bind(function () use ($var, &$val) {
+            $this->{$var} =& $val;
+        }, $obj, \get_class($obj))->__invoke();
     }
-
     /**
      * Adapted from https://gist.github.com/divinity76/01ef9ca99c111565a72d3a8a6e42f7fb
      * returns number of cpu cores
@@ -413,19 +356,12 @@ abstract class Tools
             */
             return $result = 1;
         }
-
-        if (self::ini_get('pcre.jit') === '1'
-            && \PHP_OS === 'Darwin'
-            && \version_compare(\PHP_VERSION, '7.3.0') >= 0
-            && \version_compare(\PHP_VERSION, '7.4.0') < 0
-        ) {
+        if (self::ini_get('pcre.jit') === '1' && \PHP_OS === 'Darwin' && \version_compare(\PHP_VERSION, '7.3.0') >= 0 && \version_compare(\PHP_VERSION, '7.4.0') < 0) {
             return $result = 1;
         }
-
         if (!\extension_loaded('pcntl')) {
             return $result = 1;
         }
-
         $has_nproc = \trim((string) @\shell_exec('command -v nproc'));
         if ($has_nproc) {
             $ret = @\shell_exec('nproc');
@@ -437,7 +373,6 @@ abstract class Tools
                 }
             }
         }
-
         $ret = @\shell_exec('sysctl -n hw.ncpu');
         if (\is_string($ret)) {
             $ret = \trim($ret);
@@ -446,7 +381,6 @@ abstract class Tools
                 return $result = $tmp;
             }
         }
-
         if (\is_readable('/proc/cpuinfo')) {
             $cpuinfo = \file_get_contents('/proc/cpuinfo');
             $count = \substr_count($cpuinfo, 'processor');
@@ -454,7 +388,6 @@ abstract class Tools
                 return $result = $count;
             }
         }
-
         return $result = 1;
     }
     /**
@@ -474,7 +407,6 @@ abstract class Tools
         }
         return $default;
     }
-
     /**
      * Recursively copy a directory to another, calling a callback for files.
      *
@@ -492,12 +424,11 @@ abstract class Tools
         $output = \rtrim($output, DIRECTORY_SEPARATOR);
         $it = new \RecursiveDirectoryIterator($input, \RecursiveDirectoryIterator::SKIP_DOTS);
         $ri = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::SELF_FIRST);
-
         /** @var \SplFileInfo $file */
         foreach ($ri as $file) {
             $rel = $ri->getSubPathname();
-            $sourcePath = $input.DIRECTORY_SEPARATOR.$rel;
-            $targetPath = $output.DIRECTORY_SEPARATOR.$rel;
+            $sourcePath = $input . DIRECTORY_SEPARATOR . $rel;
+            $targetPath = $output . DIRECTORY_SEPARATOR . $rel;
             if ($file->isDir()) {
                 if (!\file_exists($targetPath)) {
                     \mkdir($targetPath, $file->getPerms(), true);
@@ -506,8 +437,8 @@ abstract class Tools
                 $dest = $file->getRealPath();
                 if ($dest !== false && \str_starts_with($dest, $input)) {
                     $dest = \trim(\substr($dest, \strlen($input)), DIRECTORY_SEPARATOR);
-                    $dest = \str_repeat('..'.DIRECTORY_SEPARATOR, \substr_count($rel, DIRECTORY_SEPARATOR)).$dest;
-                    $link = $output.DIRECTORY_SEPARATOR.$rel;
+                    $dest = \str_repeat('..' . DIRECTORY_SEPARATOR, \substr_count($rel, DIRECTORY_SEPARATOR)) . $dest;
+                    $link = $output . DIRECTORY_SEPARATOR . $rel;
                     if (\file_exists($link)) {
                         \unlink($link);
                     }
