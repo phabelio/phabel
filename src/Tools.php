@@ -383,7 +383,7 @@ abstract class Tools
         }
         if (\is_readable('/proc/cpuinfo')) {
             $cpuinfo = \file_get_contents('/proc/cpuinfo');
-            $count = \substr_count($cpuinfo, 'processor');
+            $count = \Phabel\Target\Php80\Polyfill::substr_count($cpuinfo, 'processor');
             if ($count > 0) {
                 return $result = $count;
             }
@@ -436,8 +436,8 @@ abstract class Tools
             } elseif ($file->isLink()) {
                 $dest = $file->getRealPath();
                 if ($dest !== false && \str_starts_with($dest, $input)) {
-                    $dest = \trim(\substr($dest, \strlen($input)), DIRECTORY_SEPARATOR);
-                    $dest = \str_repeat('..' . DIRECTORY_SEPARATOR, \substr_count($rel, DIRECTORY_SEPARATOR)) . $dest;
+                    $dest = \trim(\Phabel\Target\Php80\Polyfill::substr($dest, \strlen($input)), DIRECTORY_SEPARATOR);
+                    $dest = \str_repeat('..' . DIRECTORY_SEPARATOR, \Phabel\Target\Php80\Polyfill::substr_count($rel, DIRECTORY_SEPARATOR)) . $dest;
                     $link = $output . DIRECTORY_SEPARATOR . $rel;
                     if (\file_exists($link)) {
                         \unlink($link);
