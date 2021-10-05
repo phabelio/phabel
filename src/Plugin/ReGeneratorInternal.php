@@ -20,7 +20,7 @@ class ReGeneratorInternal extends Plugin
      *
      * @var SplQueue<SplQueue<Node>>
      */
-    private SplQueue $states;
+    private $states;
     public function __construct()
     {
         $this->states = new SplQueue();
