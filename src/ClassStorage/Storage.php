@@ -17,35 +17,35 @@ class Storage
      *
      * @psalm-var array<string, ClassMethod>
      */
-    private array $methods = [];
+    private $methods = [];
     /**
      * Abstract method list.
      *
      * @psalm-var array<string, ClassMethod>
      */
-    private array $abstractMethods = [];
+    private $abstractMethods = [];
     /**
      * Removed method list.
      *
      * @var array<string, true>
      */
-    private array $removedMethods = [];
+    private $removedMethods = [];
     /**
      * Classes/interfaces to extend.
      *
      * @var array<class-string, Storage>
      */
-    private array $extends = [];
+    private $extends = [];
     /**
      * Classes/interfaces that extend us.
      *
      * @var array<class-string, Storage>
      */
-    private array $extendedBy = [];
+    private $extendedBy = [];
     /**
      * Class name.
      */
-    private string $name;
+    private $name;
     /**
      * Constructor.
      *
