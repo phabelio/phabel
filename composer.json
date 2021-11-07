@@ -10,7 +10,8 @@
         "symfony/process": "^5",
         "amphp/parallel": "^1.4",
         "psr/log": "^1.0",
-        "ext-json": "*"
+        "ext-json": "*",
+        "phpstan/phpdoc-parser": "^1.2"
     },
     "require-dev": {
         "composer/composer": "^1|^2",
@@ -70,6 +71,7 @@
             "@phpunit",
             "@coverage"
         ],
+        "test-simple": "SKIP_COMPOSER=1 php vendor/bin/phpunit --coverage-php=coverage/phpunit.php",
         "test-full": [
             "@phpunit",
             "@phpunitExpr",

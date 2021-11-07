@@ -29,7 +29,7 @@ final class ClassStorage
     private array $traits = [];
 
     /**
-     * Functions
+     * Functions.
      *
      * @var array<string, FunctionStorage>
      */
@@ -140,7 +140,7 @@ final class ClassStorage
     }
 
     /**
-     * Get info about function
+     * Get info about function.
      *
      * @param string $function
      * @return FunctionStorage|null

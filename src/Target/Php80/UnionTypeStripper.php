@@ -17,7 +17,7 @@ class UnionTypeStripper extends Plugin
     {
         return [
             TypeHintReplacer::class => [
-                'union' => true
+                'union' => true,
             ]
         ];
     }

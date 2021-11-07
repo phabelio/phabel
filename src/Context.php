@@ -69,6 +69,10 @@ class Context
      */
     public PrettyPrinterAbstract $prettyPrinter;
     /**
+     * PHPDOC parser.
+     */
+    public PhpDocParser $phpdocParser;
+    /**
      * Arrow closure converter.
      */
     private ArrowClosure $converter;
@@ -95,6 +99,7 @@ class Context
         $this->variables = new SplStack;
         $this->converter = new ArrowClosure;
         $this->prettyPrinter = new Standard();
+        $this->phpdocParser = new PhpDocParser;
         $this->nameResolver = new NameResolver(
             new Throwing,
             [

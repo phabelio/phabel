@@ -38,6 +38,9 @@ class ComposerTest extends TestCase
     
     public static function setUpBeforeClass(): void
     {
+        if (getenv('SKIP_COMPOSER')) {
+            return;
+        }
         self::$cwd = getcwd();
         self::r('rm -rf ../phabelComposer');
         mkdir('../phabelComposer');
@@ -107,11 +110,17 @@ class ComposerTest extends TestCase
 
     protected function tearDown(): void
     {
+        if (getenv('SKIP_COMPOSER')) {
+            return;
+        }
         $this->backToCwd();
     }
 
     private function testRequire(string $branch, bool $cleanup = true): void
     {
+        if (getenv('SKIP_COMPOSER')) {
+            return;
+        }
         $this->backToCwd();
         chdir('../phabelComposer/test2/');
         $this->r("composer require phabel/test1:$branch");
@@ -125,6 +134,10 @@ class ComposerTest extends TestCase
     }
     private function testRequireFull(string $branch): void
     {
+        if (getenv('SKIP_COMPOSER')) {
+            $this->assertTrue(true);
+            return;
+        }
         if ($branch === '1.0.0.9999' && PHP_MAJOR_VERSION < 8) {
             $this->assertTrue(true);
             return;

@@ -7,6 +7,7 @@ use Phabel\Plugin;
 use Phabel\Target\Php70\AnonymousClass\AnonymousClassInterface;
 use Phabel\Tools;
 use PhpParser\BuilderHelpers;
+use PhpParser\Comment\Doc;
 use PhpParser\Node;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr;
@@ -27,6 +28,7 @@ use PhpParser\Node\Expr\ClassConstFetch;
 use PhpParser\Node\Expr\ConstFetch;
 use PhpParser\Node\Expr\Instanceof_;
 use PhpParser\Node\Expr\New_;
+use PhpParser\Node\Expr\PropertyFetch;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\FunctionLike;
 use PhpParser\Node\Identifier;
@@ -46,9 +48,16 @@ use PhpParser\Node\Stmt\Expression;
 use PhpParser\Node\Stmt\Foreach_;
 use PhpParser\Node\Stmt\If_;
 use PhpParser\Node\Stmt\Interface_;
+use PhpParser\Node\Stmt\Property;
+use PhpParser\Node\Stmt\PropertyProperty;
 use PhpParser\Node\Stmt\Return_;
 use PhpParser\Node\Stmt\Throw_;
 use PhpParser\Node\UnionType;
+use PHPStan\PhpDocParser\Ast\PhpDoc\ParamTagValueNode;
+use PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocNode;
+use PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocTagNode;
+use PHPStan\PhpDocParser\Ast\PhpDoc\ReturnTagValueNode;
+use PHPStan\PhpDocParser\Ast\PhpDoc\VarTagValueNode;
 use SplStack;
 
 /**
@@ -64,9 +73,12 @@ class TypeHintReplacer extends Plugin
      */
     private const FORCE_ATTRIBUTE = 'TypeHintReplacer:force';
 
+    private const SINGLE_PROPERTY = 'TypeHintReplacer:singleProperty';
+
     private const IGNORE_RETURN = 0;
     private const VOID_RETURN = 1;
     private const TYPE_RETURN = 2;
+
     /**
      * Stack.
      *
@@ -120,9 +132,36 @@ class TypeHintReplacer extends Plugin
      * @param Node|null $returnType
      * @return bool
      */
-    private function checkVoid(?Node $returnType): bool
+    private function checkVoid(Context $ctx, PhpDocNode $phpdoc, ?Node $returnType): bool
     {
-        return $returnType instanceof Identifier && $returnType->toLowerString() === 'void' && $this->getConfig('void', $this->getConfig('return', $returnType->getAttribute(self::FORCE_ATTRIBUTE)));
+        $strip = $returnType instanceof Identifier
+            && $returnType->toLowerString() === 'void'
+            && $this->getConfig(
+                'void',
+                $this->getConfig(
+                    'return',
+                    $returnType->getAttribute(self::FORCE_ATTRIBUTE)
+                )
+            );
+        if ($strip) {
+            $ok = false;
+            foreach ($phpdoc->children as $child) {
+                if ($child instanceof PhpDocTagNode && $child->value instanceof ReturnTagValueNode) {
+                    $ok = true;
+                    break;
+                }
+            }
+            if (!$ok) {
+                $phpdoc->children []= new PhpDocTagNode(
+                    '@return',
+                    new ReturnTagValueNode(
+                        $ctx->phpdocParser->parseType('void'),
+                        ''
+                    )
+                );
+            }
+        }
+        return $strip;
     }
     /**
      * Resolve special class name.
@@ -160,26 +199,54 @@ class TypeHintReplacer extends Plugin
     /**
      * Generate.
      *
-     * @param Variable            $var          Variable to check
      * @param (Name|Identifier)[] $types        Types to check
      * @param ?Expr               $className    Whether the current class is anonymous
      * @param boolean             $fromNullable Whether this type is nullable
      *
-     * @return array{0: Node, 1: (callable(Node...): If_)} Whether the polyfilled gettype should be used, the error message, the condition
+     * @return array{0: Node, 1: (callable(Node...): If_)} The error message, the condition wrapper callback
      */
-    private function generateConditions(Variable $var, array $types, ?Expr $className, bool $fromNullable = false): array
+    private function generateConditions(Context $ctx, PhpDocNode $phpdoc, Param|PropertyProperty|null $param, array $types, ?Expr $className, bool $fromNullable = false): array
     {
+        $is_return = false;
+        $is_property = false;
+        $is_single_property = false;
+        $is_param = false;
+        $phpdocVar = null;
+        if (!$param) {
+            $is_return = true;
+            $var = new Variable('phabelReturn');
+        } elseif ($param instanceof PropertyProperty) {
+            $is_property = true;
+            $is_single_property = $param->getAttribute(self::SINGLE_PROPERTY, false);
+            $phpdocVar = '$'.$param->name;
+            $var = new PropertyFetch(
+                new Variable('this'),
+                $param->name
+            );
+        } elseif ($param->variadic) {
+            $is_param = true;
+            $phpdocVar = '$'.$param->var->name;
+            $var = new Variable('phabelVariadic');
+        } else {
+            $is_param = true;
+            $phpdocVar = '$'.$param->var->name;
+            $var = $param->var;
+        }
+
         /** @var Expr[] */
         $typeNames = [];
         /** @var Expr[] */
         $oopNames = [];
-        /** @var (Expr|array{0: Expr, 1: Expr, 2: class-string<Cast>})[] */
+        /** @var list<(Expr|array{0: Expr, 1: Expr, 2: class-string<Cast>})> */
         $conditions = [];
         /** @var string Last string type name */
         $stringType = '';
+        /** @var array<string, true> */
+        $phpdocType = [];
         foreach ($types as $type) {
             if ($type instanceof Identifier) {
                 $typeName = $type->toLowerString();
+                $phpdocType[$typeName] = true;
                 switch ($typeName) {
                     case 'callable':
                     case 'array':
@@ -198,7 +265,9 @@ class TypeHintReplacer extends Plugin
                                     Plugin::call("is_bool", $var),
                                     Plugin::call("is_numeric", $var),
                                 ),
-                                $typeName === 'int' ? Int_::class : Double::class,
+                                $typeName === 'int'
+                                    ? Int_::class
+                                    : Double::class,
                             ];
                         } elseif ($typeName === 'bool') {
                             $conditions []= [
@@ -210,7 +279,7 @@ class TypeHintReplacer extends Plugin
                                     ),
                                     Plugin::call("is_string", $var),
                                 ),
-                                Bool_::class
+                                Bool_::class,
                             ];
                         } elseif ($typeName === 'string') {
                             $conditions []= [
@@ -268,6 +337,7 @@ class TypeHintReplacer extends Plugin
                         $oopNames []= $stringType;
                 }
             } else {
+                $phpdocType[$type->toCodeString()] = true;
                 $stringType = $this->resolveClassName($type, $className);
                 $conditions []= new Instanceof_($var, $type);
                 $oopNames []= $stringType;
@@ -284,7 +354,65 @@ class TypeHintReplacer extends Plugin
         if ($fromNullable) {
             $stringType = new Concat(new String_('?'), $stringType);
             $conditions []= Plugin::call("is_null", $var);
+            $phpdocType['null'] = true;
         }
+        $phpdocType = \implode('|', \array_keys($phpdocType));
+
+        $ok = false;
+        foreach ($phpdoc->children as $child) {
+            if (!$child instanceof PhpDocTagNode) {
+                continue;
+            }
+            if ($is_return && $child->value instanceof ReturnTagValueNode) {
+                $ok = true;
+                break;
+            }
+            if ($is_param && $child->value instanceof ParamTagValueNode && $child->value->parameterName === $phpdocVar) {
+                $ok = true;
+                break;
+            }
+            if ($is_property 
+                && $child->value instanceof VarTagValueNode 
+                && (
+                    $child->value->variableName === $phpdocVar
+                    || ($child->value->variableName === '' && $is_single_property)
+                )
+            ) {
+                $ok = true;
+                break;
+            }
+        }
+        if (!$ok) {
+            if ($is_param) {
+                $phpdoc->children []= new PhpDocTagNode(
+                    '@param',
+                    new ParamTagValueNode(
+                        $ctx->phpdocParser->parseType($phpdocType),
+                        $param->variadic,
+                        $phpdocVar,
+                        ''
+                    )
+                );
+            } elseif ($is_return) {
+                $phpdoc->children []= new PhpDocTagNode(
+                    '@return',
+                    new ReturnTagValueNode(
+                        $ctx->phpdocParser->parseType($phpdocType),
+                        ''
+                    )
+                );
+            } elseif ($is_property) {
+                $phpdoc->children []= new PhpDocTagNode(
+                    '@var',
+                    new VarTagValueNode(
+                        $ctx->phpdocParser->parseType($phpdocType),
+                        $phpdocVar,
+                        ''
+                    )
+                );
+            }
+        }
+
         $splitConditions = [];
         $currentConditions = [];
         foreach ($conditions as $condition) {
@@ -340,14 +468,14 @@ class TypeHintReplacer extends Plugin
     /**
      * Strip typehint.
      *
-     * @param Variable                                    $var       Variable
+     * @param ?Param                                      $param     Parameter
      * @param null|Identifier|Name|NullableType|UnionType $type      Type
      * @param ?Expr                                       $className Whether the current class is anonymous
      * @param bool                                        $force     Whether to force strip
      *
-     * @return null|array{1: Node, 1: (callable(Node...): If_)} Whether the polyfilled gettype should be used, the error message, the condition
+     * @return null|array{0: Node, 1: (callable(Node...): If_)} The error message, the condition wrapper callback
      */
-    private function strip(Variable $var, ?Node $type, ?Expr $className, bool $nullish, bool $force = false): ?array
+    private function strip(Context $ctx, PhpDocNode $phpdoc, Param|PropertyProperty|null $param, ?Node $type, ?Expr $className, bool $nullish, bool $force = false): ?array
     {
         if (!$type) {
             return null;
@@ -357,14 +485,14 @@ class TypeHintReplacer extends Plugin
             if (!$this->getConfig('union', $force)) {
                 return null;
             }
-            return $this->generateConditions($var, $type->types, $className, $nullish);
+            return $this->generateConditions($ctx, $phpdoc, $param, $type->types, $className, $nullish);
         }
         if ($type instanceof NullableType && $this->getConfig('nullable', $force)) {
-            return $this->generateConditions($var, [$type->type], $className, true);
+            return $this->generateConditions($ctx, $phpdoc, $param, [$type->type], $className, true);
         }
         $subType = $type instanceof NullableType ? $type->type : $type;
         if (\in_array($subType->toString(), $this->getConfig('types', [])) || $force) {
-            return $this->generateConditions($var, [$subType], $className, $nullish || $type instanceof NullableType);
+            return $this->generateConditions($ctx, $phpdoc, $param, [$subType], $className, $nullish || $type instanceof NullableType);
         }
         return null;
     }
@@ -377,6 +505,10 @@ class TypeHintReplacer extends Plugin
      */
     public function enterFunction(FunctionLike $func, Context $ctx): ?FunctionLike
     {
+        $phpdoc = $ctx->phpdocParser->parsePhpDoc($func->getDocComment());
+        if (!$phpdoc) {
+            $phpdoc = new PhpDocNode([]);
+        }
         $functionName = new Method();
         $className = null;
         $returnType = $func->getReturnType();
@@ -385,17 +517,18 @@ class TypeHintReplacer extends Plugin
             $parent = $ctx->parents->top();
             if ($parent instanceof Interface_ || $func->getStmts() === null) {
                 foreach ($func->getParams() as $param) {
-                    if ($this->strip(new Variable('phabelVariadic'), $param->type, null, false)) {
+                    if ($this->strip($ctx, $phpdoc, $param, $param->type, null, false)) {
                         $param->type = null;
                     }
                 }
-                if ($this->checkVoid($returnType)) {
+                if ($this->checkVoid($ctx, $phpdoc, $returnType)) {
                     $func->returnType = null;
                 }
-                if ($this->strip(new Variable('phabelReturn'), $returnType, null, false, $this->getConfig('return', false))) {
+                if ($this->strip($ctx, $phpdoc, null, $returnType, null, false, $this->getConfig('return', false))) {
                     $func->returnType = null;
                 }
                 $this->stack->push([self::IGNORE_RETURN]);
+                $func->setDocComment(new Doc($phpdoc));
                 return null;
             }
             if (!$parent->name) {
@@ -420,7 +553,7 @@ class TypeHintReplacer extends Plugin
         $stmts = [];
         foreach ($func->getParams() as $index => $param) {
             $nullish = $param->default instanceof ConstFetch && $param->default->name->toLowerString() === 'null';
-            if (!$condition = $this->strip($param->variadic ? new Variable('phabelVariadic') : $param->var, $param->type, $className, $nullish)) {
+            if (!$condition = $this->strip($ctx, $phpdoc, $param, $param->type, $className, $nullish)) {
                 continue;
             }
             $index++;
@@ -451,20 +584,23 @@ class TypeHintReplacer extends Plugin
             $func->stmts = \array_merge($stmts, $func->getStmts() ?? []);
         }
 
-        if ($this->checkVoid($returnType)) {
+        if ($this->checkVoid($ctx, $phpdoc, $returnType)) {
             $ctx->toClosure($func);
             $this->stack->push([self::VOID_RETURN]);
             $func->returnType = null;
+            $func->setDocComment(new Doc($phpdoc));
             return $func;
         }
         $var = new Variable('phabelReturn');
-        if (!$condition = $this->strip($var, $returnType, $className, false, $this->getConfig('return', false))) {
+        if (!$condition = $this->strip($ctx, $phpdoc, null, $returnType, $className, false, $this->getConfig('return', false))) {
             $this->stack->push([self::IGNORE_RETURN]);
+            $func->setDocComment(new Doc($phpdoc));
             return $func;
         }
         $func->returnType = null;
         if (GeneratorDetector::isGenerator($func)) {
             $this->stack->push([self::IGNORE_RETURN]);
+            $func->setDocComment(new Doc($phpdoc));
             return $func;
         }
         $ctx->toClosure($func);
@@ -484,6 +620,7 @@ class TypeHintReplacer extends Plugin
             $func->stmts []= $throw;
         }
 
+        $func->setDocComment(new Doc($phpdoc));
         return $func;
     }
     public function enterReturn(Return_ $return, Context $ctx): ?Node
@@ -527,6 +664,33 @@ class TypeHintReplacer extends Plugin
     public function leaveFunc(FunctionLike $func): void
     {
         $this->stack->pop();
+    }
+
+    public function enterProperty(Property $stmt, Context $ctx): void
+    {
+        if (!$stmt->type || !$stmt->props) {
+            return;
+        }
+        $phpdoc = $ctx->phpdocParser->parsePhpDoc(
+            $stmt->getDocComment()
+        );
+        if (!$phpdoc) {
+            $phpdoc = new PhpDocNode([]);
+        }
+
+        $stmt->props[0]->setAttribute(self::SINGLE_PROPERTY, count($stmt->props) === 1);
+
+        $strip = false;
+        foreach ($stmt->props as $property) {
+            if ($this->strip($ctx, $phpdoc, $property, $stmt->type, null, false, $this->getConfig('property', false))) {
+                $strip = true;
+            }
+        }
+        if ($strip) {
+            $stmt->type = null;
+        }
+
+        $stmt->setDocComment(new Doc($phpdoc));
     }
     /**
      * Get trace string for errors.

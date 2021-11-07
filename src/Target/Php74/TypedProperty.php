@@ -3,20 +3,22 @@
 namespace Phabel\Target\Php74;
 
 use Phabel\Plugin;
-use PhpParser\Node\Stmt\ClassLike;
-use PhpParser\Node\Stmt\Property;
+use Phabel\Plugin\TypeHintReplacer;
 
 /**
  * Implement typed properties.
  */
 class TypedProperty extends Plugin
 {
-    public function enter(ClassLike $class): void
+    /**
+     * {@inheritDoc}
+     */
+    public static function previous(array $config): array
     {
-        foreach ($class->stmts as $stmt) {
-            if ($stmt instanceof Property && $stmt->type) {
-                $stmt->type = null;
-            }
-        }
+        return [
+            TypeHintReplacer::class => [
+                'property' => true,
+            ]
+        ];
     }
 }

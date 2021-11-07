@@ -11,7 +11,6 @@ use Phabel\ClassStorageProvider;
 use Phabel\Context;
 use Phabel\Plugin;
 use Phabel\RootNode;
-use Phabel\Tools;
 use PhpParser\Builder\Class_;
 use PhpParser\Builder\Method;
 use PhpParser\Builder\Param;
@@ -58,7 +57,7 @@ final class ClassStoragePlugin extends Plugin
     public array $functions = [];
 
     /**
-     * Whether we have named argument calls
+     * Whether we have named argument calls.
      *
      * @var boolean
      */
@@ -177,7 +176,7 @@ final class ClassStoragePlugin extends Plugin
      * @param Function_ $f
      * @return void
      */
-    public function enterFunction(Function_ $f, Context $context): void 
+    public function enterFunction(Function_ $f, Context $context): void
     {
         $name = self::getFqdn($f);
         $variadic = false;
@@ -191,16 +190,25 @@ final class ClassStoragePlugin extends Plugin
         }
         $this->functions[$name] = new FunctionStorage($args, $variadic);
     }
-    public function enterStaticCall(StaticCall $call): void {
-        if ($this->hasNamed) return;
+    public function enterStaticCall(StaticCall $call): void
+    {
+        if ($this->hasNamed) {
+            return;
+        }
         $this->enterCall($call);
     }
-    public function enterFuncCall(FuncCall $call): void {
-        if ($this->hasNamed) return;
+    public function enterFuncCall(FuncCall $call): void
+    {
+        if ($this->hasNamed) {
+            return;
+        }
         $this->enterCall($call);
     }
-    public function enterMethodCall(MethodCall $call): void {
-        if ($this->hasNamed) return;
+    public function enterMethodCall(MethodCall $call): void
+    {
+        if ($this->hasNamed) {
+            return;
+        }
         $this->enterCall($call);
     }
     private function enterCall(StaticCall|FuncCall|MethodCall $call): void
@@ -338,7 +346,7 @@ final class ClassStoragePlugin extends Plugin
                 $this->classes[$class->getName()]['_'] = new Builder($node, $class->getName());
             }
         }
-        foreach (get_defined_functions() as $sub) {
+        foreach (\get_defined_functions() as $sub) {
             foreach ($sub as $name) {
                 $f = new ReflectionFunction($name);
                 $args = [];
@@ -351,7 +359,8 @@ final class ClassStoragePlugin extends Plugin
                         if ($param->isOptional()) {
                             try {
                                 $default = $param->getDefaultValue();
-                            } catch (\Throwable $e) {}
+                            } catch (\Throwable $e) {
+                            }
                         }
                         $args[$param->getName()] = $default;
                     }
