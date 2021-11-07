@@ -4,6 +4,10 @@ namespace Phabel;
 
 use JsonSerializable;
 use Phabel\ClassStorage\Storage;
+use PhpParser\Node\Expr\StaticCall;
+use PhpParser\Node\Expr\FuncCall;
+use PhpParser\Node\Expr\MethodCall;
+use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Nop;
@@ -58,6 +62,41 @@ abstract class ClassStorageProvider extends Plugin implements JsonSerializable
         foreach ($class->stmts as $k => $stmt) {
             if ($stmt instanceof ClassMethod && $storage->process($stmt)) {
                 $class->stmts[$k] = new Nop();
+            }
+        }
+    }
+    public function enterStaticCall(StaticCall $call): void {
+        $this->enterCall($call);
+    }
+    public function enterFuncCall(FuncCall $call): void {
+        $this->enterCall($call);
+    }
+    public function enterMethodCall(MethodCall $call): void {
+        $this->enterCall($call);
+    }
+    private function enterCall(StaticCall|FuncCall|MethodCall $call): void
+    {
+        $args = [];
+        $hasNamed = false;
+        foreach ($call->args as $arg) {
+            if ($arg->name) {
+                $args[$arg->name] = $arg;
+                $arg->name = null;
+                $hasNamed = true;
+            }
+        }
+        if (!$hasNamed) return;
+        if ($call instanceof FuncCall && $call->name instanceof Name) {
+            $func = $this->getGlobalClassStorage()->getArguments($call->name->toLowerString());
+            if ($func) {
+                $ordered = [];
+                foreach ($func->getArguments() as $name => $default) {
+                    $ordered []= $args[$name] ?? $default;
+                    unset($args[$name]);
+                }
+                if ($args && $func->isVariadic()) {
+                    
+                }
             }
         }
     }

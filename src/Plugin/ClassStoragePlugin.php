@@ -5,24 +5,31 @@ namespace Phabel\Plugin;
 use Exception;
 use Phabel\ClassStorage;
 use Phabel\ClassStorage\Builder;
+use Phabel\ClassStorage\FunctionStorage;
 use Phabel\ClassStorage\Storage;
 use Phabel\ClassStorageProvider;
 use Phabel\Context;
 use Phabel\Plugin;
 use Phabel\RootNode;
+use Phabel\Tools;
 use PhpParser\Builder\Class_;
 use PhpParser\Builder\Method;
 use PhpParser\Builder\Param;
 use PhpParser\BuilderHelpers;
 use PhpParser\Node;
+use PhpParser\Node\Expr\FuncCall;
+use PhpParser\Node\Expr\MethodCall;
+use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Name;
 use PhpParser\Node\Name\FullyQualified;
 use PhpParser\Node\Stmt\Class_ as StmtClass_;
 use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\Node\Stmt\ClassMethod;
+use PhpParser\Node\Stmt\Function_;
 use PhpParser\Node\Stmt\Trait_;
 use PhpParser\Node\UnionType;
 use ReflectionClass;
+use ReflectionFunction;
 use ReflectionNamedType;
 use ReflectionType;
 use ReflectionUnionType;
@@ -43,6 +50,19 @@ final class ClassStoragePlugin extends Plugin
      */
     public array $traits = [];
 
+    /**
+     * Storage.
+     *
+     * @var array<string, FunctionStorage>
+     */
+    public array $functions = [];
+
+    /**
+     * Whether we have named argument calls
+     *
+     * @var boolean
+     */
+    private bool $hasNamed = false;
     /**
      * Count.
      */
@@ -152,6 +172,47 @@ final class ClassStoragePlugin extends Plugin
         $class->setAttribute(ClassStorage::FILE_KEY, $file);
     }
     /**
+     * Add function.
+     *
+     * @param Function_ $f
+     * @return void
+     */
+    public function enterFunction(Function_ $f, Context $context): void 
+    {
+        $name = self::getFqdn($f);
+        $variadic = false;
+        $args = [];
+        foreach ($f->params as $param) {
+            if (!$param->variadic) {
+                $args[$param->var->name] = $param->default;
+            } else {
+                $variadic = true;
+            }
+        }
+        $this->functions[$name] = new FunctionStorage($args, $variadic);
+    }
+    public function enterStaticCall(StaticCall $call): void {
+        if ($this->hasNamed) return;
+        $this->enterCall($call);
+    }
+    public function enterFuncCall(FuncCall $call): void {
+        if ($this->hasNamed) return;
+        $this->enterCall($call);
+    }
+    public function enterMethodCall(MethodCall $call): void {
+        if ($this->hasNamed) return;
+        $this->enterCall($call);
+    }
+    private function enterCall(StaticCall|FuncCall|MethodCall $call): void
+    {
+        foreach ($call->args as $arg) {
+            if ($arg->name) {
+                $this->hasNamed = true;
+                return;
+            }
+        }
+    }
+    /**
      * Add method.
      *
      * @param ClassLike $class
@@ -195,6 +256,7 @@ final class ClassStoragePlugin extends Plugin
             }
         }
         $this->finalPlugins += $other->finalPlugins;
+        $this->functions += $other->functions;
     }
 
     /**
@@ -276,8 +338,29 @@ final class ClassStoragePlugin extends Plugin
                 $this->classes[$class->getName()]['_'] = new Builder($node, $class->getName());
             }
         }
+        foreach (get_defined_functions() as $sub) {
+            foreach ($sub as $name) {
+                $f = new ReflectionFunction($name);
+                $args = [];
+                $variadic = false;
+                foreach ($f->getParameters() as $param) {
+                    if ($param->isVariadic()) {
+                        $variadic = true;
+                    } else {
+                        $default = null;
+                        if ($param->isOptional()) {
+                            try {
+                                $default = $param->getDefaultValue();
+                            } catch (\Throwable $e) {}
+                        }
+                        $args[$param->getName()] = $default;
+                    }
+                }
+                $this->functions[$name] = new FunctionStorage($args, $variadic);
+            }
+        }
         $storage = new ClassStorage($this);
-        $processedAny = false;
+        $processedAny = $this->hasNamed;
         do {
             $processed = false;
             foreach ($this->finalPlugins as $name => $_) {

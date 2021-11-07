@@ -2,6 +2,7 @@
 
 namespace Phabel;
 
+use Phabel\ClassStorage\FunctionStorage;
 use Phabel\ClassStorage\Storage;
 use Phabel\Plugin\ClassStoragePlugin;
 use Phabel\Plugin\TypeHintReplacer;
@@ -27,6 +28,12 @@ final class ClassStorage
      */
     private array $traits = [];
 
+    /**
+     * Functions
+     *
+     * @var array<string, FunctionStorage>
+     */
+    private array $functions = [];
     /**
      * Files to process.
      *
@@ -64,6 +71,8 @@ final class ClassStorage
                 $this->files[$file] = true;
             }
         }
+
+        $this->functions = $plugin->functions;
     }
 
     /**
@@ -128,6 +137,17 @@ final class ClassStorage
                 yield $class => $storage;
             }
         }
+    }
+
+    /**
+     * Get info about function
+     *
+     * @param string $function
+     * @return FunctionStorage|null
+     */
+    public function getArguments(string $function): ?FunctionStorage
+    {
+        return $this->functions[$function] ?? null;
     }
 
     private static function typeArray(null|Identifier|Name|NullableType|UnionType $type): array
