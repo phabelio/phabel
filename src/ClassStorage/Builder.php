@@ -35,13 +35,13 @@ class Builder
     /**
      * Extended classes/interfaces.
      *
-     * @var array<class-string, Builder|true>
+     * @var array<class-string, (Builder | true)>
      */
     private array $extended = [];
     /**
      * Used classes/interfaces.
      *
-     * @var array<trait-string, Builder|true>
+     * @var array<trait-string, (Builder | true)>
      */
     private array $use = [];
     /**
@@ -96,7 +96,7 @@ class Builder
                     $trait = Tools::getFqdn($adapt->trait ?? $stmt->traits[0]);
                     $method = $adapt->method->name;
                     if ($adapt instanceof Alias) {
-                        $this->useAlias[$trait][$method] = [$trait, $adapt->newName?->name ?? $method];
+                        $this->useAlias[$trait][$method] = [$trait, ($adapt->newName ?? \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->name ?? $method];
                     } elseif ($adapt instanceof Precedence) {
                         foreach ($adapt->insteadof as $name) {
                             $insteadOf = Tools::getFqdn($name);
