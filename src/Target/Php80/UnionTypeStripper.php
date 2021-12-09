@@ -15,10 +15,6 @@ class UnionTypeStripper extends Plugin
      */
     public static function previous(array $config): array
     {
-        return [
-            TypeHintReplacer::class => [
-                'union' => true,
-            ]
-        ];
+        return [TypeHintReplacer::class => ['union' => true]];
     }
 }
