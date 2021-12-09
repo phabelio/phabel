@@ -75,14 +75,19 @@ class Publish extends BaseCommand
         $branch = \trim($this->exec(["git", 'rev-parse', '--abbrev-ref', 'HEAD']));
         $output->write("<phabel>Tagging transpiled release <bold>$src.9998</bold>...</phabel>".PHP_EOL);
         $this->prepare($src, "$src.9998", function (array $json): array {
+            $version = 'php';
             unset($json['require']['php']);
+            if (isset($json['require']['php-64bit'])) {
+                unset($json['require']['php-64bit']);
+                $version = 'php-64bit';
+            }
 
             $requires = \array_filter($json['require'], fn (string $f) => !\preg_match(self::PLATFORM_PACKAGE, $f), ARRAY_FILTER_USE_KEY);
             $json['extra'] ??= [];
             $json['extra']['phabel'] ??= [];
             $json['extra']['phabel']['require'] = $requires;
             $json['require'] = \array_merge(
-                ['phabel/phabel' => Version::VERSION, 'php' => '*'],
+                ['phabel/phabel' => Version::VERSION, $version => '*'],
                 \array_diff_key($json['require'], $requires)
             );
             \file_put_contents(ComposerSanitizer::FILE_NAME, ComposerSanitizer::getContents($json['name'] ?? 'phabel'));

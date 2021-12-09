@@ -66,6 +66,7 @@ class Run extends BaseCommand
 
         $packages = ['phabel/phabel' => Version::VERSION];
         unset($packages['php']);
+        unset($packages['php-64bit']);
         if (!empty($packages)) {
             if ($input->getOption('install') && \is_dir($input->getArgument('output'))) {
                 \chdir($input->getArgument('output'));

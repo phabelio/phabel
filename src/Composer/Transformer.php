@@ -155,9 +155,9 @@ class Transformer
             }
             if ($link->getTarget() === 'php') {
                 $myTarget = $link->getConstraint()->getLowerBound()->getVersion();
-                if ($havePhabel) {
-                    break;
-                }
+            }
+            if ($link->getTarget() === 'php-64bit') {
+                $myTarget = $link->getConstraint()->getLowerBound()->getVersion();
             }
         }
         $this->processed = true;
@@ -235,6 +235,15 @@ class Transformer
         foreach ($package->getRequires() as $name => $link) {
             if (PlatformRepository::isPlatformPackage($link->getTarget())) {
                 if ($link->getTarget() === 'php') {
+                    $constraint = new ComposerConstraint('>=', Php::unnormalizeVersion($target));
+                    $links[$name]= new Link(
+                        $package->getName(),
+                        $link->getTarget(),
+                        $constraint,
+                        $link->getDescription(),
+                        $constraint->getPrettyString()
+                    );
+                } else if ($link->getTarget() === 'php-64bit') {
                     $constraint = new ComposerConstraint('>=', Php::unnormalizeVersion($target));
                     $links[$name]= new Link(
                         $package->getName(),
