@@ -243,7 +243,7 @@ class Transformer
                         $link->getDescription(),
                         $constraint->getPrettyString()
                     );
-                } else if ($link->getTarget() === 'php-64bit') {
+                } elseif ($link->getTarget() === 'php-64bit') {
                     $constraint = new ComposerConstraint('>=', Php::unnormalizeVersion($target));
                     $links[$name]= new Link(
                         $package->getName(),

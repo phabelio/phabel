@@ -38,7 +38,7 @@ class Builder
      *
      * @var array<class-string, Builder|true>
      */
-    private array $extended = [];
+    private array $extends = [];
     /**
      * Used classes/interfaces.
      *
@@ -88,10 +88,10 @@ class Builder
                 ? $class->extends
                 : ($class->extends ? [$class->extends] : [])
              as $name) {
-                $this->extended[Tools::getFqdn($name)] = true;
+                $this->extends[Tools::getFqdn($name)] = true;
             }
             foreach ($class->implements ?? [] as $name) {
-                $this->extended[Tools::getFqdn($name)] = true;
+                $this->extends[Tools::getFqdn($name)] = true;
             }
         }
         foreach ($class->stmts as $stmt) {
@@ -185,11 +185,11 @@ class Builder
                 }
             }
         }
-        foreach ($this->extended as $class => &$res) {
+        foreach ($this->extends as $class => &$res) {
             if (isset($plugin->classes[$class])) {
                 $res = \array_values($plugin->classes[$class])[0];
             } else {
-                unset($this->extended[$class]);
+                unset($this->extends[$class]);
             }
         }
         $this->resolving = false;
@@ -210,7 +210,7 @@ class Builder
         }
         if (!isset($this->storage)) {
             $this->storage = new Storage;
-            $this->storage->build($this->name, $this->methods, $this->abstractMethods, $this->extended);
+            $this->storage->build($this->name, $this->methods, $this->abstractMethods, $this->extends);
         }
         return $this->storage;
     }
@@ -224,7 +224,7 @@ class Builder
             'name' => $this->name,
             'methods' => \array_keys($this->methods),
             'abstractMethods' => \array_keys($this->abstractMethods),
-            'extended' => $this->extended,
+            'extends' => $this->extends,
             'useAlias' => $this->useAlias,
             'use' => $this->use,
         ];

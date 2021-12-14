@@ -277,7 +277,6 @@ final class ClassStoragePlugin extends Plugin
         foreach (\get_declared_classes() as $class) {
             $class = new ReflectionClass($class);
             if ($class->isInternal()) {
-                $builder = new Class_($class->getName());
                 $methods = [];
                 foreach ($class->getMethods() as $method) {
                     if ($method->isPrivate()) {
@@ -337,7 +336,7 @@ final class ClassStoragePlugin extends Plugin
                 }
                 $name = $this->normalizeType($class->getName());
                 foreach (\get_declared_classes() as $sub) {
-                    if (\is_subclass_of($sub, $class->getName())) {
+                    if (\is_subclass_of($class->getName(), $sub)) {
                         $classBuilder->extend($this->normalizeType($sub));
                     }
                 }

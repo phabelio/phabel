@@ -371,8 +371,8 @@ class TypeHintReplacer extends Plugin
                 $ok = true;
                 break;
             }
-            if ($is_property 
-                && $child->value instanceof VarTagValueNode 
+            if ($is_property
+                && $child->value instanceof VarTagValueNode
                 && (
                     $child->value->variableName === $phpdocVar
                     || ($child->value->variableName === '' && $is_single_property)
@@ -678,7 +678,7 @@ class TypeHintReplacer extends Plugin
             $phpdoc = new PhpDocNode([]);
         }
 
-        $stmt->props[0]->setAttribute(self::SINGLE_PROPERTY, count($stmt->props) === 1);
+        $stmt->props[0]->setAttribute(self::SINGLE_PROPERTY, \count($stmt->props) === 1);
 
         $strip = false;
         foreach ($stmt->props as $property) {
