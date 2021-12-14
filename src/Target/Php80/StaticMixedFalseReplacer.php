@@ -15,10 +15,6 @@ class StaticMixedFalseReplacer extends Plugin
 {
     public static function previous(array $config): array
     {
-        return [
-            TypeHintReplacer::class => [
-                'types' => ['static', 'mixed', 'false']
-            ]
-        ];
+        return [TypeHintReplacer::class => ['types' => ['static', 'mixed', 'false']]];
     }
 }
