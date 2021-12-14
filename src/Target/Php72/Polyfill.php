@@ -5,7 +5,6 @@ namespace Phabel\Target\Php72;
 use __PHP_Incomplete_Class;
 use Phabel\Plugin;
 use Phabel\Target\Polyfill as TargetPolyfill;
-
 /**
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT
@@ -23,7 +22,7 @@ class Polyfill extends Plugin
      */
     public static function json_decode(string $json, ?bool $associative = null, int $depth = 512, int $flags = 0)
     {
-        $associative = $associative ?? !!($flags & JSON_OBJECT_AS_ARRAY);
+        $associative = $associative ?? !!($flags & \JSON_OBJECT_AS_ARRAY);
         return \json_decode($json, $associative, $depth, $flags);
     }
     /**
@@ -101,7 +100,7 @@ class Polyfill extends Plugin
     /**
      *
      */
-    public static function number_format(float $num, int $decimals = 0, ?string $decimal_separator = ".", ?string $thousands_separator = ","): string
+    public static function number_format(float $num, int $decimals = 0, ?string $decimal_separator = ".", ?string $thousands_separator = ",") : string
     {
         $res = \number_format($num, $decimals, $decimal_separator, $thousands_separator);
         return $res === '-0' ? '0' : $res;
@@ -109,15 +108,15 @@ class Polyfill extends Plugin
     /**
      *
      */
-    public static function is_object($stuff): bool
+    public static function is_object($stuff) : bool
     {
-        return $stuff instanceof __PHP_Incomplete_Class ? true : \is_object($stuff);
+        return $stuff instanceof __PHP_Incomplete_Class ? \true : \is_object($stuff);
     }
     /**
      * {@inheritDoc}
      */
-    public static function withNext(array $config): array
+    public static function withNext(array $config) : array
     {
-        return [TargetPolyfill::class => [self::class => true]];
+        return [TargetPolyfill::class => [self::class => \true]];
     }
 }
