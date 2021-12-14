@@ -4,26 +4,12 @@
     "type": "composer-plugin",
     "require": {
         "php": ">=8.0",
-        "phabel/php-parser": "^94.10",
-        "composer-plugin-api": "^2.0",
-        "symfony/console": "^5",
-        "symfony/process": "^5",
-        "amphp/parallel": "^1.4",
-        "psr/log": "^1.0",
         "ext-json": "*",
-        "phpstan/phpdoc-parser": "^1.2"
+        "composer-plugin-api": "^2.0",
+        "ext-tokenizer": "*"
     },
     "require-dev": {
-        "composer/composer": "^1|^2",
-        "haydenpierce/class-finder": "^0.4.2",
-        "symfony/polyfill-php80": "^1.23",
-        "symfony/polyfill-php70": "*",
-        "symfony/polyfill-php71": "^1.19",
-        "symfony/polyfill-php72": "^1.23",
-        "symfony/polyfill-php73": "^1.23",
-        "symfony/polyfill-php74": "^1.23",
         "bamarni/composer-bin-plugin": "^1.4",
-        "ralouphie/getallheaders": "^3|^2",
         "amphp/file": "^2.0"
     },
     "provide": {
@@ -38,10 +24,96 @@
     ],
     "autoload": {
         "psr-4": {
-            "Phabel\\": "src"
+            "Phabel\\": "src",
+            "PhabelVendor\\Amp\\": [
+                "vendor-bundle/amphp/amp/lib"
+            ],
+            "PhabelVendor\\Amp\\ByteStream\\": [
+                "vendor-bundle/amphp/byte-stream/lib"
+            ],
+            "PhabelVendor\\Amp\\Parallel\\": [
+                "vendor-bundle/amphp/parallel/lib"
+            ],
+            "PhabelVendor\\Amp\\Parser\\": [
+                "vendor-bundle/amphp/parser/lib"
+            ],
+            "PhabelVendor\\Amp\\Process\\": [
+                "vendor-bundle/amphp/process/lib"
+            ],
+            "PhabelVendor\\Amp\\Serialization\\": [
+                "vendor-bundle/amphp/serialization/src"
+            ],
+            "PhabelVendor\\Amp\\Sync\\": [
+                "vendor-bundle/amphp/sync/src"
+            ],
+            "PhabelVendor\\PhpParser\\": [
+                "vendor-bundle/phabel/php-parser/lib/PhpParser"
+            ],
+            "PhabelVendor\\PHPStan\\PhpDocParser\\": [
+                "vendor-bundle/phpstan/phpdoc-parser/src/"
+            ],
+            "PhabelVendor\\Psr\\Container\\": [
+                "vendor-bundle/psr/container/src/"
+            ],
+            "PhabelVendor\\Psr\\Log\\": [
+                "vendor-bundle/psr/log/Psr/Log/"
+            ],
+            "PhabelVendor\\Symfony\\Component\\Console\\": [
+                "vendor-bundle/symfony/console/"
+            ],
+            "Symfony\\Polyfill\\Ctype\\": [
+                "vendor-bundle/symfony/polyfill-ctype/"
+            ],
+            "Symfony\\Polyfill\\Intl\\Grapheme\\": [
+                "vendor-bundle/symfony/polyfill-intl-grapheme/"
+            ],
+            "Symfony\\Polyfill\\Intl\\Normalizer\\": [
+                "vendor-bundle/symfony/polyfill-intl-normalizer/"
+            ],
+            "Symfony\\Polyfill\\Mbstring\\": [
+                "vendor-bundle/symfony/polyfill-mbstring/"
+            ],
+            "Symfony\\Polyfill\\Php73\\": [
+                "vendor-bundle/symfony/polyfill-php73/"
+            ],
+            "Symfony\\Polyfill\\Php80\\": [
+                "vendor-bundle/symfony/polyfill-php80/"
+            ],
+            "PhabelVendor\\Symfony\\Component\\Process\\": [
+                "vendor-bundle/symfony/process/"
+            ],
+            "PhabelVendor\\Symfony\\Contracts\\Service\\": [
+                "vendor-bundle/symfony/service-contracts/"
+            ],
+            "PhabelVendor\\Symfony\\Component\\String\\": [
+                "vendor-bundle/symfony/string/"
+            ]
         },
         "files": [
-            "src/guard.php"
+            "src/guard.php",
+            "vendor-bundle/amphp/amp/lib/functions.php",
+            "vendor-bundle/amphp/amp/lib/Internal/functions.php",
+            "vendor-bundle/amphp/byte-stream/lib/functions.php",
+            "vendor-bundle/amphp/parallel/lib/Context/functions.php",
+            "vendor-bundle/amphp/parallel/lib/Sync/functions.php",
+            "vendor-bundle/amphp/parallel/lib/Worker/functions.php",
+            "vendor-bundle/amphp/process/lib/functions.php",
+            "vendor-bundle/amphp/serialization/src/functions.php",
+            "vendor-bundle/amphp/sync/src/functions.php",
+            "vendor-bundle/amphp/sync/src/ConcurrentIterator/functions.php",
+            "vendor-bundle/symfony/deprecation-contracts/function.php",
+            "vendor-bundle/symfony/polyfill-ctype/bootstrap.php",
+            "vendor-bundle/symfony/polyfill-intl-grapheme/bootstrap.php",
+            "vendor-bundle/symfony/polyfill-intl-normalizer/bootstrap.php",
+            "vendor-bundle/symfony/polyfill-mbstring/bootstrap.php",
+            "vendor-bundle/symfony/polyfill-php73/bootstrap.php",
+            "vendor-bundle/symfony/polyfill-php80/bootstrap.php",
+            "vendor-bundle/symfony/string/Resources/functions.php"
+        ],
+        "classmap": [
+            "vendor-bundle/symfony/polyfill-intl-normalizer/Resources/stubs",
+            "vendor-bundle/symfony/polyfill-php73/Resources/stubs",
+            "vendor-bundle/symfony/polyfill-php80/Resources/stubs"
         ]
     },
     "autoload-dev": {
