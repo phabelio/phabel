@@ -4,22 +4,21 @@ namespace Phabel\Plugin;
 
 use Phabel\Context;
 use Phabel\Plugin;
-use PhpParser\Comment\Doc;
-use PhpParser\Node;
-use PhpParser\Node\Expr\Array_;
-use PhpParser\Node\Expr\ArrayDimFetch;
-use PhpParser\Node\Expr\Assign;
-use PhpParser\Node\Expr\Isset_;
-use PhpParser\Node\Expr\Variable;
-use PhpParser\Node\FunctionLike;
-use PhpParser\Node\Identifier;
-use PhpParser\Node\Param;
-use PhpParser\Node\Stmt\If_;
-use PhpParser\Node\Stmt\Return_;
-use PhpParser\Node\Stmt\Static_;
-use PhpParser\Node\Stmt\StaticVar;
+use PhabelVendor\PhpParser\Comment\Doc;
+use PhabelVendor\PhpParser\Node;
+use PhabelVendor\PhpParser\Node\Expr\Array_;
+use PhabelVendor\PhpParser\Node\Expr\ArrayDimFetch;
+use PhabelVendor\PhpParser\Node\Expr\Assign;
+use PhabelVendor\PhpParser\Node\Expr\Isset_;
+use PhabelVendor\PhpParser\Node\Expr\Variable;
+use PhabelVendor\PhpParser\Node\FunctionLike;
+use PhabelVendor\PhpParser\Node\Identifier;
+use PhabelVendor\PhpParser\Node\Param;
+use PhabelVendor\PhpParser\Node\Stmt\If_;
+use PhabelVendor\PhpParser\Node\Stmt\Return_;
+use PhabelVendor\PhpParser\Node\Stmt\Static_;
+use PhabelVendor\PhpParser\Node\Stmt\StaticVar;
 use SplStack;
-
 /**
  * Enable memoization of results based on a parameter.
  *
@@ -48,7 +47,7 @@ class Memoization extends Plugin
      *
      * @return void
      */
-    public function enterFunctionLike(FunctionLike $node, Context $ctx): void
+    public function enterFunctionLike(FunctionLike $node, Context $ctx) : void
     {
         if (!\preg_match_all('/@memoize \\$([\\w\\d_]+)/', (string) ($node->getDocComment() ?? ''), $matches)) {
             $this->cache->push(null);
@@ -111,7 +110,7 @@ class Memoization extends Plugin
      *
      * @return void
      */
-    public function leaveFunctionLike(FunctionLike $fun, Context $context): void
+    public function leaveFunctionLike(FunctionLike $fun, Context $context) : void
     {
         $this->cache->pop();
     }
