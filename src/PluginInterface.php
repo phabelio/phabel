@@ -17,21 +17,21 @@ interface PluginInterface
      *
      * @return array Plugin name(s)
      *
-     * @psalm-return class-string<PluginInterface>[]|array<class-string<PluginInterface>, array>
+     * @psalm-return (class-string<PluginInterface>[] | array<class-string<PluginInterface>, array>)
      */
     public static function previous(array $config): array;
     /**
-     * Specify which plugins should run after this plugin.
-     *
-     * At each level, the traverser will execute the enter and leave methods of the specified plugins, completing a full AST traversal before starting a new AST traversal for the current plugin.
-     * Of course, this increases complexity as it forces an additional traversal of the AST.
-     *
-     * When possible, use the extends method to reduce complexity.
-     *
-     * @return array Plugin name(s)
-     *
-     * @psalm-return class-string<PluginInterface>[]|array<class-string<PluginInterface>, array>
-     */
+    * Specify which plugins should run after this plugin.
+    *
+    * At each level, the traverser will execute the enter and leave methods of the specified plugins, completing a full AST traversal before starting a new AST traversal for the current plugin.
+    Of course, this increases complexity as it forces an additional traversal of the AST.
+    *
+    * When possible, use the extends method to reduce complexity.
+    *
+    * @return array Plugin name(s)
+    *
+    * @psalm-return (class-string<PluginInterface>[] | array<class-string<PluginInterface>, array>)
+    */
     public static function next(array $config): array;
     /**
      * Specify which plugins should run before, possibly with this plugin.
@@ -42,7 +42,7 @@ interface PluginInterface
      *
      * @return array Plugin name(s)
      *
-     * @psalm-return class-string<PluginInterface>[]|array<class-string<PluginInterface>, array>
+     * @psalm-return (class-string<PluginInterface>[] | array<class-string<PluginInterface>, array>)
      */
     public static function withPrevious(array $config): array;
     /**
@@ -50,7 +50,7 @@ interface PluginInterface
      *
      * @return array Plugin name(s)
      *
-     * @psalm-return class-string<PluginInterface>[]|array<class-string<PluginInterface>, array>
+     * @psalm-return (class-string<PluginInterface>[] | array<class-string<PluginInterface>, array>)
      */
     public static function withNext(array $config): array;
     /**
@@ -100,8 +100,8 @@ interface PluginInterface
     /**
      * Get configuration key.
      *
-     * @param string $key     Key
-     * @param mixed  $default Default value, if key is not present
+     * @param string $key Key
+     * @param mixed $default Default value, if key is not present
      *
      * @return mixed
      */
@@ -109,8 +109,8 @@ interface PluginInterface
     /**
      * Set configuration key.
      *
-     * @param string $key   Key
-     * @param mixed  $value Value
+     * @param string $key Key
+     * @param mixed $value Value
      *
      * @return void
      */
@@ -118,7 +118,7 @@ interface PluginInterface
     /**
      * Check if has configuration key.
      *
-     * @param string $key     Key
+     * @param string $key Key
      *
      * @return mixed
      */
@@ -132,14 +132,14 @@ interface PluginInterface
      */
     public static function mergeConfigs(array ...$configs): array;
     /**
-     * Split configuration.
-     *
-     * For example, if you have a configuration that enables feature A, B and C, return three configuration arrays each enabling ONLY A, only B and only C.
-     * This is used for optimizing the AST traversing process during resolution of the plugin graph.
-     *
-     * @param array $config Configuration
-     *
-     * @return array[]
-     */
+    * Split configuration.
+    *
+    * For example, if you have a configuration that enables feature A, B and C, return three configuration arrays each enabling ONLY A, only B and only C.
+    This is used for optimizing the AST traversing process during resolution of the plugin graph.
+    *
+    * @param array $config Configuration
+    *
+    * @return array[]
+    */
     public static function splitConfig(array $config): array;
 }

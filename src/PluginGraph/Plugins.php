@@ -19,12 +19,12 @@ class Plugins
      *
      * @var array<class-string<PluginInterface>, array[]>
      */
-    public array $plugins = [];
+    public $plugins = [];
     /**
      * Constructor.
      *
      * @param class-string<PluginInterface> $plugin Plugin
-     * @param array                         $config Config
+     * @param array $config Config
      */
     public function __construct(string $plugin, array $config)
     {
@@ -59,7 +59,7 @@ class Plugins
         foreach ($this->plugins as $plugin => $configs) {
             foreach ($plugin::mergeConfigs(...$configs) as $config) {
                 foreach ($plugin::getComposerRequires($config) as $package => $constraint) {
-                    $packages[$package] ??= [];
+                    $packages[$package] = $packages[$package] ?? [];
                     $packages[$package][] = $constraint;
                 }
                 if (PluginCache::isEmpty($plugin)) {
