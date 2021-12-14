@@ -24,13 +24,15 @@ class GroupUseReplacer extends Plugin
     public function leave(GroupUse $node): array
     {
         $nodePrefixParts = $node->prefix->parts;
-        return \array_map(fn (UseUse $useNode) => $this->createUseNode($nodePrefixParts, $useNode), $node->uses);
+        return \array_map(function (UseUse $useNode) use ($nodePrefixParts) {
+            return $this->createUseNode($nodePrefixParts, $useNode);
+        }, $node->uses);
     }
     /**
      * Create separate use node.
      *
      * @param string[] $nodePrefixParts Use prefix
-     * @param UseUse   $useNode         Current use node
+     * @param UseUse $useNode Current use node
      *
      * @return Use_ New use node
      */
