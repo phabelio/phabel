@@ -18,6 +18,9 @@ use PhpParser\Node\Stmt\PropertyProperty;
  */
 class ConstructorPromotion extends Plugin
 {
+    /**
+     *
+     */
     public function enter(ClassMethod $classMethod, Context $ctx): void
     {
         if (\strtolower($classMethod->name) !== '__construct' || $classMethod->stmts === null) {

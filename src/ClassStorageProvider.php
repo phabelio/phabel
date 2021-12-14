@@ -63,20 +63,35 @@ abstract class ClassStorageProvider extends Plugin implements JsonSerializable
             }
         }
     }
+    /**
+     *
+     */
     public function enterStaticCall(StaticCall $call): void
     {
         $this->enterCall($call);
     }
+    /**
+     *
+     */
     public function enterFuncCall(FuncCall $call): void
     {
         $this->enterCall($call);
     }
+    /**
+     *
+     */
     public function enterMethodCall(MethodCall $call): void
     {
         $this->enterCall($call);
     }
-    private function enterCall(StaticCall|FuncCall|MethodCall $call): void
+    /**
+     * @param (StaticCall | FuncCall | MethodCall) $call
+     */
+    private function enterCall($call): void
     {
+        if (!($call instanceof StaticCall || $call instanceof FuncCall || $call instanceof MethodCall)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($call) must be of type StaticCall|FuncCall|MethodCall, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($call) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
         $args = [];
         $hasNamed = false;
         foreach ($call->args as $arg) {
