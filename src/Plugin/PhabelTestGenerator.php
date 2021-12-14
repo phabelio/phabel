@@ -14,10 +14,16 @@ use PhpParser\Node\Scalar\String_;
  */
 class PhabelTestGenerator extends Plugin
 {
+    /**
+     *
+     */
     private function tryReplace(string $in): string
     {
         return \preg_replace("~PhabelTest(\\\\+)Target(?:Future)?\\d*~", 'PhabelTest$1Target' . $this->getConfig('target', ''), $in);
     }
+    /**
+     *
+     */
     public function enter(Name $name): ?Name
     {
         if (\preg_match("~PhabelTest\\\\+Target(?:Future)?\\d*~", $name->toString())) {
@@ -26,6 +32,9 @@ class PhabelTestGenerator extends Plugin
         }
         return null;
     }
+    /**
+     *
+     */
     public function enterLiteral(String_ $str): ?String_
     {
         if (\preg_match("~PhabelTest\\\\+Target(?:Future)?\\d*~", $str->value)) {
@@ -33,6 +42,9 @@ class PhabelTestGenerator extends Plugin
         }
         return null;
     }
+    /**
+     *
+     */
     public static function previous(array $config): array
     {
         return [Php::class => ['target' => $config['target'] % 1000], StringConcatOptimizer::class => []];

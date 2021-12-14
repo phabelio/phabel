@@ -41,6 +41,9 @@ class NestedExpressionFixer extends Plugin
         }
         return $var;
     }
+    /**
+     *
+     */
     public function leave(Expr $expr, Context $context): ?Expr
     {
         /** @var array<string, array<class-string<Expr>, true>> */
@@ -128,8 +131,8 @@ class NestedExpressionFixer extends Plugin
     /**
      * Check if a is instance of b.
      *
-     * @param class-string|object $a
-     * @param class-string|object $b
+     * @param (class-string | object) $a
+     * @param (class-string | object) $b
      *
      * @return boolean
      */
@@ -137,6 +140,9 @@ class NestedExpressionFixer extends Plugin
     {
         return $a instanceof $b;
     }
+    /**
+     *
+     */
     public static function next(array $config): array
     {
         return [NewFixer::class];
