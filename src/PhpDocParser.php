@@ -2,14 +2,13 @@
 
 namespace Phabel;
 
-use PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocNode;
-use PHPStan\PhpDocParser\Ast\Type\TypeNode;
-use PHPStan\PhpDocParser\Lexer\Lexer;
-use PHPStan\PhpDocParser\Parser\ConstExprParser;
-use PHPStan\PhpDocParser\Parser\PhpDocParser as PhpStanDocParser;
-use PHPStan\PhpDocParser\Parser\TokenIterator;
-use PHPStan\PhpDocParser\Parser\TypeParser;
-
+use PhabelVendor\PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocNode;
+use PhabelVendor\PHPStan\PhpDocParser\Ast\Type\TypeNode;
+use PhabelVendor\PHPStan\PhpDocParser\Lexer\Lexer;
+use PhabelVendor\PHPStan\PhpDocParser\Parser\ConstExprParser;
+use PhabelVendor\PHPStan\PhpDocParser\Parser\PhpDocParser as PhpStanDocParser;
+use PhabelVendor\PHPStan\PhpDocParser\Parser\TokenIterator;
+use PhabelVendor\PHPStan\PhpDocParser\Parser\TypeParser;
 /**
  * A wrapper class around phpstan's PHPDoc parser.
  */
@@ -43,7 +42,7 @@ class PhpDocParser
      * @param (string | null) $phpdoc
      * @return (PhpDocNode | null)
      */
-    public function parsePhpDoc(?string $phpdoc): ?PhpDocNode
+    public function parsePhpDoc(?string $phpdoc) : ?PhpDocNode
     {
         if (!$phpdoc) {
             return null;
@@ -56,7 +55,7 @@ class PhpDocParser
      * @param string $type
      * @return TypeNode
      */
-    public function parseType(string $type): TypeNode
+    public function parseType(string $type) : TypeNode
     {
         return $this->typeParser->parse(new TokenIterator($this->lexer->tokenize($type)));
     }
