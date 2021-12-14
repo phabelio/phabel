@@ -18,15 +18,13 @@ class PhpDocParser
     private Lexer $lexer;
     private PhpStanDocParser $parser;
     private TypeParser $typeParser;
-
     public function __construct()
     {
-        $constParser = new ConstExprParser;
+        $constParser = new ConstExprParser();
         $this->parser = new PhpStanDocParser(new TypeParser($constParser), $constParser);
         $this->typeParser = new TypeParser($constParser);
-        $this->lexer = new Lexer;
+        $this->lexer = new Lexer();
     }
-
     /**
      * Parse a phpdoc.
      *
@@ -40,7 +38,6 @@ class PhpDocParser
         }
         return $this->parser->parse(new TokenIterator($this->lexer->tokenize($phpdoc)));
     }
-
     /**
      * Parse a phpdoc type declaration.
      *
