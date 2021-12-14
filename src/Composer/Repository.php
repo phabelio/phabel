@@ -3,7 +3,6 @@
 namespace Phabel\Composer;
 
 use Composer\Package\PackageInterface;
-
 /**
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT
@@ -132,7 +131,7 @@ trait Repository
      *
      * @return self
      */
-    public function setPhabelTransformer(Transformer $phabelTransformer): self
+    public function setPhabelTransformer(\Phabel\Composer\Transformer $phabelTransformer) : self
     {
         $this->phabelTransformer = $phabelTransformer;
         return $this;
