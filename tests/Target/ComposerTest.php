@@ -51,7 +51,7 @@ class ComposerTest extends TestCase
             "name" => 'phabel/test1',
             "minimum-stability" => "dev",
             'require' => [
-                "php" => ">=8.0",
+                "php-64bit" => ">=8.0",
                 'danog/loop' => '*',
                 'roots/wp-stage-switcher' => '*'
             ],
