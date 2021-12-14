@@ -3,9 +3,8 @@
 namespace Phabel\Target\Php70;
 
 use Phabel\Plugin;
-use PhpParser\Node\Expr\BinaryOp\Spaceship;
-use PhpParser\Node\Expr\StaticCall;
-
+use PhabelVendor\PhpParser\Node\Expr\BinaryOp\Spaceship;
+use PhabelVendor\PhpParser\Node\Expr\StaticCall;
 /**
  * Polyfill spaceship operator.
  */
@@ -18,7 +17,7 @@ class SpaceshipOperatorReplacer extends Plugin
      *
      * @return StaticCall
      */
-    public function enter(Spaceship $node): StaticCall
+    public function enter(Spaceship $node) : StaticCall
     {
         return self::callPoly('spaceship', $node->left, $node->right);
     }
@@ -30,7 +29,7 @@ class SpaceshipOperatorReplacer extends Plugin
      *
      * @return integer
      */
-    public static function spaceship($a, $b): int
+    public static function spaceship($a, $b) : int
     {
         return $a < $b ? -1 : ($a === $b ? 0 : 1);
     }
