@@ -48,33 +48,30 @@ trait Repository
             $newAlreadyLoaded[$target] ??= [];
             $newAlreadyLoaded[$target][$package] = $versions;
         }
-
         $finalNamesFound = [];
         $finalPackages = [];
         foreach ($newPackageNameMap as $target => $map) {
             $t = $transformInfo[$target];
             $packages = parent::loadPackages($map, $acceptableStabilities, $stabilityFlags, $newAlreadyLoaded[$target] ?? []);
             foreach ($packages['namesFound'] as $package) {
-                $finalNamesFound []= $t[$package];
+                $finalNamesFound[] = $t[$package];
             }
             foreach ($packages['packages'] as $package) {
                 $package = clone $package;
                 $this->phabelTransformer->preparePackage($package, $t[$package->getName()], $target);
-                $finalPackages []= $package;
+                $finalPackages[] = $package;
             }
         }
         $packages['namesFound'] = $finalNamesFound;
         $packages['packages'] = $finalPackages;
-
         /*$missing = \array_diff(\array_keys($packageNameMap), $finalNamesFound);
-        if (!empty($missing)) {
-            $this->phabelTransformer->getIo()->debug("Could not find the following packages in ".\get_parent_class($this).": ".\implode(", ", $missing));
-        } else {
-            $this->phabelTransformer->getIo()->debug("Loaded packages in ".\get_parent_class($this).": ".\implode(", ", $finalNamesFound));
-        }*/
+          if (!empty($missing)) {
+              $this->phabelTransformer->getIo()->debug("Could not find the following packages in ".\get_parent_class($this).": ".\implode(", ", $missing));
+          } else {
+              $this->phabelTransformer->getIo()->debug("Loaded packages in ".\get_parent_class($this).": ".\implode(", ", $finalNamesFound));
+          }*/
         return $packages;
     }
-
     /**
      * Searches for the first match of a package by name and version.
      *
@@ -86,14 +83,13 @@ trait Repository
     public function findPackage($fullName, $constraint)
     {
         [$name, $target] = $this->phabelTransformer->extractTarget($fullName);
-        if (!$package = parent::findPackage($name, $constraint)) {
+        if (!($package = parent::findPackage($name, $constraint))) {
             return null;
         }
         $package = clone $package;
         $this->phabelTransformer->preparePackage($package, $fullName, $target);
         return $package;
     }
-
     /**
      * Searches for all packages matching a name and optionally a version.
      *
@@ -112,7 +108,6 @@ trait Repository
         }
         return $packages;
     }
-
     /**
      * Returns list of registered packages.
      *
@@ -127,7 +122,6 @@ trait Repository
         }
         return $packages;
     }
-
     /**
      * Set the Transformer.
      *
@@ -138,7 +132,6 @@ trait Repository
     public function setPhabelTransformer(Transformer $phabelTransformer): self
     {
         $this->phabelTransformer = $phabelTransformer;
-
         return $this;
     }
 }
