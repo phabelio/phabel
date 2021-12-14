@@ -13,6 +13,9 @@ use Phabel\Plugin\TypeHintReplacer;
  */
 class NullableType extends Plugin
 {
+    /**
+     *
+     */
     public static function previous(array $config): array
     {
         return [TypeHintReplacer::class => ['nullable' => true]];

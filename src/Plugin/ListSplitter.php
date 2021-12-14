@@ -66,11 +66,11 @@ class ListSplitter extends Plugin
     /**
      * Split referenced list into multiple assignments.
      *
-     * @param Array_|List_ $list   List
-     * @param Variable     $var    Variable
+     * @param (Array_ | List_) $list List
+     * @param Variable $var Variable
      *
-     * @return (Assign|AssignRef)[]
-     * @psalm-return array<int, Assign|AssignRef>
+     * @return (Assign | AssignRef)[]
+     * @psalm-return array<int, (Assign | AssignRef)>
      */
     public static function splitList($list, Variable $var): array
     {
@@ -94,7 +94,7 @@ class ListSplitter extends Plugin
     /**
      * Whether we should act on this list.
      *
-     * @param List_|Array_ $list    List
+     * @param (List_ | Array_) $list List
      *
      * @return boolean
      */
@@ -109,7 +109,7 @@ class ListSplitter extends Plugin
     /**
      * Whether we should act on this list.
      *
-     * @param List_|Array_ $list    List
+     * @param (List_ | Array_) $list List
      *
      * @return boolean
      */
