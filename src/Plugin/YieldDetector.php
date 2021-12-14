@@ -14,6 +14,9 @@ use PhpParser\Node\FunctionLike;
  */
 class YieldDetector extends Plugin
 {
+    /**
+     *
+     */
     public function enterYield(Yield_ $node, Context $ctx): void
     {
         foreach ($ctx->parents as $parent) {

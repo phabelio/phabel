@@ -8,6 +8,9 @@ use Phabel\Traverser;
 
 class Shutdown implements Task
 {
+    /**
+     *
+     */
     public function run(Environment $environment)
     {
         /** @var Traverser */
