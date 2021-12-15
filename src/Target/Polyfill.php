@@ -19,7 +19,13 @@ use ReflectionMethod;
  */
 class Polyfill extends Plugin
 {
+    /**
+     *
+     */
     private array $functions = [];
+    /**
+     *
+     */
     public static function mergeConfigs(array ...$configs): array
     {
         $configs = \array_merge(...$configs);
@@ -39,6 +45,9 @@ class Polyfill extends Plugin
         }
         return [['constants' => $constants, 'functions' => $functions]];
     }
+    /**
+     *
+     */
     public function shouldRunFile(string $file): bool
     {
         if (\preg_match(':Target/Php(\\d\\d)/Polyfill.php:', $file, $matches)) {
@@ -50,6 +59,9 @@ class Polyfill extends Plugin
         }
         return !\str_contains($file, 'vendor/composer/');
     }
+    /**
+     *
+     */
     public function enterFunc(FuncCall $call): ?StaticCall
     {
         if (!$call->name instanceof Name) {
@@ -61,6 +73,9 @@ class Polyfill extends Plugin
         }
         return null;
     }
+    /**
+     *
+     */
     public function enterClassConstant(ClassConstFetch $fetch): ?Node
     {
         if ($fetch->name instanceof Error || !$fetch->class instanceof Name) {

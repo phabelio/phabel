@@ -21,7 +21,7 @@ class DefineArrayReplacer extends Plugin
      *
      * @param FuncCall $node Node
      *
-     * @return Const_|Eval_|null
+     * @return (Const_ | Eval_ | null)
      */
     public function enter(FuncCall $node, Context $context)
     {

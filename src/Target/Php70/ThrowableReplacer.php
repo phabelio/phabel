@@ -97,6 +97,9 @@ class ThrowableReplacer extends Plugin
             }
         }
     }
+    /**
+     *
+     */
     public static function withPrevious(array $config): array
     {
         return [TypeHintReplacer::class => ['type' => [\Throwable::class]], MultipleCatchReplacer::class => []];
