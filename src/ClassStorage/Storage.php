@@ -2,9 +2,8 @@
 
 namespace Phabel\ClassStorage;
 
-use PhpParser\Node\Stmt\Class_;
-use PhpParser\Node\Stmt\ClassMethod;
-
+use PhabelVendor\PhpParser\Node\Stmt\Class_;
+use PhabelVendor\PhpParser\Node\Stmt\ClassMethod;
 /**
  * Stores information about a class.
  */
@@ -61,16 +60,16 @@ class Storage
         $this->methods = $methods;
         $this->abstractMethods = $abstractMethods;
         foreach ($methods as $method) {
-            if ($method->getAttribute(Builder::STORAGE_KEY)) {
-                $method->setAttribute(self::STORAGE_KEY, $method->getAttribute(Builder::STORAGE_KEY)->build());
-                $method->setAttribute(Builder::STORAGE_KEY, null);
+            if ($method->getAttribute(\Phabel\ClassStorage\Builder::STORAGE_KEY)) {
+                $method->setAttribute(self::STORAGE_KEY, $method->getAttribute(\Phabel\ClassStorage\Builder::STORAGE_KEY)->build());
+                $method->setAttribute(\Phabel\ClassStorage\Builder::STORAGE_KEY, null);
             }
             $method->flags |= self::MODIFIER_NORMAL;
         }
         foreach ($abstractMethods as $method) {
-            if ($method->getAttribute(Builder::STORAGE_KEY)) {
-                $method->setAttribute(self::STORAGE_KEY, $method->getAttribute(Builder::STORAGE_KEY)->build());
-                $method->setAttribute(Builder::STORAGE_KEY, null);
+            if ($method->getAttribute(\Phabel\ClassStorage\Builder::STORAGE_KEY)) {
+                $method->setAttribute(self::STORAGE_KEY, $method->getAttribute(\Phabel\ClassStorage\Builder::STORAGE_KEY)->build());
+                $method->setAttribute(\Phabel\ClassStorage\Builder::STORAGE_KEY, null);
             }
         }
         foreach ($extends as $name => $class) {
@@ -85,7 +84,7 @@ class Storage
      *
      * @return string
      */
-    public function getName(): string
+    public function getName() : string
     {
         return $this->name;
     }
@@ -97,7 +96,7 @@ class Storage
      *
      * @return \Generator<string, ClassMethod, null, void>
      */
-    public function getMethods(int $typeMask = ~Class_::VISIBILITY_MODIFIER_MASK, int $visibilityMask = Class_::VISIBILITY_MODIFIER_MASK): \Generator
+    public function getMethods(int $typeMask = ~Class_::VISIBILITY_MODIFIER_MASK, int $visibilityMask = Class_::VISIBILITY_MODIFIER_MASK) : \Generator
     {
         if ($typeMask & Class_::MODIFIER_ABSTRACT) {
             foreach ($this->abstractMethods as $name => $method) {
@@ -119,7 +118,7 @@ class Storage
      *
      * @return array<class-string, Storage>
      */
-    public function getExtendedBy(): array
+    public function getExtendedBy() : array
     {
         return $this->extendedBy;
     }
@@ -128,7 +127,7 @@ class Storage
      *
      * @return array<class-string, Storage>
      */
-    public function getExtends(): array
+    public function getExtends() : array
     {
         return $this->extends;
     }
@@ -137,7 +136,7 @@ class Storage
      *
      * @return \Generator<void, Storage, null, void>
      */
-    public function getAllChildren(): \Generator
+    public function getAllChildren() : \Generator
     {
         foreach ($this->extendedBy as $class) {
             (yield $class);
@@ -149,7 +148,7 @@ class Storage
      *
      * @return \Generator<void, Storage, null, void>
      */
-    public function getAllParents(): \Generator
+    public function getAllParents() : \Generator
     {
         foreach ($this->extends as $class) {
             (yield $class);
@@ -165,7 +164,7 @@ class Storage
      *
      * @return \Generator<void, ClassMethod, null, void>
      */
-    public function getOverriddenMethods(string $name, int $typeMask = ~Class_::VISIBILITY_MODIFIER_MASK, int $visibilityMask = Class_::VISIBILITY_MODIFIER_MASK): \Generator
+    public function getOverriddenMethods(string $name, int $typeMask = ~Class_::VISIBILITY_MODIFIER_MASK, int $visibilityMask = Class_::VISIBILITY_MODIFIER_MASK) : \Generator
     {
         foreach ($this->getAllChildren() as $child) {
             if (isset($child->abstractMethods[$name])) {
@@ -191,32 +190,32 @@ class Storage
      *
      * @return bool
      */
-    public function removeMethod(ClassMethod $method): bool
+    public function removeMethod(ClassMethod $method) : bool
     {
         $name = $method->name->name;
         if ($method->stmts !== null) {
             if (isset($this->methods[$name])) {
-                $this->removedMethods[$name] = true;
+                $this->removedMethods[$name] = \true;
                 unset($this->methods[$name]);
-                return true;
+                return \true;
             }
         } elseif (isset($this->abstractMethods[$name])) {
-            $this->removedMethods[$name] = true;
+            $this->removedMethods[$name] = \true;
             unset($this->abstractMethods[$name]);
-            return true;
+            return \true;
         }
-        return false;
+        return \false;
     }
     /**
      * Process method from AST.
      *
      * @return bool
      */
-    public function process(ClassMethod $method): bool
+    public function process(ClassMethod $method) : bool
     {
         $name = $method->name->name;
         if (isset($this->removedMethods[$name])) {
-            return true;
+            return \true;
         }
         $myMethod = $this->methods[$name] ?? $this->abstractMethods[$name];
         foreach ($myMethod->getSubNodeNames() as $name) {
@@ -230,6 +229,6 @@ class Storage
                 $method->setAttribute($key, $attribute);
             }
         }
-        return false;
+        return \false;
     }
 }
