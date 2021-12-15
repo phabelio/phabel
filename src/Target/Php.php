@@ -90,12 +90,16 @@ class Php extends Plugin
     private static function getRange(int $target): array
     {
         $key = \array_search($target, self::VERSIONS);
-        return $key === false && $target !== (int) self::DEFAULT_TARGET
-            ? self::getRange((int) self::DEFAULT_TARGET)
-            : \array_slice(
-                self::VERSIONS,
-                1 + $key
-            );
+        if ($key === false) {
+            if ($target === (int) self::DEFAULT_TARGET) {
+                return [];
+            }
+            return self::getRange((int) self::DEFAULT_TARGET);
+        }
+        return \array_slice(
+            self::VERSIONS,
+            1 + $key
+        );
     }
     public static function getComposerRequires(array $config): array
     {
