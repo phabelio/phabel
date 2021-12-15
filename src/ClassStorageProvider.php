@@ -17,8 +17,9 @@ abstract class ClassStorageProvider extends Plugin implements JsonSerializable
     private const PROCESSED = 'ClassStorageProvider:processed';
     /**
      * Class count.
+     * @var array $count
      */
-    private array $count = [];
+    private $count = [];
     /**
      * Process class graph.
      *
@@ -53,7 +54,7 @@ abstract class ClassStorageProvider extends Plugin implements JsonSerializable
             $name = self::getFqdn($class);
         } else {
             $name = "class@anonymous{$file}";
-            $this->count[$file][$name] ??= 0;
+            $this->count[$file][$name] = $this->count[$file][$name] ?? 0;
             $name .= "@" . $this->count[$file][$name]++;
         }
         $storage = $this->getGlobalClassStorage()->getClass($file, $name);
@@ -63,20 +64,35 @@ abstract class ClassStorageProvider extends Plugin implements JsonSerializable
             }
         }
     }
+    /**
+     *
+     */
     public function enterStaticCall(StaticCall $call): void
     {
         $this->enterCall($call);
     }
+    /**
+     *
+     */
     public function enterFuncCall(FuncCall $call): void
     {
         $this->enterCall($call);
     }
+    /**
+     *
+     */
     public function enterMethodCall(MethodCall $call): void
     {
         $this->enterCall($call);
     }
-    private function enterCall(StaticCall|FuncCall|MethodCall $call): void
+    /**
+     * @param (StaticCall | FuncCall | MethodCall) $call
+     */
+    private function enterCall($call): void
     {
+        if (!($call instanceof StaticCall || $call instanceof FuncCall || $call instanceof MethodCall)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($call) must be of type StaticCall|FuncCall|MethodCall, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($call) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
         $args = [];
         $hasNamed = false;
         foreach ($call->args as $arg) {
