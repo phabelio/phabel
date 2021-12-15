@@ -18,6 +18,9 @@ use PhpParser\Node\Stmt\Foreach_;
  */
 class ArrayUnpack extends Plugin
 {
+    /**
+     *
+     */
     public function enter(Array_ $array, Context $context): ?FuncCall
     {
         foreach ($context->parents as $parent) {
