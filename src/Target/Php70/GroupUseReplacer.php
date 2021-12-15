@@ -3,11 +3,10 @@
 namespace Phabel\Target\Php70;
 
 use Phabel\Plugin;
-use PhpParser\Node;
-use PhpParser\Node\Stmt\GroupUse;
-use PhpParser\Node\Stmt\Use_;
-use PhpParser\Node\Stmt\UseUse;
-
+use PhabelVendor\PhpParser\Node;
+use PhabelVendor\PhpParser\Node\Stmt\GroupUse;
+use PhabelVendor\PhpParser\Node\Stmt\Use_;
+use PhabelVendor\PhpParser\Node\Stmt\UseUse;
 /**
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT
@@ -21,10 +20,10 @@ class GroupUseReplacer extends Plugin
      *
      * @return Use_[]
      */
-    public function leave(GroupUse $node): array
+    public function leave(GroupUse $node) : array
     {
         $nodePrefixParts = $node->prefix->parts;
-        return \array_map(function (UseUse $useNode) use ($nodePrefixParts) {
+        return \array_map(function (UseUse $useNode) use($nodePrefixParts) {
             return $this->createUseNode($nodePrefixParts, $useNode);
         }, $node->uses);
     }
@@ -36,7 +35,7 @@ class GroupUseReplacer extends Plugin
      *
      * @return Use_ New use node
      */
-    protected function createUseNode(array $nodePrefixParts, UseUse $useNode): Use_
+    protected function createUseNode(array $nodePrefixParts, UseUse $useNode) : Use_
     {
         $nodePrefixParts[] = $useNode->name;
         $nameNode = new Node\Name($nodePrefixParts);
