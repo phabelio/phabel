@@ -4,9 +4,8 @@ namespace Phabel\Plugin;
 
 use Phabel\Plugin;
 use Phabel\Target\Php;
-use PhpParser\Node\Name;
-use PhpParser\Node\Scalar\String_;
-
+use PhabelVendor\PhpParser\Node\Name;
+use PhabelVendor\PhpParser\Node\Scalar\String_;
 /**
  * Replace phabel test namespaces with appropriate version.
  *
@@ -17,14 +16,14 @@ class PhabelTestGenerator extends Plugin
     /**
      *
      */
-    private function tryReplace(string $in): string
+    private function tryReplace(string $in) : string
     {
         return \preg_replace("~PhabelTest(\\\\+)Target(?:Future)?\\d*~", 'PhabelTest$1Target' . $this->getConfig('target', ''), $in);
     }
     /**
      *
      */
-    public function enter(Name $name): ?Name
+    public function enter(Name $name) : ?Name
     {
         if (\preg_match("~PhabelTest\\\\+Target(?:Future)?\\d*~", $name->toString())) {
             $class = \get_class($name);
@@ -35,7 +34,7 @@ class PhabelTestGenerator extends Plugin
     /**
      *
      */
-    public function enterLiteral(String_ $str): ?String_
+    public function enterLiteral(String_ $str) : ?String_
     {
         if (\preg_match("~PhabelTest\\\\+Target(?:Future)?\\d*~", $str->value)) {
             return new String_($this->tryReplace($str->value));
@@ -45,8 +44,8 @@ class PhabelTestGenerator extends Plugin
     /**
      *
      */
-    public static function previous(array $config): array
+    public static function previous(array $config) : array
     {
-        return [Php::class => ['target' => $config['target'] % 1000], StringConcatOptimizer::class => []];
+        return [Php::class => ['target' => $config['target'] % 1000], \Phabel\Plugin\StringConcatOptimizer::class => []];
     }
 }
