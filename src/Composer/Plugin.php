@@ -23,28 +23,37 @@ use Symfony\Component\Console\Output\NullOutput;
  */
 class Plugin implements PluginInterface, EventSubscriberInterface
 {
-    private string $toRequire = '';
-    /** @psalm-suppress MissingConstructor */
-    private Transformer $transformer;
-    private ?array $lock = null;
+    /**
+     * @var string $toRequire
+     */
+    private $toRequire = '';
+    /**
+     * @psalm-suppress MissingConstructor
+     * @var Transformer $transformer
+     */
+    private $transformer;
+    /**
+     * @var (array | null) $lock
+     */
+    private $lock = null;
     /**
      * Apply plugin modifications to Composer.
      *
-     * @param Composer    $composer Composer instance
-     * @param IOInterface $io       IO instance
+     * @param Composer $composer Composer instance
+     * @param IOInterface $io IO instance
      *
      * @return void
      */
     public function activate(Composer $composer, IOInterface $io): void
     {
         if (!\defined('PHABEL_INCLUDED')) {
-            $json = \json_decode(\file_get_contents(__DIR__ . '/../../composer.json'), true);
+            $json = \Phabel\Target\Php72\Polyfill::json_decode(\file_get_contents(__DIR__ . '/../../composer.json'), true);
             foreach ($json['autoload']['files'] as $file) {
                 require_once __DIR__ . '/../../' . $file;
             }
         }
         if (\file_exists('composer.lock')) {
-            $this->lock = \json_decode(\file_get_contents('composer.lock'), true);
+            $this->lock = \Phabel\Target\Php72\Polyfill::json_decode(\file_get_contents('composer.lock'), true);
         }
         $rootPackage = $composer->getPackage();
         $php = $rootPackage->getConfig()['platform']['php'] ?? Php::DEFAULT_TARGET;
@@ -69,15 +78,15 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         }
     }
     /**
-     * Remove any hooks from Composer.
-     *
-     * This will be called when a plugin is deactivated before being
-     * uninstalled, but also before it gets upgraded to a new version
-     * so the old one can be deactivated and the new one activated.
-     *
-     * @param Composer    $composer
-     * @param IOInterface $io
-     */
+    * Remove any hooks from Composer.
+    *
+    * This will be called when a plugin is deactivated before being
+    uninstalled, but also before it gets upgraded to a new version
+    so the old one can be deactivated and the new one activated.
+    *
+    * @param Composer $composer
+    * @param IOInterface $io
+    */
     public function deactivate(Composer $composer, IOInterface $io)
     {
     }
@@ -86,7 +95,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      *
      * This will be called after deactivate.
      *
-     * @param Composer    $composer
+     * @param Composer $composer
      * @param IOInterface $io
      */
     public function uninstall(Composer $composer, IOInterface $io)
@@ -99,17 +108,26 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     {
         return [ScriptEvents::POST_INSTALL_CMD => ['onInstall', 1], ScriptEvents::POST_UPDATE_CMD => ['onUpdate', 1]];
     }
+    /**
+     *
+     */
     public function onInstall(Event $event): void
     {
         $this->run($event, false);
     }
+    /**
+     *
+     */
     public function onUpdate(Event $event): void
     {
         $this->run($event, true);
     }
+    /**
+     *
+     */
     private function run(Event $event, bool $isUpdate): void
     {
-        $lock = \json_decode(\file_get_contents('composer.lock'), true);
+        $lock = \Phabel\Target\Php72\Polyfill::json_decode(\file_get_contents('composer.lock'), true);
         if ($this->transformer->transform($lock, $this->lock)) {
             \register_shutdown_function(function () use ($isUpdate) {
                 /** @var Application */
@@ -125,7 +143,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             });
         } else {
             \register_shutdown_function(function () {
-                $json = \json_decode(\file_get_contents('composer.json'), true);
+                $json = \Phabel\Target\Php72\Polyfill::json_decode(\file_get_contents('composer.json'), true);
                 if (!isset($json['require']['phabel/phabel']) && !isset($json['require-dev']['phabel/phabel'])) {
                     return;
                 }
@@ -133,10 +151,10 @@ class Plugin implements PluginInterface, EventSubscriberInterface
                 if ($old === Version::LATEST) {
                     return;
                 }
-                $json['extra'] ??= [];
-                $json['extra']['phabel'] ??= [];
+                $json['extra'] = $json['extra'] ?? [];
+                $json['extra']['phabel'] = $json['extra']['phabel'] ?? [];
                 $json['extra']['phabel']['revision'] = Version::LATEST;
-                $json['require'] ??= [];
+                $json['require'] = $json['require'] ?? [];
                 $json['require']['php'] = '^8.0';
                 $this->transformer->banner();
                 $f = [$this->transformer, 'format'];

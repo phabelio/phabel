@@ -29,6 +29,9 @@ class GeneratorDetector extends Plugin
     {
         return $node->getAttribute(self::IS_GENERATOR, false);
     }
+    /**
+     *
+     */
     public function enterYield(Yield_ $node, Context $ctx): void
     {
         foreach ($ctx->parents as $parent) {
@@ -38,6 +41,9 @@ class GeneratorDetector extends Plugin
             }
         }
     }
+    /**
+     *
+     */
     public function enterYieldFrom(YieldFrom $node, Context $ctx): void
     {
         foreach ($ctx->parents as $parent) {
