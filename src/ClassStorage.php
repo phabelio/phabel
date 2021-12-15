@@ -6,11 +6,10 @@ use Phabel\ClassStorage\FunctionStorage;
 use Phabel\ClassStorage\Storage;
 use Phabel\Plugin\ClassStoragePlugin;
 use Phabel\Plugin\TypeHintReplacer;
-use PhpParser\Node\Identifier;
-use PhpParser\Node\Name;
-use PhpParser\Node\NullableType;
-use PhpParser\Node\UnionType;
-
+use PhabelVendor\PhpParser\Node\Identifier;
+use PhabelVendor\PhpParser\Node\Name;
+use PhabelVendor\PhpParser\Node\NullableType;
+use PhabelVendor\PhpParser\Node\UnionType;
 final class ClassStorage
 {
     const FILE_KEY = 'ClassStorage:file';
@@ -57,14 +56,14 @@ final class ClassStorage
             foreach ($fileTraits as $file => $trait) {
                 $trait = $trait->build();
                 $this->traits[$name][$file] = $trait;
-                $this->files[$file] = true;
+                $this->files[$file] = \true;
             }
         }
         foreach ($plugin->classes as $name => $fileClasses) {
             foreach ($fileClasses as $file => $class) {
                 $class = $class->build();
                 $this->classes[$name][$file] = $class;
-                $this->files[$file] = true;
+                $this->files[$file] = \true;
             }
         }
         $this->functions = $plugin->functions;
@@ -74,7 +73,7 @@ final class ClassStorage
      *
      * @return array<string, string>
      */
-    public function getFiles(): array
+    public function getFiles() : array
     {
         unset($this->files['_']);
         $result = $this->files;
@@ -89,7 +88,7 @@ final class ClassStorage
      * @param string $file
      * @return boolean
      */
-    public function hasFile(string $file): bool
+    public function hasFile(string $file) : bool
     {
         return isset($this->files[$file]);
     }
@@ -101,7 +100,7 @@ final class ClassStorage
      *
      * @return Storage
      */
-    public function getClass(string $file, string $name): Storage
+    public function getClass(string $file, string $name) : Storage
     {
         return $this->classes[$name][$file] ?? $this->traits[$name][$file];
     }
@@ -112,7 +111,7 @@ final class ClassStorage
      *
      * @return ?Storage
      */
-    public function getClassByName(string $class): ?Storage
+    public function getClassByName(string $class) : ?Storage
     {
         return \array_values($this->classes[$class] ?? [])[0] ?? null;
     }
@@ -121,7 +120,7 @@ final class ClassStorage
      *
      * @return \Generator<class-string, Storage, null, void>
      */
-    public function getClasses(): \Generator
+    public function getClasses() : \Generator
     {
         foreach ($this->classes as $class => $classes) {
             foreach ($classes as $_ => $storage) {
@@ -135,11 +134,11 @@ final class ClassStorage
      * @param string $function
      * @return FunctionStorage|null
      */
-    public function getArguments(string $function): ?FunctionStorage
+    public function getArguments(string $function) : ?FunctionStorage
     {
         return $this->functions[$function] ?? null;
     }
-    private static function typeArray(null|Identifier|Name|NullableType|UnionType $type): array
+    private static function typeArray(null|Identifier|Name|NullableType|UnionType $type) : array
     {
         $types = [];
         if ($type instanceof NullableType) {
@@ -161,7 +160,7 @@ final class ClassStorage
      *
      * @return integer
      */
-    public function compare(null|Identifier|Name|NullableType|UnionType $typeA, null|Identifier|Name|NullableType|UnionType $typeB, Storage $ctxA, Storage $ctxB): int
+    public function compare(null|Identifier|Name|NullableType|UnionType $typeA, null|Identifier|Name|NullableType|UnionType $typeB, Storage $ctxA, Storage $ctxB) : int
     {
         $typeA = self::typeArray($typeA);
         $typeB = self::typeArray($typeB);
@@ -171,7 +170,7 @@ final class ClassStorage
         if (\count($typeA) + \count($typeB) === 2) {
             $typeA = $typeA[0];
             $typeB = $typeB[0];
-            if ($typeA instanceof Name && $typeB instanceof Name && ($classA = $typeA->parts === ['self'] ? $ctxA : $this->getClassByName(Tools::getFqdn($typeA))) && ($classB = $typeA->parts === ['self'] ? $ctxB : $this->getClassByName(Tools::getFqdn($typeB)))) {
+            if ($typeA instanceof Name && $typeB instanceof Name && ($classA = $typeA->parts === ['self'] ? $ctxA : $this->getClassByName(\Phabel\Tools::getFqdn($typeA))) && ($classB = $typeA->parts === ['self'] ? $ctxB : $this->getClassByName(\Phabel\Tools::getFqdn($typeB)))) {
                 foreach ($classA->getAllChildren() as $child) {
                     if ($child === $classB) {
                         return 1;
