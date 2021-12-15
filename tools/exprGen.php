@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file generates an array containing all possible expression nodes, generated using default parameters.
  * Then, for each expression that accepts another expression as subnode, it tries to use all the expressions generated in the previous step,
@@ -7,7 +8,6 @@
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT
  */
-
 use HaydenPierce\ClassFinder\ClassFinder;
 use Phabel\Plugin\IssetExpressionFixer;
 use Phabel\Plugin\NestedExpressionFixer;
@@ -54,14 +54,12 @@ use PhpParser\Node\VarLikeIdentifier;
 use PhpParser\PrettyPrinter\Standard;
 
 require_once 'vendor/autoload.php';
-
 foreach (Php::VERSIONS as $version) {
-    if (empty(\shell_exec("which php$version 2>&1"))) {
-        echo("Could not find PHP $version!".PHP_EOL);
+    if (empty(\shell_exec("which php{$version} 2>&1"))) {
+        echo "Could not find PHP {$version}!" . PHP_EOL;
         die(1);
     }
 }
-
 class ExpressionGenerator
 {
     private Standard $printer;
@@ -69,11 +67,7 @@ class ExpressionGenerator
     {
         static $count = 0;
         $count++;
-        $code = (new Class_("lmao{$count}"))->addStmt(
-            (new Method("te"))
-            ->addStmt($code)
-            ->getNode()
-        )->getNode();
+        $code = (new Class_("lmao{$count}"))->addStmt((new Method("te"))->addStmt($code)->getNode())->getNode();
         return $this->printer->prettyPrintFile([$code]);
     }
     private function readUntilPrompt($resource)
@@ -89,14 +83,11 @@ class ExpressionGenerator
     private array $pipes = [];
     private function checkSyntaxVersion(int $version, string $code)
     {
-        $code = \str_replace(["\n", '<?php'], '', $code)."\n";
-
+        $code = \str_replace(["\n", '<?php'], '', $code) . "\n";
         $x = $this->robin[$version];
         $this->robin[$version]++;
         $this->robin[$version] %= \count($this->pipes[$version]);
-
         \fputs($this->pipes[$version][$x][0], $code);
-
         $result = $this->readUntilPrompt($this->pipes[$version][$x][1]);
         $result = \str_replace(['{', '}'], '', \substr(\preg_replace('#\\x1b[[][^A-Za-z]*[A-Za-z]#', '', $result), \strlen($code)));
         $result = \trim($result);
@@ -108,7 +99,6 @@ class ExpressionGenerator
         if (!$startFrom) {
             return $startFrom;
         }
-
         foreach (Php::VERSIONS as $version) {
             if ($version < $startFrom) {
                 continue;
@@ -119,57 +109,43 @@ class ExpressionGenerator
         }
         return 0;
     }
-
     private $result = [
-        'main' => [],     // Needs adaptation for nested expressions
-        'isset' => [],    // Needs adaptation for nested expressions in isset
+        'main' => [],
+        // Needs adaptation for nested expressions
+        'isset' => [],
     ];
     /** @psalm-var array<int, array<int, Node>> */
     private array $tests = [];
     private $versionMap = [];
-
-
     private function checkPossibleValue($arg, $name, $key, $class, $baseArgs, $isArray)
     {
         $subVersion = \max($this->versionMap[\get_debug_type($arg)] ?? 0, $this->versionMap[$class]);
-
         $arguments = $baseArgs;
         $arguments[$key] = $isArray ? [$arg] : $arg;
-
         $code = $this->format($prev = new $class(...$arguments));
         $curVersion = $this->checkSyntax($code, $subVersion);
         if ($curVersion && $curVersion !== $subVersion) {
             $this->result['main'][$curVersion][$class][$name][\get_debug_type($arg)] = true;
-            echo "Min $curVersion for $code\n";
+            echo "Min {$curVersion} for {$code}\n";
         }
-        if ($curVersion
-            && !($class === AssignRef::class && $arg instanceof New_)
-            && !($class === Yield_::class && $name === 'key' && ($arg instanceof LogicalAnd || $arg instanceof LogicalOr || $arg instanceof LogicalXor))
-            && !(\in_array($class, [MethodCall::class, StaticCall::class]) && $name === 'name' && ($arg instanceof Array_ || $arg instanceof Print_))
-            && !(\in_array($class, [UnaryPlus::class, UnaryMinus::class, BitwiseNot::class]) && $arg instanceof Array_)
-            && !(\in_array($class, [Variable::class, StaticPropertyFetch::class, PropertyFetch::class]) && $arg instanceof Array_)
-        ) {
+        if ($curVersion && !($class === AssignRef::class && $arg instanceof New_) && !($class === Yield_::class && $name === 'key' && ($arg instanceof LogicalAnd || $arg instanceof LogicalOr || $arg instanceof LogicalXor)) && !(\in_array($class, [MethodCall::class, StaticCall::class]) && $name === 'name' && ($arg instanceof Array_ || $arg instanceof Print_)) && !(\in_array($class, [UnaryPlus::class, UnaryMinus::class, BitwiseNot::class]) && $arg instanceof Array_) && !(\in_array($class, [Variable::class, StaticPropertyFetch::class, PropertyFetch::class]) && $arg instanceof Array_)) {
             $this->tests[] = $prev;
         }
-
         $code = $this->format(new Isset_([$prev]));
         $curVersion = $this->checkSyntax($code, $subVersion);
         if ($curVersion && $curVersion !== $subVersion) {
             $this->result['isset'][$curVersion][$class][$name][\get_debug_type($arg)] = true;
-            echo "Min $curVersion for $code\n";
+            echo "Min {$curVersion} for {$code}\n";
         }
-        if ($curVersion
-            && !(\in_array($class, [Variable::class, StaticPropertyFetch::class, PropertyFetch::class]) && $arg instanceof Array_)
-        ) {
+        if ($curVersion && !(\in_array($class, [Variable::class, StaticPropertyFetch::class, PropertyFetch::class]) && $arg instanceof Array_)) {
             $this->tests[] = new Isset_([$prev]);
         }
     }
-
     public function run()
     {
         $this->printer = new Standard(['shortArraySyntax' => true]);
         foreach (Php::VERSIONS as $version) {
-            $cmd = "php$version -a 2>&1";
+            $cmd = "php{$version} -a 2>&1";
             $this->pipes[$version] = [];
             $this->processes[$version] = [];
             $this->robin[$version] = 0;
@@ -182,38 +158,29 @@ class ExpressionGenerator
         $expressions = [];
         foreach (ClassFinder::getClassesInNamespace('PhpParser', ClassFinder::RECURSIVE_MODE) as $class) {
             $class = new ReflectionClass($class);
-            if ($class->isSubclassOf(Expr::class) && !$class->isAbstract()
-                && $class->getName() !== PrintableNewAnonClassNode::class
-                && $class->getName() !== ArrowFunction::class
-                && $class->getName() !== Error::class
-                && $class->getName() !== List_::class
-                && $class->getName() !== ArrayItem::class
-                && $class->getName() !== EncapsedStringPart::class
-                && $class->getName() !== Exit_::class
-                && $class->getName() !== Unset_::class) {
-                $expressions []= $class;
+            if ($class->isSubclassOf(Expr::class) && !$class->isAbstract() && $class->getName() !== PrintableNewAnonClassNode::class && $class->getName() !== ArrowFunction::class && $class->getName() !== Error::class && $class->getName() !== List_::class && $class->getName() !== ArrayItem::class && $class->getName() !== EncapsedStringPart::class && $class->getName() !== Exit_::class && $class->getName() !== Unset_::class) {
+                $expressions[] = $class;
             }
         }
-
         $instanceArgs = [];
         $instanceArgNames = [];
         $instanceArgTypes = [];
-
         $exprInstances = [];
         foreach ($expressions as $expr) {
             $class = $expr->getName();
             $method = $expr->getMethod('__construct');
             if ($method->getNumberOfParameters() === 1) {
                 $exprInstances[$class] = $expr->newInstance();
-                continue; // Is a magic constant or such
+                continue;
+                // Is a magic constant or such
             }
-            \preg_match_all('/@param (?<type>\S+) +\$(?<name>\S+)/', $method->getDocComment(), $matches);
+            \preg_match_all('/@param (?<type>\\S+) +\\$(?<name>\\S+)/', $method->getDocComment(), $matches);
             $types = \array_combine($matches['name'], $matches['type']);
             foreach ($types as &$type) {
                 $type = \explode("|", $type);
                 foreach ($type as $key => &$subtype) {
                     if (\str_starts_with($subtype, 'Node')) {
-                        $subtype = 'PhpParser\\'.$subtype;
+                        $subtype = 'PhpParser\\' . $subtype;
                     } elseif ($subtype === 'Error') {
                         unset($type[$key]);
                     } elseif ($subtype === 'Identifier') {
@@ -277,8 +244,6 @@ class ExpressionGenerator
                 $instanceArgTypes[$class] = $argTypes;
             }
         }
-
-
         $disallowedIssetExprs = [];
         foreach ($exprInstances as $expr) {
             if (!$this->checkSyntaxVersion(56, $this->format(new Isset_([$expr])))) {
@@ -286,24 +251,22 @@ class ExpressionGenerator
             }
         }
         $disallowedIssetExprs = \var_export($disallowedIssetExprs, true);
-        $disallowedIssetExprs = <<< PHP
+        $disallowedIssetExprs = <<<PHP
 <?php
 
-namespace Phabel\Target\Php70\NullCoalesce;
+namespace Phabel\\Target\\Php70\\NullCoalesce;
 
-use Phabel\Plugin;
+use Phabel\\Plugin;
 
 abstract class DisallowedExpressions extends Plugin
 {
-    const EXPRESSIONS = $disallowedIssetExprs;
+    const EXPRESSIONS = {$disallowedIssetExprs};
 }
 PHP;
         \file_put_contents("src/Target/Php70/NullCoalesce/DisallowedExpressions.php", $disallowedIssetExprs);
-
         foreach ($exprInstances as $class => $instance) {
             $this->versionMap[$class] = $this->checkSyntax($this->format($instance)) ?: 1000;
         }
-
         $wait = [];
         foreach ($instanceArgTypes as $class => $argTypes) {
             $baseArgs = $instanceArgs[$class];
@@ -346,7 +309,6 @@ PHP;
                 }
             }
         }
-
         $keys = [];
         foreach ($this->result['main'] as $version) {
             $keys = \array_merge_recursive($keys, $version);
@@ -356,18 +318,18 @@ PHP;
         }
         foreach (Php::VERSIONS as $version) {
             foreach (['NestedExpressionFixer', 'IssetExpressionFixer'] as $name) {
-                $code = <<< PHP
+                $code = <<<PHP
 <?php
 
-namespace Phabel\Target\Php$version;
+namespace Phabel\\Target\\Php{$version};
 
-use Phabel\Plugin;
+use Phabel\\Plugin;
 
-class $name extends Plugin
+class {$name} extends Plugin
 {
 }
 PHP;
-                \file_put_contents("src/Target/Php$version/$name.php", $code);
+                \file_put_contents("src/Target/Php{$version}/{$name}.php", $code);
             }
         }
         \var_dump($keys);
@@ -376,18 +338,18 @@ PHP;
             $type = $type === 'main' ? NestedExpressionFixer::class : IssetExpressionFixer::class;
             foreach ($results as $version => $config) {
                 $config = \var_export($config, true);
-                $code = <<< PHP
+                $code = <<<PHP
 <?php
 
-namespace Phabel\Target\Php$version;
+namespace Phabel\\Target\\Php{$version};
 
-use Phabel\Plugin;
-use $type as fixer;
+use Phabel\\Plugin;
+use {$type} as fixer;
 
 /**
- * Expression fixer for PHP $version
+ * Expression fixer for PHP {$version}
  */
-class $name extends Plugin
+class {$name} extends Plugin
 {
     /**
      * {@inheritDoc}
@@ -395,16 +357,15 @@ class $name extends Plugin
     public static function next(array \$config): array
     {
         return [
-            fixer::class => $config
+            fixer::class => {$config}
         ];
     }
 }
 PHP;
-                \file_put_contents("src/Target/Php$version/$name.php", $code);
+                \file_put_contents("src/Target/Php{$version}/{$name}.php", $code);
             }
         }
-
-        $comment = <<< PHP
+        $comment = <<<PHP
 /**
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT
@@ -414,49 +375,22 @@ PHP;
             \unlink($file);
         }
         $prettyPrinter = new PhpParser\PrettyPrinter\Standard(['shortArraySyntax' => true]);
-
         foreach (\array_chunk($this->tests, 100) as $stmts) {
-            $i = \hash('sha256', $prettyPrinter->prettyPrintFile($stmts))."Test";
-
+            $i = \hash('sha256', $prettyPrinter->prettyPrintFile($stmts)) . "Test";
             $sortedStmts = [];
             foreach ($stmts as $stmt) {
-                $method = 'test'.\hash('sha256', $prettyPrinter->prettyPrintFile([$stmt]));
-                $sortedStmts[$method] = (new Method($method))
-                    ->addStmt(
-                        new MethodCall(
-                            new Variable('this'),
-                            'assertTrue',
-                            [new Arg(Tools::fromLiteral(true))]
-                        )
-                    )
-                    ->addStmt(
-                        new Expression(new ArrowFunction(
-                            ['expr' => $stmt]
-                        ))
-                    )
-                    ->getNode();
+                $method = 'test' . \hash('sha256', $prettyPrinter->prettyPrintFile([$stmt]));
+                $sortedStmts[$method] = (new Method($method))->addStmt(new MethodCall(new Variable('this'), 'assertTrue', [new Arg(Tools::fromLiteral(true))]))->addStmt(new Expression(new ArrowFunction(['expr' => $stmt])))->getNode();
             }
             \ksort($sortedStmts);
-
-            $class = (new Class_("Expression$i"))
-                ->extend("TestCase")
-                ->setDocComment($comment)
-                ->addStmts(\array_values($sortedStmts))
-                ->getNode();
-
-            $class = (new Namespace_(PhabelTest\Target::class))
-                ->addStmt(new Use_(\PHPUnit\Framework\TestCase::class, StmtUse_::TYPE_NORMAL))
-                ->addStmt($class)
-                ->getNode();
-
+            $class = (new Class_("Expression{$i}"))->extend("TestCase")->setDocComment($comment)->addStmts(\array_values($sortedStmts))->getNode();
+            $class = (new Namespace_(PhabelTest\Target::class))->addStmt(new Use_(\PHPUnit\Framework\TestCase::class, StmtUse_::TYPE_NORMAL))->addStmt($class)->getNode();
             $class = $prettyPrinter->prettyPrintFile([$class]);
-
-            if (\file_exists("testsGenerated/Target/Expression$i.php")) {
-                throw new \RuntimeException("Expression$i.php already exists!");
+            if (\file_exists("testsGenerated/Target/Expression{$i}.php")) {
+                throw new \RuntimeException("Expression{$i}.php already exists!");
             }
-            \file_put_contents("testsGenerated/Target/Expression$i.php", $class);
+            \file_put_contents("testsGenerated/Target/Expression{$i}.php", $class);
         }
     }
 }
-
-(new ExpressionGenerator)->run();
+(new ExpressionGenerator())->run();
