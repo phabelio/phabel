@@ -14,6 +14,9 @@ use SplStack;
  */
 class TypeContracovariance extends ClassStorageProvider
 {
+    /**
+     *
+     */
     public static function processClassGraph(ClassStorage $storage): bool
     {
         $changed = false;

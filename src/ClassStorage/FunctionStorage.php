@@ -13,9 +13,19 @@ class FunctionStorage
      * @param array<string, mixed> $arguments
      * @param boolean $hasVariadic
      */
-    public function __construct(private array $arguments, private bool $hasVariadic)
+    public function __construct(array $arguments, bool $hasVariadic)
     {
+        $this->hasVariadic = $hasVariadic;
+        $this->arguments = $arguments;
     }
+    /**
+     *
+     */
+    private bool $hasVariadic;
+    /**
+     *
+     */
+    private array $arguments;
     /**
      * Get arguments.
      *

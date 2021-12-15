@@ -23,15 +23,23 @@ use Symfony\Component\Console\Output\NullOutput;
  */
 class Plugin implements PluginInterface, EventSubscriberInterface
 {
+    /**
+     *
+     */
     private string $toRequire = '';
-    /** @psalm-suppress MissingConstructor */
+    /**
+     * @psalm-suppress MissingConstructor
+     */
     private Transformer $transformer;
+    /**
+     *
+     */
     private ?array $lock = null;
     /**
      * Apply plugin modifications to Composer.
      *
-     * @param Composer    $composer Composer instance
-     * @param IOInterface $io       IO instance
+     * @param Composer $composer Composer instance
+     * @param IOInterface $io IO instance
      *
      * @return void
      */
@@ -69,15 +77,15 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         }
     }
     /**
-     * Remove any hooks from Composer.
-     *
-     * This will be called when a plugin is deactivated before being
-     * uninstalled, but also before it gets upgraded to a new version
-     * so the old one can be deactivated and the new one activated.
-     *
-     * @param Composer    $composer
-     * @param IOInterface $io
-     */
+    * Remove any hooks from Composer.
+    *
+    * This will be called when a plugin is deactivated before being
+    uninstalled, but also before it gets upgraded to a new version
+    so the old one can be deactivated and the new one activated.
+    *
+    * @param Composer $composer
+    * @param IOInterface $io
+    */
     public function deactivate(Composer $composer, IOInterface $io)
     {
     }
@@ -86,7 +94,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      *
      * This will be called after deactivate.
      *
-     * @param Composer    $composer
+     * @param Composer $composer
      * @param IOInterface $io
      */
     public function uninstall(Composer $composer, IOInterface $io)
@@ -99,14 +107,23 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     {
         return [ScriptEvents::POST_INSTALL_CMD => ['onInstall', 1], ScriptEvents::POST_UPDATE_CMD => ['onUpdate', 1]];
     }
+    /**
+     *
+     */
     public function onInstall(Event $event): void
     {
         $this->run($event, false);
     }
+    /**
+     *
+     */
     public function onUpdate(Event $event): void
     {
         $this->run($event, true);
     }
+    /**
+     *
+     */
     private function run(Event $event, bool $isUpdate): void
     {
         $lock = \json_decode(\file_get_contents('composer.lock'), true);
