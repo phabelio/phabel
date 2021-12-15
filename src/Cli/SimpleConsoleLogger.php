@@ -31,11 +31,16 @@ class SimpleConsoleLogger extends AbstractLogger
     private $verbosityLevelMap = [LogLevel::EMERGENCY => OutputInterface::VERBOSITY_NORMAL, LogLevel::ALERT => OutputInterface::VERBOSITY_NORMAL, LogLevel::CRITICAL => OutputInterface::VERBOSITY_NORMAL, LogLevel::ERROR => OutputInterface::VERBOSITY_NORMAL, LogLevel::WARNING => OutputInterface::VERBOSITY_NORMAL, LogLevel::NOTICE => OutputInterface::VERBOSITY_VERBOSE, LogLevel::INFO => OutputInterface::VERBOSITY_VERY_VERBOSE, LogLevel::DEBUG => OutputInterface::VERBOSITY_DEBUG];
     private $formatLevelMap = [LogLevel::EMERGENCY => self::ERROR, LogLevel::ALERT => self::ERROR, LogLevel::CRITICAL => self::ERROR, LogLevel::ERROR => self::ERROR, LogLevel::WARNING => self::INFO, LogLevel::NOTICE => self::INFO, LogLevel::INFO => self::INFO, LogLevel::DEBUG => self::INFO];
     private $errored = false;
-    public function __construct(private $output, array $verbosityLevelMap = [], array $formatLevelMap = [])
+    /**
+     *
+     */
+    public function __construct($output, array $verbosityLevelMap = [], array $formatLevelMap = [])
     {
+        $this->output = $output;
         $this->verbosityLevelMap = $verbosityLevelMap + $this->verbosityLevelMap;
         $this->formatLevelMap = $formatLevelMap + $this->formatLevelMap;
     }
+    private $output;
     /**
      * {@inheritdoc}
      *

@@ -18,12 +18,14 @@ abstract class Plugin extends Tools implements PluginInterface
 {
     /**
      * Configuration array.
+     * @var array $config
      */
-    private array $config = [];
+    private $config = [];
     /**
      * Package context.
+     * @var PackageContext $ctx
      */
-    private PackageContext $ctx;
+    private $ctx;
     /**
      * Set configuration array.
      *
@@ -88,8 +90,8 @@ abstract class Plugin extends Tools implements PluginInterface
     /**
      * Call polyfill function from current plugin.
      *
-     * @param string   $name          Function name
-     * @param Expr|Arg ...$parameters Parameters
+     * @param string $name Function name
+     * @param (Expr | Arg) ...$parameters Parameters
      *
      * @return StaticCall
      */
