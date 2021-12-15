@@ -32,9 +32,9 @@ class VariableContext
      *
      * @return void
      */
-    public function addVar(string $var): void
+    public function addVar(string $var) : void
     {
-        $this->variables[$var] = true;
+        $this->variables[$var] = \true;
     }
     /**
      * Add variables.
@@ -43,7 +43,7 @@ class VariableContext
      *
      * @return void
      */
-    public function addVars(array $vars): void
+    public function addVars(array $vars) : void
     {
         $this->variables += $vars;
     }
@@ -54,7 +54,7 @@ class VariableContext
      *
      * @return void
      */
-    public function removeVar(string $var): void
+    public function removeVar(string $var) : void
     {
         unset($this->variables[$var]);
     }
@@ -64,7 +64,7 @@ class VariableContext
      * @param string $var
      * @return boolean
      */
-    public function hasVar(string $var): bool
+    public function hasVar(string $var) : bool
     {
         return isset($this->variables[$var]);
     }
@@ -73,12 +73,12 @@ class VariableContext
      *
      * @return string
      */
-    public function getVar(): string
+    public function getVar() : string
     {
         do {
             $var = 'phabel_' . \bin2hex(\random_bytes(8));
         } while (isset($this->variables[$var]));
-        $this->variables[$var] = true;
+        $this->variables[$var] = \true;
         return $var;
     }
     /**
@@ -86,7 +86,7 @@ class VariableContext
      *
      * @return array
      */
-    public function getVars(): array
+    public function getVars() : array
     {
         return $this->variables;
     }
