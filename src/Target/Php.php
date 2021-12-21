@@ -8,8 +8,7 @@ use Phabel\Plugin\NewFixer;
 use Phabel\Plugin\StmtExprWrapper;
 use Phabel\PluginInterface;
 use Phabel\Version;
-use PhpParser\Node;
-
+use PhabelVendor\PhpParser\Node;
 /**
  * Makes changes necessary to polyfill syntaxes of various PHP versions.
  *
@@ -35,7 +34,7 @@ class Php extends Plugin
     /**
      * Default target.
      */
-    const DEFAULT_TARGET = PHP_MAJOR_VERSION . PHP_MINOR_VERSION;
+    const DEFAULT_TARGET = \PHP_MAJOR_VERSION . \PHP_MINOR_VERSION;
     /**
      * Ignore target.
      */
@@ -50,7 +49,7 @@ class Php extends Plugin
      * @param string $target
      * @return integer
      */
-    public static function normalizeVersion(string $target): int
+    public static function normalizeVersion(string $target) : int
     {
         if ($target === 'auto') {
             return (int) self::DEFAULT_TARGET;
@@ -67,7 +66,7 @@ class Php extends Plugin
      * @param int $target
      * @return string
      */
-    public static function unnormalizeVersion(int $target): string
+    public static function unnormalizeVersion(int $target) : string
     {
         $target = (string) $target;
         return $target[0] . '.' . $target[1];
@@ -78,10 +77,10 @@ class Php extends Plugin
      * @param int $target
      * @return int[]
      */
-    private static function getRange(int $target): array
+    private static function getRange(int $target) : array
     {
         $key = \array_search($target, self::VERSIONS);
-        if ($key === false) {
+        if ($key === \false) {
             if ($target === (int) self::DEFAULT_TARGET) {
                 return [];
             }
@@ -89,10 +88,10 @@ class Php extends Plugin
         }
         return \array_slice(self::VERSIONS, 1 + $key);
     }
-    public static function getComposerRequires(array $config): array
+    public static function getComposerRequires(array $config) : array
     {
-        $target = Php::normalizeVersion($config['target'] ?? self::DEFAULT_TARGET);
-        $res = ['php' => '>=' . Php::unnormalizeVersion($target) . ' <' . Php::unnormalizeVersion($target + 1), 'phabel/phabel' => Version::VERSION];
+        $target = \Phabel\Target\Php::normalizeVersion($config['target'] ?? self::DEFAULT_TARGET);
+        $res = ['php' => '>=' . \Phabel\Target\Php::unnormalizeVersion($target) . ' <' . \Phabel\Target\Php::unnormalizeVersion($target + 1), 'phabel/phabel' => Version::VERSION];
         if (\str_starts_with(Node::class, 'Phabel')) {
             return $res;
         }
@@ -102,7 +101,7 @@ class Php extends Plugin
         }
         return $res;
     }
-    public static function previous(array $config): array
+    public static function previous(array $config) : array
     {
         $classes = [ComposerSanitizer::class => []];
         foreach (self::getRange((int) ($config['target'] ?? self::DEFAULT_TARGET)) as $version) {
@@ -124,7 +123,7 @@ class Php extends Plugin
         }
         return $classes;
     }
-    public static function next(array $config): array
+    public static function next(array $config) : array
     {
         $classes = [StmtExprWrapper::class => $config[StmtExprWrapper::class] ?? [], NewFixer::class => []];
         foreach (self::getRange((int) ($config['target'] ?? self::DEFAULT_TARGET)) as $version) {
