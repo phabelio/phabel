@@ -212,6 +212,31 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
         \rename("$path/$file", "$path/guard.$file");
         \file_put_contents("$path/$file", "<?php require_once __DIR__.DIRECTORY_SEPARATOR.'guard.$file';");
     }
+    $it = new \RecursiveDirectoryIterator('src', \RecursiveDirectoryIterator::SKIP_DOTS);
+    $ri = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::SELF_FIRST);
+
+    $allUses = [];
+    /** @var \SplFileInfo $file */
+    foreach ($ri as $file) {
+        if ($file->getExtension() !== 'php') {
+            continue;
+        }
+        if (\preg_match_all('/use (.+?)(?: as .+)?;/', \file_get_contents($file->getRealPath()), $uses)) {
+            foreach ($uses[1] as $class) {
+                $allUses []= "\\$class::class";
+            }
+        }
+    }
+
+    $allUses = \implode(', ', $allUses);
+    $allUses = "array_map('class_exists', [$allUses]);";
+
+    \file_put_contents(
+        'src/guard.php',
+        \file_get_contents('src/guard.php').$allUses
+    );
+
+
     $json['autoload-dev'] = ['psr-4' => ['PhabelTest\\' => 'tests/']];
 
     \file_put_contents('composer.json', \json_encode($json, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES));

@@ -46,6 +46,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         if (\file_exists('composer.lock')) {
             $this->lock = \json_decode(\file_get_contents('composer.lock'), true);
         }
+        \putenv("PHABEL_INSIDE_COMPOSER=1");
 
         $rootPackage = $composer->getPackage();
         $php = $rootPackage->getConfig()['platform']['php'] ?? Php::DEFAULT_TARGET;

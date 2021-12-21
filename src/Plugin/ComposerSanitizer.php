@@ -28,7 +28,7 @@ class ComposerSanitizer extends Plugin
      */
     public static function getContents(string $package): string
     {
-        return \sprintf('<?php die("%s: %s");', $package, self::MESSAGE);
+        return \sprintf('<?php if (!getenv("PHABEL_INSIDE_COMPOSER")) die("%s: %s");', $package, self::MESSAGE);
     }
     public function shouldRunFile(string $file): bool
     {
