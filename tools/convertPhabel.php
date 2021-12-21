@@ -206,6 +206,12 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
             );
         }
     }
+    foreach ($json['autoload']['files'] ?? [] as $file) {
+        $path = \dirname($file);
+        $file = \basename($file);
+        \rename("$path/$file", "$path/guard.$file");
+        \file_put_contents("$path/$file", "<?php require_once __DIR__.DIRECTORY_SEPARATOR.'guard.$file';");
+    }
     $json['autoload-dev'] = ['psr-4' => ['PhabelTest\\' => 'tests/']];
 
     \file_put_contents('composer.json', \json_encode($json, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES));
