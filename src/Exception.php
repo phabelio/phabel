@@ -7,6 +7,9 @@ namespace Phabel;
  */
 class Exception extends \Exception
 {
+    /**
+     *
+     */
     private ?string $trace;
     /**
      * Get trace.

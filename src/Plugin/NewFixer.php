@@ -21,19 +21,34 @@ use PhpParser\NodeFinder;
  */
 class NewFixer extends Plugin
 {
+    /**
+     *
+     */
     private NodeFinder $finder;
+    /**
+     *
+     */
     public function __construct()
     {
         $this->finder = new NodeFinder();
     }
+    /**
+     *
+     */
     private function isParenthesised(Node $node): bool
     {
         return !($node instanceof Expr\Variable || $node instanceof Node\Name || $node instanceof Expr\ArrayDimFetch || $node instanceof Expr\PropertyFetch || $node instanceof Expr\NullsafePropertyFetch || $node instanceof Expr\StaticPropertyFetch || $node instanceof Expr\Array_ || $node instanceof Scalar\String_ || $node instanceof Expr\ConstFetch || $node instanceof Expr\ClassConstFetch);
     }
+    /**
+     *
+     */
     private function hasParenthesised(Node $node): bool
     {
         return $node instanceof Expr && $this->finder->findFirst($node, fn (Node $node): bool => $this->isParenthesised($node)) !== null;
     }
+    /**
+     *
+     */
     public function enterNew(New_ $new, Context $context)
     {
         if ($this->hasParenthesised($new->class)) {
@@ -41,6 +56,9 @@ class NewFixer extends Plugin
             return new Ternary(new BooleanOr(new Assign($new->class = $context->getVariable(), $valueCopy), self::fromLiteral(true)), $new, self::fromLiteral(false));
         }
     }
+    /**
+     *
+     */
     public function enterInstanceof(Instanceof_ $expr)
     {
         if ($this->hasParenthesised($expr->class)) {
@@ -50,8 +68,8 @@ class NewFixer extends Plugin
     /**
      * Check if a is instance of b.
      *
-     * @param class-string|object $a
-     * @param class-string|object $b
+     * @param (class-string | object) $a
+     * @param (class-string | object) $b
      *
      * @return boolean
      */
