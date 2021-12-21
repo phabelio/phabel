@@ -15,11 +15,10 @@ class ComposerSanitizer extends Plugin
 {
     public const FILE_NAME = '___transpiledWithPhabel.php';
     private const MESSAGE = <<<PHP
-    This package requires transpilation using the phabel.io composer plugin.
-    To use this package please run composer update, enabling execution of plugins and generation of the lockfile.
-    
-    PHP;
+This package requires transpilation using the phabel.io composer plugin.
+To use this package please run composer update, enabling execution of plugins and generation of the lockfile.
 
+PHP;
     /**
      * Get contents of file.
      *
@@ -38,7 +37,6 @@ class ComposerSanitizer extends Plugin
     {
         return true;
     }
-
     /**
      * Enter file.
      *
