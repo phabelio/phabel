@@ -33,6 +33,9 @@ if (!$dry) {
     r("cp -a {$home} ../phabelConvertedRepo");
     r("rm -rf ../phabelConvertedRepo/vendor");
 }
+/**
+ *
+ */
 function commit(string $message)
 {
     r("cp -a ../phabelConvertedOutput/* ../phabelConvertedRepo");
@@ -64,7 +67,7 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
     r("rm -rf vendor-bin/*/vendor");
     if (!empty($packages)) {
         unset($packages['phabel/phabel']);
-        $json = \json_decode(\file_get_contents('composer.json'), true);
+        $json = \Phabel\Target\Php72\Polyfill::json_decode(\file_get_contents('composer.json'), true);
         foreach ($packages as $package => $constraint) {
             if ($package === 'php') {
                 continue;
@@ -123,8 +126,8 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
     return require __DIR__.'/../../../autoload.php';
 PHP
     );
-    $lock = \json_decode(\file_get_contents('composer.lock'), true);
-    $json = \json_decode(\file_get_contents('composer.json'), true);
+    $lock = \Phabel\Target\Php72\Polyfill::json_decode(\file_get_contents('composer.lock'), true);
+    $json = \Phabel\Target\Php72\Polyfill::json_decode(\file_get_contents('composer.json'), true);
     $json['require'] = ['php' => $packages['php'], 'ext-json' => $json['require']['ext-json'], 'composer-plugin-api' => $json['require']['composer-plugin-api']];
     $json['require-dev'] = ['bamarni/composer-bin-plugin' => $json['require-dev']['bamarni/composer-bin-plugin'], 'amphp/file' => $json['require-dev']['amphp/file']];
     if ($realTarget === $last) {
@@ -135,17 +138,23 @@ PHP
         if ($name === 'phabel/phabel') {
             continue;
         }
-        $json['require'] += \array_filter($package['require'], fn ($s) => \str_starts_with($s, 'ext-'), ARRAY_FILTER_USE_KEY);
+        $json['require'] += \Phabel\Target\Php74\Polyfill::array_filter($package['require'], function ($s) {
+            return \str_starts_with($s, 'ext-');
+        }, ARRAY_FILTER_USE_KEY);
         foreach (['psr-4', 'psr-0'] as $type) {
             foreach ($package['autoload'][$type] ?? [] as $namespace => $path) {
                 $namespace = \str_starts_with($namespace, 'Symfony\\Polyfill') ? $namespace : "PhabelVendor\\{$namespace}";
                 $paths = \is_string($path) ? [$path] : $path;
-                $paths = \array_map(fn ($path) => ("vendor-bundle/{$name}/{$path}"), $paths);
+                $paths = \array_map(function ($path) use ($name) {
+                    return "vendor-bundle/{$name}/{$path}";
+                }, $paths);
                 $json['autoload'][$type][$namespace] = $paths;
             }
         }
         foreach (['classmap', 'files'] as $type) {
-            $json['autoload'][$type] = \array_merge($json['autoload'][$type] ?? [], \array_map(fn ($path) => ("vendor-bundle/{$name}/{$path}"), $package['autoload'][$type] ?? []));
+            $json['autoload'][$type] = \array_merge($json['autoload'][$type] ?? [], \array_map(function ($path) use ($name) {
+                return "vendor-bundle/{$name}/{$path}";
+            }, $package['autoload'][$type] ?? []));
         }
     }
     $it = new \RecursiveDirectoryIterator('src', \RecursiveDirectoryIterator::SKIP_DOTS);
