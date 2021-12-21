@@ -15,6 +15,9 @@ use ReflectionFunction;
  */
 class ClosureFromCallable extends Plugin
 {
+    /**
+     *
+     */
     public function enter(StaticCall $staticCall): ?StaticCall
     {
         if (!$staticCall->class instanceof Name || self::getFqdn($staticCall->class) !== Closure::class) {
@@ -27,6 +30,9 @@ class ClosureFromCallable extends Plugin
         }
         return null;
     }
+    /**
+     *
+     */
     public static function proxy(string $method, ...$args)
     {
         if (\strtolower($method) === 'fromcallable') {
@@ -45,7 +51,7 @@ class ClosureFromCallable extends Plugin
         if ($callable instanceof Closure) {
             return $callable;
         }
-        if (\is_object($callable)) {
+        if (\Phabel\Target\Php72\Polyfill::is_object($callable)) {
             $callable = [$callable, '__invoke'];
         }
         if (\is_array($callable)) {
