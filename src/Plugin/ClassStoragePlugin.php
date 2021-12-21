@@ -11,28 +11,27 @@ use Phabel\ClassStorageProvider;
 use Phabel\Context;
 use Phabel\Plugin;
 use Phabel\RootNode;
-use PhpParser\Builder\Class_;
-use PhpParser\Builder\Method;
-use PhpParser\Builder\Param;
-use PhpParser\BuilderHelpers;
-use PhpParser\Node;
-use PhpParser\Node\Expr\FuncCall;
-use PhpParser\Node\Expr\MethodCall;
-use PhpParser\Node\Expr\StaticCall;
-use PhpParser\Node\Name;
-use PhpParser\Node\Name\FullyQualified;
-use PhpParser\Node\Stmt\Class_ as StmtClass_;
-use PhpParser\Node\Stmt\ClassLike;
-use PhpParser\Node\Stmt\ClassMethod;
-use PhpParser\Node\Stmt\Function_;
-use PhpParser\Node\Stmt\Trait_;
-use PhpParser\Node\UnionType;
+use PhabelVendor\PhpParser\Builder\Class_;
+use PhabelVendor\PhpParser\Builder\Method;
+use PhabelVendor\PhpParser\Builder\Param;
+use PhabelVendor\PhpParser\BuilderHelpers;
+use PhabelVendor\PhpParser\Node;
+use PhabelVendor\PhpParser\Node\Expr\FuncCall;
+use PhabelVendor\PhpParser\Node\Expr\MethodCall;
+use PhabelVendor\PhpParser\Node\Expr\StaticCall;
+use PhabelVendor\PhpParser\Node\Name;
+use PhabelVendor\PhpParser\Node\Name\FullyQualified;
+use PhabelVendor\PhpParser\Node\Stmt\Class_ as StmtClass_;
+use PhabelVendor\PhpParser\Node\Stmt\ClassLike;
+use PhabelVendor\PhpParser\Node\Stmt\ClassMethod;
+use PhabelVendor\PhpParser\Node\Stmt\Function_;
+use PhabelVendor\PhpParser\Node\Stmt\Trait_;
+use PhabelVendor\PhpParser\Node\UnionType;
 use ReflectionClass;
 use ReflectionFunction;
 use ReflectionNamedType;
 use ReflectionType;
 use ReflectionUnionType;
-
 final class ClassStoragePlugin extends Plugin
 {
     private const NAME = 'ClassStoragePlugin:name';
@@ -59,7 +58,7 @@ final class ClassStoragePlugin extends Plugin
      *
      * @var boolean
      */
-    private bool $hasNamed = false;
+    private bool $hasNamed = \false;
     /**
      * Count.
      */
@@ -77,9 +76,9 @@ final class ClassStoragePlugin extends Plugin
      *
      * @return boolean
      */
-    public function shouldRun(string $package): bool
+    public function shouldRun(string $package) : bool
     {
-        return true;
+        return \true;
     }
     /**
      * Check if plugin should run.
@@ -88,7 +87,7 @@ final class ClassStoragePlugin extends Plugin
      *
      * @return boolean
      */
-    public function shouldRunFile(string $file): bool
+    public function shouldRunFile(string $file) : bool
     {
         return !\str_contains($file, 'vendor/composer/');
     }
@@ -98,12 +97,12 @@ final class ClassStoragePlugin extends Plugin
      * @param array $config
      * @return void
      */
-    public function setConfigArray(array $config): void
+    public function setConfigArray(array $config) : void
     {
         parent::setConfigArray($config);
         $this->finalPlugins += $config;
     }
-    private function normalizeType(string $type): Node
+    private function normalizeType(string $type) : Node
     {
         $result = BuilderHelpers::normalizeType($type);
         if ($result instanceof Name) {
@@ -111,7 +110,7 @@ final class ClassStoragePlugin extends Plugin
         }
         return $result;
     }
-    private function buildType(ReflectionType $type): Node
+    private function buildType(ReflectionType $type) : Node
     {
         if ($type instanceof ReflectionNamedType) {
             return $this->normalizeType($type->getName());
@@ -130,7 +129,7 @@ final class ClassStoragePlugin extends Plugin
      * @param RootNode $_
      * @return void
      */
-    public function enterRoot(RootNode $_, Context $context): void
+    public function enterRoot(RootNode $_, Context $context) : void
     {
         $file = $context->getOutputFile();
         $this->count[$file] = [];
@@ -152,7 +151,7 @@ final class ClassStoragePlugin extends Plugin
      *
      * @return void
      */
-    public function enter(ClassLike $class, Context $context): void
+    public function enter(ClassLike $class, Context $context) : void
     {
         $file = $context->getOutputFile();
         if ($class->name) {
@@ -171,46 +170,46 @@ final class ClassStoragePlugin extends Plugin
      * @param Function_ $f
      * @return void
      */
-    public function enterFunction(Function_ $f, Context $context): void
+    public function enterFunction(Function_ $f, Context $context) : void
     {
         $name = self::getFqdn($f);
-        $variadic = false;
+        $variadic = \false;
         $args = [];
         foreach ($f->params as $param) {
             if (!$param->variadic) {
                 $args[$param->var->name] = $param->default;
             } else {
-                $variadic = true;
+                $variadic = \true;
             }
         }
         $this->functions[$name] = new FunctionStorage($args, $variadic);
     }
-    public function enterStaticCall(StaticCall $call): void
+    public function enterStaticCall(StaticCall $call) : void
     {
         if ($this->hasNamed) {
             return;
         }
         $this->enterCall($call);
     }
-    public function enterFuncCall(FuncCall $call): void
+    public function enterFuncCall(FuncCall $call) : void
     {
         if ($this->hasNamed) {
             return;
         }
         $this->enterCall($call);
     }
-    public function enterMethodCall(MethodCall $call): void
+    public function enterMethodCall(MethodCall $call) : void
     {
         if ($this->hasNamed) {
             return;
         }
         $this->enterCall($call);
     }
-    private function enterCall(StaticCall|FuncCall|MethodCall $call): void
+    private function enterCall(StaticCall|FuncCall|MethodCall $call) : void
     {
         foreach ($call->args as $arg) {
             if ($arg->name) {
-                $this->hasNamed = true;
+                $this->hasNamed = \true;
                 return;
             }
         }
@@ -222,7 +221,7 @@ final class ClassStoragePlugin extends Plugin
      *
      * @return void
      */
-    public function leave(ClassLike $class, Context $context): void
+    public function leave(ClassLike $class, Context $context) : void
     {
         $file = $context->getOutputFile();
         $name = $class->getAttribute(self::NAME);
@@ -238,7 +237,7 @@ final class ClassStoragePlugin extends Plugin
      * @param self $other
      * @return void
      */
-    public function merge($other): void
+    public function merge($other) : void
     {
         foreach ($other->classes as $class => $classes) {
             foreach ($classes as $file => $builder) {
@@ -264,7 +263,7 @@ final class ClassStoragePlugin extends Plugin
      *
      * @return array{0: array, 1: array<string, string>} Config to pass to new Traverser instance
      */
-    public function finish(): array
+    public function finish() : array
     {
         foreach (\get_declared_classes() as $class) {
             $class = new ReflectionClass($class);
@@ -336,10 +335,10 @@ final class ClassStoragePlugin extends Plugin
             foreach ($sub as $name) {
                 $f = new ReflectionFunction($name);
                 $args = [];
-                $variadic = false;
+                $variadic = \false;
                 foreach ($f->getParameters() as $param) {
                     if ($param->isVariadic()) {
-                        $variadic = true;
+                        $variadic = \true;
                     } else {
                         $default = null;
                         if ($param->isOptional()) {
@@ -357,7 +356,7 @@ final class ClassStoragePlugin extends Plugin
         $storage = new ClassStorage($this);
         $processedAny = $this->hasNamed;
         do {
-            $processed = false;
+            $processed = \false;
             foreach ($this->finalPlugins as $name => $_) {
                 $processed = $name::processClassGraph($storage) || $processed;
             }
