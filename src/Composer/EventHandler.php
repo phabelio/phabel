@@ -43,8 +43,11 @@ class EventHandler extends PhabelEventHandler
     private function startProgressBar(string $message, int $total, int $workers = 1): void
     {
         if ($this->getProgressBar) {
-            $this->progress = ($this->getProgressBar)($total);
-            $this->progress->setFormat($this->outputFormatter->format('<phabel>%message% <bold>%percent:3s%%</bold></phabel> (%current%/%max%)'));
+            try {
+                $this->progress = ($this->getProgressBar)($total);
+                $this->progress->setFormat($this->outputFormatter->format('<phabel>%message% <bold>%percent:3s%%</bold></phabel> (%current%/%max%)'));
+            } catch (\Throwable) {
+            }
         }
         if ($this->progress) {
             if ($workers > 1) {

@@ -206,11 +206,10 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
             );
         }
     }
-    $it = new \RecursiveDirectoryIterator('src', \RecursiveDirectoryIterator::SKIP_DOTS);
+    /*$it = new \RecursiveDirectoryIterator('src', \RecursiveDirectoryIterator::SKIP_DOTS);
     $ri = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::SELF_FIRST);
 
     $allUses = [];
-    /** @var \SplFileInfo $file */
     foreach ($ri as $file) {
         if ($file->getExtension() !== 'php') {
             continue;
@@ -228,7 +227,7 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
     \file_put_contents(
         'src/guard.php',
         \file_get_contents('src/guard.php').$allUses
-    );
+    );*/
 
     foreach ($json['autoload']['files'] ?? [] as $file) {
         $path = \dirname($file);
