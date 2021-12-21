@@ -103,6 +103,9 @@ final class ClassStoragePlugin extends Plugin
         parent::setConfigArray($config);
         $this->finalPlugins += $config;
     }
+    /**
+     *
+     */
     private function normalizeType(string $type): Node
     {
         $result = BuilderHelpers::normalizeType($type);
@@ -111,6 +114,9 @@ final class ClassStoragePlugin extends Plugin
         }
         return $result;
     }
+    /**
+     *
+     */
     private function buildType(ReflectionType $type): Node
     {
         if ($type instanceof ReflectionNamedType) {
@@ -185,6 +191,9 @@ final class ClassStoragePlugin extends Plugin
         }
         $this->functions[$name] = new FunctionStorage($args, $variadic);
     }
+    /**
+     *
+     */
     public function enterStaticCall(StaticCall $call): void
     {
         if ($this->hasNamed) {
@@ -192,6 +201,9 @@ final class ClassStoragePlugin extends Plugin
         }
         $this->enterCall($call);
     }
+    /**
+     *
+     */
     public function enterFuncCall(FuncCall $call): void
     {
         if ($this->hasNamed) {
@@ -199,6 +211,9 @@ final class ClassStoragePlugin extends Plugin
         }
         $this->enterCall($call);
     }
+    /**
+     *
+     */
     public function enterMethodCall(MethodCall $call): void
     {
         if ($this->hasNamed) {
@@ -206,8 +221,14 @@ final class ClassStoragePlugin extends Plugin
         }
         $this->enterCall($call);
     }
-    private function enterCall(StaticCall|FuncCall|MethodCall $call): void
+    /**
+     * @param (StaticCall | FuncCall | MethodCall) $call
+     */
+    private function enterCall($call): void
     {
+        if (!($call instanceof StaticCall || $call instanceof FuncCall || $call instanceof MethodCall)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($call) must be of type StaticCall|FuncCall|MethodCall, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($call) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
         foreach ($call->args as $arg) {
             if ($arg->name) {
                 $this->hasNamed = true;

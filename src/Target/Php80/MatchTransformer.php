@@ -26,6 +26,9 @@ use PhpParser\Node\Stmt\Throw_;
  */
 class MatchTransformer extends Plugin
 {
+    /**
+     *
+     */
     public function enter(Match_ $match, Context $context): FuncCall
     {
         $closure = new Closure(['params' => [new Param($var = $context->getVariable())], 'uses' => \array_values(VariableFinder::find($match, true))]);

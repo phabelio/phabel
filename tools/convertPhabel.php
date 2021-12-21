@@ -33,6 +33,9 @@ if (!$dry) {
     r("cp -a {$home} ../phabelConvertedRepo");
     r("rm -rf ../phabelConvertedRepo/vendor");
 }
+/**
+ *
+ */
 function commit(string $message)
 {
     r("cp -a ../phabelConvertedOutput/* ../phabelConvertedRepo");

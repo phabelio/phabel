@@ -49,9 +49,9 @@ class Storage
     /**
      * Constructor.
      *
-     * @param string                       $name
-     * @param array<string, ClassMethod>   $methods
-     * @param array<string, ClassMethod>   $abstractMethods
+     * @param string $name
+     * @param array<string, ClassMethod> $methods
+     * @param array<string, ClassMethod> $abstractMethods
      * @param array<class-string, Builder> $extends
      */
     public function build(string $name, array $methods, array $abstractMethods, array $extends)
