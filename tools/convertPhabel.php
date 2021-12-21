@@ -215,7 +215,7 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
         if ($file->getExtension() !== 'php') {
             continue;
         }
-        if (\preg_match_all('/^use (.+?)(?: as .+)?;$/m', \file_get_contents($file->getRealPath()), $uses)) {
+        if (\preg_match_all('/^use (\S+?)(?: as \S+)?;$/m', \file_get_contents($file->getRealPath()), $uses)) {
             foreach ($uses[1] as $class) {
                 $allUses []= "\\$class::class";
             }
