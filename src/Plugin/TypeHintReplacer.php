@@ -80,9 +80,9 @@ class TypeHintReplacer extends Plugin
      * Stack.
      *
      * @var SplStack
-     * @psalm-var SplStack<array{0: self::IGNORE_RETURN|self::VOID_RETURN}|array{0: self::TYPE_RETURN, 1: Node, 2: bool, 3: bool, 4: Node, 5: (callable(Node...): If_)}>
+     * @psalm-var SplStack<(array{0: (self::IGNORE_RETURN | self::VOID_RETURN)} | array{0: self::TYPE_RETURN, 1: Node, 2: bool, 3: bool, 4: Node, 5: callable(Node ...): If_})>
      */
-    private SplStack $stack;
+    private $stack;
     /**
      * Constructor.
      */
@@ -94,7 +94,7 @@ class TypeHintReplacer extends Plugin
     /**
      * Replace typehint.
      *
-     * @param null|Identifier|Name|NullableType|UnionType $type Type
+     * @param (null | Identifier | Name | NullableType | UnionType) $type Type
      *
      * @return bool
      */
@@ -112,7 +112,7 @@ class TypeHintReplacer extends Plugin
     /**
      * Return whether we replaced this typehint.
      *
-     * @param null|Identifier|Name|NullableType|UnionType $type Type
+     * @param (null | Identifier | Name | NullableType | UnionType) $type Type
      *
      * @return boolean
      */
@@ -126,7 +126,7 @@ class TypeHintReplacer extends Plugin
     /**
      * Check if we should replace a void return type.
      *
-     * @param Node|null $returnType
+     * @param (Node | null) $returnType
      * @return bool
      */
     private function checkVoid(Context $ctx, PhpDocNode $phpdoc, ?Node $returnType): bool
@@ -149,8 +149,8 @@ class TypeHintReplacer extends Plugin
     /**
      * Resolve special class name.
      *
-     * @param Identifier|Name $type
-     * @param ?Expr            $className
+     * @param (Identifier | Name) $type
+     * @param ?Expr $className
      *
      * @return Expr
      */
@@ -168,19 +168,25 @@ class TypeHintReplacer extends Plugin
     private static function reduceConditions(array $conditions): BooleanNot
     {
         $initial = \array_shift($conditions);
-        return new BooleanNot(empty($conditions) ? $initial : \array_reduce($conditions, fn (Expr $a, Expr $b): BooleanOr => (new BooleanOr($a, $b)), $initial));
+        return new BooleanNot(empty($conditions) ? $initial : \array_reduce($conditions, function (Expr $a, Expr $b): BooleanOr {
+            return new BooleanOr($a, $b);
+        }, $initial));
     }
     /**
      * Generate.
      *
-     * @param (Name|Identifier)[] $types        Types to check
-     * @param ?Expr               $className    Whether the current class is anonymous
-     * @param boolean             $fromNullable Whether this type is nullable
+     * @param (Name | Identifier)[] $types Types to check
+     * @param ?Expr $className Whether the current class is anonymous
+     * @param boolean $fromNullable Whether this type is nullable
      *
-     * @return array{0: Node, 1: (callable(Node...): If_)} The error message, the condition wrapper callback
+     * @return array{0: Node, 1: callable(Node ...): If_} The error message, the condition wrapper callback
+     * @param (Param | PropertyProperty | null) $param
      */
-    private function generateConditions(Context $ctx, PhpDocNode $phpdoc, Param|PropertyProperty|null $param, array $types, ?Expr $className, bool $fromNullable = false): array
+    private function generateConditions(Context $ctx, PhpDocNode $phpdoc, $param, array $types, ?Expr $className, bool $fromNullable = false): array
     {
+        if (!($param instanceof Param || $param instanceof PropertyProperty || \is_null($param))) {
+            throw new \TypeError(__METHOD__ . '(): Argument #3 ($param) must be of type Param|PropertyProperty|null, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($param) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
         $is_return = false;
         $is_property = false;
         $is_single_property = false;
@@ -322,20 +328,26 @@ class TypeHintReplacer extends Plugin
             if (\is_array($condition)) {
                 if ($currentConditions) {
                     $currentConditions = $this->reduceConditions($currentConditions);
-                    $splitConditions[] = fn (Node ...$stmts): If_ => (new If_($currentConditions, ['stmts' => $stmts]));
+                    $splitConditions[] = function (Node ...$stmts) use ($currentConditions): If_ {
+                        return new If_($currentConditions, ['stmts' => $stmts]);
+                    };
                 }
                 $currentConditions = [];
                 [$conditionsStrict, $conditionsLoose, $castLoose] = $condition;
                 $conditionsStrict = new BooleanNot($conditionsStrict);
                 $conditionsLoose = new BooleanNot($conditionsLoose);
-                $splitConditions[] = fn (Node ...$stmts): If_ => (new If_($conditionsStrict, ['stmts' => [new If_($conditionsLoose, ['stmts' => $stmts, 'else' => new Else_([new Expression(new Assign($var, new $castLoose($var)))])])]]));
+                $splitConditions[] = function (Node ...$stmts) use ($conditionsStrict, $conditionsLoose, $var, $castLoose): If_ {
+                    return new If_($conditionsStrict, ['stmts' => [new If_($conditionsLoose, ['stmts' => $stmts, 'else' => new Else_([new Expression(new Assign($var, new $castLoose($var)))])])]]);
+                };
             } else {
                 $currentConditions[] = $condition;
             }
         }
         if ($currentConditions) {
             $currentConditions = $this->reduceConditions($currentConditions);
-            $splitConditions[] = fn (Node ...$stmts): If_ => (new If_($currentConditions, ['stmts' => $stmts]));
+            $splitConditions[] = function (Node ...$stmts) use ($currentConditions): If_ {
+                return new If_($currentConditions, ['stmts' => $stmts]);
+            };
         }
         return [$stringType, function (Node ...$expr) use ($splitConditions): If_ {
             $prev = $expr;
@@ -348,15 +360,18 @@ class TypeHintReplacer extends Plugin
     /**
      * Strip typehint.
      *
-     * @param ?Param                                      $param     Parameter
-     * @param null|Identifier|Name|NullableType|UnionType $type      Type
-     * @param ?Expr                                       $className Whether the current class is anonymous
-     * @param bool                                        $force     Whether to force strip
+     * @param ?Param $param Parameter
+     * @param (null | Identifier | Name | NullableType | UnionType) $type Type
+     * @param ?Expr $className Whether the current class is anonymous
+     * @param bool $force Whether to force strip
      *
-     * @return null|array{0: Node, 1: (callable(Node...): If_)} The error message, the condition wrapper callback
+     * @return (null | array{0: Node, 1: callable(Node ...): If_}) The error message, the condition wrapper callback
      */
-    private function strip(Context $ctx, PhpDocNode $phpdoc, Param|PropertyProperty|null $param, ?Node $type, ?Expr $className, bool $nullish, bool $force = false): ?array
+    private function strip(Context $ctx, PhpDocNode $phpdoc, $param, ?Node $type, ?Expr $className, bool $nullish, bool $force = false): ?array
     {
+        if (!($param instanceof Param || $param instanceof PropertyProperty || \is_null($param))) {
+            throw new \TypeError(__METHOD__ . '(): Argument #3 ($param) must be of type Param|PropertyProperty|null, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($param) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
         if (!$type) {
             return null;
         }
@@ -478,7 +493,7 @@ class TypeHintReplacer extends Plugin
             return $func;
         }
         $ctx->toClosure($func);
-        $this->stack->push([self::TYPE_RETURN, $functionName, $func->returnsByRef(), ...$condition]);
+        $this->stack->push(\array_merge([self::TYPE_RETURN, $functionName, $func->returnsByRef()], $condition));
         $stmts = $func->getStmts();
         $final = \end($stmts);
         if (!$final instanceof Return_) {
@@ -493,6 +508,9 @@ class TypeHintReplacer extends Plugin
         $func->setDocComment(new Doc($phpdoc));
         return $func;
     }
+    /**
+     *
+     */
     public function enterReturn(Return_ $return, Context $ctx): ?Node
     {
         if ($this->stack->isEmpty()) {
@@ -523,10 +541,16 @@ class TypeHintReplacer extends Plugin
         $ctx->insertBefore($return, $assign, $if);
         return null;
     }
+    /**
+     *
+     */
     public function leaveFunc(FunctionLike $func): void
     {
         $this->stack->pop();
     }
+    /**
+     *
+     */
     public function enterProperty(Property $stmt, Context $ctx): void
     {
         if (!$stmt->type || !$stmt->props) {
@@ -566,15 +590,21 @@ class TypeHintReplacer extends Plugin
      */
     public static function getDebugType($value)
     {
-        if (\is_object($value) && $value instanceof AnonymousClassInterface) {
+        if (\Phabel\Target\Php72\Polyfill::is_object($value) && $value instanceof AnonymousClassInterface) {
             return $value::getPhabelOriginalName();
         }
         return \get_debug_type($value);
     }
+    /**
+     *
+     */
     public static function next(array $config): array
     {
         return [StringConcatOptimizer::class];
     }
+    /**
+     *
+     */
     public static function previous(array $config): array
     {
         return [GeneratorDetector::class];

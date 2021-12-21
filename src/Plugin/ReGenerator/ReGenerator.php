@@ -42,24 +42,29 @@ class ReGenerator implements \Iterator
     public $sentValue;
     /**
      * Exception sent from the outside.
+     * @var (\Throwable | null) $sentException
      */
-    public ?\Throwable $sentException = null;
+    public $sentException = null;
     /**
      * Current state of state machine.
+     * @var int $state
      */
-    public int $state = 0;
+    public $state = 0;
     /**
      * Whether the generator has returned.
+     * @var bool $returned
      */
-    public bool $returned = false;
+    public $returned = false;
     /**
      * Whether the generator was started.
+     * @var bool $started
      */
-    public bool $started = false;
+    public $started = false;
     /**
      * Actual generator function.
+     * @var \Closure $generator
      */
-    public \Closure $generator;
+    public $generator;
     /**
      * Construct regenerator.
      *
