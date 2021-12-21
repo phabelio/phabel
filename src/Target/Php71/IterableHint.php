@@ -11,6 +11,9 @@ use Phabel\Plugin\TypeHintReplacer;
  */
 class IterableHint extends Plugin
 {
+    /**
+     *
+     */
     public static function previous(array $config): array
     {
         return [TypeHintReplacer::class => ['types' => ['iterable']]];

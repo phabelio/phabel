@@ -51,6 +51,9 @@ class IssetExpressionFixer extends Plugin
     {
         return new ArrayDimFetch(self::callPoly('returnMe', new Ternary($node, self::fromLiteral([0]), self::fromLiteral([]))), new LNumber(0));
     }
+    /**
+     *
+     */
     public function enter(Isset_ $isset): void
     {
         foreach ($isset->vars as $key => &$var) {
@@ -113,7 +116,7 @@ class IssetExpressionFixer extends Plugin
     /**
      * Get name of class.
      *
-     * @param class-string|object $class Class
+     * @param (class-string | object) $class Class
      *
      * @return class-string
      */
@@ -124,9 +127,9 @@ class IssetExpressionFixer extends Plugin
     /**
      * Check if static property is set.
      *
-     * @param class-string|object $class              Class
-     * @param string              $property           Property name
-     * @param boolean             $propertyOrConstant Whether to fetch the property or the constant
+     * @param (class-string | object) $class Class
+     * @param string $property Property name
+     * @param boolean $propertyOrConstant Whether to fetch the property or the constant
      *
      * @return boolean
      */
