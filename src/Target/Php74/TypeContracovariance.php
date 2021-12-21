@@ -12,6 +12,9 @@ use Phabel\Target\Php74\TypeContracovariance\TypeContracovariance as T;
  */
 class TypeContracovariance extends Plugin
 {
+    /**
+     *
+     */
     public static function previous(array $config): array
     {
         return [ClassStoragePlugin::class => [T::class => true]];
