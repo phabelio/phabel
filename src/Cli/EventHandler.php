@@ -16,6 +16,8 @@ class EventHandler extends ComposerEventHandler
     public static function create(): self
     {
         $output = new ConsoleOutput();
-        return new self(new SimpleConsoleLogger($output), fn (int $max): ProgressBar => (new ProgressBar($output, $max, -1)));
+        return new self(new SimpleConsoleLogger($output), function (int $max) use ($output): ProgressBar {
+            return new ProgressBar($output, $max, -1);
+        });
     }
 }
