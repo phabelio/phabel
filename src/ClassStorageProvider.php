@@ -4,15 +4,14 @@ namespace Phabel;
 
 use JsonSerializable;
 use Phabel\ClassStorage\Storage;
-use PhpParser\Node\Expr\FuncCall;
-use PhpParser\Node\Expr\MethodCall;
-use PhpParser\Node\Expr\StaticCall;
-use PhpParser\Node\Name;
-use PhpParser\Node\Stmt\ClassLike;
-use PhpParser\Node\Stmt\ClassMethod;
-use PhpParser\Node\Stmt\Nop;
-
-abstract class ClassStorageProvider extends Plugin implements JsonSerializable
+use PhabelVendor\PhpParser\Node\Expr\FuncCall;
+use PhabelVendor\PhpParser\Node\Expr\MethodCall;
+use PhabelVendor\PhpParser\Node\Expr\StaticCall;
+use PhabelVendor\PhpParser\Node\Name;
+use PhabelVendor\PhpParser\Node\Stmt\ClassLike;
+use PhabelVendor\PhpParser\Node\Stmt\ClassMethod;
+use PhabelVendor\PhpParser\Node\Stmt\Nop;
+abstract class ClassStorageProvider extends \Phabel\Plugin implements JsonSerializable
 {
     private const PROCESSED = 'ClassStorageProvider:processed';
     /**
@@ -26,14 +25,14 @@ abstract class ClassStorageProvider extends Plugin implements JsonSerializable
      * @param ClassStorage $storage
      * @return bool
      */
-    abstract public static function processClassGraph(ClassStorage $storage): bool;
+    public static abstract function processClassGraph(\Phabel\ClassStorage $storage) : bool;
     /**
      * Enter file.
      *
      * @param RootNode $_
      * @return void
      */
-    public function enterRoot(RootNode $_, Context $context): void
+    public function enterRoot(\Phabel\RootNode $_, \Phabel\Context $context) : void
     {
         $this->count[$context->getOutputFile()] = [];
     }
@@ -43,12 +42,12 @@ abstract class ClassStorageProvider extends Plugin implements JsonSerializable
      * @param ClassLike $classLike
      * @return void
      */
-    public function enterClassStorage(ClassLike $class, Context $context): void
+    public function enterClassStorage(ClassLike $class, \Phabel\Context $context) : void
     {
         if ($class->hasAttribute(self::PROCESSED)) {
             return;
         }
-        $class->setAttribute(self::PROCESSED, true);
+        $class->setAttribute(self::PROCESSED, \true);
         $file = $context->getOutputFile();
         if ($class->name) {
             $name = self::getFqdn($class);
@@ -67,39 +66,39 @@ abstract class ClassStorageProvider extends Plugin implements JsonSerializable
     /**
      *
      */
-    public function enterStaticCall(StaticCall $call): void
+    public function enterStaticCall(StaticCall $call) : void
     {
         $this->enterCall($call);
     }
     /**
      *
      */
-    public function enterFuncCall(FuncCall $call): void
+    public function enterFuncCall(FuncCall $call) : void
     {
         $this->enterCall($call);
     }
     /**
      *
      */
-    public function enterMethodCall(MethodCall $call): void
+    public function enterMethodCall(MethodCall $call) : void
     {
         $this->enterCall($call);
     }
     /**
      * @param (StaticCall | FuncCall | MethodCall) $call
      */
-    private function enterCall($call): void
+    private function enterCall($call) : void
     {
         if (!($call instanceof StaticCall || $call instanceof FuncCall || $call instanceof MethodCall)) {
             throw new \TypeError(__METHOD__ . '(): Argument #1 ($call) must be of type StaticCall|FuncCall|MethodCall, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($call) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
         }
         $args = [];
-        $hasNamed = false;
+        $hasNamed = \false;
         foreach ($call->args as $arg) {
             if ($arg->name) {
                 $args[$arg->name] = $arg;
                 $arg->name = null;
-                $hasNamed = true;
+                $hasNamed = \true;
             }
         }
         if (!$hasNamed) {
@@ -123,16 +122,16 @@ abstract class ClassStorageProvider extends Plugin implements JsonSerializable
      *
      * @return ClassStorage
      */
-    public function getGlobalClassStorage(): ClassStorage
+    public function getGlobalClassStorage() : \Phabel\ClassStorage
     {
-        return $this->getConfig(ClassStorage::class, null);
+        return $this->getConfig(\Phabel\ClassStorage::class, null);
     }
     /**
      * JSON representation.
      *
      * @return string
      */
-    public function jsonSerialize(): string
+    public function jsonSerialize() : string
     {
         return \spl_object_hash($this);
     }
