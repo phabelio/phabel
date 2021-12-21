@@ -11,10 +11,8 @@ interface EventHandlerInterface
     public function onBeginAstTraversal(string $file): void;
     public function onEndAstTraversal(string $file, int|\Throwable $iterationsOrError): void;
     public function onEndDirectoryTraversal(): void;
-
     public function onBeginClassGraphMerge(int $count): void;
     public function onClassGraphMerged(): void;
     public function onEndClassGraphMerge(): void;
-
     public function onEnd(): void;
 }
