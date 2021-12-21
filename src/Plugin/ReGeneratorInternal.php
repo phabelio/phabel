@@ -20,7 +20,10 @@ class ReGeneratorInternal extends Plugin
      *
      * @var SplQueue<SplQueue<Node>>
      */
-    private SplQueue $states;
+    private $states;
+    /**
+     *
+     */
     public function __construct()
     {
         $this->states = new SplQueue();
@@ -37,11 +40,17 @@ class ReGeneratorInternal extends Plugin
     {
         $this->states->top()->enqueue($node);
     }
+    /**
+     *
+     */
     private function pushState(): int
     {
         $this->states->enqueue(new SplQueue());
         return $this->states->count() - 1;
     }
+    /**
+     *
+     */
     public function enterRoot(FunctionLike $func)
     {
     }
