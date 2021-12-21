@@ -27,15 +27,13 @@ class ClosureFromCallable extends Plugin
         }
         return null;
     }
-
     public static function proxy(string $method, ...$args)
     {
         if (\strtolower($method) === 'fromcallable') {
             return self::fromCallable($args[0]);
         }
-        return Closure::{$method}(...$args);
+        return Closure::$method(...$args);
     }
-
     /**
      * Create closure from callable.
      *
