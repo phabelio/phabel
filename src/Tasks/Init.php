@@ -21,15 +21,13 @@ class Init implements Task
             } catch (\Throwable $e) {
             }
         }
-        \set_error_handler(
-            function (int $errno = 0, string $errstr = '', string $errfile = '', int $errline = -1): bool {
-                // If error is suppressed with @, don't throw an exception
-                if (\error_reporting() === 0) {
-                    return false;
-                }
-                throw new Exception($errstr, $errno, null, $errfile, $errline);
+        \set_error_handler(function (int $errno = 0, string $errstr = '', string $errfile = '', int $errline = -1): bool {
+            // If error is suppressed with @, don't throw an exception
+            if (\error_reporting() === 0) {
+                return false;
             }
-        );
+            throw new Exception($errstr, $errno, null, $errfile, $errline);
+        });
         $environment->set(Traverser::class, (new Traverser())->setGraph($this->graph));
     }
 }
