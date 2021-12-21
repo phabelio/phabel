@@ -3,7 +3,6 @@
 namespace Phabel\PluginGraph;
 
 use Phabel\PluginInterface;
-
 /**
  * Circular reference in plugin graph.
  *
@@ -34,7 +33,7 @@ class CircularException extends \Exception
      *
      * @return class-string<PluginInterface>[]
      */
-    public function getPlugins(): array
+    public function getPlugins() : array
     {
         return $this->plugins;
     }
