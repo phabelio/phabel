@@ -10,6 +10,9 @@ use Phabel\Plugin\ListSplitter;
  */
 class ListReference extends Plugin
 {
+    /**
+     *
+     */
     public static function previous(array $config): array
     {
         return [ListSplitter::class => ['byRef' => true]];

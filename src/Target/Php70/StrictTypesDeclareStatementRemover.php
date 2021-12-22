@@ -13,9 +13,14 @@ use PhpParser\Node\Stmt\Nop;
  */
 class StrictTypesDeclareStatementRemover extends Plugin
 {
+    /**
+     *
+     */
     public function leave(Declare_ $node): ?Nop
     {
-        $node->declares = \array_filter($node->declares, fn (DeclareDeclare $declare) => ($declare->key->name !== 'strict_types'));
+        $node->declares = \Phabel\Target\Php74\Polyfill::array_filter($node->declares, function (DeclareDeclare $declare) {
+            return $declare->key->name !== 'strict_types';
+        });
         if (empty($node->declares)) {
             return new Nop();
         }
