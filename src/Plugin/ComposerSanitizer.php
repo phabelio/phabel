@@ -29,10 +29,16 @@ PHP;
     {
         return \sprintf('<?php if (!getenv("PHABEL_INSIDE_COMPOSER")) die("%s: %s");', $package, self::MESSAGE);
     }
+    /**
+     *
+     */
     public function shouldRunFile(string $file): bool
     {
         return \basename($file) === self::FILE_NAME;
     }
+    /**
+     *
+     */
     public function shouldRun(string $package): bool
     {
         return true;

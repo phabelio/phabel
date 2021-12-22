@@ -32,34 +32,40 @@ class Transformer
     private $outputFormatter;
     /**
      * Version parser.
+     * @var VersionParser $versionParser
      */
-    private VersionParser $versionParser;
+    private $versionParser;
     /**
      * Requires.
+     * @var array $requires
      */
-    private array $requires = [];
+    private $requires = [];
     /**
      * Whether we processed requirements.
+     * @var array $processedRequires
      */
-    private array $processedRequires = [];
+    private $processedRequires = [];
     /**
      * Whether we processed any dependencies.
+     * @var bool $processed
      */
-    private bool $processed = false;
+    private $processed = false;
     /**
      * Whether a progress bar should be shown.
+     * @var bool $doProgress
      */
-    private bool $doProgress = true;
+    private $doProgress = true;
     /**
      * Installer.
      *
      * @var InstallationManager
      */
-    private InstallationManager $installer;
+    private $installer;
     /**
      * Instance.
+     * @var self $instance
      */
-    private static self $instance;
+    private static $instance;
     /**
      * Get singleton.
      *
@@ -67,7 +73,7 @@ class Transformer
      */
     public static function getInstance(IOInterface $io, int $version): self
     {
-        self::$instance ??= new self($io, $version);
+        self::$instance = self::$instance ?? new self($io, $version);
         return self::$instance;
     }
     /**
@@ -75,11 +81,21 @@ class Transformer
      *
      * @param IOInterface $io
      */
-    private function __construct(private IOInterface $io, private int $version)
+    private function __construct(IOInterface $io, int $version)
     {
+        $this->version = $version;
+        $this->io = $io;
         $this->versionParser = new VersionParser();
         $this->outputFormatter = Formatter::getFormatter();
     }
+    /**
+     * @var int $version
+     */
+    private $version;
+    /**
+     * @var IOInterface $io
+     */
+    private $io;
     /**
      * Set installation manager.
      *
@@ -129,8 +145,8 @@ class Transformer
      * Prepare package for phabel tree injection.
      *
      * @param PackageInterface $package Package
-     * @param string           $newName New package name
-     * @param int              $target  Target
+     * @param string $newName New package name
+     * @param int $target Target
      *
      * @return void
      */
@@ -244,7 +260,7 @@ class Transformer
     public static function extractTarget(string $package): array
     {
         if (\str_starts_with($package, self::HEADER)) {
-            [$version, $package] = \explode(self::SEPARATOR, \substr($package, \strlen(self::HEADER)), 2);
+            [$version, $package] = \explode(self::SEPARATOR, \Phabel\Target\Php80\Polyfill::substr($package, \strlen(self::HEADER)), 2);
             return [$package, $version];
         }
         return [$package, Php::TARGET_IGNORE];
@@ -343,7 +359,9 @@ class Transformer
                 $graph->addPlugin(Php::class, $config + $target, $ctx);
             }
         }
-        $traverser = new Traverser(new EventHandler($this->io, $this->doProgress && $this->io instanceof ConsoleIO && !\getenv('CI') && !$this->io->isDebug() ? fn (int $progress) => $this->io->getProgressBar($progress) : null));
+        $traverser = new Traverser(new EventHandler($this->io, $this->doProgress && $this->io instanceof ConsoleIO && !\getenv('CI') && !$this->io->isDebug() ? function (int $progress) {
+            return $this->io->getProgressBar($progress);
+        } : null));
         $traverser->setPluginGraph($graph);
         unset($graph);
         static $lastTry;

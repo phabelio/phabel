@@ -11,10 +11,16 @@ if (PHP_MAJOR_VERSION < 8) {
     die(1);
 }
 const CLAZZ = "PhabelTest\\Target\\TypeHintReplacerTest";
+/**
+ *
+ */
 function escapeRegex(string $in): string
 {
     return \var_export('~' . \str_replace(['\\', '(', ')', '$', '?', '|'], ['\\\\', '\\(', '\\)', '\\$', '\\?', '\\|'], $in) . '~', true);
 }
+/**
+ *
+ */
 function getErrorMessage(string $scalarParam, string $scalar, string $scalarSane, $wrongVal, string $to): array
 {
     try {
@@ -39,11 +45,11 @@ $SCALARS = ['callable' => ['"is_null"', 'fn (): int => 0', '[$this, "noop"]', '[
 $count = \count($SCALARS);
 $k = 0;
 foreach ($SCALARS as $scalar => $val) {
-    $SCALARS["?{$scalar}"] = [...$val, 'null'];
+    $SCALARS["?{$scalar}"] = \array_merge($val, ['null']);
     $k = ($k + 1) % $count;
     $nextScalar = \array_keys($SCALARS)[$k];
     $nextVal = $SCALARS[$nextScalar];
-    $SCALARS["{$scalar}|{$nextScalar}"] = [...$val, ...$nextVal];
+    $SCALARS["{$scalar}|{$nextScalar}"] = \array_merge($val, $nextVal);
 }
 foreach (\glob("testsGenerated/Target/TypeHintReplacer*") as $file) {
     \unlink($file);
