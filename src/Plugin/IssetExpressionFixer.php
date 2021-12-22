@@ -3,22 +3,21 @@
 namespace Phabel\Plugin;
 
 use Phabel\Plugin;
-use PhpParser\Node;
-use PhpParser\Node\Expr;
-use PhpParser\Node\Expr\ArrayDimFetch;
-use PhpParser\Node\Expr\ClassConstFetch;
-use PhpParser\Node\Expr\Isset_;
-use PhpParser\Node\Expr\PropertyFetch;
-use PhpParser\Node\Expr\StaticPropertyFetch;
-use PhpParser\Node\Expr\Ternary;
-use PhpParser\Node\Expr\Variable;
-use PhpParser\Node\Scalar\LNumber;
-use PhpParser\Node\Scalar\String_;
-use PhpParser\Node\VarLikeIdentifier;
+use PhabelVendor\PhpParser\Node;
+use PhabelVendor\PhpParser\Node\Expr;
+use PhabelVendor\PhpParser\Node\Expr\ArrayDimFetch;
+use PhabelVendor\PhpParser\Node\Expr\ClassConstFetch;
+use PhabelVendor\PhpParser\Node\Expr\Isset_;
+use PhabelVendor\PhpParser\Node\Expr\PropertyFetch;
+use PhabelVendor\PhpParser\Node\Expr\StaticPropertyFetch;
+use PhabelVendor\PhpParser\Node\Expr\Ternary;
+use PhabelVendor\PhpParser\Node\Expr\Variable;
+use PhabelVendor\PhpParser\Node\Scalar\LNumber;
+use PhabelVendor\PhpParser\Node\Scalar\String_;
+use PhabelVendor\PhpParser\Node\VarLikeIdentifier;
 use ReflectionClass;
 use ReflectionClassConstant;
 use ReflectionException;
-
 /**
  * Replace nested expressions in isset.
  *
@@ -33,7 +32,7 @@ class IssetExpressionFixer extends Plugin
      * @param Node $var
      * @return Node
      */
-    private static function &extractWorkVar(Node &$var): Node
+    private static function &extractWorkVar(Node &$var) : Node
     {
         if ($var instanceof ArrayDimFetch && $var->var instanceof ArrayDimFetch) {
             return self::extractWorkVar($var->var);
@@ -47,26 +46,26 @@ class IssetExpressionFixer extends Plugin
      *
      * @return ArrayDimFetch
      */
-    private static function wrapBoolean(Expr $node): ArrayDimFetch
+    private static function wrapBoolean(Expr $node) : ArrayDimFetch
     {
         return new ArrayDimFetch(self::callPoly('returnMe', new Ternary($node, self::fromLiteral([0]), self::fromLiteral([]))), new LNumber(0));
     }
     /**
      *
      */
-    public function enter(Isset_ $isset): void
+    public function enter(Isset_ $isset) : void
     {
         foreach ($isset->vars as $key => &$var) {
             /** @var array<string, array<class-string<Expr>, true>> */
-            $subNodes = $this->getConfig(\get_class($var), false);
+            $subNodes = $this->getConfig(\get_class($var), \false);
             if (!$subNodes) {
                 continue;
             }
             $workVar =& $this->extractWorkVar($var);
-            $needsFixing = false;
+            $needsFixing = \false;
             foreach ($subNodes as $key => $types) {
                 if (isset($types[self::getClass($workVar->{$key} ?? '')])) {
-                    $needsFixing = true;
+                    $needsFixing = \true;
                     break;
                 }
             }
@@ -83,10 +82,10 @@ class IssetExpressionFixer extends Plugin
                     }
                     break;
                 case StaticPropertyFetch::class:
-                    $workVar = $this->wrapBoolean(self::callPoly('staticExists', $workVar->class, $workVar->name instanceof VarLikeIdentifier ? new String_($workVar->name->name) : $workVar->name, self::fromLiteral(true)));
+                    $workVar = $this->wrapBoolean(self::callPoly('staticExists', $workVar->class, $workVar->name instanceof VarLikeIdentifier ? new String_($workVar->name->name) : $workVar->name, self::fromLiteral(\true)));
                     break;
                 case ClassConstFetch::class:
-                    $workVar = $this->wrapBoolean(self::callPoly('staticExists', $workVar->class, new String_($workVar->name->name), self::fromLiteral(false)));
+                    $workVar = $this->wrapBoolean(self::callPoly('staticExists', $workVar->class, new String_($workVar->name->name), self::fromLiteral(\false)));
                     break;
                 case Variable::class:
                     $workVar->name = self::callPoly('returnMe', $workVar->name);
@@ -120,7 +119,7 @@ class IssetExpressionFixer extends Plugin
      *
      * @return class-string
      */
-    public static function getClass($class): string
+    public static function getClass($class) : string
     {
         return \is_string($class) ? $class : \get_class($class);
     }
@@ -133,7 +132,7 @@ class IssetExpressionFixer extends Plugin
      *
      * @return boolean
      */
-    public static function staticExists($class, string $property, bool $propertyOrConstant): bool
+    public static function staticExists($class, string $property, bool $propertyOrConstant) : bool
     {
         $reflectionClass = new ReflectionClass($class);
         $class = self::getClass($class);
@@ -141,32 +140,32 @@ class IssetExpressionFixer extends Plugin
             try {
                 $reflection = $reflectionClass->getProperty($property);
             } catch (ReflectionException $e) {
-                return false;
+                return \false;
             }
-        } elseif (PHP_VERSION_ID >= 70100) {
+        } elseif (\PHP_VERSION_ID >= 70100) {
             try {
                 $reflection = new ReflectionClassConstant($class, $property);
             } catch (ReflectionException $e) {
-                return false;
+                return \false;
             }
         } else {
             return isset($reflectionClass->getConstants()[$property]);
         }
-        $classCaller = \debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['class'] ?? '';
-        $allowProtected = false;
-        $allowPrivate = false;
+        $classCaller = \debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['class'] ?? '';
+        $allowProtected = \false;
+        $allowPrivate = \false;
         if ($classCaller) {
             if ($class === $classCaller) {
-                $allowProtected = $allowPrivate = true;
+                $allowProtected = $allowPrivate = \true;
             } elseif ($reflectionClass->isSubclassOf($classCaller) || (new ReflectionClass($classCaller))->isSubclassOf($class)) {
-                $allowProtected = true;
+                $allowProtected = \true;
             }
         }
         if ($reflection->isPrivate()) {
-            return $allowPrivate ? $reflection->getValue() !== null : false;
+            return $allowPrivate ? $reflection->getValue() !== null : \false;
         }
         if ($reflection->isProtected()) {
-            return $allowProtected ? $reflection->getValue() !== null : false;
+            return $allowProtected ? $reflection->getValue() !== null : \false;
         }
         return $reflection->getValue() !== null;
     }
