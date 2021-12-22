@@ -21,65 +21,68 @@ class Node
      *
      * @var Plugins
      */
-    public Plugins $plugin;
+    public $plugin;
     /**
      * Original plugin name.
      *
      * @var class-string<PluginInterface>
      */
-    private string $name;
+    private $name;
     /**
      * Original plugin name.
      *
      * @var class-string<PluginInterface>
      */
-    private string $nameConcat;
+    private $nameConcat;
     /**
      * Associated package context.
      *
      * @var PackageContext
      */
-    private PackageContext $packageContext;
+    private $packageContext;
     /**
      * Nodes that this node requires.
      *
      * @var SplObjectStorage<Node, null>
      */
-    private SplObjectStorage $requires;
+    private $requires;
     /**
      * Nodes that this node extends.
      *
      * @var SplObjectStorage<Node, null>
      */
-    private SplObjectStorage $extends;
+    private $extends;
     /**
      * Nodes that require this node.
      *
      * @var SplObjectStorage<Node, null>
      */
-    private SplObjectStorage $requiredBy;
+    private $requiredBy;
     /**
      * Nodes that extend this node.
      *
      * @var SplObjectStorage<Node, null>
      */
-    private SplObjectStorage $extendedBy;
+    private $extendedBy;
     /**
      * Graph instance.
+     * @var GraphInternal $graph
      */
-    private GraphInternal $graph;
+    private $graph;
     /**
      * Whether this node was visited when looking for circular requirements.
+     * @var bool $visitedCircular
      */
-    private bool $visitedCircular = false;
+    private $visitedCircular = false;
     /**
      * Whether this node can be required, or only extended.
+     * @var bool $canBeRequired
      */
-    private bool $canBeRequired = true;
+    private $canBeRequired = true;
     /**
      * Constructor.
      *
-     * @param GraphInternal  $graph  Graph instance
+     * @param GraphInternal $graph Graph instance
      */
     public function __construct(GraphInternal $graph, PackageContext $ctx)
     {
@@ -93,9 +96,9 @@ class Node
     /**
      * Initialization function.
      *
-     * @param string         $plugin Plugin name
-     * @param array          $config Plugin configuration
-     * @param PackageContext $ctx    Context
+     * @param string $plugin Plugin name
+     * @param array $config Plugin configuration
+     * @param PackageContext $ctx Context
      *
      * @psalm-param class-string<PluginInterface> $plugin Plugin name
      *

@@ -15,6 +15,9 @@ use ReflectionFunction;
  */
 class ClosureFromCallable extends Plugin
 {
+    /**
+     *
+     */
     public function enter(StaticCall $staticCall): ?StaticCall
     {
         if (!$staticCall->class instanceof Name || self::getFqdn($staticCall->class) !== Closure::class) {
@@ -27,6 +30,9 @@ class ClosureFromCallable extends Plugin
         }
         return null;
     }
+    /**
+     *
+     */
     public static function proxy(string $method, ...$args)
     {
         if (\strtolower($method) === 'fromcallable') {
