@@ -18,6 +18,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 class Run extends BaseCommand
 {
     protected static $defaultName = 'run';
+    /**
+     *
+     */
     protected function configure(): void
     {
         $target = \getenv('PHABEL_TARGET') ?: Php::VERSIONS[0];
@@ -25,6 +28,9 @@ class Run extends BaseCommand
         $parallel = \getenv('PHABEL_PARALLEL') ?: 1;
         $this->setDescription('Run transpiler.')->setHelp('This command transpiles the specified files or directories to the specified PHP version.')->addOption('target', null, $target ? InputOption::VALUE_OPTIONAL : InputOption::VALUE_REQUIRED, 'Target PHP version', $target)->addOption('coverage', null, InputOption::VALUE_OPTIONAL, 'PHP coverage path', $coverage)->addOption('parallel', 'j', InputOption::VALUE_OPTIONAL, 'Number of threads to use for transpilation', $parallel)->addOption('install', 'i', InputOption::VALUE_NEGATABLE, 'Whether to install required dependencies automatically', true)->addArgument('input', InputArgument::REQUIRED, 'Input path')->addArgument('output', InputArgument::REQUIRED, 'Output path');
     }
+    /**
+     *
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $output->setFormatter(Formatter::getFormatter());

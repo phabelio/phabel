@@ -17,10 +17,16 @@ class Publish extends BaseCommand
 {
     private const PLATFORM_PACKAGE = '{^(?:php(?:-64bit|-ipv6|-zts|-debug)?|hhvm|(?:ext|lib)-[a-z0-9](?:[_.-]?[a-z0-9]+)*|composer-(?:plugin|runtime)-api)$}iD';
     protected static $defaultName = 'publish';
+    /**
+     *
+     */
     private function getMessage(string $ref): string
     {
         return $this->exec(['git', 'log', '--format=%B', '-n', '1', $ref]);
     }
+    /**
+     *
+     */
     protected function configure(): void
     {
         $tags = new Process(['git', 'tag', '--sort=-creatordate']);
@@ -34,6 +40,9 @@ class Publish extends BaseCommand
         }
         $this->setDescription('Transpile a release.')->setHelp('This command transpiles the specified (or the latest) git tag.')->addOption("remote", 'r', InputOption::VALUE_OPTIONAL, 'Remote where to push tags', 'origin')->addOption('dry', 'd', InputOption::VALUE_NEGATABLE, "Whether to skip pushing tags to any remote", false)->addArgument('source', $tag ? InputArgument::OPTIONAL : InputArgument::REQUIRED, 'Source tag name', $tag);
     }
+    /**
+     *
+     */
     private function prepare(string $src, string $dest, ?callable $cb = null): void
     {
         $this->exec(['git', 'checkout', $src]);
@@ -50,6 +59,9 @@ class Publish extends BaseCommand
         $this->exec(['git', 'tag', '-d', $dest], true);
         $this->exec(['git', 'tag', $dest]);
     }
+    /**
+     *
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $src = $input->getArgument('source');
