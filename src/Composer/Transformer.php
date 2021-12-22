@@ -24,8 +24,8 @@ use Symfony\Component\Filesystem\Filesystem;
 
 class Transformer
 {
-    const HEADER = 'phabel.transpiler';
-    const SEPARATOR = ':';
+    const HEADER = 'phabel-transpiler';
+    const SEPARATOR = '.';
     /**
      * IO interface.
      */
