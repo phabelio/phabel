@@ -19,7 +19,6 @@ abstract class ClassStorageProvider extends Plugin implements JsonSerializable
      * Class count.
      */
     private array $count = [];
-
     /**
      * Process class graph.
      *
@@ -49,14 +48,13 @@ abstract class ClassStorageProvider extends Plugin implements JsonSerializable
             return;
         }
         $class->setAttribute(self::PROCESSED, true);
-
         $file = $context->getOutputFile();
         if ($class->name) {
             $name = self::getFqdn($class);
         } else {
-            $name = "class@anonymous$file";
+            $name = "class@anonymous{$file}";
             $this->count[$file][$name] ??= 0;
-            $name .= "@".$this->count[$file][$name]++;
+            $name .= "@" . $this->count[$file][$name]++;
         }
         $storage = $this->getGlobalClassStorage()->getClass($file, $name);
         foreach ($class->stmts as $k => $stmt) {
@@ -96,7 +94,7 @@ abstract class ClassStorageProvider extends Plugin implements JsonSerializable
             if ($func) {
                 $ordered = [];
                 foreach ($func->getArguments() as $name => $default) {
-                    $ordered []= $args[$name] ?? $default;
+                    $ordered[] = $args[$name] ?? $default;
                     unset($args[$name]);
                 }
                 if ($args && $func->isVariadic()) {
