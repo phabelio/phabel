@@ -84,7 +84,10 @@
         "phpunitExpr": "@php tools/testExprGen.php"
     },
     "config": {
-        "process-timeout": 0
+        "process-timeout": 0,
+        "allow-plugins": {
+            "bamarni/composer-bin-plugin": true
+        }
     },
     "bin": ["bin/phabel"]
 }

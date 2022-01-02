@@ -49,6 +49,7 @@ class Run extends BaseCommand
             return Command::INVALID;
         }
 
+        $target = Php::normalizeVersion($input->getOption('target'));
         $packages = (new Traverser(
             new CliEventHandler(
                 new SimpleConsoleLogger($output),
@@ -57,7 +58,7 @@ class Run extends BaseCommand
             )
         ))
             ->setPlugins([
-                Php::class => ['target' => Php::normalizeVersion($input->getOption('target'))]
+                Php::class => ['target' => $target]
             ])
             ->setInput($input->getArgument('input'))
             ->setOutput($input->getArgument('output'))
@@ -68,7 +69,7 @@ class Run extends BaseCommand
         unset($packages['php'], $packages['php-64bit']);
 
         if (!empty($packages)) {
-            if ($input->getOption('install') && \is_dir($input->getArgument('output'))) {
+            if ($input->getOption('install') && \is_dir($input->getArgument('output')) && ((int)Php::DEFAULT_TARGET) === $target) {
                 \chdir($input->getArgument('output'));
                 $cmd = ['composer', 'require'];
                 foreach ($packages as $package => $constraint) {
@@ -80,7 +81,7 @@ class Run extends BaseCommand
                 foreach ($packages as $package => $constraint) {
                     $cmd .= \escapeshellarg("$package:$constraint")." ";
                 }
-                $output->write("Please run the following command to install required dependencies:".PHP_EOL.PHP_EOL);
+                $output->write("Please run the following command using PHP ".Php::unnormalizeVersion($target)." to install required dependencies:".PHP_EOL.PHP_EOL);
                 $output->write("<bold>$cmd</bold>".PHP_EOL.PHP_EOL);
             }
         }
