@@ -25,22 +25,8 @@ class ConstructorPromotion extends Plugin
         }
         foreach ($classMethod->params as $param) {
             if ($param->flags && $param->var instanceof Variable) {
-                $ctx->insertAfter(
-                    $classMethod,
-                    new Property(
-                        $param->flags,
-                        [new PropertyProperty($param->var->name)],
-                        [],
-                        $param->type
-                    )
-                );
-                \array_unshift(
-                    $classMethod->stmts,
-                    new Expression(new Assign(
-                        new PropertyFetch(new Variable('this'), $param->var->name),
-                        new Variable($param->var->name)
-                    ))
-                );
+                $ctx->insertAfter($classMethod, new Property($param->flags, [new PropertyProperty($param->var->name)], [], $param->type));
+                \array_unshift($classMethod->stmts, new Expression(new Assign(new PropertyFetch(new Variable('this'), $param->var->name), new Variable($param->var->name))));
                 $param->flags = 0;
             }
         }
