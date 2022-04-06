@@ -3,6 +3,7 @@
 namespace PhabelTest\Target\Php80;
 
 use PHPUnit\Framework\TestCase;
+use UnhandledMatchError;
 
 /**
  * @author Daniil Gentili <daniil@daniil.it>
@@ -33,12 +34,12 @@ class MatchTransformerTest extends TestCase
 
     public function testThrow1()
     {
-        $this->expectExceptionMessage('Unhandled match value of type int');
+        $this->expectException(UnhandledMatchError::class);
         match (0) {};
     }
     public function testThrow2()
     {
-        $this->expectExceptionMessage('Unhandled match value of type int');
+        $this->expectException(UnhandledMatchError::class);
         match (0) {
             true => true,
             false => false

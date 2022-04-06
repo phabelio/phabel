@@ -4,9 +4,13 @@ namespace Phabel\ClassStorage;
 
 use Phabel\Exception;
 use Phabel\Plugin\ClassStoragePlugin;
+use Phabel\Plugin\ConstantResolver;
 use Phabel\PluginGraph\CircularException;
 use Phabel\Tools;
+use PhpParser\Node\Const_;
+use PhpParser\Node\Expr;
 use PhpParser\Node\Stmt\Class_ as StmtClass_;
+use PhpParser\Node\Stmt\ClassConst;
 use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Interface_;
@@ -20,6 +24,7 @@ use PhpParser\Node\Stmt\TraitUseAdaptation\Precedence;
 class Builder
 {
     const STORAGE_KEY = 'Storage:tmp';
+    const CONSTANT_FLAGS_KEY = 'Storage:constantFlags';
     /**
      * Method list.
      *
@@ -32,6 +37,13 @@ class Builder
      * @psalm-var array<string, ClassMethod>
      */
     private array $abstractMethods = [];
+
+    /**
+     * Constant list
+     *
+     * @var array<string, Expr>
+     */
+    public array $constants = [];
 
     /**
      * Extended classes/interfaces.
@@ -98,6 +110,9 @@ class Builder
             if ($stmt instanceof ClassMethod) {
                 $this->addMethod($stmt);
             }
+            if ($stmt instanceof ClassConst) {
+                $this->addConstants($stmt);
+            }
             if ($stmt instanceof TraitUse) {
                 foreach ($stmt->traits as $trait) {
                     $this->use[Tools::getFqdn($trait)] = true;
@@ -135,6 +150,19 @@ class Builder
             $this->abstractMethods[$method->name->name] = $method;
         } else {
             $this->methods[$method->name->name] = $method;
+        }
+    }
+
+    /**
+     * Add constants.
+     *
+     */
+    private function addConstants(ClassConst $const)
+    {
+        foreach ($const->consts as $constant) {
+            $value = $constant->value;
+            $value->setAttribute(self::CONSTANT_FLAGS_KEY, $const->flags);
+            $this->constants[$constant->name->name] = $value;
         }
     }
 
@@ -192,6 +220,13 @@ class Builder
                 unset($this->extends[$class]);
             }
         }
+        foreach ($this->constants as $name => $constant) {
+            try {
+                $this->constants[$name] = ConstantResolver::resolve($constant, $this->name, $plugin);
+            } catch (\Throwable) {
+                unset($this->constants[$name]);
+            }
+        }
         $this->resolving = false;
         $this->resolved = true;
 
@@ -210,7 +245,7 @@ class Builder
         }
         if (!isset($this->storage)) {
             $this->storage = new Storage;
-            $this->storage->build($this->name, $this->methods, $this->abstractMethods, $this->extends);
+            $this->storage->build($this->name, $this->methods, $this->abstractMethods, $this->constants, $this->extends);
         }
         return $this->storage;
     }

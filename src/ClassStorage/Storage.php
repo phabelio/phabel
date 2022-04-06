@@ -2,6 +2,8 @@
 
 namespace Phabel\ClassStorage;
 
+use Phabel\Tools;
+use PhpParser\Node\Expr;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
 
@@ -40,6 +42,13 @@ class Storage
     private array $extends = [];
 
     /**
+     * Class constants
+     *
+     * @var array<string, mixed>
+     */
+    private array $constants = [];
+
+    /**
      * Classes/interfaces that extend us.
      *
      * @var array<class-string, Storage>
@@ -57,13 +66,17 @@ class Storage
      * @param string                       $name
      * @param array<string, ClassMethod>   $methods
      * @param array<string, ClassMethod>   $abstractMethods
+     * @param array<string, Expr>          $constants
      * @param array<class-string, Builder> $extends
      */
-    public function build(string $name, array $methods, array $abstractMethods, array $extends)
+    public function build(string $name, array $methods, array $abstractMethods, array $constants, array $extends)
     {
         $this->name = $name;
         $this->methods = $methods;
         $this->abstractMethods = $abstractMethods;
+        foreach ($constants as $name => $constant) {
+            $this->constants[$name] = Tools::fromLiteral($constant);
+        }
 
         foreach ($methods as $method) {
             if ($method->getAttribute(Builder::STORAGE_KEY)) {
@@ -121,6 +134,16 @@ class Storage
                 }
             }
         }
+    }
+
+    /**
+     * Get constant, ignoring constant visibility for now
+     *
+     * @return mixed
+     */
+    public function getConstant(string $name): mixed
+    {
+        return $this->constants[$name];
     }
 
     /**
