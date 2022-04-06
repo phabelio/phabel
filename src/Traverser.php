@@ -541,12 +541,12 @@ class Traverser
             }
             \set_error_handler(
                 function (int $errno = 0, string $errstr = '', string $errfile = '', int $errline = -1): bool {
-                // If error is suppressed with @, don't throw an exception
-                if (\error_reporting() === 0) {
-                    return false;
+                    // If error is suppressed with @, don't throw an exception
+                    if (\error_reporting() === 0) {
+                        return false;
+                    }
+                    throw new Exception($errstr, $errno, null, $errfile, $errline);
                 }
-                throw new Exception($errstr, $errno, null, $errfile, $errline);
-            }
             );
 
             $packages = [];

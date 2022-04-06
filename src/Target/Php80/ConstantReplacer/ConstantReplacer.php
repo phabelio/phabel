@@ -27,7 +27,11 @@ class ConstantReplacer extends ClassStorageProvider
     public function leaveParam(Param $param)
     {
         if ($param->default) {
-            $param->default = Tools::fromLiteral(Tools::toLiteral($param->default));
+            try {
+                $param->default = Tools::fromLiteral(Tools::toLiteral($param->default));
+            } catch (\Throwable) {
+                // Ignore errors caused by constant lookups
+            }
         }
         $this->inParam = false;
     }

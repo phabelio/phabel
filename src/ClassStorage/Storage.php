@@ -75,7 +75,11 @@ class Storage
         $this->methods = $methods;
         $this->abstractMethods = $abstractMethods;
         foreach ($constants as $name => $constant) {
-            $this->constants[$name] = Tools::toLiteral($constant);
+            try {
+                $this->constants[$name] = Tools::toLiteral($constant);
+            } catch (\Throwable) {
+                // Ignore errors caused by constant lookups
+            }
         }
 
         foreach ($methods as $method) {
