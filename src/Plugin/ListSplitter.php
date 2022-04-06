@@ -53,7 +53,6 @@ class ListSplitter extends Plugin
         }
         $var = $ctx->getVariable();
         $assignments = self::splitList($node->var, $var);
-
         $hasReference = $this->hasReference($node->var);
         if ($ctx->isParentStmt()) {
             $last = \array_pop($assignments);
@@ -76,7 +75,8 @@ class ListSplitter extends Plugin
     public static function splitList($list, Variable $var): array
     {
         $assignments = [];
-        $key = 0; // Technically a list assignment does not support mixed keys, but we need this for nested assignments
+        $key = 0;
+        // Technically a list assignment does not support mixed keys, but we need this for nested assignments
         foreach ($list->items as $item) {
             if (!$item) {
                 $key++;
@@ -84,9 +84,9 @@ class ListSplitter extends Plugin
             }
             $curKey = $item->key ?? new LNumber($key++);
             if ($item->byRef) {
-                $assignments []= new AssignRef($item->value, new ArrayDimFetch($var, $curKey));
+                $assignments[] = new AssignRef($item->value, new ArrayDimFetch($var, $curKey));
             } else {
-                $assignments []= new Assign($item->value, new ArrayDimFetch($var, $curKey));
+                $assignments[] = new Assign($item->value, new ArrayDimFetch($var, $curKey));
             }
         }
         return $assignments;

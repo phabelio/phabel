@@ -34,7 +34,6 @@ class ReGenerator implements \Iterator
      * @var mixed
      */
     public $yieldValue;
-
     /**
      * Value sent from the outside.
      *
@@ -45,12 +44,10 @@ class ReGenerator implements \Iterator
      * Exception sent from the outside.
      */
     public ?\Throwable $sentException = null;
-
     /**
      * Current state of state machine.
      */
     public int $state = 0;
-
     /**
      * Whether the generator has returned.
      */
@@ -59,12 +56,10 @@ class ReGenerator implements \Iterator
      * Whether the generator was started.
      */
     public bool $started = false;
-
     /**
      * Actual generator function.
      */
     public \Closure $generator;
-
     /**
      * Construct regenerator.
      *
@@ -74,7 +69,6 @@ class ReGenerator implements \Iterator
     {
         $this->generator = $function;
     }
-
     /**
      * Get return value.
      *
@@ -84,7 +78,6 @@ class ReGenerator implements \Iterator
     {
         return $this->returnValue;
     }
-
     /**
      * Start generator.
      *
@@ -97,7 +90,6 @@ class ReGenerator implements \Iterator
             $this->started = true;
         }
     }
-
     /**
      * Send value into generator.
      *
@@ -146,7 +138,6 @@ class ReGenerator implements \Iterator
         }
         return $value;
     }
-
     /**
      * Get current value.
      *
