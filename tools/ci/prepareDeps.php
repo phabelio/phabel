@@ -31,6 +31,8 @@ r("cp -a vendor-bin/check/vendor/composer ../phabelConvertedVendor");
 r("rm -rf vendor-bin/check/vendor");
 \rename("../phabelConvertedVendor", "vendor-bin/check/vendor");
 
-$phpunit = \realpath("vendor/bin/phpunit");
-\file_put_contents($phpunit, \str_replace('die(1);', '', \file_get_contents($phpunit)));
-\chmod($phpunit, 0755);
+foreach (['vendor/bin/phpunit', 'vendor-bin/check/vendor/phpunit/phpunit/phpunit'] as $phpunit) {
+    $phpunit = \realpath($phpunit);
+    \file_put_contents($phpunit, \str_replace('die(1);', '', \file_get_contents($phpunit)));
+    \chmod($phpunit, 0755);
+}
