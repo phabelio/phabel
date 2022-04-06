@@ -7,7 +7,10 @@ namespace Phabel\Target\Php80\NullSafe;
  */
 class NullSafe
 {
-    public static self $singleton;
+    /**
+     * @var self $singleton
+     */
+    public static $singleton;
     /**
      * Null.
      *
