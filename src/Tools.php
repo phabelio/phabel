@@ -164,12 +164,7 @@ abstract class Tools
     public static function toLiteral(Expr $data): mixed
     {
         self::$evaluator ??= new ConstExprEvaluator();
-        try {
-            return self::$evaluator->evaluateDirectly($data);
-        } catch (\Throwable $e) {
-            \var_dump($data);
-            throw $e;
-        }
+        return self::$evaluator->evaluateDirectly($data);
     }
     /**
      * Convert code to node.

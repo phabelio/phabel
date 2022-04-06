@@ -561,7 +561,6 @@ class Traverser
                     break;
                 }
                 [$plugins, $this->files] = $classStorage->finish($this->iteration);
-                \var_dump($plugins);
                 unset($classStorage);
                 if (!$plugins || !$this->files) {
                     break;
