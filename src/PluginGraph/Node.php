@@ -79,7 +79,7 @@ class Node
     /**
      * Constructor.
      *
-     * @param GraphInternal  $graph  Graph instance
+     * @param GraphInternal $graph Graph instance
      */
     public function __construct(GraphInternal $graph, PackageContext $ctx)
     {
@@ -93,9 +93,9 @@ class Node
     /**
      * Initialization function.
      *
-     * @param string         $plugin Plugin name
-     * @param array          $config Plugin configuration
-     * @param PackageContext $ctx    Context
+     * @param string $plugin Plugin name
+     * @param array $config Plugin configuration
+     * @param PackageContext $ctx Context
      *
      * @psalm-param class-string<PluginInterface> $plugin Plugin name
      *

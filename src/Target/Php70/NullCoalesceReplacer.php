@@ -56,6 +56,9 @@ class NullCoalesceReplacer extends Plugin
         $check = new NotIdentical(Tools::fromLiteral(null), new Assign($workVar = $ctx->getVariable(), $valueCopy));
         return new Ternary($node->left === $workVar ? $check : new BooleanAnd($check, new Isset_([$node->left])), $node->left, $node->right);
     }
+    /**
+     *
+     */
     public static function withPrevious(array $config): array
     {
         return [NullCoalesceAssignment::class, NullSafeTransformer::class];

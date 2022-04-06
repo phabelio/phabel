@@ -24,7 +24,7 @@ class Plugins
      * Constructor.
      *
      * @param class-string<PluginInterface> $plugin Plugin
-     * @param array                         $config Config
+     * @param array $config Config
      */
     public function __construct(string $plugin, array $config)
     {
