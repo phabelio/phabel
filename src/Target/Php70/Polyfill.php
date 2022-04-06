@@ -8,10 +8,9 @@ use Phabel\Plugin;
 use Phabel\Target\Php;
 use Phabel\Target\Polyfill as TargetPolyfill;
 use Phabel\Tools;
-use PhpParser\Node;
+use PhabelVendor\PhpParser\Node;
 use Throwable;
 use ValueError;
-
 \define('BIG_ENDIAN', \pack('L', 1) === \pack('N', 1));
 /**
  * @author Daniil Gentili <daniil@daniil.it>
@@ -19,7 +18,7 @@ use ValueError;
  */
 class Polyfill extends Plugin
 {
-    private const IS_WINDOWS = PHP_OS_FAMILY === 'Windows';
+    private const IS_WINDOWS = \PHP_OS_FAMILY === 'Windows';
     public const CONSTANTS = [IntlChar::class => ['NO_NUMERIC_VALUE' => -123456789.0]];
     // Todo: dns_get_record CAA
     // Todo: filters
@@ -30,7 +29,7 @@ class Polyfill extends Plugin
      *
      * @return array
      */
-    public static function getComposerRequires(array $config): array
+    public static function getComposerRequires(array $config) : array
     {
         if (\str_starts_with(Node::class, 'Phabel')) {
             return [];
@@ -40,7 +39,7 @@ class Polyfill extends Plugin
     /**
      * @param (string | Throwable | null) $exception
      */
-    public static function assert($assertion, $exception = null): bool
+    public static function assert($assertion, $exception = null) : bool
     {
         if (!($exception instanceof Throwable || \is_null($exception) || \is_null($exception))) {
             if (!\is_string($exception)) {
@@ -51,7 +50,7 @@ class Polyfill extends Plugin
             }
         }
         if ($assertion || Tools::ini_get('zend.assertions') !== 1) {
-            return true;
+            return \true;
         }
         $exception = new AssertionError('assert(false)');
         if (\is_null($exception)) {
@@ -63,12 +62,12 @@ class Polyfill extends Plugin
             throw $exception;
         }
         \trigger_error("Uncaught {$exception}");
-        return true;
+        return \true;
     }
     /**
      *
      */
-    public static function dirname(string $path, int $levels = 1): string
+    public static function dirname(string $path, int $levels = 1) : string
     {
         if ($levels === 1) {
             return \dirname($path);
@@ -87,7 +86,7 @@ class Polyfill extends Plugin
     /**
      *
      */
-    public static function get_defined_functions(bool $exclude_disabled = true): array
+    public static function get_defined_functions(bool $exclude_disabled = \true) : array
     {
         if ($exclude_disabled) {
             $disabled = \explode(',', Tools::ini_get('disable_functions') ?: '');
@@ -100,7 +99,7 @@ class Polyfill extends Plugin
     /**
      *
      */
-    public static function substr(string $string, int $offset, ?int $length = null): string
+    public static function substr(string $string, int $offset, ?int $length = null) : string
     {
         if (\strlen($string) === $offset) {
             return '';
@@ -149,7 +148,7 @@ class Polyfill extends Plugin
     /**
      *
      */
-    public static function pack(string $format, ...$values): string
+    public static function pack(string $format, ...$values) : string
     {
         $l = \strlen($format);
         $y = 0;
@@ -190,8 +189,8 @@ class Polyfill extends Plugin
     /**
      * {@inheritDoc}
      */
-    public static function withNext(array $config): array
+    public static function withNext(array $config) : array
     {
-        return [TargetPolyfill::class => [self::class => true]];
+        return [TargetPolyfill::class => [self::class => \true]];
     }
 }

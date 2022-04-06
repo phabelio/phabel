@@ -7,7 +7,6 @@ use Phabel\Plugin;
 use Phabel\PluginInterface;
 use SplObjectStorage;
 use SplQueue;
-
 /**
  * Internal graph class.
  *
@@ -51,9 +50,9 @@ class GraphInternal
     /**
      * Get new package context.
      */
-    public function getPackageContext(): PackageContext
+    public function getPackageContext() : \Phabel\PluginGraph\PackageContext
     {
-        $packageContext = new PackageContext();
+        $packageContext = new \Phabel\PluginGraph\PackageContext();
         $this->packageContexts[] = $packageContext;
         return $packageContext;
     }
@@ -68,9 +67,9 @@ class GraphInternal
      *
      * @return Node[]
      */
-    public function addPlugin(string $plugin, array $config, PackageContext $ctx): array
+    public function addPlugin(string $plugin, array $config, \Phabel\PluginGraph\PackageContext $ctx) : array
     {
-        return \array_map(function (array $config) use ($plugin, $ctx): Node {
+        return \array_map(function (array $config) use($plugin, $ctx) : Node {
             return $this->addPluginInternal($plugin, $config, $ctx);
         }, $plugin::splitConfig($config));
     }
@@ -83,13 +82,13 @@ class GraphInternal
      *
      * @psalm-param class-string<PluginInterface> $plugin Plugin name
      */
-    private function addPluginInternal(string $plugin, array $config, PackageContext $ctx): Node
+    private function addPluginInternal(string $plugin, array $config, \Phabel\PluginGraph\PackageContext $ctx) : \Phabel\PluginGraph\Node
     {
         $configStr = \json_encode($config);
         if (isset($this->plugins[$plugin][$configStr])) {
             return $this->plugins[$plugin][$configStr]->addPackages($ctx);
         }
-        $this->plugins[$plugin][$configStr] = $node = new Node($this, $ctx);
+        $this->plugins[$plugin][$configStr] = $node = new \Phabel\PluginGraph\Node($this, $ctx);
         $this->unlinkedNodes->attach($node);
         $this->unprocessedNode->attach($node);
         return $node->init($plugin, $config);
@@ -97,7 +96,7 @@ class GraphInternal
     /**
      * Set unlinked node as linked.
      */
-    public function linkNode(Node $node): void
+    public function linkNode(\Phabel\PluginGraph\Node $node) : void
     {
         if ($this->unlinkedNodes->contains($node)) {
             $this->unlinkedNodes->detach($node);
@@ -108,7 +107,7 @@ class GraphInternal
      *
      * @return array{0: SplQueue<SplQueue<PluginInterface>>, 1: array<string, list<string>>}
      */
-    public function flatten(): array
+    public function flatten() : array
     {
         if (!$this->plugins) {
             /** @psalm-var SplQueue<SplQueue<PluginInterface>> */

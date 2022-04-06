@@ -54,12 +54,12 @@ class ReGenerator implements \Iterator
      * Whether the generator has returned.
      * @var bool $returned
      */
-    public $returned = false;
+    public $returned = \false;
     /**
      * Whether the generator was started.
      * @var bool $started
      */
-    public $started = false;
+    public $started = \false;
     /**
      * Actual generator function.
      * @var \Closure $generator
@@ -88,11 +88,11 @@ class ReGenerator implements \Iterator
      *
      * @return void
      */
-    private function start(): void
+    private function start() : void
     {
         if (!$this->started) {
             ($this->generator)($this->state, $this->variables, $this->yieldKey, $this->yieldValue, $this->sentValue, $this->sentException, $this->returnValue, $this->returned);
-            $this->started = true;
+            $this->started = \true;
         }
     }
     /**
@@ -111,7 +111,7 @@ class ReGenerator implements \Iterator
             try {
                 ($this->generator)($this->state, $this->variables, $this->yieldKey, $this->yieldValue, $this->sentValue, $this->sentException, $this->returnValue, $this->returned);
             } catch (\Throwable $e) {
-                $this->returned = true;
+                $this->returned = \true;
                 throw $e;
             } finally {
                 $this->sentValue = null;
@@ -135,7 +135,7 @@ class ReGenerator implements \Iterator
             try {
                 ($this->generator)($this->state, $this->variables, $this->yieldKey, $this->yieldValue, $this->sentValue, $this->sentException, $this->returnValue, $this->returned);
             } catch (\Throwable $e) {
-                $this->returned = true;
+                $this->returned = \true;
                 throw $e;
             } finally {
                 $this->sentException = null;
@@ -168,7 +168,7 @@ class ReGenerator implements \Iterator
      *
      * @return void
      */
-    public function next(): void
+    public function next() : void
     {
         $this->send(null);
     }
@@ -177,14 +177,14 @@ class ReGenerator implements \Iterator
      *
      * @return void
      */
-    public function rewind(): void
+    public function rewind() : void
     {
         if ($this->started && !$this->returned) {
             throw new \Exception('Cannot rewind a generator that was already run');
         }
         $this->state = 0;
-        $this->started = false;
-        $this->returned = false;
+        $this->started = \false;
+        $this->returned = \false;
         $this->returnValue = null;
         $this->yieldKey = null;
         $this->yieldValue = null;
@@ -198,7 +198,7 @@ class ReGenerator implements \Iterator
      *
      * @return boolean
      */
-    public function valid(): bool
+    public function valid() : bool
     {
         return !$this->returned;
     }
