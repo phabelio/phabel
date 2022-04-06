@@ -14,11 +14,9 @@ use Phabel\RootNode;
 class ComposerSanitizer extends Plugin
 {
     public const FILE_NAME = '___transpiledWithPhabel.php';
-    private const MESSAGE = <<<PHP
-This package requires transpilation using the phabel.io composer plugin.
+    private const MESSAGE = 'This package requires transpilation using the phabel.io composer plugin.
 To use this package please run composer update, enabling execution of plugins and generation of the lockfile.
-
-PHP;
+';
     /**
      * Get contents of file.
      *
@@ -29,10 +27,16 @@ PHP;
     {
         return \sprintf('<?php if (!getenv("PHABEL_INSIDE_COMPOSER")) die("%s: %s");', $package, self::MESSAGE);
     }
+    /**
+     *
+     */
     public function shouldRunFile(string $file): bool
     {
         return \basename($file) === self::FILE_NAME;
     }
+    /**
+     *
+     */
     public function shouldRun(string $package): bool
     {
         return true;
