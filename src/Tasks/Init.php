@@ -2,12 +2,11 @@
 
 namespace Phabel\Tasks;
 
-use Amp\Parallel\Worker\Environment;
-use Amp\Parallel\Worker\Task;
+use PhabelVendor\Amp\Parallel\Worker\Environment;
+use PhabelVendor\Amp\Parallel\Worker\Task;
 use Phabel\Exception;
 use Phabel\PluginGraph\ResolvedGraph;
 use Phabel\Traverser;
-
 class Init implements Task
 {
     /**
@@ -32,10 +31,10 @@ class Init implements Task
             } catch (\Throwable $e) {
             }
         }
-        \set_error_handler(function (int $errno = 0, string $errstr = '', string $errfile = '', int $errline = -1): bool {
+        \set_error_handler(function (int $errno = 0, string $errstr = '', string $errfile = '', int $errline = -1) : bool {
             // If error is suppressed with @, don't throw an exception
             if (\Phabel\Target\Php80\Polyfill::error_reporting() === 0) {
-                return false;
+                return \false;
             }
             throw new Exception($errstr, $errno, null, $errfile, $errline);
         });
