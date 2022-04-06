@@ -5,11 +5,13 @@ namespace Phabel\Target\Php74;
 use Phabel\Context;
 use Phabel\Plugin;
 use PhpParser\Node\Arg;
+use PhpParser\Node\Const_;
 use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Expr\ArrayItem;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\List_;
+use PhpParser\Node\Param;
 use PhpParser\Node\Stmt\Foreach_;
 
 /**
@@ -25,6 +27,12 @@ class ArrayUnpack extends Plugin
                 continue;
             }
             if ($parent instanceof List_) {
+                return null;
+            }
+            if ($parent instanceof Const_) {
+                return null;
+            }
+            if ($parent instanceof Param) {
                 return null;
             }
             /** @var string */

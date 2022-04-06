@@ -2,6 +2,7 @@
 
 namespace Phabel;
 
+use PhpParser\ConstExprEvaluator;
 use PhpParser\Node;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr;
@@ -151,6 +152,24 @@ abstract class Tools
     public static function fromLiteral($data): Node
     {
         return self::toNode(\var_export($data, true).';');
+    }
+    private static ?ConstExprEvaluator $evaluator = null;
+    /**
+     * Convert expr to literal.
+     *
+     * @param Expr $data Data to convert
+     *
+     * @return mixed
+     */
+    public static function toLiteral(Expr $data): mixed
+    {
+        self::$evaluator ??= new ConstExprEvaluator();
+        try {
+            return self::$evaluator->evaluateDirectly($data);
+        } catch (\Throwable $e) {
+            \var_dump($data);
+            throw $e;
+        }
     }
     /**
      * Convert code to node.
@@ -357,7 +376,8 @@ abstract class Tools
     {
         return \Closure::bind(
             /** @return mixed */
-            function & () use ($var) {
+            function &() use ($var)
+            {
                 return $this->{$var};
             },
             $obj,

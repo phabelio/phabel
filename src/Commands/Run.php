@@ -69,7 +69,7 @@ class Run extends BaseCommand
         unset($packages['php'], $packages['php-64bit']);
 
         if (!empty($packages)) {
-            if ($input->getOption('install') && \is_dir($input->getArgument('output')) && ((int)Php::DEFAULT_TARGET) === $target) {
+            if ($input->getOption('install') && \is_dir($input->getArgument('output')) && ((int) Php::DEFAULT_TARGET) === $target) {
                 \chdir($input->getArgument('output'));
                 $cmd = ['composer', 'require'];
                 foreach ($packages as $package => $constraint) {

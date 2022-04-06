@@ -14,7 +14,7 @@ use SplStack;
  */
 class TypeContracovariance extends ClassStorageProvider
 {
-    public static function processClassGraph(ClassStorage $storage): bool
+    public static function processClassGraph(ClassStorage $storage, int $iteration, int $innerIteration): bool
     {
         $changed = false;
         foreach ($storage->getClasses() as $class) {

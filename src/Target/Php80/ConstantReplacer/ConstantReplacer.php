@@ -1,0 +1,62 @@
+<?php
+
+namespace Phabel\Target\Php80\ConstantReplacer;
+
+use Phabel\ClassStorage;
+use Phabel\ClassStorageProvider;
+use Phabel\Tools;
+use PhpParser\Node\Expr\ClassConstFetch;
+use PhpParser\Node\Param;
+use PhpParser\Node\Stmt\ClassConst;
+
+/**
+ * @author Daniil Gentili <daniil@daniil.it>
+ * @license MIT
+ */
+class ConstantReplacer extends ClassStorageProvider
+{
+    public static function processClassGraph(ClassStorage $storage, int $iteration, int $innerIteration): bool
+    {
+        return $iteration === 1 && $innerIteration === 1;
+    }
+    private bool $inParam = false;
+    public function enterParam(Param $param)
+    {
+        $this->inParam = true;
+    }
+    public function leaveParam(Param $param)
+    {
+        if ($param->default) {
+            $param->default = Tools::fromLiteral(Tools::toLiteral($param->default));
+        }
+        $this->inParam = false;
+    }
+    public function enterFetch(ClassConstFetch $fetch)
+    {
+        if ($this->inParam) {
+            try {
+                return self::fromLiteral(
+                    (
+                        ((string) $fetch->class) === 'self'
+                        ? $this->storage
+                        : $this->getGlobalClassStorage()->getClassByName(self::getFqdn($fetch->class))
+                    )->getConstant($fetch->name)
+                );
+            } catch (\Throwable $e) {
+                // Ignore missing constants for now since we didn't implement normal constant lookup
+            }
+        }
+    }
+    public function enterConstant(ClassConst $constants)
+    {
+        foreach ($constants->consts as $const) {
+            try {
+                $const->value = self::fromLiteral(
+                    $this->storage->getConstant($const->name)
+                );
+            } catch (\Throwable) {
+                // Ignore missing constants for now since we didn't implement normal constant lookup
+            }
+        }
+    }
+}

@@ -4,6 +4,7 @@ namespace Phabel\Plugin;
 
 use Phabel\Plugin;
 use Phabel\Target\Php;
+use Phabel\Target\Php80\ConstantReplacer;
 use PhpParser\Node\Name;
 use PhpParser\Node\Scalar\String_;
 
@@ -39,6 +40,7 @@ class PhabelTestGenerator extends Plugin
         return [
             Php::class => ['target' => $config['target'] % 1000],
             StringConcatOptimizer::class => [],
+            ConstantReplacer::class => []
         ];
     }
 }

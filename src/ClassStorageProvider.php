@@ -19,6 +19,10 @@ abstract class ClassStorageProvider extends Plugin implements JsonSerializable
      * Class count.
      */
     private array $count = [];
+    /**
+     * Current class storage.
+     */
+    protected ?Storage $storage = null;
 
     /**
      * Process class graph.
@@ -26,7 +30,7 @@ abstract class ClassStorageProvider extends Plugin implements JsonSerializable
      * @param ClassStorage $storage
      * @return bool
      */
-    abstract public static function processClassGraph(ClassStorage $storage): bool;
+    abstract public static function processClassGraph(ClassStorage $storage, int $iteration, int $innerIteration): bool;
     /**
      * Enter file.
      *
@@ -64,6 +68,7 @@ abstract class ClassStorageProvider extends Plugin implements JsonSerializable
                 $class->stmts[$k] = new Nop();
             }
         }
+        $this->storage = $storage;
     }
     public function enterStaticCall(StaticCall $call): void
     {

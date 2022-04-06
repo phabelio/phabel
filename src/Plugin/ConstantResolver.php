@@ -6,8 +6,6 @@ use Phabel\Plugin;
 use Phabel\Traverser;
 use PhpParser\Node;
 use PhpParser\Node\Expr\ClassConstFetch;
-use PhpParser\Node\Expr\ClosureUse;
-use PhpParser\Node\Expr\Variable;
 
 /**
  * @author Daniil Gentili <daniil@daniil.it>
@@ -28,13 +26,13 @@ class ConstantResolver extends Plugin
      */
     private ClassStoragePlugin $plugin;
     /**
-     * Current class name
+     * Current class name.
      *
      * @var class-string
      */
     private string $currentClass;
     /**
-     * Resolve constants
+     * Resolve constants.
      *
      * @return Node
      */
@@ -56,16 +54,16 @@ class ConstantResolver extends Plugin
     {
     }
     /**
-     * Enter class constant lookup
+     * Enter class constant lookup.
      */
     public function enter(ClassConstFetch $var)
     {
         // Do not support constant resolution with static for now
-        if (((string)$var->class) === 'self') {
+        if (((string) $var->class) === 'self') {
             $class = $this->currentClass;
         } else {
             $class = self::getFqdn($var->class);
         }
-        return array_values($this->plugin->classes[$class])[0]->constants[$var->name->name]->value;
+        return \array_values($this->plugin->classes[$class])[0]->constants[$var->name->name];
     }
 }

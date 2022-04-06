@@ -42,7 +42,7 @@ class Storage
     private array $extends = [];
 
     /**
-     * Class constants
+     * Class constants.
      *
      * @var array<string, mixed>
      */
@@ -75,7 +75,7 @@ class Storage
         $this->methods = $methods;
         $this->abstractMethods = $abstractMethods;
         foreach ($constants as $name => $constant) {
-            $this->constants[$name] = Tools::fromLiteral($constant);
+            $this->constants[$name] = Tools::toLiteral($constant);
         }
 
         foreach ($methods as $method) {
@@ -137,7 +137,7 @@ class Storage
     }
 
     /**
-     * Get constant, ignoring constant visibility for now
+     * Get constant, ignoring constant visibility for now.
      *
      * @return mixed
      */

@@ -492,7 +492,7 @@ class Traverser
             unset($pool);
 
             if ($classStorage) {
-                [$plugins, $this->files] = $classStorage->finish();
+                [$plugins, $this->files] = $classStorage->finish($this->iteration);
                 unset($classStorage);
                 if ($plugins && $this->files) {
                     $this->input = $this->output;
@@ -526,7 +526,7 @@ class Traverser
         });
     }
 
-
+    private int $iteration = 0;
     /**
      * Run phabel.
      *
@@ -534,44 +534,50 @@ class Traverser
      */
     public function run(int $threads = 1): array
     {
-        if ($threads > 1 || $threads === -1) {
-            return $this->runAsync($threads);
-        }
-        \set_error_handler(
-            function (int $errno = 0, string $errstr = '', string $errfile = '', int $errline = -1): bool {
+        $this->iteration++;
+        try {
+            if ($threads > 1 || $threads === -1) {
+                return $this->runAsync($threads);
+            }
+            \set_error_handler(
+                function (int $errno = 0, string $errstr = '', string $errfile = '', int $errline = -1): bool {
                 // If error is suppressed with @, don't throw an exception
                 if (\error_reporting() === 0) {
                     return false;
                 }
                 throw new Exception($errstr, $errno, null, $errfile, $errline);
             }
-        );
+            );
 
-        $packages = [];
+            $packages = [];
 
-        $this->eventHandler?->onStart();
-        $this->prepareFiles();
-        while (true) {
-            $this->runInternal();
-            $packages += $this->graph->getPackages();
-            $classStorage = $this->graph->getClassStorage();
-            if (!$classStorage) {
-                break;
+            $this->eventHandler?->onStart();
+            $this->prepareFiles();
+            while (true) {
+                $this->runInternal();
+                $packages += $this->graph->getPackages();
+                $classStorage = $this->graph->getClassStorage();
+                if (!$classStorage) {
+                    break;
+                }
+                [$plugins, $this->files] = $classStorage->finish($this->iteration);
+                \var_dump($plugins);
+                unset($classStorage);
+                if (!$plugins || !$this->files) {
+                    break;
+                }
+                $this->input = $this->output;
+                $this->composerPaths = [];
+                $this->setPlugins($plugins);
             }
-            [$plugins, $this->files] = $classStorage->finish();
-            unset($classStorage);
-            if (!$plugins || !$this->files) {
-                break;
-            }
-            $this->input = $this->output;
-            $this->composerPaths = [];
-            $this->setPlugins($plugins);
+            $this->eventHandler?->onEnd();
+
+            \restore_error_handler();
+
+            return $packages;
+        } finally {
+            $this->iteration--;
         }
-        $this->eventHandler?->onEnd();
-
-        \restore_error_handler();
-
-        return $packages;
     }
     /**
      * Run phabel (internal function).

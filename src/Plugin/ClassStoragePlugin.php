@@ -272,7 +272,7 @@ final class ClassStoragePlugin extends Plugin
      *
      * @return array{0: array, 1: array<string, string>} Config to pass to new Traverser instance
      */
-    public function finish(): array
+    public function finish(int $iteration): array
     {
         foreach (\get_declared_classes() as $class) {
             $class = new ReflectionClass($class);
@@ -369,10 +369,12 @@ final class ClassStoragePlugin extends Plugin
         }
         $storage = new ClassStorage($this);
         $processedAny = $this->hasNamed;
+        $innerIteration = 0;
         do {
+            $innerIteration++;
             $processed = false;
             foreach ($this->finalPlugins as $name => $_) {
-                $processed = $name::processClassGraph($storage) || $processed;
+                $processed = $name::processClassGraph($storage, $iteration, $innerIteration) || $processed;
             }
             $processedAny = $processed || $processedAny;
         } while ($processed);

@@ -7,7 +7,6 @@ use Phabel\Plugin\ClassStoragePlugin;
 use Phabel\Plugin\ConstantResolver;
 use Phabel\PluginGraph\CircularException;
 use Phabel\Tools;
-use PhpParser\Node\Const_;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Stmt\Class_ as StmtClass_;
 use PhpParser\Node\Stmt\ClassConst;
@@ -39,11 +38,17 @@ class Builder
     private array $abstractMethods = [];
 
     /**
-     * Constant list
+     * Constant list.
      *
      * @var array<string, Expr>
      */
     public array $constants = [];
+    /**
+     * Constant list.
+     *
+     * @var array<string, mixed>
+     */
+    public array $constantsResolved = [];
 
     /**
      * Extended classes/interfaces.
@@ -222,9 +227,8 @@ class Builder
         }
         foreach ($this->constants as $name => $constant) {
             try {
-                $this->constants[$name] = ConstantResolver::resolve($constant, $this->name, $plugin);
+                $this->constantsResolved[$name] = ConstantResolver::resolve($constant, $this->name, $plugin);
             } catch (\Throwable) {
-                unset($this->constants[$name]);
             }
         }
         $this->resolving = false;
@@ -245,7 +249,7 @@ class Builder
         }
         if (!isset($this->storage)) {
             $this->storage = new Storage;
-            $this->storage->build($this->name, $this->methods, $this->abstractMethods, $this->constants, $this->extends);
+            $this->storage->build($this->name, $this->methods, $this->abstractMethods, $this->constantsResolved, $this->extends);
         }
         return $this->storage;
     }
