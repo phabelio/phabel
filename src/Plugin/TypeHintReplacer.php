@@ -430,42 +430,32 @@ class TypeHintReplacer extends Plugin
             }
         }
 
-        $rootCondition = null;
+        $splitConditions = [];
         $currentConditions = [];
         foreach ($conditions as $condition) {
             if (\is_array($condition)) {
-                [$conditionStrict] = $condition;
+                [$conditionStrict, $conditionsLoose, $castLoose] = $condition;
                 $currentConditions []= $conditionStrict;
+                $conditionsLoose = new BooleanNot($conditionsLoose);
+                $splitConditions []= fn (Node ...$stmts): If_ => new If_(
+                    $conditionsLoose,
+                    [
+                        'stmts' => $stmts,
+                        'else' => new Else_([
+                            new Expression(new Assign($var, new $castLoose($var))),
+                        ]),
+                    ]
+                );
             } else {
                 $currentConditions []= $condition;
             }
         }
         if ($currentConditions) {
             $currentConditions = $this->reduceConditions($currentConditions);
-            $rootCondition = fn (Node ...$stmts): If_ => new If_(
+            $splitConditions []= fn (Node ...$stmts): If_ => new If_(
                 $currentConditions,
                 ['stmts' => $stmts]
             );
-        }
-        $splitConditions = [];
-        foreach ($conditions as $condition) {
-            if (!\is_array($condition)) {
-                continue;
-            }
-            [, $conditionsLoose, $castLoose] = $condition;
-            $conditionsLoose = new BooleanNot($conditionsLoose);
-            $splitConditions []= fn (Node ...$stmts): If_ => new If_(
-                $conditionsLoose,
-                [
-                    'stmts' => $stmts,
-                    'else' => new Else_([
-                        new Expression(new Assign($var, new $castLoose($var))),
-                    ]),
-                ]
-            );
-        }
-        if ($rootCondition) {
-            $splitConditions []= $rootCondition;
         }
         return [
             $stringType,
