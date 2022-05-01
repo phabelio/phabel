@@ -255,7 +255,7 @@ class TypeHintReplacer extends Plugin
                 $type1 = $type1->toLowerString();
                 $type2 = $type2->toLowerString();
                 if (isset(self::PRECEDENCE[$type1]) && isset(self::PRECEDENCE[$type2])) {
-                    return self::PRECEDENCE[$type1] > self::PRECEDENCE[$type2];
+                    return self::PRECEDENCE[$type1] <=> self::PRECEDENCE[$type2];
                 }
             }
             return 0;
