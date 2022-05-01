@@ -22,6 +22,7 @@ class TypeHintTest extends TestCase
         $this->assertEquals(123, $this->union(1.0, 123));
         $this->assertEquals($this, $this->union(1.0, $this));
         $this->assertEquals($this, $this->union($this, null));
+        $this->assertEquals('a', $this->test('a', 'HTML-ENTITIES', 'UTF-8'));
     }
 
     public function variadic(int ...$test): int
@@ -44,5 +45,21 @@ class TypeHintTest extends TestCase
 
     public function generatorPony(): \Generator
     {
+    }
+
+    public function encoding(array|string $string, string $to_encoding, array|string|null $from_encoding = null): array|string|bool
+    {
+        $from_encoding ??= \mb_internal_encoding();
+        if (\is_array($string)) {
+            foreach ($string as $k => $s) {
+                if (\is_array($from_encoding)) {
+                    $string[$k] = test($s, $to_encoding, $from_encoding[$k] ?? null);
+                } else {
+                    $string[$k] = test($s, $to_encoding, $from_encoding);
+                }
+            }
+            return $string;
+        }
+        return \mb_convert_encoding($string, $to_encoding, $from_encoding);
     }
 }

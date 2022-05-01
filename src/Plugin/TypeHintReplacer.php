@@ -79,6 +79,13 @@ class TypeHintReplacer extends Plugin
     private const VOID_RETURN = 1;
     private const TYPE_RETURN = 2;
 
+    private const PRECEDENCE = [
+        'string' => 3,
+        'float' => 2,
+        'int' => 1,
+        'bool' => 0,
+    ];
+
     /**
      * Stack.
      *
@@ -243,6 +250,16 @@ class TypeHintReplacer extends Plugin
         $stringType = '';
         /** @var array<string, true> */
         $phpdocType = [];
+        \usort($types, function ($type1, $type2) {
+            if ($type1 instanceof Identifier && $type2 instanceof Identifier) {
+                $type1 = $type1->toLowerString();
+                $type2 = $type2->toLowerString();
+                if (isset(self::PRECEDENCE[$type1]) && isset(self::PRECEDENCE[$type2])) {
+                    return self::PRECEDENCE[$type1] > self::PRECEDENCE[$type2];
+                }
+            }
+            return 0;
+        });
         foreach ($types as $type) {
             if ($type instanceof Identifier) {
                 $typeName = $type->toLowerString();
@@ -413,46 +430,42 @@ class TypeHintReplacer extends Plugin
             }
         }
 
-        $splitConditions = [];
+        $rootCondition = null;
         $currentConditions = [];
         foreach ($conditions as $condition) {
             if (\is_array($condition)) {
-                if ($currentConditions) {
-                    $currentConditions = $this->reduceConditions($currentConditions);
-                    $splitConditions []= fn (Node ...$stmts): If_ => new If_(
-                        $currentConditions,
-                        ['stmts' => $stmts]
-                    );
-                }
-                $currentConditions = [];
-
-                [$conditionsStrict, $conditionsLoose, $castLoose] = $condition;
-                $conditionsStrict = new BooleanNot($conditionsStrict);
-                $conditionsLoose = new BooleanNot($conditionsLoose);
-                $splitConditions []= fn (Node ...$stmts): If_ => new If_(
-                    $conditionsStrict,
-                    ['stmts' => [
-                        new If_(
-                            $conditionsLoose,
-                            [
-                                'stmts' => $stmts,
-                                'else' => new Else_([
-                                    new Expression(new Assign($var, new $castLoose($var))),
-                                ]),
-                            ]
-                        )
-                    ]]
-                );
+                [$conditionStrict] = $condition;
+                $currentConditions []= $conditionStrict;
             } else {
                 $currentConditions []= $condition;
             }
         }
         if ($currentConditions) {
             $currentConditions = $this->reduceConditions($currentConditions);
-            $splitConditions []= fn (Node ...$stmts): If_ => new If_(
+            $rootCondition = fn (Node ...$stmts): If_ => new If_(
                 $currentConditions,
                 ['stmts' => $stmts]
             );
+        }
+        $splitConditions = [];
+        foreach ($conditions as $condition) {
+            if (!\is_array($condition)) {
+                continue;
+            }
+            [, $conditionsLoose, $castLoose] = $condition;
+            $conditionsLoose = new BooleanNot($conditionsLoose);
+            $splitConditions []= fn (Node ...$stmts): If_ => new If_(
+                $conditionsLoose,
+                [
+                    'stmts' => $stmts,
+                    'else' => new Else_([
+                        new Expression(new Assign($var, new $castLoose($var))),
+                    ]),
+                ]
+            );
+        }
+        if ($rootCondition) {
+            $splitConditions []= $rootCondition;
         }
         return [
             $stringType,
