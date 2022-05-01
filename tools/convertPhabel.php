@@ -8,8 +8,10 @@ if (!\file_exists('composer.json')) {
     echo "This script must be run from package root" . PHP_EOL;
     die(1);
 }
+
 require 'vendor/autoload.php';
 require 'ci/functions.php';
+
 if ($argc < 2) {
     $help = <<<EOF
 Usage: {$argv[0]} target [ dry ]
