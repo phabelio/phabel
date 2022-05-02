@@ -22,7 +22,7 @@ class TypeHintTest extends TestCase
         $this->assertEquals(123, $this->union(1.0, 123));
         $this->assertEquals($this, $this->union(1.0, $this));
         $this->assertEquals($this, $this->union($this, null));
-        $this->assertEquals('a', $this->test('a', 'HTML-ENTITIES', 'UTF-8'));
+        $this->assertEquals('a', $this->encoding('a', 'HTML-ENTITIES', 'UTF-8'));
     }
 
     public function variadic(int ...$test): int
@@ -53,9 +53,9 @@ class TypeHintTest extends TestCase
         if (\is_array($string)) {
             foreach ($string as $k => $s) {
                 if (\is_array($from_encoding)) {
-                    $string[$k] = test($s, $to_encoding, $from_encoding[$k] ?? null);
+                    $string[$k] = $this->encoding($s, $to_encoding, $from_encoding[$k] ?? null);
                 } else {
-                    $string[$k] = test($s, $to_encoding, $from_encoding);
+                    $string[$k] = $this->encoding($s, $to_encoding, $from_encoding);
                 }
             }
             return $string;
