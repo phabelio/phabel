@@ -3,7 +3,6 @@
 namespace Phabel;
 
 use ReflectionMethod;
-
 /**
  * Caches plugin information.
  *
@@ -31,7 +30,7 @@ class PluginCache
      *
      * @return void
      */
-    private static function cacheMethods(string $plugin): void
+    private static function cacheMethods(string $plugin) : void
     {
         if (!isset(self::$enterMethods[$plugin])) {
             self::$enterMethods[$plugin] = [];
@@ -58,7 +57,7 @@ class PluginCache
      *
      * @return boolean
      */
-    public static function canBeRequired(string $plugin): bool
+    public static function canBeRequired(string $plugin) : bool
     {
         self::cacheMethods($plugin);
         return empty(self::$leaveMethods[$plugin]);
@@ -70,7 +69,7 @@ class PluginCache
      *
      * @return boolean
      */
-    public static function isEmpty(string $plugin): bool
+    public static function isEmpty(string $plugin) : bool
     {
         self::cacheMethods($plugin);
         return empty(self::$leaveMethods[$plugin]) && empty(self::$enterMethods[$plugin]);
@@ -82,7 +81,7 @@ class PluginCache
      *
      * @return array<string, string[]>
      */
-    public static function enterMethods(string $plugin): array
+    public static function enterMethods(string $plugin) : array
     {
         self::cacheMethods($plugin);
         return self::$enterMethods[$plugin];
@@ -94,7 +93,7 @@ class PluginCache
      *
      * @return array<string, string[]>
      */
-    public static function leaveMethods(string $plugin): array
+    public static function leaveMethods(string $plugin) : array
     {
         self::cacheMethods($plugin);
         return self::$leaveMethods[$plugin];
@@ -108,7 +107,7 @@ class PluginCache
      * @return array<string, array>
      * @psalm-return array<class-string<PluginInterface>, array>
      */
-    public static function previous(string $plugin, array $config): array
+    public static function previous(string $plugin, array $config) : array
     {
         $pluginConfig = $plugin . \json_encode($config);
         /** @var array<class-string<PluginInterface>, array<class-string<PluginInterface>, array>> */
@@ -127,7 +126,7 @@ class PluginCache
      * @return array<string, array>
      * @psalm-return array<class-string<PluginInterface>, array>
      */
-    public static function next(string $plugin, array $config): array
+    public static function next(string $plugin, array $config) : array
     {
         $pluginConfig = $plugin . \json_encode($config);
         /** @var array<class-string<PluginInterface>, array<class-string<PluginInterface>, array>> */
@@ -146,7 +145,7 @@ class PluginCache
      * @return array<string, array>
      * @psalm-return array<class-string<PluginInterface>, array>
      */
-    public static function withPrevious(string $plugin, array $config): array
+    public static function withPrevious(string $plugin, array $config) : array
     {
         $pluginConfig = $plugin . \json_encode($config);
         /** @var array<class-string<PluginInterface>, array<class-string<PluginInterface>, array>> */
@@ -165,7 +164,7 @@ class PluginCache
      * @return array<string, array>
      * @psalm-return array<class-string<PluginInterface>, array>
      */
-    public static function withNext(string $plugin, array $config): array
+    public static function withNext(string $plugin, array $config) : array
     {
         $pluginConfig = $plugin . \json_encode($config);
         /** @var array<class-string<PluginInterface>, array<class-string<PluginInterface>, array>> */
@@ -183,7 +182,7 @@ class PluginCache
      * @return array<string, array>
      * @psalm-return array<class-string<PluginInterface>, array>
      */
-    private static function simplify(array $requirements): array
+    private static function simplify(array $requirements) : array
     {
         return isset($requirements[0]) ? \array_fill_keys($requirements, []) : $requirements;
     }
