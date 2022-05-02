@@ -7,7 +7,6 @@ use Phabel\Traverser;
 
 require_once 'vendor/autoload.php';
 
-
 `rm -rf coverage`;
 
 $packages = [];
