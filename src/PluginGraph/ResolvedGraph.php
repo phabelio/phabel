@@ -31,7 +31,6 @@ final class ResolvedGraph
      * Class storage.
      */
     private ?ClassStoragePlugin $classStorage = null;
-
     /**
      * Constructor.
      *
@@ -40,20 +39,14 @@ final class ResolvedGraph
      */
     public function __construct(SplQueue $plugins, array $packages = [])
     {
-        $this->packages = \array_map(
-            fn (array $constraints): string => \implode(':', \array_unique($constraints)),
-            $packages
-        );
-        $this->plugins = new SplQueue;
+        $this->packages = \array_map(fn (array $constraints): string => \implode(':', \array_unique($constraints)), $packages);
+        $this->plugins = new SplQueue();
         foreach ($plugins as $queue) {
-            $newQueue = new SplQueue;
+            $newQueue = new SplQueue();
             foreach ($queue as $plugin) {
                 if ($plugin instanceof ClassStoragePlugin) {
                     if ($this->classStorage) {
-                        $config = $this->classStorage->mergeConfigs(
-                            $this->classStorage->getConfigArray(),
-                            $plugin->getConfigArray()
-                        );
+                        $config = $this->classStorage->mergeConfigs($this->classStorage->getConfigArray(), $plugin->getConfigArray());
                         if (\count($config) !== 1) {
                             throw new Exception('Could not merge class storage config!');
                         }
@@ -79,7 +72,6 @@ final class ResolvedGraph
     {
         return $this->plugins;
     }
-
     /**
      * Get packages.
      *
@@ -90,7 +82,6 @@ final class ResolvedGraph
     {
         return $this->packages;
     }
-
     /**
      * Get class storage.
      *
@@ -100,7 +91,6 @@ final class ResolvedGraph
     {
         return $this->classStorage;
     }
-
     /**
      * Returns graph debug information.
      *
@@ -112,9 +102,10 @@ final class ResolvedGraph
         foreach ($this->plugins ?? [] as $queue) {
             $cur = [];
             foreach ($queue as $plugin) {
-                $cur[] = \basename(\str_replace('\\', '/', \get_class($plugin))); //[\get_class($plugin), $plugin->getConfigArray()];
+                $cur[] = \basename(\str_replace('\\', '/', \get_class($plugin)));
+                //[\get_class($plugin), $plugin->getConfigArray()];
             }
-            $res []= $cur;
+            $res[] = $cur;
         }
         return $res;
     }
