@@ -5,10 +5,9 @@ namespace Phabel\Target\Php80\ConstantReplacer;
 use Phabel\ClassStorage;
 use Phabel\ClassStorageProvider;
 use Phabel\Tools;
-use PhpParser\Node\Expr\ClassConstFetch;
-use PhpParser\Node\Param;
-use PhpParser\Node\Stmt\ClassConst;
-
+use PhabelVendor\PhpParser\Node\Expr\ClassConstFetch;
+use PhabelVendor\PhpParser\Node\Param;
+use PhabelVendor\PhpParser\Node\Stmt\ClassConst;
 /**
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT
@@ -18,20 +17,20 @@ class ConstantReplacer extends ClassStorageProvider
     /**
      *
      */
-    public static function processClassGraph(ClassStorage $storage, int $iteration, int $innerIteration): bool
+    public static function processClassGraph(ClassStorage $storage, int $iteration, int $innerIteration) : bool
     {
         return $iteration === 1 && $innerIteration === 1;
     }
     /**
      * @var bool $inParam
      */
-    private $inParam = false;
+    private $inParam = \false;
     /**
      *
      */
     public function enterParam(Param $param)
     {
-        $this->inParam = true;
+        $this->inParam = \true;
     }
     /**
      *
@@ -45,7 +44,7 @@ class ConstantReplacer extends ClassStorageProvider
                 // Ignore errors caused by constant lookups
             }
         }
-        $this->inParam = false;
+        $this->inParam = \false;
     }
     /**
      *
