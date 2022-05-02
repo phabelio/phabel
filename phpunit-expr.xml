@@ -23,8 +23,6 @@
       <directory phpVersion="7.3">testsGenerated/Target73</directory>
       <directory phpVersion="7.2">testsGenerated/Target72</directory>
       <directory phpVersion="7.1">testsGenerated/Target71</directory>
-      <directory phpVersion="7.0">testsGenerated/Target70</directory>
-      <directory phpVersion="5.6">testsGenerated/Target56</directory>
 
 
       <directory phpVersion="8.0">testsGenerated/Target1080</directory>
@@ -32,8 +30,6 @@
       <directory phpVersion="7.3">testsGenerated/Target1073</directory>
       <directory phpVersion="7.2">testsGenerated/Target1072</directory>
       <directory phpVersion="7.1">testsGenerated/Target1071</directory>
-      <directory phpVersion="7.0">testsGenerated/Target1070</directory>
-      <directory phpVersion="5.6">testsGenerated/Target1056</directory>
     </testsuite>
   </testsuites>
 </phpunit>

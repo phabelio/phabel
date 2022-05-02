@@ -109,7 +109,7 @@ final class ResolvedGraph
     public function __debugInfo(): array
     {
         $res = [];
-        foreach ($this->plugins as $queue) {
+        foreach ($this->plugins ?? [] as $queue) {
             $cur = [];
             foreach ($queue as $plugin) {
                 $cur[] = \basename(\str_replace('\\', '/', \get_class($plugin))); //[\get_class($plugin), $plugin->getConfigArray()];
