@@ -12,10 +12,10 @@ jobs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ssh-key: ${{ secrets.DEPLOY_KEY }}
-      
+          fetch-depth: 0
       - name: Setup PHP
         run: |
           echo "$HOME/.local/php/8.0" >> $GITHUB_PATH
@@ -34,7 +34,7 @@ jobs:
       PHP_CS_FIXER_IGNORE_ENV: 1
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ssh-key: ${{ secrets.DEPLOY_KEY }}
 

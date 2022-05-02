@@ -16,6 +16,7 @@ if (\preg_match('/[(]tag ([^)]+)[)]/', $message, $matches)) {
     $tag = \explode('.', $tag);
     $tag[\count($tag)-1]++;
     $tag = \implode('.', $tag);
+    echo "Tagging $tag".PHP_EOL;
 }
 
 $doBuild = true;
