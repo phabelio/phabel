@@ -4,16 +4,15 @@ namespace Phabel\Plugin;
 
 use Phabel\Context;
 use Phabel\Plugin;
-use PhpParser\Node;
-use PhpParser\Node\Expr;
-use PhpParser\Node\Expr\Assign;
-use PhpParser\Node\Expr\BinaryOp\BooleanOr;
-use PhpParser\Node\Expr\Instanceof_;
-use PhpParser\Node\Expr\New_;
-use PhpParser\Node\Expr\Ternary;
-use PhpParser\Node\Scalar;
-use PhpParser\NodeFinder;
-
+use PhabelVendor\PhpParser\Node;
+use PhabelVendor\PhpParser\Node\Expr;
+use PhabelVendor\PhpParser\Node\Expr\Assign;
+use PhabelVendor\PhpParser\Node\Expr\BinaryOp\BooleanOr;
+use PhabelVendor\PhpParser\Node\Expr\Instanceof_;
+use PhabelVendor\PhpParser\Node\Expr\New_;
+use PhabelVendor\PhpParser\Node\Expr\Ternary;
+use PhabelVendor\PhpParser\Node\Scalar;
+use PhabelVendor\PhpParser\NodeFinder;
 /**
  * Fix certain new expressions.
  *
@@ -35,16 +34,16 @@ class NewFixer extends Plugin
     /**
      *
      */
-    private function isParenthesised(Node $node): bool
+    private function isParenthesised(Node $node) : bool
     {
         return !($node instanceof Expr\Variable || $node instanceof Node\Name || $node instanceof Expr\ArrayDimFetch || $node instanceof Expr\PropertyFetch || $node instanceof Expr\NullsafePropertyFetch || $node instanceof Expr\StaticPropertyFetch || $node instanceof Expr\Array_ || $node instanceof Scalar\String_ || $node instanceof Expr\ConstFetch || $node instanceof Expr\ClassConstFetch);
     }
     /**
      *
      */
-    private function hasParenthesised(Node $node): bool
+    private function hasParenthesised(Node $node) : bool
     {
-        return $node instanceof Expr && $this->finder->findFirst($node, function (Node $node): bool {
+        return $node instanceof Expr && $this->finder->findFirst($node, function (Node $node) : bool {
             return $this->isParenthesised($node);
         }) !== null;
     }
@@ -55,7 +54,7 @@ class NewFixer extends Plugin
     {
         if ($this->hasParenthesised($new->class)) {
             $valueCopy = $new->class;
-            return new Ternary(new BooleanOr(new Assign($new->class = $context->getVariable(), $valueCopy), self::fromLiteral(true)), $new, self::fromLiteral(false));
+            return new Ternary(new BooleanOr(new Assign($new->class = $context->getVariable(), $valueCopy), self::fromLiteral(\true)), $new, self::fromLiteral(\false));
         }
     }
     /**
@@ -75,7 +74,7 @@ class NewFixer extends Plugin
      *
      * @return boolean
      */
-    public static function instanceOf($a, $b): bool
+    public static function instanceOf($a, $b) : bool
     {
         return $a instanceof $b;
     }

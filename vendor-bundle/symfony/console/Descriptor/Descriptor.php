@@ -1,0 +1,88 @@
+<?php
+
+/*
+ * This file is part of the Symfony package.
+ *
+ * (c) Fabien Potencier <fabien@symfony.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+namespace PhabelVendor\Symfony\Component\Console\Descriptor;
+
+use PhabelVendor\Symfony\Component\Console\Application;
+use PhabelVendor\Symfony\Component\Console\Command\Command;
+use PhabelVendor\Symfony\Component\Console\Exception\InvalidArgumentException;
+use PhabelVendor\Symfony\Component\Console\Input\InputArgument;
+use PhabelVendor\Symfony\Component\Console\Input\InputDefinition;
+use PhabelVendor\Symfony\Component\Console\Input\InputOption;
+use PhabelVendor\Symfony\Component\Console\Output\OutputInterface;
+/**
+ * @author Jean-François Simon <jeanfrancois.simon@sensiolabs.com>
+ *
+ * @internal
+ */
+abstract class Descriptor implements DescriptorInterface
+{
+    /**
+     * @var OutputInterface
+     */
+    protected $output;
+    /**
+     * {@inheritdoc}
+     * @param object $object
+     */
+    public function describe(OutputInterface $output, $object, array $options = array())
+    {
+        if (!\Phabel\Target\Php72\Polyfill::is_object($object)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #2 ($object) must be of type object, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($object) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        $this->output = $output;
+        switch (\true) {
+            case $object instanceof InputArgument:
+                $this->describeInputArgument($object, $options);
+                break;
+            case $object instanceof InputOption:
+                $this->describeInputOption($object, $options);
+                break;
+            case $object instanceof InputDefinition:
+                $this->describeInputDefinition($object, $options);
+                break;
+            case $object instanceof Command:
+                $this->describeCommand($object, $options);
+                break;
+            case $object instanceof Application:
+                $this->describeApplication($object, $options);
+                break;
+            default:
+                throw new InvalidArgumentException(\sprintf('Object of type "%s" is not describable.', \get_debug_type($object)));
+        }
+    }
+    /**
+     * Writes content to output.
+     */
+    protected function write(string $content, bool $decorated = \false)
+    {
+        $this->output->write($content, \false, $decorated ? OutputInterface::OUTPUT_NORMAL : OutputInterface::OUTPUT_RAW);
+    }
+    /**
+     * Describes an InputArgument instance.
+     */
+    protected abstract function describeInputArgument(InputArgument $argument, array $options = array());
+    /**
+     * Describes an InputOption instance.
+     */
+    protected abstract function describeInputOption(InputOption $option, array $options = array());
+    /**
+     * Describes an InputDefinition instance.
+     */
+    protected abstract function describeInputDefinition(InputDefinition $definition, array $options = array());
+    /**
+     * Describes a Command instance.
+     */
+    protected abstract function describeCommand(Command $command, array $options = array());
+    /**
+     * Describes an Application instance.
+     */
+    protected abstract function describeApplication(Application $application, array $options = array());
+}
