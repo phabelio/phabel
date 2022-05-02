@@ -21,25 +21,25 @@ class GraphInternal
      *
      * @var array<class-string<PluginInterface>, array<string, Node>>
      */
-    private array $plugins = [];
+    private $plugins = [];
     /**
      * Package contexts.
      *
      * @var PackageContext[]
      */
-    private array $packageContexts = [];
+    private $packageContexts = [];
     /**
      * Stores list of Nodes that are not required by any other node.
      *
      * @var SplObjectStorage<Node, null>
      */
-    private SplObjectStorage $unlinkedNodes;
+    private $unlinkedNodes;
     /**
      * Stores list of Nodes that weren't yet processed.
      *
      * @var SplObjectStorage<Node, null>
      */
-    public SplObjectStorage $unprocessedNode;
+    public $unprocessedNode;
     /**
      * Constructor.
      */
@@ -60,9 +60,9 @@ class GraphInternal
     /**
      * Add plugin.
      *
-     * @param string         $plugin Plugin to add
-     * @param array          $config Plugin configuration
-     * @param PackageContext $ctx    Package context
+     * @param string $plugin Plugin to add
+     * @param array $config Plugin configuration
+     * @param PackageContext $ctx Package context
      *
      * @psalm-param class-string<PluginInterface> $plugin Plugin to add
      *
@@ -70,14 +70,16 @@ class GraphInternal
      */
     public function addPlugin(string $plugin, array $config, PackageContext $ctx): array
     {
-        return \array_map(fn (array $config): Node => $this->addPluginInternal($plugin, $config, $ctx), $plugin::splitConfig($config));
+        return \array_map(function (array $config) use ($plugin, $ctx): Node {
+            return $this->addPluginInternal($plugin, $config, $ctx);
+        }, $plugin::splitConfig($config));
     }
     /**
      * Add plugin.
      *
-     * @param string         $plugin Plugin to add
-     * @param array          $config Plugin configuration
-     * @param PackageContext $ctx    Package context
+     * @param string $plugin Plugin to add
+     * @param array $config Plugin configuration
+     * @param PackageContext $ctx Package context
      *
      * @psalm-param class-string<PluginInterface> $plugin Plugin name
      */

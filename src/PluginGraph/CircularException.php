@@ -17,12 +17,12 @@ class CircularException extends \Exception
      *
      * @var class-string<PluginInterface>[]
      */
-    private array $plugins = [];
+    private $plugins = [];
     /**
      * Constructor.
      *
-     * @param class-string<PluginInterface>[] $plugins  Plugin array
-     * @param \Throwable                      $previous Previous exception
+     * @param class-string<PluginInterface>[] $plugins Plugin array
+     * @param \Throwable $previous Previous exception
      */
     public function __construct(array $plugins, \Throwable $previous = null)
     {

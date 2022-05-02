@@ -15,22 +15,25 @@ class ConstantResolver extends Plugin
 {
     /**
      * Singleton.
+     * @var self $singleton
      */
-    private static self $singleton;
+    private static $singleton;
     /**
      * Traverser.
+     * @var Traverser $singletonTraverser
      */
-    private static Traverser $singletonTraverser;
+    private static $singletonTraverser;
     /**
      * Class storage plugin.
+     * @var ClassStoragePlugin $plugin
      */
-    private ClassStoragePlugin $plugin;
+    private $plugin;
     /**
      * Current class name.
      *
      * @var class-string
      */
-    private string $currentClass;
+    private $currentClass;
     /**
      * Resolve constants.
      *
