@@ -235,7 +235,7 @@ class Context
     /**
      * Insert nodes before node.
      *
-     * @param Node $node      Node before which to insert nodes
+     * @param Node $node Node before which to insert nodes
      * @param Node ...$insert Nodes to insert
      * @return void
      */
@@ -306,7 +306,7 @@ class Context
     /**
      * Insert nodes after node.
      *
-     * @param Node $node     Node ater which to insert nodes
+     * @param Node $node Node ater which to insert nodes
      * @param Node ...$nodes Nodes to insert
      * @return void
      */

@@ -75,11 +75,21 @@ class Transformer
      *
      * @param IOInterface $io
      */
-    private function __construct(private IOInterface $io, private int $version)
+    private function __construct(IOInterface $io, int $version)
     {
+        $this->version = $version;
+        $this->io = $io;
         $this->versionParser = new VersionParser();
         $this->outputFormatter = Formatter::getFormatter();
     }
+    /**
+     *
+     */
+    private int $version;
+    /**
+     *
+     */
+    private IOInterface $io;
     /**
      * Set installation manager.
      *
@@ -129,12 +139,12 @@ class Transformer
      * Prepare package for phabel tree injection.
      *
      * @param PackageInterface $package Package
-     * @param string           $newName New package name
-     * @param int              $target  Target
+     * @param string $newName New package name
+     * @param int $target Target
      *
      * @return void
      */
-    public function preparePackage(PackageInterface &$package, string $newName, int $target = Php::TARGET_IGNORE): void
+    public function preparePackage(PackageInterface &$package, string $newName, int $target = 1000): void
     {
         /**
          * Phabel configuration of current package.
@@ -244,7 +254,7 @@ class Transformer
     public static function extractTarget(string $package): array
     {
         if (\str_starts_with($package, self::HEADER)) {
-            [$version, $package] = \explode(self::SEPARATOR, \substr($package, \strlen(self::HEADER)), 2);
+            [$version, $package] = \explode(self::SEPARATOR, \Phabel\Target\Php80\Polyfill::substr($package, \strlen(self::HEADER)), 2);
             return [$package, $version];
         }
         return [$package, Php::TARGET_IGNORE];
