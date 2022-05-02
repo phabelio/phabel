@@ -33,6 +33,9 @@ if (!$dry) {
     r("cp -a {$home} ../phabelConvertedRepo");
     r("rm -rf ../phabelConvertedRepo/vendor");
 }
+/**
+ *
+ */
 function commit(string $message)
 {
     r("cp -a ../phabelConvertedOutput/* ../phabelConvertedRepo");
@@ -135,41 +138,47 @@ PHP
         if ($name === 'phabel/phabel') {
             continue;
         }
-        $json['require'] += \array_filter($package['require'], fn ($s) => \str_starts_with($s, 'ext-'), ARRAY_FILTER_USE_KEY);
+        $json['require'] += \Phabel\Target\Php74\Polyfill::array_filter($package['require'], function ($s) {
+            return \str_starts_with($s, 'ext-');
+        }, ARRAY_FILTER_USE_KEY);
         foreach (['psr-4', 'psr-0'] as $type) {
             foreach ($package['autoload'][$type] ?? [] as $namespace => $path) {
                 $namespace = \str_starts_with($namespace, 'Symfony\\Polyfill') ? $namespace : "PhabelVendor\\{$namespace}";
                 $paths = \is_string($path) ? [$path] : $path;
-                $paths = \array_map(fn ($path) => ("vendor-bundle/{$name}/{$path}"), $paths);
+                $paths = \array_map(function ($path) use ($name) {
+                    return "vendor-bundle/{$name}/{$path}";
+                }, $paths);
                 $json['autoload'][$type][$namespace] = $paths;
             }
         }
         foreach (['classmap', 'files'] as $type) {
-            $json['autoload'][$type] = \array_merge($json['autoload'][$type] ?? [], \array_map(fn ($path) => ("vendor-bundle/{$name}/{$path}"), $package['autoload'][$type] ?? []));
+            $json['autoload'][$type] = \array_merge($json['autoload'][$type] ?? [], \array_map(function ($path) use ($name) {
+                return "vendor-bundle/{$name}/{$path}";
+            }, $package['autoload'][$type] ?? []));
         }
     }
     /*$it = new \RecursiveDirectoryIterator('src', \RecursiveDirectoryIterator::SKIP_DOTS);
-        $ri = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::SELF_FIRST);
+            $ri = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::SELF_FIRST);
 
-        $allUses = [];
-        foreach ($ri as $file) {
-            if ($file->getExtension() !== 'php') {
-                continue;
-            }
-            if (\preg_match_all('/^use (\S+?)(?: as \S+)?;$/m', \file_get_contents($file->getRealPath()), $uses)) {
-                foreach ($uses[1] as $class) {
-                    $allUses []= "\\$class::class";
+            $allUses = [];
+            foreach ($ri as $file) {
+                if ($file->getExtension() !== 'php') {
+                    continue;
+                }
+                if (\preg_match_all('/^use (\S+?)(?: as \S+)?;$/m', \file_get_contents($file->getRealPath()), $uses)) {
+                    foreach ($uses[1] as $class) {
+                        $allUses []= "\\$class::class";
+                    }
                 }
             }
-        }
 
-        $allUses = \implode(', ', $allUses);
-        $allUses = "array_map('class_exists', [$allUses]);";
+            $allUses = \implode(', ', $allUses);
+            $allUses = "array_map('class_exists', [$allUses]);";
 
-        \file_put_contents(
-            'src/guard.php',
-            \file_get_contents('src/guard.php').$allUses
-        );*/
+            \file_put_contents(
+                'src/guard.php',
+                \file_get_contents('src/guard.php').$allUses
+            );*/
     foreach ($json['autoload']['files'] ?? [] as $file) {
         $path = \dirname($file);
         $file = \basename($file);
