@@ -39,7 +39,7 @@ class ConstantResolver extends Plugin
     public static function resolve(Node $ast, string $currentClass, ClassStoragePlugin $plugin): Node
     {
         if (!isset(self::$singleton)) {
-            self::$singleton = new self;
+            self::$singleton = new self();
             self::$singletonTraverser = Traverser::fromPlugin(self::$singleton);
         }
         self::$singleton->plugin = $plugin;
@@ -59,7 +59,7 @@ class ConstantResolver extends Plugin
     public function enter(ClassConstFetch $var)
     {
         // Do not support constant resolution with static for now
-        if (((string) $var->class) === 'self') {
+        if ((string) $var->class === 'self') {
             $class = $this->currentClass;
         } else {
             $class = self::getFqdn($var->class);

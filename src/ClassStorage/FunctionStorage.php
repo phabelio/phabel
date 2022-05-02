@@ -16,7 +16,6 @@ class FunctionStorage
     public function __construct(private array $arguments, private bool $hasVariadic)
     {
     }
-
     /**
      * Get arguments.
      *
@@ -26,7 +25,6 @@ class FunctionStorage
     {
         return $this->arguments;
     }
-
     /**
      * Check if function is variadic.
      *

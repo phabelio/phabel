@@ -22,7 +22,6 @@ class Node
      * @var Plugins
      */
     public Plugins $plugin;
-
     /**
      * Original plugin name.
      *
@@ -35,7 +34,6 @@ class Node
      * @var class-string<PluginInterface>
      */
     private string $nameConcat;
-
     /**
      * Associated package context.
      *
@@ -48,43 +46,36 @@ class Node
      * @var SplObjectStorage<Node, null>
      */
     private SplObjectStorage $requires;
-
     /**
      * Nodes that this node extends.
      *
      * @var SplObjectStorage<Node, null>
      */
     private SplObjectStorage $extends;
-
     /**
      * Nodes that require this node.
      *
      * @var SplObjectStorage<Node, null>
      */
     private SplObjectStorage $requiredBy;
-
     /**
      * Nodes that extend this node.
      *
      * @var SplObjectStorage<Node, null>
      */
     private SplObjectStorage $extendedBy;
-
     /**
      * Graph instance.
      */
     private GraphInternal $graph;
-
     /**
      * Whether this node was visited when looking for circular requirements.
      */
     private bool $visitedCircular = false;
-
     /**
      * Whether this node can be required, or only extended.
      */
     private bool $canBeRequired = true;
-
     /**
      * Constructor.
      *
@@ -94,10 +85,10 @@ class Node
     {
         $this->packageContext = $ctx;
         $this->graph = $graph;
-        $this->requiredBy = new SplObjectStorage;
-        $this->extendedBy = new SplObjectStorage;
-        $this->requires = new SplObjectStorage;
-        $this->extends = new SplObjectStorage;
+        $this->requiredBy = new SplObjectStorage();
+        $this->extendedBy = new SplObjectStorage();
+        $this->requires = new SplObjectStorage();
+        $this->extends = new SplObjectStorage();
     }
     /**
      * Initialization function.
@@ -114,7 +105,6 @@ class Node
     {
         $this->name = $plugin;
         $this->plugin = new Plugins($plugin, $pluginConfig);
-
         $this->canBeRequired = PluginCache::canBeRequired($plugin);
         foreach (PluginCache::next($plugin, $pluginConfig) as $class => $config) {
             foreach ($this->graph->addPlugin($class, $config, $this->packageContext) as $node) {
@@ -136,10 +126,8 @@ class Node
                 $this->extend($node);
             }
         }
-
         return $this;
     }
-
     /**
      * Make node require another node.
      *
@@ -159,7 +147,6 @@ class Node
         }
         $this->requires->attach($node);
         $node->requiredBy->attach($this);
-
         $this->graph->linkNode($this);
     }
     /**
@@ -176,10 +163,8 @@ class Node
         }
         $this->extends->attach($node);
         $node->extendedBy->attach($this);
-
         $this->graph->linkNode($this);
     }
-
     /**
      * Merge node with another node.
      *
@@ -202,12 +187,11 @@ class Node
             $that->extend($this);
             $that->extends->detach($other);
         }
-        $other->requiredBy = new SplObjectStorage;
-        $other->extendedBy = new SplObjectStorage;
+        $other->requiredBy = new SplObjectStorage();
+        $other->extendedBy = new SplObjectStorage();
         $this->graph->unprocessedNode->detach($other);
         return $this;
     }
-
     /**
      * Look for circular references, while merging package contexts.
      *
@@ -218,7 +202,7 @@ class Node
         if ($this->visitedCircular) {
             $plugins = [$this->name];
             foreach (\debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, DEBUG_BACKTRACE_PROVIDE_OBJECT) as $frame) {
-                $plugins []= $frame['object']->name;
+                $plugins[] = $frame['object']->name;
                 if ($frame['object'] === $this) {
                     break;
                 }
@@ -226,16 +210,13 @@ class Node
             throw new CircularException($plugins);
         }
         $this->visitedCircular = true;
-
         foreach ($this->requiredBy as $that) {
             $this->packageContext->merge($that->circular()->packageContext);
         }
         foreach ($this->extendedBy as $that) {
             $this->packageContext->merge($that->circular()->packageContext);
         }
-
         $this->visitedCircular = false;
-
         return $this;
     }
     /**
@@ -246,18 +227,15 @@ class Node
     public function flatten(): array
     {
         /** @var SplQueue<PluginInterface> */
-        $initQueue = new SplQueue;
-
+        $initQueue = new SplQueue();
         /** @var SplQueue<SplQueue<PluginInterface>> */
-        $queue = new SplQueue;
+        $queue = new SplQueue();
         $queue->enqueue($initQueue);
-
         $packages = [];
         $this->flattenInternal($queue, $packages);
         if ($this->extendedBy->count() || $this->requiredBy->count()) {
             throw new Exception('Graph resolution has stalled');
         }
-
         return [$queue, $packages];
     }
     /**
@@ -275,7 +253,7 @@ class Node
         do {
             $processedAny = false;
             $prevNode = null;
-            $toDetach = new SplQueue;
+            $toDetach = new SplQueue();
             foreach ($this->extendedBy as $node) {
                 $node->extends->detach($this);
                 if (\count($node->requires) + \count($node->extends) === 0) {
@@ -291,9 +269,8 @@ class Node
                 $this->extendedBy->detach($node);
                 $this->graph->unprocessedNode->detach($node);
             }
-
             $prevNode = null;
-            $toDetach = new SplQueue;
+            $toDetach = new SplQueue();
             foreach ($this->requiredBy as $node) {
                 $node->requires->detach($this);
                 if (\count($node->requires) + \count($node->extends) === 0) {
@@ -309,8 +286,7 @@ class Node
                 $this->requiredBy->detach($node);
                 $this->graph->unprocessedNode->detach($node);
             }
-
-            $toDetach = new SplQueue;
+            $toDetach = new SplQueue();
             foreach ($this->extendedBy as $node) {
                 if (\count($node->extends) + \count($node->requires) === 0) {
                     $toDetach->enqueue($node);
@@ -321,13 +297,12 @@ class Node
             foreach ($toDetach as $node) {
                 $this->extendedBy->detach($node);
             }
-
-            $toDetach = new SplQueue;
+            $toDetach = new SplQueue();
             foreach ($this->requiredBy as $node) {
                 if (\count($node->extends) + \count($node->requires) === 0) {
                     $toDetach->enqueue($node);
                     if (!$queue->isEmpty()) {
-                        $queueOfQueues->enqueue(new SplQueue);
+                        $queueOfQueues->enqueue(new SplQueue());
                     }
                     $node->flattenInternal($queueOfQueues, $packages);
                     $processedAny = true;
@@ -338,7 +313,6 @@ class Node
             }
         } while ($processedAny);
     }
-
     /**
      * Add packages from package context.
      *
