@@ -18,7 +18,7 @@ if (\preg_match('/[(]tag ([^)]+)[)]/', $message, $matches)) {
 }
 $doBuild = true;
 $final = null;
-$tail = \substr($branch, -3);
+$tail = \Phabel\Target\Php80\Polyfill::substr($branch, -3);
 foreach ($php as $version) {
     $version = (string) $version;
     $final = $version[0] . "." . $version[1];

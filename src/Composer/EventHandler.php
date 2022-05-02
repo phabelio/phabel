@@ -24,27 +24,44 @@ class EventHandler extends PhabelEventHandler
      * @var null|(callable(int): ProgressBar)
      */
     private $getProgressBar = null;
-    private int $count = 0;
-    public function __construct(private $logger, ?callable $getProgressBar)
+    /**
+     * @var int $count
+     */
+    private $count = 0;
+    /**
+     *
+     */
+    public function __construct($logger, ?callable $getProgressBar)
     {
+        $this->logger = $logger;
         $this->outputFormatter = Formatter::getFormatter();
         $this->getProgressBar = $getProgressBar;
     }
+    private $logger;
+    /**
+     *
+     */
     public function onBeginPluginGraphResolution(): void
     {
         $this->logger->debug($this->outputFormatter->format("<phabel>Plugin graph resolution in progress...</phabel>"));
     }
+    /**
+     *
+     */
     public function onEndPluginGraphResolution(): void
     {
         $this->logger->debug($this->outputFormatter->format("<phabel>Finished plugin graph resolution!</phabel>"));
     }
+    /**
+     *
+     */
     private function startProgressBar(string $message, int $total, int $workers = 1): void
     {
         if ($this->getProgressBar) {
             try {
                 $this->progress = ($this->getProgressBar)($total);
                 $this->progress->setFormat($this->outputFormatter->format('<phabel>%message% <bold>%percent:3s%%</bold></phabel> (%current%/%max%)'));
-            } catch (\Throwable) {
+            } catch (\Throwable $phabel_b07d392ca2e462bd) {
             }
         }
         if ($this->progress) {
@@ -58,6 +75,9 @@ class EventHandler extends PhabelEventHandler
             $this->logger->debug($this->outputFormatter->format("<phabel>{$message}</phabel>"));
         }
     }
+    /**
+     *
+     */
     public function onBeginDirectoryTraversal(int $total, int $workers): void
     {
         if (!$this->count) {
@@ -69,9 +89,18 @@ class EventHandler extends PhabelEventHandler
         $this->count++;
         $this->startProgressBar($message, $total, $workers);
     }
-    public function onEndAstTraversal(string $file, int|\Throwable $iterationsOrError): void
+    /**
+     * @param (int | \Throwable) $iterationsOrError
+     */
+    public function onEndAstTraversal(string $file, $iterationsOrError): void
     {
-        $this->progress?->advance();
+        if (!(\is_int($iterationsOrError) || $iterationsOrError instanceof \Throwable)) {
+            if (!(\is_bool($iterationsOrError) || \is_numeric($iterationsOrError))) {
+                throw new \TypeError(__METHOD__ . '(): Argument #2 ($iterationsOrError) must be of type Throwable|int, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($iterationsOrError) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+            }
+            $iterationsOrError = (int) $iterationsOrError;
+        }
+        ($this->progress ?? \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->advance();
         if ($iterationsOrError instanceof Throwable) {
             $this->logger->error($this->outputFormatter->format(PHP_EOL . "<error>{$iterationsOrError->getMessage()}!</error>"));
             $this->logger->debug($this->outputFormatter->format("<error>{$iterationsOrError}</error>"));
@@ -79,27 +108,42 @@ class EventHandler extends PhabelEventHandler
             $this->logger->debug($this->outputFormatter->format("<phabel>Transpiled {$file} in {$iterationsOrError} iterations!</phabel>"));
         }
     }
+    /**
+     *
+     */
     public function onEndDirectoryTraversal(): void
     {
-        $this->progress?->finish();
+        ($this->progress ?? \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->finish();
         $this->logger->warning("");
     }
+    /**
+     *
+     */
     public function onBeginClassGraphMerge(int $count): void
     {
         $this->startProgressBar("Merging class graphs...", $count);
     }
+    /**
+     *
+     */
     public function onClassGraphMerged(): void
     {
-        $this->progress?->advance();
+        ($this->progress ?? \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->advance();
         $this->logger->debug($this->outputFormatter->format("<phabel>Merged class graph!</phabel>"));
     }
+    /**
+     *
+     */
     public function onEndClassGraphMerge(): void
     {
-        $this->progress?->finish();
+        ($this->progress ?? \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->finish();
     }
+    /**
+     *
+     */
     public function onEnd(): void
     {
-        $this->progress?->clear();
+        ($this->progress ?? \Phabel\Target\Php80\NullSafe\NullSafe::$singleton)->clear();
         $this->logger->warning($this->outputFormatter->format('<phabel>Done!</phabel>'));
     }
 }
