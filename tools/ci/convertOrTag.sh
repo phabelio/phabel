@@ -1,6 +1,9 @@
 #!/bin/sh -e
 
-export PATH="$HOME/.local/php/$PHABEL_TARGET:$PATH"
+if [ "$1" == "tag" ]; then
+    export PHABEL_TARGET=$(git rev-parse --abbrev-ref HEAD | sed 's/master-//g')
+    export PATH="$HOME/.local/php/$PHABEL_TARGET:$PATH"
+fi
 
 mkdir -p $HOME/.ssh
 ssh-keyscan -t rsa github.com >> $HOME/.ssh/known_hosts

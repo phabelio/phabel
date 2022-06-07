@@ -17,8 +17,6 @@ pipeline:
       branch: master-*
     secrets:
       - DEPLOY_KEY
-    environment:
-      - PHABEL_TARGET=${php}
       - PHABEL_PARALLEL=1
     commands:
       - tools/ci/convertOrTag.sh tag
