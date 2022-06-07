@@ -1,5 +1,8 @@
 #!/bin/bash -e
 
+export PHP_CS_FIXER_IGNORE_ENV=1
+export PHABEL_PARALLEL=1
+
 if [ "$1" == "tag" ]; then
     export PHABEL_TARGET=$(git rev-parse --abbrev-ref HEAD | sed 's/master-//g')
     export PATH="$HOME/.local/php/$PHABEL_TARGET:$PATH"

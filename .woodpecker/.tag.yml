@@ -17,6 +17,5 @@ pipeline:
       branch: master-*
     secrets:
       - DEPLOY_KEY
-      - PHABEL_PARALLEL=1
     commands:
       - tools/ci/convertOrTag.sh tag
