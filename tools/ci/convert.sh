@@ -29,7 +29,7 @@ export PATH="$HOME/.local/php/$PHABEL_TARGET:$PATH"
 
 git clean -ffdx
 git reset --hard
-git fetch master-$(echo $PHABEL_TARGET | sed 's/\.//g')
+git fetch origin master-$(echo $PHABEL_TARGET | sed 's/\.//g')
 git checkout master-$(echo $PHABEL_TARGET | sed 's/\.//g')
 
 run
