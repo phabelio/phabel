@@ -20,17 +20,18 @@ final class ResolvedGraph
      *
      * @psalm-var SplQueue<SplQueue<PluginInterface>>
      */
-    private SplQueue $plugins;
+    private $plugins;
     /**
      * Packages.
      *
      * @var array<string, string>
      */
-    private array $packages = [];
+    private $packages = [];
     /**
      * Class storage.
+     * @var (ClassStoragePlugin | null) $classStorage
      */
-    private ?ClassStoragePlugin $classStorage = null;
+    private $classStorage = null;
     /**
      * Constructor.
      *
@@ -39,7 +40,9 @@ final class ResolvedGraph
      */
     public function __construct(SplQueue $plugins, array $packages = [])
     {
-        $this->packages = \array_map(fn (array $constraints): string => \implode(':', \array_unique($constraints)), $packages);
+        $this->packages = \array_map(function (array $constraints): string {
+            return \implode(':', \array_unique($constraints));
+        }, $packages);
         $this->plugins = new SplQueue();
         foreach ($plugins as $queue) {
             $newQueue = new SplQueue();
