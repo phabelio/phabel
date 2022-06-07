@@ -6,8 +6,8 @@ mkdir -p $HOME/.ssh
 ssh-keyscan -t rsa github.com >> $HOME/.ssh/known_hosts
 echo "$DEPLOY_KEY" > $HOME/.ssh/id_rsa
 chmod 0600 $HOME/.ssh/id_rsa
-git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-git config --local user.name "Github Actions"
+git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+git config --global user.name "Github Actions"
 git remote rm origin
 git remote add origin git@github.com:phabelio/phabel.git
 
