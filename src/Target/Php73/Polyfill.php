@@ -15,7 +15,6 @@ class Polyfill extends Plugin
     // Skip apache_request_headers
     // Todo: setrawcookie
     // Todo: password_hash
-
     public static function getComposerRequires(array $config): array
     {
         if (\str_starts_with(Node::class, 'Phabel')) {
@@ -23,7 +22,6 @@ class Polyfill extends Plugin
         }
         return ['ralouphie/getallheaders' => '^3|^2'];
     }
-
     public static function array_push(array &$array, ...$values): int
     {
         if (\count($values) === 0) {
@@ -38,7 +36,6 @@ class Polyfill extends Plugin
         }
         return \array_unshift($array, ...$values);
     }
-
     /**
      * {@inheritDoc}
      */
