@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/bin/bash -e
 
 if [ "$1" == "tag" ]; then
     export PHABEL_TARGET=$(git rev-parse --abbrev-ref HEAD | sed 's/master-//g')
