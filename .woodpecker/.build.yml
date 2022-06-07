@@ -10,6 +10,7 @@ matrix:
 clone:
   git:
     when:
+      event: push
       branch: master
     image: woodpeckerci/plugin-git
     settings:
@@ -23,6 +24,7 @@ pipeline:
     group: build
     image: 192.168.69.1:5000/php-ci:latest
     when:
+      event: push
       branch: master
     secrets:
       - DEPLOY_KEY

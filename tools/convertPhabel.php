@@ -125,7 +125,7 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
 
         if (!$dry) {
             r("$home/vendor/bin/php-cs-fixer fix");
-            commit("phabel.io: transpile to {$target}");
+            commit("phabel.io: transpile to {$target} [CI SKIP]");
         }
     }
     \chdir($home);
