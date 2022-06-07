@@ -1,0 +1,33 @@
+matrix:
+  php:
+    - "8.1"
+    - "8.0"
+    - "7.4"
+    - "7.3"
+    - "7.2"
+    - "7.1"
+
+clone:
+  git:
+    when:
+      branch: master
+    image: woodpeckerci/plugin-git
+    settings:
+      depth: 1
+      lfs: false
+      recursive: false
+      tags: true
+
+pipeline:
+  build:
+    group: build
+    image: 192.168.69.1:5000/php-ci:latest
+    when:
+      branch: master
+    secrets:
+      - DEPLOY_KEY
+    environment:
+      - PHABEL_TARGET=${php}
+      - PHABEL_PARALLEL=1
+    commands:
+      - tools/ci/convertOrTag.sh convert

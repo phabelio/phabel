@@ -28,6 +28,14 @@ $dry = (bool) ($argv[2] ?? '');
 $branch = 'master';
 $tag = \getenv('shouldTag') ?: null;
 
+if ($tag) {
+    $tag = \preg_replace('/\.\d+$/', '', $tag);
+    $tag = \explode('.', $tag);
+    $tag[\count($tag)-1]++;
+    $tag = \implode('.', $tag);
+    echo "Tagging $tag".PHP_EOL;    
+}
+
 $home = \realpath(__DIR__.'/../');
 r("rm -rf ../phabelConvertedInput");
 \mkdir('../phabelConvertedInput');
