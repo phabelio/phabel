@@ -28,20 +28,15 @@ class DefineArrayReplacer extends Plugin
         if (!$node->name instanceof Name || $node->name->toString() != 'define') {
             return null;
         }
-
         $nameNode = $node->args[0]->value;
         $valueNode = $node->args[1]->value;
-
         if (!$valueNode instanceof Node\Expr\Array_) {
             return null;
         }
-
         if (!$context->parents->top() instanceof RootNode) {
             return self::callPoly('defineMe', ...$node->args);
         }
-
         $constNode = new Node\Const_($nameNode->value, $valueNode);
-
         return new Node\Stmt\Const_([$constNode]);
     }
     /**
@@ -55,6 +50,6 @@ class DefineArrayReplacer extends Plugin
     {
         $name = \preg_replace("/[^A-Za-z0-9_]/", '', $name);
         $value = \var_export($value, true);
-        eval("const $name = $value;");
+        eval("const {$name} = {$value};");
     }
 }
