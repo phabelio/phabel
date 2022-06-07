@@ -31,4 +31,4 @@ pipeline:
     environment:
       - PHABEL_TARGET=${php}
     commands:
-      - tools/ci/convertOrTag.sh convert
+      - tools/ci/convert.sh

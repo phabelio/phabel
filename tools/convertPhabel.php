@@ -26,15 +26,6 @@ EOF;
 $target = $argv[1];
 $dry = (bool) ($argv[2] ?? '');
 $branch = 'master';
-$tag = \getenv('shouldTag') ?: null;
-
-if ($tag) {
-    $tag = \preg_replace('/\.\d+$/', '', $tag);
-    $tag = \explode('.', $tag);
-    $tag[\count($tag)-1]++;
-    $tag = \implode('.', $tag);
-    echo "Tagging $tag".PHP_EOL;    
-}
 
 $home = \realpath(__DIR__.'/../');
 r("rm -rf ../phabelConvertedInput");
@@ -125,7 +116,7 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
 
         if (!$dry) {
             r("$home/vendor/bin/php-cs-fixer fix");
-            commit("phabel.io: transpile to {$target} [CI SKIP]");
+            commit("phabel.io: transpile to {$target}");
         }
     }
     \chdir($home);
@@ -252,11 +243,7 @@ foreach ($target === 'all' ? Php::VERSIONS : [$target] as $realTarget) {
 
     if (!$dry) {
         \chdir("../phabelConvertedRepo");
-        if ($tag) {
-            commit("phabel.io: add dependencies (tag $tag.$target)");
-        } else {
-            commit("phabel.io: add dependencies");
-        }
+        commit("phabel.io: add dependencies");
         r("git push -f origin " . \escapeshellarg("phabel_tmp:{$branch}-{$target}"));
         r("git checkout " . \escapeshellarg($branch));
         r("git branch -D phabel_tmp");
