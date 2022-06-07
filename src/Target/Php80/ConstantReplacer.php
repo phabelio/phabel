@@ -12,6 +12,9 @@ use Phabel\Target\Php80\ConstantReplacer\ConstantReplacer as T;
  */
 class ConstantReplacer extends Plugin
 {
+    /**
+     *
+     */
     public static function previous(array $config): array
     {
         return [ClassStoragePlugin::class => [T::class => $config]];

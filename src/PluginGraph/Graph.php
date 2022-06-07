@@ -40,9 +40,9 @@ class Graph
     /**
      * Add plugin.
      *
-     * @param string         $plugin Plugin to add
-     * @param array          $config Plugin configuration
-     * @param PackageContext $ctx    Package context
+     * @param string $plugin Plugin to add
+     * @param array $config Plugin configuration
+     * @param PackageContext $ctx Package context
      *
      * @psalm-param class-string<PluginInterface> $plugin Plugin name
      *

@@ -25,8 +25,8 @@ class SpaceshipOperatorReplacer extends Plugin
     /**
      * Spacesip operator.
      *
-     * @param integer|string|float $a A
-     * @param integer|string|float $b B
+     * @param (integer | string | float) $a A
+     * @param (integer | string | float) $b B
      *
      * @return integer
      */

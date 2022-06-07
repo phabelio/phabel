@@ -20,10 +20,16 @@ class ReGenerator extends Plugin
      * Custom traverser.
      */
     private Traverser $traverser;
+    /**
+     *
+     */
     public function __construct()
     {
         $this->traverser = Traverser::fromPlugin(new ReGeneratorInternal());
     }
+    /**
+     *
+     */
     public function enter(FunctionLike $function)
     {
         if (!$function->getAttribute(self::SHOULD_ATTRIBUTE, false)) {
@@ -31,6 +37,9 @@ class ReGenerator extends Plugin
         }
         $this->traverser->traverseAst($function);
     }
+    /**
+     *
+     */
     public static function previous(array $config): array
     {
         return [ArrowClosure::class];

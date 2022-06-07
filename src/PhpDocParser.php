@@ -15,9 +15,21 @@ use PHPStan\PhpDocParser\Parser\TypeParser;
  */
 class PhpDocParser
 {
+    /**
+     *
+     */
     private Lexer $lexer;
+    /**
+     *
+     */
     private PhpStanDocParser $parser;
+    /**
+     *
+     */
     private TypeParser $typeParser;
+    /**
+     *
+     */
     public function __construct()
     {
         $constParser = new ConstExprParser();
@@ -28,8 +40,8 @@ class PhpDocParser
     /**
      * Parse a phpdoc.
      *
-     * @param string|null $phpdoc
-     * @return PhpDocNode|null
+     * @param (string | null) $phpdoc
+     * @return (PhpDocNode | null)
      */
     public function parsePhpDoc(?string $phpdoc): ?PhpDocNode
     {

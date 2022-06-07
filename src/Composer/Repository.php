@@ -10,6 +10,9 @@ use Composer\Package\PackageInterface;
  */
 trait Repository
 {
+    /**
+     *
+     */
     private Transformer $phabelTransformer;
     /**
      * TODO v3 should make this private once we can drop PHP 5.3 support.
@@ -75,10 +78,10 @@ trait Repository
     /**
      * Searches for the first match of a package by name and version.
      *
-     * @param string                                                 $name       package name
-     * @param string|\Composer\Semver\Constraint\ConstraintInterface $constraint package version or version constraint to match against
+     * @param string $name package name
+     * @param (string | \Composer\Semver\Constraint\ConstraintInterface) $constraint package version or version constraint to match against
      *
-     * @return PackageInterface|null
+     * @return (PackageInterface | null)
      */
     public function findPackage($fullName, $constraint)
     {
@@ -93,8 +96,8 @@ trait Repository
     /**
      * Searches for all packages matching a name and optionally a version.
      *
-     * @param string                                                 $name       package name
-     * @param string|\Composer\Semver\Constraint\ConstraintInterface $constraint package version or version constraint to match against
+     * @param string $name package name
+     * @param (string | \Composer\Semver\Constraint\ConstraintInterface) $constraint package version or version constraint to match against
      *
      * @return PackageInterface[]
      */
