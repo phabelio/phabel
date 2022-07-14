@@ -6,5 +6,10 @@
         "amphp/php-cs-fixer-config": "dev-master",
         "phpunit/phpunit": "^7|^8|^9",
         "phpunit/php-code-coverage": "*"
+    },
+    "config": {
+        "allow-plugins": {
+            "composer/installers": true
+        }
     }
 }
