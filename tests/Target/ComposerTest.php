@@ -52,7 +52,8 @@ class ComposerTest extends TestCase
             "minimum-stability" => "dev",
             'config' => [
                 'allow-plugins' => [
-                    'phabel/phabel' => true
+                    'phabel/phabel' => true,
+                    'composer/installers' => true,
                 ]
             ],
             'require' => [
@@ -77,7 +78,8 @@ class ComposerTest extends TestCase
             "minimum-stability" => "dev",
             'config' => [
                 'allow-plugins' => [
-                    'phabel/phabel' => true
+                    'phabel/phabel' => true,
+                    'composer/installers' => true,
                 ]
             ],
             'require' => [
