@@ -294,6 +294,9 @@ final class ClassStoragePlugin extends Plugin
                     }
                     $params = [];
                     foreach ($method->getParameters() as $param) {
+                        if ($param->name === null) {
+                            continue 2;
+                        }
                         $paramBuilder = new Param($param->name);
                         if ($param->isVariadic()) {
                             $paramBuilder->makeVariadic();
