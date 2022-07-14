@@ -85,10 +85,7 @@
     },
     "config": {
         "process-timeout": 0,
-        "allow-plugins": {
-            "bamarni/composer-bin-plugin": true,
-            "composer/installers": true
-        }
+        "allow-plugins": true
     },
     "bin": ["bin/phabel"]
 }

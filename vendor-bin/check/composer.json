@@ -8,8 +8,6 @@
         "phpunit/php-code-coverage": "*"
     },
     "config": {
-        "allow-plugins": {
-            "composer/installers": true
-        }
+        "allow-plugins": true
     }
 }
