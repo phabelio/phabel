@@ -18,12 +18,19 @@ class ReGenerator extends Plugin
     const SHOULD_ATTRIBUTE = 'shouldRegenerate';
     /**
      * Custom traverser.
+     * @var Traverser $traverser
      */
-    private Traverser $traverser;
+    private $traverser;
+    /**
+     *
+     */
     public function __construct()
     {
         $this->traverser = Traverser::fromPlugin(new ReGeneratorInternal());
     }
+    /**
+     *
+     */
     public function enter(FunctionLike $function)
     {
         if (!$function->getAttribute(self::SHOULD_ATTRIBUTE, false)) {
@@ -31,6 +38,9 @@ class ReGenerator extends Plugin
         }
         $this->traverser->traverseAst($function);
     }
+    /**
+     *
+     */
     public static function previous(array $config): array
     {
         return [ArrowClosure::class];

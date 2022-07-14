@@ -23,15 +23,7 @@ class Php extends Plugin
      *
      * @var int[]
      */
-    const VERSIONS = [
-        //56,
-        //70,
-        71,
-        72,
-        73,
-        74,
-        80,
-    ];
+    const VERSIONS = [0 => 71, 1 => 72, 2 => 73, 3 => 74, 4 => 80];
     /**
      * Default target.
      */
@@ -89,6 +81,9 @@ class Php extends Plugin
         }
         return \array_slice(self::VERSIONS, 1 + $key);
     }
+    /**
+     *
+     */
     public static function getComposerRequires(array $config): array
     {
         $target = Php::normalizeVersion($config['target'] ?? self::DEFAULT_TARGET);
@@ -102,6 +97,9 @@ class Php extends Plugin
         }
         return $res;
     }
+    /**
+     *
+     */
     public static function previous(array $config): array
     {
         $classes = [ComposerSanitizer::class => []];
@@ -110,7 +108,7 @@ class Php extends Plugin
                 continue;
             }
             foreach (\scandir($dir) as $file) {
-                if (\substr($file, -4) !== '.php') {
+                if (\Phabel\Target\Php80\Polyfill::substr($file, -4) !== '.php') {
                     continue;
                 }
                 if (\str_ends_with($file, 'ExpressionFixer.php')) {
@@ -124,6 +122,9 @@ class Php extends Plugin
         }
         return $classes;
     }
+    /**
+     *
+     */
     public static function next(array $config): array
     {
         $classes = [StmtExprWrapper::class => $config[StmtExprWrapper::class] ?? [], NewFixer::class => []];
