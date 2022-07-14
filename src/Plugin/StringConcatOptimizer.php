@@ -4,11 +4,10 @@ namespace Phabel\Plugin;
 
 use Phabel\Context;
 use Phabel\Plugin;
-use PhpParser\Node;
-use PhpParser\Node\Expr\BinaryOp\Concat;
-use PhpParser\Node\Scalar\String_;
+use PhabelVendor\PhpParser\Node;
+use PhabelVendor\PhpParser\Node\Expr\BinaryOp\Concat;
+use PhabelVendor\PhpParser\Node\Scalar\String_;
 use SplQueue;
-
 /**
  * Optimizes concatenation of multiple strings.
  *
@@ -36,7 +35,7 @@ class StringConcatOptimizer extends Plugin
     /**
      *
      */
-    public function enter(Concat $concat, Context $ctx): ?Node
+    public function enter(Concat $concat, Context $ctx) : ?Node
     {
         if ($ctx->parents->top() instanceof Concat) {
             return null;
