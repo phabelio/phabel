@@ -4,7 +4,6 @@ namespace Phabel\Target\Php71;
 
 use Phabel\Plugin;
 use Phabel\Target\Polyfill as TargetPolyfill;
-
 /**
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT
@@ -58,12 +57,12 @@ class Polyfill extends Plugin
     {
         if (isset($params[3]) && $params[3] < 0) {
             $f = \fopen($params[0], 'r', $params[1], $params[2]);
-            \fseek($f, 0, SEEK_END);
-            \fseek($f, \ftell($f) + $params[3], SEEK_SET);
+            \fseek($f, 0, \SEEK_END);
+            \fseek($f, \ftell($f) + $params[3], \SEEK_SET);
             $length = $params[4] ?? null;
             if ($length === null) {
                 $phabelReturn = \stream_get_contents($f);
-                if (!(\is_string($phabelReturn) || $phabelReturn === false)) {
+                if (!(\is_string($phabelReturn) || $phabelReturn === \false)) {
                     if (!(\is_string($phabelReturn) || \is_object($phabelReturn) && \method_exists($phabelReturn, '__toString') || (\is_bool($phabelReturn) || \is_numeric($phabelReturn)))) {
                         throw new \TypeError(__METHOD__ . '(): Return value must be of type false|string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
                     }
@@ -72,7 +71,7 @@ class Polyfill extends Plugin
                 return $phabelReturn;
             }
             $phabelReturn = \fread($f, $length);
-            if (!(\is_string($phabelReturn) || $phabelReturn === false)) {
+            if (!(\is_string($phabelReturn) || $phabelReturn === \false)) {
                 if (!(\is_string($phabelReturn) || \is_object($phabelReturn) && \method_exists($phabelReturn, '__toString') || (\is_bool($phabelReturn) || \is_numeric($phabelReturn)))) {
                     throw new \TypeError(__METHOD__ . '(): Return value must be of type false|string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
                 }
@@ -81,7 +80,7 @@ class Polyfill extends Plugin
             return $phabelReturn;
         }
         $phabelReturn = \file_get_contents(...$params);
-        if (!(\is_string($phabelReturn) || $phabelReturn === false)) {
+        if (!(\is_string($phabelReturn) || $phabelReturn === \false)) {
             if (!(\is_string($phabelReturn) || \is_object($phabelReturn) && \method_exists($phabelReturn, '__toString') || (\is_bool($phabelReturn) || \is_numeric($phabelReturn)))) {
                 throw new \TypeError(__METHOD__ . '(): Return value must be of type false|string, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
             }
@@ -96,21 +95,21 @@ class Polyfill extends Plugin
     {
         if (!$context) {
             $phabelReturn = \get_headers($url, $associative);
-            if (!(\is_array($phabelReturn) || $phabelReturn === false)) {
+            if (!(\is_array($phabelReturn) || $phabelReturn === \false)) {
                 throw new \TypeError(__METHOD__ . '(): Return value must be of type false|array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
             }
             return $phabelReturn;
         }
-        if (\file_get_contents($url, false, $context) === false) {
-            $phabelReturn = false;
-            if (!(\is_array($phabelReturn) || $phabelReturn === false)) {
+        if (\file_get_contents($url, \false, $context) === \false) {
+            $phabelReturn = \false;
+            if (!(\is_array($phabelReturn) || $phabelReturn === \false)) {
                 throw new \TypeError(__METHOD__ . '(): Return value must be of type false|array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
             }
             return $phabelReturn;
         }
         if (!$associative) {
             $phabelReturn = $http_response_header;
-            if (!(\is_array($phabelReturn) || $phabelReturn === false)) {
+            if (!(\is_array($phabelReturn) || $phabelReturn === \false)) {
                 throw new \TypeError(__METHOD__ . '(): Return value must be of type false|array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
             }
             return $phabelReturn;
@@ -123,7 +122,7 @@ class Polyfill extends Plugin
             }
         }
         $phabelReturn = $headers;
-        if (!(\is_array($phabelReturn) || $phabelReturn === false)) {
+        if (!(\is_array($phabelReturn) || $phabelReturn === \false)) {
             throw new \TypeError(__METHOD__ . '(): Return value must be of type false|array, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
         }
         return $phabelReturn;
@@ -131,7 +130,7 @@ class Polyfill extends Plugin
     /**
      *
      */
-    public static function substr_count(string $haystack, string $needle, int $offset = 0, ?int $length = null): int
+    public static function substr_count(string $haystack, string $needle, int $offset = 0, ?int $length = null) : int
     {
         if ($offset < 0) {
             $offset = \strlen($haystack) + $offset;
@@ -224,7 +223,7 @@ class Polyfill extends Plugin
     /**
      *
      */
-    public static function mb_strimwidth(string $string, int $start, int $width, string $trim_marker = '', ?string $encoding = null): string
+    public static function mb_strimwidth(string $string, int $start, int $width, string $trim_marker = '', ?string $encoding = null) : string
     {
         $encoding = $encoding ?? \mb_internal_encoding();
         if ($start < 0) {
@@ -292,8 +291,8 @@ class Polyfill extends Plugin
     /**
      * {@inheritDoc}
      */
-    public static function withNext(array $config): array
+    public static function withNext(array $config) : array
     {
-        return [TargetPolyfill::class => [self::class => true]];
+        return [TargetPolyfill::class => [self::class => \true]];
     }
 }
