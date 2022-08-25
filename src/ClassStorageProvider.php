@@ -4,6 +4,7 @@ namespace Phabel;
 
 use JsonSerializable;
 use Phabel\ClassStorage\Storage;
+use PhpParser\Node\Arg;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\StaticCall;
@@ -11,6 +12,7 @@ use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Nop;
+use PhpParser\Node\VariadicPlaceholder;
 
 abstract class ClassStorageProvider extends Plugin implements JsonSerializable
 {
@@ -84,13 +86,16 @@ abstract class ClassStorageProvider extends Plugin implements JsonSerializable
     }
     private function enterCall(StaticCall|FuncCall|MethodCall $call): void
     {
-        $args = [];
+        /*$args = [];
         $hasNamed = false;
+        $hasVariadic = false;
         foreach ($call->args as $arg) {
-            if ($arg->name) {
+            if ($arg instanceof Arg && $arg->name) {
                 $args[$arg->name->name] = $arg;
                 $arg->name = null;
                 $hasNamed = true;
+            } elseif ($arg instanceof VariadicPlaceholder) {
+                $hasVariadic = true;
             }
         }
         if (!$hasNamed) {
@@ -107,7 +112,7 @@ abstract class ClassStorageProvider extends Plugin implements JsonSerializable
                 if ($args && $func->isVariadic()) {
                 }
             }
-        }
+        }*/
     }
     /**
      * Get global class storage.
