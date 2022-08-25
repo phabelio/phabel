@@ -371,7 +371,8 @@ final class ClassStoragePlugin extends Plugin
             }
         }
         $storage = new ClassStorage($this);
-        $processedAny = $this->hasNamed;
+        //$processedAny = $this->hasNamed;
+        $processedAny = false;
         $innerIteration = 0;
         do {
             $innerIteration++;
