@@ -88,7 +88,7 @@ abstract class ClassStorageProvider extends Plugin implements JsonSerializable
         $hasNamed = false;
         foreach ($call->args as $arg) {
             if ($arg->name) {
-                $args[$arg->name] = $arg;
+                $args[$arg->name->name] = $arg;
                 $arg->name = null;
                 $hasNamed = true;
             }
