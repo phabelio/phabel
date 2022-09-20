@@ -42,35 +42,36 @@ final class ClassStoragePlugin extends Plugin
      *
      * @var array<string, array<string, Builder>>
      */
-    public array $classes = [];
+    public $classes = [];
     /**
      * Storage.
      *
      * @var array<string, array<string, Builder>>
      */
-    public array $traits = [];
+    public $traits = [];
     /**
      * Storage.
      *
      * @var array<string, FunctionStorage>
      */
-    public array $functions = [];
+    public $functions = [];
     /**
      * Whether we have named argument calls.
      *
      * @var boolean
      */
-    private bool $hasNamed = false;
+    private $hasNamed = false;
     /**
      * Count.
+     * @var array $count
      */
-    private array $count = [];
+    private $count = [];
     /**
      * Plugins to call during final iteration.
      *
      * @var array<class-string<ClassStorageProvider>, true>
      */
-    protected array $finalPlugins = [];
+    protected $finalPlugins = [];
     /**
      * Check if plugin should run.
      *
@@ -104,6 +105,9 @@ final class ClassStoragePlugin extends Plugin
         parent::setConfigArray($config);
         $this->finalPlugins += $config;
     }
+    /**
+     *
+     */
     private function normalizeType(string $type): Node
     {
         $result = BuilderHelpers::normalizeType($type);
@@ -112,6 +116,9 @@ final class ClassStoragePlugin extends Plugin
         }
         return $result;
     }
+    /**
+     *
+     */
     private function buildType(ReflectionType $type): Node
     {
         if ($type instanceof ReflectionNamedType) {
@@ -160,7 +167,7 @@ final class ClassStoragePlugin extends Plugin
             $name = self::getFqdn($class);
         } else {
             $name = "class@anonymous{$file}";
-            $this->count[$file][$name] ??= 0;
+            $this->count[$file][$name] = $this->count[$file][$name] ?? 0;
             $name .= "@" . $this->count[$file][$name]++;
         }
         $class->setAttribute(self::NAME, $name);
@@ -186,6 +193,9 @@ final class ClassStoragePlugin extends Plugin
         }
         $this->functions[$name] = new FunctionStorage($args, $variadic);
     }
+    /**
+     *
+     */
     public function enterStaticCall(StaticCall $call): void
     {
         if ($this->hasNamed) {
@@ -193,6 +203,9 @@ final class ClassStoragePlugin extends Plugin
         }
         $this->enterCall($call);
     }
+    /**
+     *
+     */
     public function enterFuncCall(FuncCall $call): void
     {
         if ($this->hasNamed) {
@@ -200,6 +213,9 @@ final class ClassStoragePlugin extends Plugin
         }
         $this->enterCall($call);
     }
+    /**
+     *
+     */
     public function enterMethodCall(MethodCall $call): void
     {
         if ($this->hasNamed) {
@@ -207,8 +223,14 @@ final class ClassStoragePlugin extends Plugin
         }
         $this->enterCall($call);
     }
-    private function enterCall(StaticCall|FuncCall|MethodCall $call): void
+    /**
+     * @param (StaticCall | FuncCall | MethodCall) $call
+     */
+    private function enterCall($call): void
     {
+        if (!($call instanceof StaticCall || $call instanceof FuncCall || $call instanceof MethodCall)) {
+            throw new \TypeError(__METHOD__ . '(): Argument #1 ($call) must be of type StaticCall|FuncCall|MethodCall, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($call) . ' given, called in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
         foreach ($call->args as $arg) {
             if ($arg instanceof Arg && $arg->name) {
                 $this->hasNamed = true;
