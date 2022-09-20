@@ -22,28 +22,24 @@ class GraphInternal
      * @var array<class-string<PluginInterface>, array<string, Node>>
      */
     private array $plugins = [];
-
     /**
      * Package contexts.
      *
      * @var PackageContext[]
      */
     private array $packageContexts = [];
-
     /**
      * Stores list of Nodes that are not required by any other node.
      *
      * @var SplObjectStorage<Node, null>
      */
     private SplObjectStorage $unlinkedNodes;
-
     /**
      * Stores list of Nodes that weren't yet processed.
      *
      * @var SplObjectStorage<Node, null>
      */
     public SplObjectStorage $unprocessedNode;
-
     /**
      * Constructor.
      */
@@ -52,7 +48,6 @@ class GraphInternal
         $this->unlinkedNodes = new SplObjectStorage();
         $this->unprocessedNode = new SplObjectStorage();
     }
-
     /**
      * Get new package context.
      */
@@ -60,10 +55,8 @@ class GraphInternal
     {
         $packageContext = new PackageContext();
         $this->packageContexts[] = $packageContext;
-
         return $packageContext;
     }
-
     /**
      * Add plugin.
      *
@@ -79,7 +72,6 @@ class GraphInternal
     {
         return \array_map(fn (array $config): Node => $this->addPluginInternal($plugin, $config, $ctx), $plugin::splitConfig($config));
     }
-
     /**
      * Add plugin.
      *
@@ -98,10 +90,8 @@ class GraphInternal
         $this->plugins[$plugin][$configStr] = $node = new Node($this, $ctx);
         $this->unlinkedNodes->attach($node);
         $this->unprocessedNode->attach($node);
-
         return $node->init($plugin, $config);
     }
-
     /**
      * Set unlinked node as linked.
      */
@@ -111,7 +101,6 @@ class GraphInternal
             $this->unlinkedNodes->detach($node);
         }
     }
-
     /**
      * Flatten graph.
      *
@@ -133,7 +122,7 @@ class GraphInternal
                 /** @var Node */
                 $initNode = $node;
             }
-            $this->unlinkedNodes = new SplObjectStorage;
+            $this->unlinkedNodes = new SplObjectStorage();
             $this->unlinkedNodes->attach($initNode);
             $this->unprocessedNode->attach($initNode);
             $result = $initNode->circular()->flatten();
