@@ -15,26 +15,41 @@ use PhpParser\Node\Stmt\ClassConst;
  */
 class ConstantReplacer extends ClassStorageProvider
 {
+    /**
+     *
+     */
     public static function processClassGraph(ClassStorage $storage, int $iteration, int $innerIteration): bool
     {
         return $iteration === 1 && $innerIteration === 1;
     }
-    private bool $inParam = false;
+    /**
+     * @var bool $inParam
+     */
+    private $inParam = false;
+    /**
+     *
+     */
     public function enterParam(Param $param)
     {
         $this->inParam = true;
     }
+    /**
+     *
+     */
     public function leaveParam(Param $param)
     {
         if ($param->default) {
             try {
                 $param->default = Tools::fromLiteral(Tools::toLiteral($param->default));
-            } catch (\Throwable) {
+            } catch (\Throwable $phabel_bdea7f2b5fd95310) {
                 // Ignore errors caused by constant lookups
             }
         }
         $this->inParam = false;
     }
+    /**
+     *
+     */
     public function enterFetch(ClassConstFetch $fetch)
     {
         if ($this->inParam) {
@@ -45,12 +60,15 @@ class ConstantReplacer extends ClassStorageProvider
             }
         }
     }
+    /**
+     *
+     */
     public function enterConstant(ClassConst $constants)
     {
         foreach ($constants->consts as $const) {
             try {
                 $const->value = self::fromLiteral($this->storage->getConstant($const->name));
-            } catch (\Throwable) {
+            } catch (\Throwable $phabel_1a7f80012333c354) {
                 // Ignore missing constants for now since we didn't implement normal constant lookup
             }
         }

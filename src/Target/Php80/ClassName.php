@@ -14,6 +14,9 @@ use PhpParser\Node\Name;
  */
 class ClassName extends Plugin
 {
+    /**
+     *
+     */
     public function enter(ClassConstFetch $fetch): ?FuncCall
     {
         if ($fetch->name instanceof Identifier && $fetch->name->name === 'class' && !$fetch->class instanceof Name) {
