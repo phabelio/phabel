@@ -41,4 +41,4 @@ class NullSafe
     {
     }
 }
-NullSafe::$singleton = new NullSafe();
+\Phabel\Target\Php80\NullSafe\NullSafe::$singleton = new \Phabel\Target\Php80\NullSafe\NullSafe();
