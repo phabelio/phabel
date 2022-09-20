@@ -17,6 +17,9 @@ use SplQueue;
  */
 class StringConcatOptimizer extends Plugin
 {
+    /**
+     *
+     */
     private function enqueue(Concat $concat, SplQueue $queue)
     {
         if ($concat->left instanceof Concat) {
@@ -30,6 +33,9 @@ class StringConcatOptimizer extends Plugin
             $queue->enqueue($concat->right);
         }
     }
+    /**
+     *
+     */
     public function enter(Concat $concat, Context $ctx): ?Node
     {
         if ($ctx->parents->top() instanceof Concat) {
