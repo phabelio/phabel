@@ -7,6 +7,7 @@ use PhpParser\BuilderHelpers;
 use PhpParser\ErrorHandler\Throwing;
 use PhpParser\NameContext;
 use PhpParser\Node;
+use PhpParser\Node\Arg;
 use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Expr\ArrayDimFetch;
 use PhpParser\Node\Expr\ArrowFunction;
@@ -163,6 +164,9 @@ class Context
         } elseif ($node instanceof MethodCall || $node instanceof StaticCall || $node instanceof FuncCall) {
             // Cover reference parameters
             foreach ($node->args as $argument) {
+                if (!$argument instanceof Arg) {
+                    continue;
+                }
                 $argument = $argument->value;
                 while ($argument instanceof ArrayDimFetch && $argument->var instanceof ArrayDimFetch) {
                     $argument = $argument->var;
