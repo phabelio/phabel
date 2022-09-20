@@ -4,9 +4,8 @@ namespace Phabel\Plugin;
 
 use Phabel\Plugin;
 use Phabel\Traverser;
-use PhpParser\Node;
-use PhpParser\Node\Expr\ClassConstFetch;
-
+use PhabelVendor\PhpParser\Node;
+use PhabelVendor\PhpParser\Node\Expr\ClassConstFetch;
 /**
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT
@@ -24,7 +23,7 @@ class ConstantResolver extends Plugin
     /**
      * Class storage plugin.
      */
-    private ClassStoragePlugin $plugin;
+    private \Phabel\Plugin\ClassStoragePlugin $plugin;
     /**
      * Current class name.
      *
@@ -36,7 +35,7 @@ class ConstantResolver extends Plugin
      *
      * @return Node
      */
-    public static function resolve(Node $ast, string $currentClass, ClassStoragePlugin $plugin): Node
+    public static function resolve(Node $ast, string $currentClass, \Phabel\Plugin\ClassStoragePlugin $plugin) : Node
     {
         if (!isset(self::$singleton)) {
             self::$singleton = new self();
@@ -44,7 +43,7 @@ class ConstantResolver extends Plugin
         }
         self::$singleton->plugin = $plugin;
         self::$singleton->currentClass = $currentClass;
-        self::$singletonTraverser->traverseAst($ast, null, false);
+        self::$singletonTraverser->traverseAst($ast, null, \false);
         return $ast;
     }
     /**
