@@ -4,15 +4,14 @@ namespace Phabel\Plugin;
 
 use Phabel\Context;
 use Phabel\Plugin;
-use PhpParser\Node\Expr\Array_;
-use PhpParser\Node\Expr\ArrayDimFetch;
-use PhpParser\Node\Expr\Assign;
-use PhpParser\Node\Expr\AssignRef;
-use PhpParser\Node\Expr\List_;
-use PhpParser\Node\Expr\Variable;
-use PhpParser\Node\Scalar\LNumber;
-use PhpParser\Node\Stmt\Foreach_;
-
+use PhabelVendor\PhpParser\Node\Expr\Array_;
+use PhabelVendor\PhpParser\Node\Expr\ArrayDimFetch;
+use PhabelVendor\PhpParser\Node\Expr\Assign;
+use PhabelVendor\PhpParser\Node\Expr\AssignRef;
+use PhabelVendor\PhpParser\Node\Expr\List_;
+use PhabelVendor\PhpParser\Node\Expr\Variable;
+use PhabelVendor\PhpParser\Node\Scalar\LNumber;
+use PhabelVendor\PhpParser\Node\Stmt\Foreach_;
 /**
  * Polyfills unsupported list assignments.
  */
@@ -25,12 +24,12 @@ class ListSplitter extends Plugin
      *
      * @return void
      */
-    public function enterForeach(Foreach_ $node, Context $ctx): void
+    public function enterForeach(Foreach_ $node, Context $ctx) : void
     {
         if (!($node->valueVar instanceof List_ || $node->valueVar instanceof Array_)) {
             return;
         }
-        if (!$this->shouldSplit($node->valueVar) && !($this->getConfig('parentExpr', false) && $ctx->isParentStmt())) {
+        if (!$this->shouldSplit($node->valueVar) && !($this->getConfig('parentExpr', \false) && $ctx->isParentStmt())) {
             return;
         }
         $list = $node->valueVar;
@@ -72,7 +71,7 @@ class ListSplitter extends Plugin
      * @return (Assign|AssignRef)[]
      * @psalm-return array<int, Assign|AssignRef>
      */
-    public static function splitList($list, Variable $var): array
+    public static function splitList($list, Variable $var) : array
     {
         $assignments = [];
         $key = 0;
@@ -98,10 +97,10 @@ class ListSplitter extends Plugin
      *
      * @return boolean
      */
-    private function hasReference($list): bool
+    private function hasReference($list) : bool
     {
         $c = $this->getConfigArray();
-        $this->setConfigArray(['byRef' => true]);
+        $this->setConfigArray(['byRef' => \true]);
         $res = $this->shouldSplit($list);
         $this->setConfigArray($c);
         return $res;
@@ -113,22 +112,22 @@ class ListSplitter extends Plugin
      *
      * @return boolean
      */
-    private function shouldSplit($list): bool
+    private function shouldSplit($list) : bool
     {
         foreach ($list->items as $item) {
             if (!$item) {
                 continue;
             }
-            if ($this->getConfig('byRef', false) && $item->byRef) {
-                return true;
-            } elseif ($this->getConfig('key', false) && isset($item->key)) {
-                return true;
+            if ($this->getConfig('byRef', \false) && $item->byRef) {
+                return \true;
+            } elseif ($this->getConfig('key', \false) && isset($item->key)) {
+                return \true;
             } elseif ($item->value instanceof List_ || $item->value instanceof Array_) {
                 if ($this->shouldSplit($item->value)) {
-                    return true;
+                    return \true;
                 }
             }
         }
-        return false;
+        return \false;
     }
 }
