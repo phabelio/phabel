@@ -15,6 +15,9 @@ use SplStack;
  */
 class TypeContravariance extends ClassStorageProvider
 {
+    /**
+     *
+     */
     public static function processClassGraph(ClassStorage $storage, int $iteration, int $innerIteration): bool
     {
         $changed = false;
@@ -59,7 +62,7 @@ class TypeContravariance extends ClassStorageProvider
                     }
                     $parentMethods->push($childMethod);
                 }
-                $act = \array_keys(\array_filter($act));
+                $act = \array_keys(\Phabel\Target\Php74\Polyfill::array_filter($act));
                 if (!$act) {
                     continue;
                 }
