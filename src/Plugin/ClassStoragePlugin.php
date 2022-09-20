@@ -16,6 +16,7 @@ use PhpParser\Builder\Method;
 use PhpParser\Builder\Param;
 use PhpParser\BuilderHelpers;
 use PhpParser\Node;
+use PhpParser\Node\Arg;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\StaticCall;
@@ -214,7 +215,7 @@ final class ClassStoragePlugin extends Plugin
     private function enterCall(StaticCall|FuncCall|MethodCall $call): void
     {
         foreach ($call->args as $arg) {
-            if ($arg->name) {
+            if ($arg instanceof Arg && $arg->name) {
                 $this->hasNamed = true;
                 return;
             }
