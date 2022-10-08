@@ -23,8 +23,8 @@ class ReGeneratorInternal extends Plugin
     private SplQueue $states;
     public function __construct()
     {
-        $this->states = new SplQueue;
-        $this->states->enqueue(new SplQueue);
+        $this->states = new SplQueue();
+        $this->states->enqueue(new SplQueue());
     }
     /**
      * Push node to current case.
@@ -39,8 +39,8 @@ class ReGeneratorInternal extends Plugin
     }
     private function pushState(): int
     {
-        $this->states->enqueue(new SplQueue);
-        return $this->states->count()-1;
+        $this->states->enqueue(new SplQueue());
+        return $this->states->count() - 1;
     }
     public function enterRoot(FunctionLike $func)
     {
