@@ -39,13 +39,7 @@ class ConstantReplacer extends ClassStorageProvider
     {
         if ($this->inParam) {
             try {
-                return self::fromLiteral(
-                    (
-                        ((string) $fetch->class) === 'self'
-                        ? $this->storage
-                        : $this->getGlobalClassStorage()->getClassByName(self::getFqdn($fetch->class))
-                    )->getConstant($fetch->name)
-                );
+                return self::fromLiteral(((string) $fetch->class === 'self' ? $this->storage : $this->getGlobalClassStorage()->getClassByName(self::getFqdn($fetch->class)))->getConstant($fetch->name));
             } catch (\Throwable $e) {
                 // Ignore missing constants for now since we didn't implement normal constant lookup
             }
@@ -55,9 +49,7 @@ class ConstantReplacer extends ClassStorageProvider
     {
         foreach ($constants->consts as $const) {
             try {
-                $const->value = self::fromLiteral(
-                    $this->storage->getConstant($const->name)
-                );
+                $const->value = self::fromLiteral($this->storage->getConstant($const->name));
             } catch (\Throwable) {
                 // Ignore missing constants for now since we didn't implement normal constant lookup
             }
