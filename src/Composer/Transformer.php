@@ -161,6 +161,10 @@ class Transformer
             }
         }
         $this->processed = true;
+        if ($myTarget && Php::normalizeVersion($myTarget, true) > Php::MAX_VERSION) {
+            $this->log("Skipping ".$package->getName()."=$newName", IOInterface::VERY_VERBOSE);
+            return;
+        }
         if (!$havePhabel) {
             if ($target === Php::TARGET_IGNORE) {
                 $this->log("Skipping ".$package->getName()."=$newName", IOInterface::VERY_VERBOSE);
