@@ -15,12 +15,14 @@ class Graph
 {
     /**
      * Graph instance.
+     * @var (GraphInternal | null) $graph
      */
-    private ?GraphInternal $graph = null;
+    private $graph = null;
     /**
      * Resolved graph instance.
+     * @var (ResolvedGraph | null) $resolvedGraph
      */
-    private ?ResolvedGraph $resolvedGraph = null;
+    private $resolvedGraph = null;
     /**
      * Constructr.
      */
@@ -40,9 +42,9 @@ class Graph
     /**
      * Add plugin.
      *
-     * @param string         $plugin Plugin to add
-     * @param array          $config Plugin configuration
-     * @param PackageContext $ctx    Package context
+     * @param string $plugin Plugin to add
+     * @param array $config Plugin configuration
+     * @param PackageContext $ctx Package context
      *
      * @psalm-param class-string<PluginInterface> $plugin Plugin name
      *
@@ -59,7 +61,7 @@ class Graph
      */
     public function flatten(): ResolvedGraph
     {
-        $this->resolvedGraph ??= new ResolvedGraph(...$this->graph->flatten());
+        $this->resolvedGraph = $this->resolvedGraph ?? new ResolvedGraph(...$this->graph->flatten());
         $this->graph = null;
         while (\gc_collect_cycles()) {
         }
