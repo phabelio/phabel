@@ -64,16 +64,16 @@ class ArrayUnpack extends Plugin
         foreach ($array->items as $item) {
             if ($item->unpack) {
                 if ($current->items) {
-                    $args []= new Arg($current);
+                    $args[] = new Arg($current);
                     $current = new Array_();
                 }
-                $args []= new Arg($item->value);
+                $args[] = new Arg($item->value);
             } else {
-                $current->items []= $item;
+                $current->items[] = $item;
             }
         }
         if ($current->items) {
-            $args []= new Arg($current);
+            $args[] = new Arg($current);
         }
         return Plugin::call("array_merge", ...$args);
     }
