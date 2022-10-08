@@ -3,18 +3,17 @@
 namespace Phabel;
 
 use Phabel\PluginGraph\PackageContext;
-use PhpParser\Node\Arg;
-use PhpParser\Node\Expr;
-use PhpParser\Node\Expr\StaticCall;
-use PhpParser\Node\Name;
-
+use PhabelVendor\PhpParser\Node\Arg;
+use PhabelVendor\PhpParser\Node\Expr;
+use PhabelVendor\PhpParser\Node\Expr\StaticCall;
+use PhabelVendor\PhpParser\Node\Name;
 /**
  * Plugin.
  *
  * @author Daniil Gentili <daniil@daniil.it>
  * @license MIT
  */
-abstract class Plugin extends Tools implements PluginInterface
+abstract class Plugin extends \Phabel\Tools implements \Phabel\PluginInterface
 {
     /**
      * Configuration array.
@@ -32,7 +31,7 @@ abstract class Plugin extends Tools implements PluginInterface
      * @param array $config
      * @return void
      */
-    public function setConfigArray(array $config): void
+    public function setConfigArray(array $config) : void
     {
         $this->config = $config;
     }
@@ -41,7 +40,7 @@ abstract class Plugin extends Tools implements PluginInterface
      *
      * @return array
      */
-    public function getConfigArray(): array
+    public function getConfigArray() : array
     {
         return $this->config;
     }
@@ -52,7 +51,7 @@ abstract class Plugin extends Tools implements PluginInterface
      *
      * @return void
      */
-    public function setPackageContext(PackageContext $ctx): void
+    public function setPackageContext(PackageContext $ctx) : void
     {
         $this->ctx = $ctx;
     }
@@ -61,7 +60,7 @@ abstract class Plugin extends Tools implements PluginInterface
      *
      * @return PackageContext
      */
-    public function getPackageContext(): PackageContext
+    public function getPackageContext() : PackageContext
     {
         return $this->ctx;
     }
@@ -72,7 +71,7 @@ abstract class Plugin extends Tools implements PluginInterface
      *
      * @return boolean
      */
-    public function shouldRun(string $package): bool
+    public function shouldRun(string $package) : bool
     {
         return $this->ctx->has($package);
     }
@@ -83,7 +82,7 @@ abstract class Plugin extends Tools implements PluginInterface
      *
      * @return boolean
      */
-    public function shouldRunFile(string $file): bool
+    public function shouldRunFile(string $file) : bool
     {
         return !\str_contains($file, 'vendor/composer/');
     }
@@ -95,7 +94,7 @@ abstract class Plugin extends Tools implements PluginInterface
      *
      * @return StaticCall
      */
-    protected static function callPoly(string $name, ...$parameters): StaticCall
+    protected static function callPoly(string $name, ...$parameters) : StaticCall
     {
         return self::call([static::class, $name], ...$parameters);
     }
@@ -109,24 +108,24 @@ abstract class Plugin extends Tools implements PluginInterface
     /**
      * {@inheritDoc}
      */
-    public function setConfig(string $key, $value): void
+    public function setConfig(string $key, $value) : void
     {
         $this->config[$key] = $value;
     }
     /**
      * {@inheritDoc}
      */
-    public function hasConfig(string $key): bool
+    public function hasConfig(string $key) : bool
     {
         return isset($this->config[$key]);
     }
     /**
      * {@inheritDoc}
      */
-    public static function mergeConfigs(array ...$configs): array
+    public static function mergeConfigs(array ...$configs) : array
     {
         $final = [];
-        foreach (\array_unique($configs, SORT_REGULAR) as $config) {
+        foreach (\array_unique($configs, \SORT_REGULAR) as $config) {
             foreach ($final as $k => $compare) {
                 if (empty($intersect = \array_intersect_key($config, $compare)) || $intersect === \array_intersect_key($compare, $config)) {
                     $final[$k] = $config + $compare;
@@ -140,42 +139,42 @@ abstract class Plugin extends Tools implements PluginInterface
     /**
      * {@inheritDoc}
      */
-    public static function splitConfig(array $config): array
+    public static function splitConfig(array $config) : array
     {
-        return empty($config) ? [[]] : \array_chunk($config, 1, true);
+        return empty($config) ? [[]] : \array_chunk($config, 1, \true);
     }
     /**
      * {@inheritDoc}
      */
-    public static function getComposerRequires(array $config): array
-    {
-        return [];
-    }
-    /**
-     * {@inheritDoc}
-     */
-    public static function next(array $config): array
+    public static function getComposerRequires(array $config) : array
     {
         return [];
     }
     /**
      * {@inheritDoc}
      */
-    public static function previous(array $config): array
+    public static function next(array $config) : array
     {
         return [];
     }
     /**
      * {@inheritDoc}
      */
-    public static function withPrevious(array $config): array
+    public static function previous(array $config) : array
     {
         return [];
     }
     /**
      * {@inheritDoc}
      */
-    public static function withNext(array $config): array
+    public static function withPrevious(array $config) : array
+    {
+        return [];
+    }
+    /**
+     * {@inheritDoc}
+     */
+    public static function withNext(array $config) : array
     {
         return [];
     }
