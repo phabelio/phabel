@@ -19,48 +19,49 @@ class Storage
      *
      * @psalm-var array<string, ClassMethod>
      */
-    private array $methods = [];
+    private $methods = [];
     /**
      * Abstract method list.
      *
      * @psalm-var array<string, ClassMethod>
      */
-    private array $abstractMethods = [];
+    private $abstractMethods = [];
     /**
      * Removed method list.
      *
      * @var array<string, true>
      */
-    private array $removedMethods = [];
+    private $removedMethods = [];
     /**
      * Classes/interfaces to extend.
      *
      * @var array<class-string, Storage>
      */
-    private array $extends = [];
+    private $extends = [];
     /**
      * Class constants.
      *
      * @var array<string, mixed>
      */
-    private array $constants = [];
+    private $constants = [];
     /**
      * Classes/interfaces that extend us.
      *
      * @var array<class-string, Storage>
      */
-    private array $extendedBy = [];
+    private $extendedBy = [];
     /**
      * Class name.
+     * @var string $name
      */
-    private string $name;
+    private $name;
     /**
      * Constructor.
      *
-     * @param string                       $name
-     * @param array<string, ClassMethod>   $methods
-     * @param array<string, ClassMethod>   $abstractMethods
-     * @param array<string, Expr>          $constants
+     * @param string $name
+     * @param array<string, ClassMethod> $methods
+     * @param array<string, ClassMethod> $abstractMethods
+     * @param array<string, Expr> $constants
      * @param array<class-string, Builder> $extends
      */
     public function build(string $name, array $methods, array $abstractMethods, array $constants, array $extends)
@@ -71,7 +72,7 @@ class Storage
         foreach ($constants as $name => $constant) {
             try {
                 $this->constants[$name] = Tools::toLiteral($constant);
-            } catch (\Throwable) {
+            } catch (\Throwable $phabel_d87cbae9fca06362) {
                 // Ignore errors caused by constant lookups
             }
         }
@@ -112,7 +113,7 @@ class Storage
      *
      * @return \Generator<string, ClassMethod, null, void>
      */
-    public function getMethods(int $typeMask = ~Class_::VISIBILITY_MODIFIER_MASK, int $visibilityMask = Class_::VISIBILITY_MODIFIER_MASK): \Generator
+    public function getMethods(int $typeMask = -8, int $visibilityMask = 7): \Generator
     {
         if ($typeMask & Class_::MODIFIER_ABSTRACT) {
             foreach ($this->abstractMethods as $name => $method) {
@@ -134,9 +135,13 @@ class Storage
      *
      * @return mixed
      */
-    public function getConstant(string $name): mixed
+    public function getConstant(string $name)
     {
-        return $this->constants[$name];
+        $phabelReturn = $this->constants[$name];
+        if (!true) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type mixed, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Get classes which extend this class.
@@ -189,7 +194,7 @@ class Storage
      *
      * @return \Generator<void, ClassMethod, null, void>
      */
-    public function getOverriddenMethods(string $name, int $typeMask = ~Class_::VISIBILITY_MODIFIER_MASK, int $visibilityMask = Class_::VISIBILITY_MODIFIER_MASK): \Generator
+    public function getOverriddenMethods(string $name, int $typeMask = -8, int $visibilityMask = 7): \Generator
     {
         foreach ($this->getAllChildren() as $child) {
             if (isset($child->abstractMethods[$name])) {

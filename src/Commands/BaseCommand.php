@@ -8,6 +8,9 @@ use Symfony\Component\Process\Process;
 
 abstract class BaseCommand extends Command
 {
+    /**
+     *
+     */
     protected function exec(array $command, bool $ignoreResult = false): string
     {
         $proc = new Process($command);
