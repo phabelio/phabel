@@ -6,7 +6,6 @@ use Phabel\Exception;
 use Phabel\Plugin\ClassStoragePlugin;
 use Phabel\PluginInterface;
 use SplQueue;
-
 /**
  * Resolved graph.
  *
@@ -39,7 +38,7 @@ final class ResolvedGraph
      */
     public function __construct(SplQueue $plugins, array $packages = [])
     {
-        $this->packages = \array_map(fn (array $constraints): string => \implode(':', \array_unique($constraints)), $packages);
+        $this->packages = \array_map(fn(array $constraints): string => \implode(':', \array_unique($constraints)), $packages);
         $this->plugins = new SplQueue();
         foreach ($plugins as $queue) {
             $newQueue = new SplQueue();
@@ -68,7 +67,7 @@ final class ResolvedGraph
      * @return SplQueue
      * @psalm-return SplQueue<SplQueue<PluginInterface>>
      */
-    public function getPlugins(): SplQueue
+    public function getPlugins() : SplQueue
     {
         return $this->plugins;
     }
@@ -78,7 +77,7 @@ final class ResolvedGraph
      * @return array
      * @psalm-return array<string, string>
      */
-    public function getPackages(): array
+    public function getPackages() : array
     {
         return $this->packages;
     }
@@ -87,7 +86,7 @@ final class ResolvedGraph
      *
      * @return ?ClassStoragePlugin
      */
-    public function getClassStorage(): ?ClassStoragePlugin
+    public function getClassStorage() : ?ClassStoragePlugin
     {
         return $this->classStorage;
     }
@@ -96,7 +95,7 @@ final class ResolvedGraph
      *
      * @return array
      */
-    public function __debugInfo(): array
+    public function __debugInfo() : array
     {
         $res = [];
         foreach ($this->plugins ?? [] as $queue) {

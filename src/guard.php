@@ -1,5 +1,1 @@
-<?php
-
-if (!\defined('PHABEL_INCLUDED')) {
-    \define('PHABEL_INCLUDED', true);
-}
+<?php require_once __DIR__.DIRECTORY_SEPARATOR.'guard.guard.php';
