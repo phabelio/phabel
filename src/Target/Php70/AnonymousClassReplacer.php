@@ -30,13 +30,14 @@ class AnonymousClassReplacer extends Plugin
 {
     /**
      * Anonymous class count.
+     * @var int $count
      */
-    private static int $count = 0;
+    private static $count = 0;
     /**
      * Enter new.
      *
-     * @param New_    $node New stmt
-     * @param Context $ctx  Context
+     * @param New_ $node New stmt
+     * @param Context $ctx Context
      *
      * @return void
      */
@@ -80,10 +81,16 @@ class AnonymousClassReplacer extends Plugin
             $ctx->insertBefore($node, $classNode);
         }
     }
+    /**
+     *
+     */
     public static function previous(array $config): array
     {
         return [ArrowClosure::class, ReturnTypeHints::class, NullableType::class, UnionTypeStripper::class];
     }
+    /**
+     *
+     */
     public static function next(array $config): array
     {
         return [StringConcatOptimizer::class];
