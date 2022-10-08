@@ -32,6 +32,7 @@ class Php extends Plugin
         74,
         80,
     ];
+    const MAX_VERSION = 80;
     /**
      * Default target.
      */
@@ -59,7 +60,7 @@ class Php extends Plugin
      * @param string $target
      * @return integer
      */
-    public static function normalizeVersion(string $target): int
+    public static function normalizeVersion(string $target, bool $allowExtra = false): int
     {
         if ($target === 'auto') {
             return (int) self::DEFAULT_TARGET;
@@ -68,7 +69,7 @@ class Php extends Plugin
             $target = $matches[1];
         }
         $target = \str_replace('.', '', $target);
-        return (int) (\in_array($target, self::VERSIONS) ? $target : self::DEFAULT_TARGET);
+        return (int) (\in_array($target, self::VERSIONS) || $allowExtra ? $target : self::DEFAULT_TARGET);
     }
     /**
      * Unnormalize version string.

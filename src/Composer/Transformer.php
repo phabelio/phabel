@@ -234,16 +234,9 @@ class Transformer
         $links = [];
         foreach ($package->getRequires() as $name => $link) {
             if (PlatformRepository::isPlatformPackage($link->getTarget())) {
-                if ($link->getTarget() === 'php') {
-                    $constraint = new ComposerConstraint('>=', Php::unnormalizeVersion($target));
-                    $links[$name]= new Link(
-                        $package->getName(),
-                        $link->getTarget(),
-                        $constraint,
-                        $link->getDescription(),
-                        $constraint->getPrettyString()
-                    );
-                } elseif ($link->getTarget() === 'php-64bit') {
+                if (($link->getTarget() === 'php' || $link->getTarget() === 'php-64bit')
+                    && Php::normalizeVersion($link->getConstraint()->getLowerBound()->getVersion(), true) <= Php::MAX_VERSION
+                ) {
                     $constraint = new ComposerConstraint('>=', Php::unnormalizeVersion($target));
                     $links[$name]= new Link(
                         $package->getName(),
