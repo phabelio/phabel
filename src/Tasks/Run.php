@@ -2,11 +2,10 @@
 
 namespace Phabel\Tasks;
 
-use Amp\Parallel\Worker\Environment;
-use Amp\Parallel\Worker\Task;
+use PhabelVendor\Amp\Parallel\Worker\Environment;
+use PhabelVendor\Amp\Parallel\Worker\Task;
 use Phabel\ExceptionWrapper;
 use Phabel\Traverser;
-
 class Run implements Task
 {
     /**
