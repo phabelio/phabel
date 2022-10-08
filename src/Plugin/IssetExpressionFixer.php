@@ -33,7 +33,7 @@ class IssetExpressionFixer extends Plugin
      * @param Node $var
      * @return Node
      */
-    private static function &extractWorkVar(Node &$var): Node
+    private static function &extractWorkVar(Node &$var) : Node
     {
         if ($var instanceof ArrayDimFetch && $var->var instanceof ArrayDimFetch) {
             return self::extractWorkVar($var->var);
@@ -49,19 +49,8 @@ class IssetExpressionFixer extends Plugin
      */
     private static function wrapBoolean(Expr $node): ArrayDimFetch
     {
-        return new ArrayDimFetch(
-            self::callPoly(
-                'returnMe',
-                new Ternary(
-                    $node,
-                    self::fromLiteral([0]),
-                    self::fromLiteral([]),
-                )
-            ),
-            new LNumber(0)
-        );
+        return new ArrayDimFetch(self::callPoly('returnMe', new Ternary($node, self::fromLiteral([0]), self::fromLiteral([]))), new LNumber(0));
     }
-
     public function enter(Isset_ $isset): void
     {
         foreach ($isset->vars as $key => &$var) {
@@ -70,9 +59,8 @@ class IssetExpressionFixer extends Plugin
             if (!$subNodes) {
                 continue;
             }
-            $workVar = &$this->extractWorkVar($var);
+            $workVar =& $this->extractWorkVar($var);
             $needsFixing = false;
-
             foreach ($subNodes as $key => $types) {
                 if (isset($types[self::getClass($workVar->{$key} ?? '')])) {
                     $needsFixing = true;
@@ -92,30 +80,19 @@ class IssetExpressionFixer extends Plugin
                     }
                     break;
                 case StaticPropertyFetch::class:
-                    $workVar = $this->wrapBoolean(self::callPoly(
-                        'staticExists',
-                        $workVar->class,
-                        $workVar->name instanceof VarLikeIdentifier ? new String_($workVar->name->name) : $workVar->name,
-                        self::fromLiteral(true)
-                    ));
+                    $workVar = $this->wrapBoolean(self::callPoly('staticExists', $workVar->class, $workVar->name instanceof VarLikeIdentifier ? new String_($workVar->name->name) : $workVar->name, self::fromLiteral(true)));
                     break;
                 case ClassConstFetch::class:
-                    $workVar = $this->wrapBoolean(self::callPoly(
-                        'staticExists',
-                        $workVar->class,
-                        new String_($workVar->name->name),
-                        self::fromLiteral(false)
-                    ));
+                    $workVar = $this->wrapBoolean(self::callPoly('staticExists', $workVar->class, new String_($workVar->name->name), self::fromLiteral(false)));
                     break;
                 case Variable::class:
                     $workVar->name = self::callPoly('returnMe', $workVar->name);
                     break;
                 default:
-                    throw new \RuntimeException("Trying to fix unknown isset expression $class");
+                    throw new \RuntimeException("Trying to fix unknown isset expression {$class}");
             }
         }
     }
-
     /**
      * Returns the data provided.
      *
@@ -133,7 +110,6 @@ class IssetExpressionFixer extends Plugin
     {
         return $data;
     }
-
     /**
      * Get name of class.
      *
@@ -145,7 +121,6 @@ class IssetExpressionFixer extends Plugin
     {
         return \is_string($class) ? $class : \get_class($class);
     }
-
     /**
      * Check if static property is set.
      *
@@ -174,7 +149,6 @@ class IssetExpressionFixer extends Plugin
         } else {
             return isset($reflectionClass->getConstants()[$property]);
         }
-
         $classCaller = \debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['class'] ?? '';
         $allowProtected = false;
         $allowPrivate = false;
