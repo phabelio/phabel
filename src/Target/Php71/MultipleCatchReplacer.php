@@ -24,12 +24,12 @@ class MultipleCatchReplacer extends Plugin
         $catches = [];
         foreach ($node->catches as $catch) {
             if (\count($catch->types) === 1) {
-                $catches []= $catch;
+                $catches[] = $catch;
             } else {
                 foreach ($catch->types as $type) {
                     $ncatch = clone $catch;
                     $ncatch->types = [$type];
-                    $catches []= $ncatch;
+                    $catches[] = $ncatch;
                 }
             }
         }

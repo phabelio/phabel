@@ -15,10 +15,6 @@ class TypedProperty extends Plugin
      */
     public static function previous(array $config): array
     {
-        return [
-            TypeHintReplacer::class => [
-                'property' => true,
-            ]
-        ];
+        return [TypeHintReplacer::class => ['property' => true]];
     }
 }
