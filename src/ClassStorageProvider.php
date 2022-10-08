@@ -25,7 +25,6 @@ abstract class ClassStorageProvider extends Plugin implements JsonSerializable
      * Current class storage.
      */
     protected ?Storage $storage = null;
-
     /**
      * Process class graph.
      *
@@ -55,14 +54,13 @@ abstract class ClassStorageProvider extends Plugin implements JsonSerializable
             return;
         }
         $class->setAttribute(self::PROCESSED, true);
-
         $file = $context->getOutputFile();
         if ($class->name) {
             $name = self::getFqdn($class);
         } else {
-            $name = "class@anonymous$file";
+            $name = "class@anonymous{$file}";
             $this->count[$file][$name] ??= 0;
-            $name .= "@".$this->count[$file][$name]++;
+            $name .= "@" . $this->count[$file][$name]++;
         }
         $storage = $this->getGlobalClassStorage()->getClass($file, $name);
         foreach ($class->stmts as $k => $stmt) {
@@ -87,32 +85,32 @@ abstract class ClassStorageProvider extends Plugin implements JsonSerializable
     private function enterCall(StaticCall|FuncCall|MethodCall $call): void
     {
         /*$args = [];
-        $hasNamed = false;
-        $hasVariadic = false;
-        foreach ($call->args as $arg) {
-            if ($arg instanceof Arg && $arg->name) {
-                $args[$arg->name->name] = $arg;
-                $arg->name = null;
-                $hasNamed = true;
-            } elseif ($arg instanceof VariadicPlaceholder) {
-                $hasVariadic = true;
-            }
-        }
-        if (!$hasNamed) {
-            return;
-        }
-        if ($call instanceof FuncCall && $call->name instanceof Name) {
-            $func = $this->getGlobalClassStorage()->getArguments($call->name->toLowerString());
-            if ($func) {
-                $ordered = [];
-                foreach ($func->getArguments() as $name => $default) {
-                    $ordered []= $args[$name] ?? $default;
-                    unset($args[$name]);
-                }
-                if ($args && $func->isVariadic()) {
-                }
-            }
-        }*/
+          $hasNamed = false;
+          $hasVariadic = false;
+          foreach ($call->args as $arg) {
+              if ($arg instanceof Arg && $arg->name) {
+                  $args[$arg->name->name] = $arg;
+                  $arg->name = null;
+                  $hasNamed = true;
+              } elseif ($arg instanceof VariadicPlaceholder) {
+                  $hasVariadic = true;
+              }
+          }
+          if (!$hasNamed) {
+              return;
+          }
+          if ($call instanceof FuncCall && $call->name instanceof Name) {
+              $func = $this->getGlobalClassStorage()->getArguments($call->name->toLowerString());
+              if ($func) {
+                  $ordered = [];
+                  foreach ($func->getArguments() as $name => $default) {
+                      $ordered []= $args[$name] ?? $default;
+                      unset($args[$name]);
+                  }
+                  if ($args && $func->isVariadic()) {
+                  }
+              }
+          }*/
     }
     /**
      * Get global class storage.
