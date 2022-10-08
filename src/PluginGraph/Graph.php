@@ -4,7 +4,6 @@ namespace Phabel\PluginGraph;
 
 use Phabel\Plugin;
 use Phabel\PluginInterface;
-
 /**
  * Graph API wrapper.
  *
@@ -28,14 +27,14 @@ class Graph
      */
     public function __construct()
     {
-        $this->graph = new GraphInternal();
+        $this->graph = new \Phabel\PluginGraph\GraphInternal();
     }
     /**
      * Get new package context.
      *
      * @return PackageContext
      */
-    public function getPackageContext(): PackageContext
+    public function getPackageContext() : \Phabel\PluginGraph\PackageContext
     {
         return $this->graph->getPackageContext();
     }
@@ -50,7 +49,7 @@ class Graph
      *
      * @return Node[]
      */
-    public function addPlugin(string $plugin, array $config, PackageContext $ctx): array
+    public function addPlugin(string $plugin, array $config, \Phabel\PluginGraph\PackageContext $ctx) : array
     {
         return $this->graph->addPlugin($plugin, $config, $ctx);
     }
@@ -59,9 +58,9 @@ class Graph
      *
      * @return ResolvedGraph
      */
-    public function flatten(): ResolvedGraph
+    public function flatten() : \Phabel\PluginGraph\ResolvedGraph
     {
-        $this->resolvedGraph = $this->resolvedGraph ?? new ResolvedGraph(...$this->graph->flatten());
+        $this->resolvedGraph = $this->resolvedGraph ?? new \Phabel\PluginGraph\ResolvedGraph(...$this->graph->flatten());
         $this->graph = null;
         while (\gc_collect_cycles()) {
         }
