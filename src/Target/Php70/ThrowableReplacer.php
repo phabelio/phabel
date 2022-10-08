@@ -67,10 +67,7 @@ class ThrowableReplacer extends Plugin
             if (!$this->isThrowable($node->class->toString())) {
                 return null;
             }
-            return new BooleanOr(
-                new Instanceof_($node->expr, new FullyQualified('Exception')),
-                new Instanceof_($node->expr, new FullyQualified('Error'))
-            );
+            return new BooleanOr(new Instanceof_($node->expr, new FullyQualified('Exception')), new Instanceof_($node->expr, new FullyQualified('Error')));
         }
         return self::callPoly('isInstanceofThrowable', $node->expr, $node->class);
     }
@@ -87,8 +84,7 @@ class ThrowableReplacer extends Plugin
             $alreadyHasError = false;
             $next = false;
             foreach ($catch->types as &$type) {
-                if ($type instanceof FullyQualified &&
-                    $type->getLast() === "Error") {
+                if ($type instanceof FullyQualified && $type->getLast() === "Error") {
                     $alreadyHasError = true;
                 }
                 if ($this->isThrowable($type->toString())) {
@@ -101,14 +97,8 @@ class ThrowableReplacer extends Plugin
             }
         }
     }
-
     public static function withPrevious(array $config): array
     {
-        return [
-            TypeHintReplacer::class => [
-                'type' => [\Throwable::class]
-            ],
-            MultipleCatchReplacer::class => []
-        ];
+        return [TypeHintReplacer::class => ['type' => [\Throwable::class]], MultipleCatchReplacer::class => []];
     }
 }
