@@ -32,7 +32,6 @@ class AnonymousClassReplacer extends Plugin
      * Anonymous class count.
      */
     private static int $count = 0;
-
     /**
      * Enter new.
      *
@@ -62,23 +61,13 @@ class AnonymousClassReplacer extends Plugin
         } else {
             $className = new String_('class@anonymous');
         }
-
-        $name = 'PhabelAnonymousClass'.\hash('sha256', $ctx->getOutputFile()).(self::$count++);
-        $classNode->stmts []= (new Method('getPhabelOriginalName'))
-            ->makePublic()
-            ->makeStatic()
-            ->addStmt(new Return_($className))
-            ->getNode();
-        $classNode->implements []= new FullyQualified(AnonymousClassInterface::class);
+        $name = 'PhabelAnonymousClass' . \hash('sha256', $ctx->getOutputFile()) . self::$count++;
+        $classNode->stmts[] = (new Method('getPhabelOriginalName'))->makePublic()->makeStatic()->addStmt(new Return_($className))->getNode();
+        $classNode->implements[] = new FullyQualified(AnonymousClassInterface::class);
         $classNode->name = new Identifier($name);
         $node->class = new Node\Name($name);
-
         $ctx->nameResolver->enterNode($classNode);
-
-        $classNode = new If_(
-            new BooleanNot(self::call('class_exists', new ClassConstFetch($node->class, new Identifier('class')))),
-            ['stmts' => [$classNode]]
-        );
+        $classNode = new If_(new BooleanNot(self::call('class_exists', new ClassConstFetch($node->class, new Identifier('class')))), ['stmts' => [$classNode]]);
         $topClass = null;
         foreach ($ctx->parents as $parent) {
             if ($parent instanceof Class_) {
@@ -91,12 +80,10 @@ class AnonymousClassReplacer extends Plugin
             $ctx->insertBefore($node, $classNode);
         }
     }
-
     public static function previous(array $config): array
     {
         return [ArrowClosure::class, ReturnTypeHints::class, NullableType::class, UnionTypeStripper::class];
     }
-
     public static function next(array $config): array
     {
         return [StringConcatOptimizer::class];
