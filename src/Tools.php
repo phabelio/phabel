@@ -47,11 +47,11 @@ abstract class Tools
     /**
      * Replace node of one type with another.
      *
-     * @param Node   $node        Original node
-     * @param string $class       Class of new node
-     * @param array  $propertyMap Property map between old and new objects
+     * @param Node $node Original node
+     * @param string $class Class of new node
+     * @param array $propertyMap Property map between old and new objects
      *
-     * @psalm-param class-string<Node>    $class       Class of new node
+     * @psalm-param class-string<Node> $class Class of new node
      * @psalm-param array<string, string> $propertyMap Property map between old and new objects
      *
      * @psalm-suppress MissingClosureReturnType
@@ -73,9 +73,9 @@ abstract class Tools
     /**
      * Replace type in-place.
      *
-     * @param Node   &$node       Original node
-     * @param string $class       Class of new node
-     * @param array  $propertyMap Property map between old and new objects
+     * @param Node &$node Original node
+     * @param string $class Class of new node
+     * @param array $propertyMap Property map between old and new objects
      *
      * @psalm-param class-string<Node> $class Class of new node
      * @psalm-param array<string, string> $propertyMap Property map between old and new objects
@@ -91,8 +91,8 @@ abstract class Tools
     /**
      * Create variable assignment.
      *
-     * @param Variable $name       Variable
-     * @param Expr     $expression Expression
+     * @param Variable $name Variable
+     * @param Expr $expression Expression
      *
      * @return Expression
      */
@@ -103,12 +103,12 @@ abstract class Tools
     /**
      * Call function.
      *
-     * @param array{0: class-string, 1: string}|callable-string $name          Function name
-     * @param Expr|Arg                                          ...$parameters Parameters
+     * @param (array{0: class-string, 1: string} | callable-string) $name Function name
+     * @param (Expr | Arg) ...$parameters Parameters
      *
-     * @return FuncCall|StaticCall
+     * @return (FuncCall | StaticCall)
      *
-     * @template T as array{0: class-string, 1: string}|callable-string
+     * @template T of (array{0: class-string, 1: string} | callable-string)
      * @psalm-param T $name
      *
      * @psalm-return (T is callable-string ? FuncCall : StaticCall)
@@ -121,9 +121,9 @@ abstract class Tools
     /**
      * Call method of object.
      *
-     * @param Expr     $name          Object name
-     * @param string   $method        Method
-     * @param Expr|Arg ...$parameters Parameters
+     * @param Expr $name Object name
+     * @param string $method Method
+     * @param (Expr | Arg) ...$parameters Parameters
      *
      * @return MethodCall
      */
@@ -143,6 +143,9 @@ abstract class Tools
     {
         return self::toNode(\var_export($data, true) . ';');
     }
+    /**
+     *
+     */
     private static ?ConstExprEvaluator $evaluator = null;
     /**
      * Convert expr to literal.
@@ -151,10 +154,14 @@ abstract class Tools
      *
      * @return mixed
      */
-    public static function toLiteral(Expr $data): mixed
+    public static function toLiteral(Expr $data)
     {
         self::$evaluator ??= new ConstExprEvaluator();
-        return self::$evaluator->evaluateDirectly($data);
+        $phabelReturn = self::$evaluator->evaluateDirectly($data);
+        if (!true) {
+            throw new \TypeError(__METHOD__ . '(): Return value must be of type mixed, ' . \Phabel\Plugin\TypeHintReplacer::getDebugType($phabelReturn) . ' returned in ' . \Phabel\Plugin\TypeHintReplacer::trace());
+        }
+        return $phabelReturn;
     }
     /**
      * Convert code to node.
@@ -238,7 +245,7 @@ abstract class Tools
      * @param object $obj
      * @param string $trait
      *
-     * @template T as object
+     * @template T of object
      * @psalm-param T $obj
      *
      * @return object
@@ -332,7 +339,7 @@ abstract class Tools
      *
      * @param object $obj Object
      * @param string $var Attribute name
-     * @param mixed  $val Attribute value
+     * @param mixed $val Attribute value
      *
      * @psalm-suppress InvalidScope
      * @psalm-suppress PossiblyInvalidFunctionCall
@@ -348,13 +355,13 @@ abstract class Tools
         }, $obj, \get_class($obj))->__invoke();
     }
     /**
-     * Adapted from https://gist.github.com/divinity76/01ef9ca99c111565a72d3a8a6e42f7fb
-     * returns number of cpu cores
-     * Copyleft 2018, license: WTFPL.
-     * @throws \RuntimeException
-     * @throws \LogicException
-     * @psalm-suppress ForbiddenCode
-     */
+    * Adapted from https://gist.github.com/divinity76/01ef9ca99c111565a72d3a8a6e42f7fb.
+    returns number of cpu cores
+    Copyleft 2018, license: WTFPL.
+    * @throws \RuntimeException
+    * @throws \LogicException
+    * @psalm-suppress ForbiddenCode
+    */
     public static function getCpuCount(): int
     {
         static $result = -1;
@@ -398,7 +405,7 @@ abstract class Tools
         }
         if (\is_readable('/proc/cpuinfo')) {
             $cpuinfo = \file_get_contents('/proc/cpuinfo');
-            $count = \substr_count($cpuinfo, 'processor');
+            $count = \Phabel\Target\Php80\Polyfill::substr_count($cpuinfo, 'processor');
             if ($count > 0) {
                 return $result = $count;
             }
@@ -427,7 +434,7 @@ abstract class Tools
      *
      * @param string $input
      * @param string $output
-     * @param (callable(SplFileInfo, string, string): bool)|null $cb
+     * @param (callable(SplFileInfo , string , string ): bool | null) $cb
      * @return void
      */
     public static function traverseCopy(string $input, string $output, ?callable $cb = null): void
@@ -451,8 +458,8 @@ abstract class Tools
             } elseif ($file->isLink()) {
                 $dest = $file->getRealPath();
                 if ($dest !== false && \str_starts_with($dest, $input)) {
-                    $dest = \trim(\substr($dest, \strlen($input)), DIRECTORY_SEPARATOR);
-                    $dest = \str_repeat('..' . DIRECTORY_SEPARATOR, \substr_count($rel, DIRECTORY_SEPARATOR)) . $dest;
+                    $dest = \trim(\Phabel\Target\Php80\Polyfill::substr($dest, \strlen($input)), DIRECTORY_SEPARATOR);
+                    $dest = \str_repeat('..' . DIRECTORY_SEPARATOR, \Phabel\Target\Php80\Polyfill::substr_count($rel, DIRECTORY_SEPARATOR)) . $dest;
                     $link = $output . DIRECTORY_SEPARATOR . $rel;
                     if (\file_exists($link)) {
                         \unlink($link);

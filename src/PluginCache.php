@@ -103,7 +103,7 @@ class PluginCache
      * Get previous requirements.
      *
      * @param class-string<PluginInterface> $plugin Plugin
-     * @param array                         $config Config
+     * @param array $config Config
      *
      * @return array<string, array>
      * @psalm-return array<class-string<PluginInterface>, array>
@@ -122,7 +122,7 @@ class PluginCache
      * Get next requirements.
      *
      * @param class-string<PluginInterface> $plugin Plugin
-     * @param array                         $config Config
+     * @param array $config Config
      *
      * @return array<string, array>
      * @psalm-return array<class-string<PluginInterface>, array>
@@ -141,7 +141,7 @@ class PluginCache
      * Get withPrevious requirements.
      *
      * @param class-string<PluginInterface> $plugin Plugin
-     * @param array                         $config Config
+     * @param array $config Config
      *
      * @return array<string, array>
      * @psalm-return array<class-string<PluginInterface>, array>
@@ -160,7 +160,7 @@ class PluginCache
      * Get withNext requirements.
      *
      * @param class-string<PluginInterface> $plugin Plugin
-     * @param array                         $config Config
+     * @param array $config Config
      *
      * @return array<string, array>
      * @psalm-return array<class-string<PluginInterface>, array>
@@ -178,7 +178,7 @@ class PluginCache
     /**
      * Simplify requirements.
      *
-     * @param (array<class-string<PluginInterface>, array>|class-string<PluginInterface>[]) $requirements Requirements
+     * @param (array<class-string<PluginInterface>, array> | class-string<PluginInterface>[]) $requirements Requirements
      *
      * @return array<string, array>
      * @psalm-return array<class-string<PluginInterface>, array>

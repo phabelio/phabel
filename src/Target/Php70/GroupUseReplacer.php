@@ -30,7 +30,7 @@ class GroupUseReplacer extends Plugin
      * Create separate use node.
      *
      * @param string[] $nodePrefixParts Use prefix
-     * @param UseUse   $useNode         Current use node
+     * @param UseUse $useNode Current use node
      *
      * @return Use_ New use node
      */
