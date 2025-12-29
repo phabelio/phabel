@@ -29,6 +29,7 @@ use PhpParser\Node\Expr\ConstFetch;
 use PhpParser\Node\Expr\Instanceof_;
 use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Expr\PropertyFetch;
+use PhpParser\Node\Expr\Throw_ as ExprThrow_;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\FunctionLike;
 use PhpParser\Node\Identifier;
@@ -36,7 +37,7 @@ use PhpParser\Node\Name;
 use PhpParser\Node\Name\FullyQualified;
 use PhpParser\Node\NullableType;
 use PhpParser\Node\Param;
-use PhpParser\Node\Scalar\LNumber;
+use PhpParser\Node\Scalar\Int_ as ScalarInt_;
 use PhpParser\Node\Scalar\MagicConst\Function_ as MagicConstFunction_;
 use PhpParser\Node\Scalar\MagicConst\Method;
 use PhpParser\Node\Scalar\String_;
@@ -51,7 +52,6 @@ use PhpParser\Node\Stmt\Interface_;
 use PhpParser\Node\Stmt\Property;
 use PhpParser\Node\Stmt\PropertyProperty;
 use PhpParser\Node\Stmt\Return_;
-use PhpParser\Node\Stmt\Throw_;
 use PhpParser\Node\UnionType;
 use PHPStan\PhpDocParser\Ast\PhpDoc\ParamTagValueNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocNode;
@@ -564,7 +564,7 @@ class TypeHintReplacer extends Plugin
             $param->type = null;
             [$string, $condition] = $condition;
             $start = $param->variadic
-                ? new Concat(new String_("(): Argument #"), new Plus(new LNumber($index), new Variable('phabelVariadicIndex')))
+                ? new Concat(new String_("(): Argument #"), new Plus(new ScalarInt_($index), new Variable('phabelVariadicIndex')))
                 : new String_("(): Argument #$index ($".$param->var->name.")");
             $start = new Concat($start, new String_(" must be of type "));
             $start = new Concat($start, $string);
@@ -575,7 +575,7 @@ class TypeHintReplacer extends Plugin
 
             $start = new Concat($functionName, $start);
 
-            $if = $condition(new Throw_(new New_(new FullyQualified(\TypeError::class), [new Arg($start)])));
+            $if = $condition(new Expression(new ExprThrow_(new New_(new FullyQualified(\TypeError::class), [new Arg($start)]))));
             if ($param->variadic) {
                 $stmts []= new Foreach_($param->var, new Variable('phabelVariadic'), ['keyVar' => new Variable('phabelVariadicIndex'), 'stmts' => [$if]]);
             } else {
@@ -619,7 +619,7 @@ class TypeHintReplacer extends Plugin
             $start = new Concat($start, new String_(", none returned in "));
             $start = new Concat($start, self::callPoly('trace'));
 
-            $throw = new Throw_(new New_(new FullyQualified(\TypeError::class), [new Arg($start)]));
+            $throw = new Expression(new ExprThrow_(new New_(new FullyQualified(\TypeError::class), [new Arg($start)])));
             $func->stmts []= $throw;
         }
 
@@ -638,7 +638,7 @@ class TypeHintReplacer extends Plugin
         if ($current[0] === self::VOID_RETURN) {
             if ($return->expr !== null) {
                 // This should be a transpilation error, wait for better stack traces before throwing here
-                return new Throw_(new New_(new FullyQualified(\ParseError::class), [new String_("A void function must not return a value")]));
+                return new Expression(new ExprThrow_(new New_(new FullyQualified(\ParseError::class), [new String_("A void function must not return a value")])));
             }
             return null;
         }
@@ -655,7 +655,7 @@ class TypeHintReplacer extends Plugin
         $start = new Concat($start, self::callPoly('trace'));
 
         $if = $condition(
-            new Throw_(new New_(new FullyQualified(\TypeError::class), [new Arg($start)]))
+            new Expression(new ExprThrow_(new New_(new FullyQualified(\TypeError::class), [new Arg($start)])))
         );
 
         $return->expr = $var;

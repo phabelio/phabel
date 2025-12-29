@@ -12,14 +12,15 @@ use PhpParser\Node\Expr\Closure;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\Match_;
 use PhpParser\Node\Expr\New_;
+use PhpParser\Node\Expr\Throw_ as ExprThrow_;
 use PhpParser\Node\Name\FullyQualified;
 use PhpParser\Node\Param;
 use PhpParser\Node\Scalar\String_;
 use PhpParser\Node\Stmt\Else_;
 use PhpParser\Node\Stmt\ElseIf_;
+use PhpParser\Node\Stmt\Expression;
 use PhpParser\Node\Stmt\If_;
 use PhpParser\Node\Stmt\Return_;
-use PhpParser\Node\Stmt\Throw_;
 
 /**
  * Polyfill match expression.
@@ -49,7 +50,7 @@ class MatchTransformer extends Plugin
         }
         if (!$default) {
             $string = new Concat(new String_("Unhandled match value of type "), self::call('get_debug_type', $var));
-            $default = new Throw_(new New_(new FullyQualified(\UnhandledMatchError::class), [new Arg($string)]));
+            $default = new Expression(new ExprThrow_(new New_(new FullyQualified(\UnhandledMatchError::class), [new Arg($string)])));
         }
 
         if (empty($cases)) {

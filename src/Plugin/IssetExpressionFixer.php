@@ -12,7 +12,7 @@ use PhpParser\Node\Expr\PropertyFetch;
 use PhpParser\Node\Expr\StaticPropertyFetch;
 use PhpParser\Node\Expr\Ternary;
 use PhpParser\Node\Expr\Variable;
-use PhpParser\Node\Scalar\LNumber;
+use PhpParser\Node\Scalar\Int_;
 use PhpParser\Node\Scalar\String_;
 use PhpParser\Node\VarLikeIdentifier;
 use ReflectionClass;
@@ -58,7 +58,7 @@ class IssetExpressionFixer extends Plugin
                     self::fromLiteral([]),
                 )
             ),
-            new LNumber(0)
+            new Int_(0)
         );
     }
 

@@ -177,7 +177,7 @@ abstract class Tools
      */
     public static function toNode(string $code): Node
     {
-        $res = (new ParserFactory)->create(ParserFactory::PREFER_PHP7)->parse('<?php '.$code);
+        $res = (new ParserFactory)->createForNewestSupportedVersion()->parse('<?php '.$code);
         if ($res === null || empty($res) || !$res[0] instanceof Expression || !isset($res[0]->expr)) {
             throw new \RuntimeException('Invalid code was provided!');
         }

@@ -183,8 +183,8 @@ final class ClassStorage
             $typeA = $typeA[0];
             $typeB = $typeB[0];
             if ($typeA instanceof Name && $typeB instanceof Name
-                && ($classA = $typeA->parts === ['self'] ? $ctxA : $this->getClassByName(Tools::getFqdn($typeA)))
-                && ($classB = $typeA->parts === ['self'] ? $ctxB : $this->getClassByName(Tools::getFqdn($typeB)))
+                && ($classA = $typeA->getParts() === ['self'] ? $ctxA : $this->getClassByName(Tools::getFqdn($typeA)))
+                && ($classB = $typeA->getParts() === ['self'] ? $ctxB : $this->getClassByName(Tools::getFqdn($typeB)))
             ) {
                 foreach ($classA->getAllChildren() as $child) {
                     if ($child === $classB) {

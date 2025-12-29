@@ -26,7 +26,7 @@ class Exception extends \Exception
      * @param string $file
      * @param int $line
      */
-    public function __construct(string $message = '', int $code = 0, \Throwable $previous = null, string $file = '', int $line = -1)
+    public function __construct(string $message = '', int $code = 0, ?\Throwable $previous = null, string $file = '', int $line = -1)
     {
         if ($file !== '') {
             $this->file = $file;

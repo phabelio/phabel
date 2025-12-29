@@ -10,7 +10,7 @@ use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\AssignRef;
 use PhpParser\Node\Expr\List_;
 use PhpParser\Node\Expr\Variable;
-use PhpParser\Node\Scalar\LNumber;
+use PhpParser\Node\Scalar\Int_;
 use PhpParser\Node\Stmt\Foreach_;
 
 /**
@@ -82,7 +82,7 @@ class ListSplitter extends Plugin
                 $key++;
                 continue;
             }
-            $curKey = $item->key ?? new LNumber($key++);
+            $curKey = $item->key ?? new Int_($key++);
             if ($item->byRef) {
                 $assignments []= new AssignRef($item->value, new ArrayDimFetch($var, $curKey));
             } else {

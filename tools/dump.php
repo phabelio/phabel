@@ -16,8 +16,7 @@ if ($argc < 2) {
     die(1);
 }
 
-$parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
-//$parser = (new ParserFactory)->create(ParserFactory::ONLY_PHP5);
+$parser = (new ParserFactory)->createForNewestSupportedVersion();
 
 \var_dump($a = $parser->parse(\file_get_contents($argv[1])));
 \var_dumP((new Standard())->prettyPrint($a));

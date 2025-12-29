@@ -145,7 +145,7 @@ class Traverser
      */
     public function __construct(?EventHandlerInterface $eventHandler = null)
     {
-        $this->parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
+        $this->parser = (new ParserFactory)->createForNewestSupportedVersion();
         $this->printer = new Standard();
         $this->eventHandler = $eventHandler;
     }
@@ -721,7 +721,7 @@ class Traverser
      *
      * @return int
      */
-    public function traverseAst(Node &$node, SplQueue $pluginQueue = null, bool $allowMulti = true): int
+    public function traverseAst(Node &$node, ?SplQueue $pluginQueue = null, bool $allowMulti = true): int
     {
         $this->inputFile = '';
         $this->outputFile = '';
@@ -743,7 +743,7 @@ class Traverser
      * @return array{0: int, 1: string}|null
      * @psalm-return (T is true ? array{0: int, 1: string} : null)
      */
-    private function traverseAstInternal(RootNode &$node, SplQueue $pluginQueue = null, bool $allowMulti = true): ?array
+    private function traverseAstInternal(RootNode &$node, ?SplQueue $pluginQueue = null, bool $allowMulti = true): ?array
     {
         $it = 0;
         $result = $this->printer->prettyPrintFile($node->stmts);
