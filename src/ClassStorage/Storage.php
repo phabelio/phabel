@@ -3,6 +3,7 @@
 namespace Phabel\ClassStorage;
 
 use Phabel\Tools;
+use PhpParser\Modifiers;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
@@ -12,7 +13,7 @@ use PhpParser\Node\Stmt\ClassMethod;
  */
 class Storage
 {
-    private const MODIFIER_NORMAL = 256;
+    private const MODIFIER_NORMAL = 4096;
     const STORAGE_KEY = 'Storage:instance';
     /**
      * Method list.
@@ -117,16 +118,16 @@ class Storage
     /**
      * Get method list.
      *
-     * @param int-mask<Class_::MODIFIER_*> $typeMask Mask
-     * @param int-mask<Class_::MODIFIER_*> $visibilityMask Mask
+     * @param int-mask<Modifiers::*> $typeMask Mask
+     * @param int-mask<Modifiers::*> $visibilityMask Mask
      *
      * @return \Generator<string, ClassMethod, null, void>
      */
-    public function getMethods(int $typeMask = ~Class_::VISIBILITY_MODIFIER_MASK, int $visibilityMask = Class_::VISIBILITY_MODIFIER_MASK): \Generator
+    public function getMethods(int $typeMask = ~Modifiers::VISIBILITY_MASK, int $visibilityMask = Modifiers::VISIBILITY_MASK): \Generator
     {
-        if ($typeMask & Class_::MODIFIER_ABSTRACT) {
+        if ($typeMask & Modifiers::ABSTRACT) {
             foreach ($this->abstractMethods as $name => $method) {
-                if (($method->flags|Class_::MODIFIER_ABSTRACT) & $typeMask && $method->flags & $visibilityMask) {
+                if (($method->flags|Modifiers::ABSTRACT) & $typeMask && $method->flags & $visibilityMask) {
                     yield $name => $method;
                 }
             }

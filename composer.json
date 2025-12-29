@@ -3,7 +3,7 @@
     "description": "Write and deploy modern PHP 8 code, today.",
     "type": "composer-plugin",
     "require": {
-        "php": ">=8.5",
+        "php": ">=8.0",
         "nikic/php-parser": "^5.0",
         "composer-plugin-api": "^2.0",
         "symfony/console": "^5",

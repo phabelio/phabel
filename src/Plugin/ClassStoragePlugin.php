@@ -15,6 +15,7 @@ use PhpParser\Builder\Class_;
 use PhpParser\Builder\Method;
 use PhpParser\Builder\Param;
 use PhpParser\BuilderHelpers;
+use PhpParser\Modifiers;
 use PhpParser\Node;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr\FuncCall;
@@ -281,17 +282,17 @@ final class ClassStoragePlugin extends Plugin
                 $methods = [];
                 foreach ($class->getMethods() as $method) {
                     if ($method->isPrivate()) {
-                        $visibility = StmtClass_::MODIFIER_PRIVATE;
+                        $visibility = Modifiers::PRIVATE;
                     } elseif ($method->isProtected()) {
-                        $visibility = StmtClass_::MODIFIER_PROTECTED;
+                        $visibility = Modifiers::PROTECTED;
                     } else {
-                        $visibility = StmtClass_::MODIFIER_PUBLIC;
+                        $visibility = Modifiers::PUBLIC;
                     }
                     if ($method->isFinal()) {
-                        $visibility |= StmtClass_::MODIFIER_FINAL;
+                        $visibility |= Modifiers::FINAL;
                     }
                     if ($method->isAbstract()) {
-                        $visibility |= StmtClass_::MODIFIER_ABSTRACT;
+                        $visibility |= Modifiers::ABSTRACT;
                     }
                     $params = [];
                     foreach ($method->getParameters() as $param) {

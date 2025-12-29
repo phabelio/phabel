@@ -6,6 +6,7 @@ use Phabel\ClassStorage;
 use Phabel\ClassStorage\Storage;
 use Phabel\ClassStorageProvider;
 use Phabel\Plugin\TypeHintReplacer;
+use PhpParser\Modifiers;
 use PhpParser\Node\Stmt\Class_;
 use SplStack;
 
@@ -20,10 +21,10 @@ class TypeContravariance extends ClassStorageProvider
         $changed = false;
         foreach ($storage->getClasses() as $class) {
             // Can override abstract methods
-            foreach ($class->getMethods(Class_::MODIFIER_ABSTRACT) as $name => $method) {
+            foreach ($class->getMethods(Modifiers::ABSTRACT) as $name => $method) {
                 $parentMethods = new SplStack;
                 $parentMethods->push($method);
-                foreach ($class->getOverriddenMethods($name, Class_::MODIFIER_ABSTRACT, $method->flags & Class_::VISIBILITY_MODIFIER_MASK) as $childMethod) {
+                foreach ($class->getOverriddenMethods($name, Modifiers::ABSTRACT, $method->flags & Modifiers::VISIBILITY_MASK) as $childMethod) {
                     $parentMethods->push($childMethod);
                 }
                 if ($parentMethods->count() === 1) {
@@ -44,8 +45,8 @@ class TypeContravariance extends ClassStorageProvider
                             ($method->isProtected() && $childMethod->isPrivate())
                         ) {
                             $old = $childMethod->flags;
-                            $childMethod->flags &= ~Class_::VISIBILITY_MODIFIER_MASK;
-                            $childMethod->flags |= Class_::MODIFIER_PUBLIC;
+                            $childMethod->flags &= ~Modifiers::VISIBILITY_MASK;
+                            $childMethod->flags |= Modifiers::PUBLIC;
                             $changed = $childMethod->flags !== $old || $changed;
                         }
                     }
